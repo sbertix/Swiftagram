@@ -12,3 +12,8 @@ However, Instagram apps rely on a third type of API, the so-called Private API o
 These Private API require no token or app registration but they're not authorized by Instagram for external use.  
 Use this at your own risk.
 
+## Status
+**Swiftagram** is currently under development and more features are expected to be implemented everyday, which might result in breaking changes.
+
+## Contributions
+Pull requests and issues are more than welcome.
