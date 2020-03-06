@@ -17,16 +17,16 @@ public final class Requester {
         internal var startedAt: Date = .init()
         /// An associated `Request`.
         internal var request: Request
-        
+
         // MARK: Lifecycle
         /// Cancel the current request.
         func cancel() { request.requester?.requests.remove(self) }
-        
+
         // MARK: Hashable
         public func hash(into hasher: inout Hasher) { hasher.combine(identifier) }
         public static func ==(lhs: Task, rhs: Task) -> Bool { lhs.identifier == rhs.identifier }
     }
-    
+
     /// A shared instance of `Requester` using `URLSession.shared`.
     public static let `default` = Requester()
     /// A `URLSession` to use for requests. Defaults to `.shared`.
@@ -47,7 +47,7 @@ public final class Requester {
             }
         }
     }
-    
+
     // MARK: Lifecycle
     /// Deinit.
     deinit {
@@ -56,7 +56,7 @@ public final class Requester {
     }
     /// Init.
     public init(session: URLSession = .shared) { self.session = session }
-    
+
     // MARK: Schedule
     @discardableResult
     /// Schedule a new `request`.

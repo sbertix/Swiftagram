@@ -33,6 +33,7 @@ xcuserdata
 Packages/
 Package.resolved
 .build/
+.swiftpm/
 
 
 ## CocoaPods

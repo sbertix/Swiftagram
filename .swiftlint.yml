@@ -1,0 +1,108 @@
+disabled_rules:
+    - operator_whitespace
+    - multiple_closures_with_trailing_closure
+
+opt_in_rules:
+    - array_init
+    - class_delegate_protocol
+    - collection_alignment
+    - contains_over_first_not_nil
+    - empty_count
+    - empty_string
+    - fallthrough
+    - fatal_error_message
+    - first_where
+    - for_where
+    - last_where
+    - legacy_multiple
+    - legacy_random
+    - multiline_arguments
+    - multiline_parameters
+    - reduce_into
+    - sorted_first_last
+    - sorted_imports
+    - static_operator
+    - toggle_bool
+    - unavailable_function
+    - vertical_parameter_alignment_on_call
+    - yoda_condition
+
+included:
+    - Sources
+
+analyzer_rules:
+    - explicit_self
+
+array_init: error
+class_delegate_protocol: error
+contains_over_first_not_nil: error
+empty_count: error
+empty_string: error
+fatal_error_message: error
+first_where: error
+for_where: error
+last_where: error
+legacy_multiple: error
+legacy_random: error
+multiline_parameters: error
+sorted_first_last: error
+static_operator: error
+unavailable_function: error
+vertical_parameter_alignment_on_call: error
+
+nesting:
+    type_level:
+        warning: 2
+
+cyclomatic_complexity:
+    warning: 12
+    error: 15
+
+file_length:
+    warning: 1000
+    error: 1500
+
+type_body_length:
+    warning: 600
+    error: 1000
+
+function_body_length:
+    warning: 95
+    error: 100
+
+line_length:
+    warning: 150
+    error: 150
+
+identifier_name:
+    max_length:
+      warning: 45
+      error: 50
+    min_length:
+      warning: 3
+      error: 1
+    excluded:
+      - x
+      - y
+      - z
+      - ok  # it might be removed in the future.
+      - id  # prefer identifier for non `Identifiable` conformacies.
+      - pk
+      - fr
+      - in
+      - me
+      - URL
+      - url
+
+type_name:
+    min_length:
+        warning: 3
+        error: 1
+    excluded:
+        - LG
+
+function_parameter_count:
+    warning: 10
+    error: 15
+
+reporter: "xcode"
