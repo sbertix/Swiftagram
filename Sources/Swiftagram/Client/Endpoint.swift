@@ -58,7 +58,7 @@ public struct Endpoint: Hashable {
         copy.components.append(component)
         return copy
     }
-    
+
     /// Append to `queries`.
     public func query(key: String, value: String?) -> Endpoint {
         var copy = self
