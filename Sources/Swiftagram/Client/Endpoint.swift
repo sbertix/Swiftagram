@@ -43,15 +43,29 @@ public struct Endpoint: Hashable {
 
     /// Compute the `URLRequest`.
     public var request: URLRequest? {
-        var components = URLComponents(string: self.components.joined(separator: "/"))
+        var components = URLComponents(string: self.components.joined(separator: "/")+"/")
         components?.queryItems = queries.isEmpty ? nil : queries.map { URLQueryItem(name: $0.key, value: $0.value) }
         let body = !self.body.isEmpty
-            ? self.body.map { $0.key+"="+$0.value }.joined(separator: "&").data(using: .utf8)
+            ? self.body.map {
+                [$0.key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                 $0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)]
+                    .compactMap { $0 }
+                    .joined(separator: "=")
+            }.joined(separator: "&").data(using: .utf8)
             : nil
-        var request = components?.url.flatMap { URLRequest(url: $0) }
-        request?.allHTTPHeaderFields = headerFields.isEmpty ? nil : headerFields
-        request?.httpBody = body
-        request?.httpMethod = body.flatMap(method.resolve)
+        guard var request = components?.url.flatMap({
+            URLRequest(url: $0,
+                       cachePolicy: .useProtocolCachePolicy,
+                       timeoutInterval: 10)
+        }) else { return nil }
+        request.allHTTPHeaderFields = headerFields
+        request.httpBody = body
+        request.httpMethod = body.map(method.resolve)
+        request.addValue(Headers.acceptLanguageValue, forHTTPHeaderField: Headers.acceptLanguageKey)
+        request.addValue(Headers.contentTypeApplicationFormValue, forHTTPHeaderField: Headers.contentTypeKey)
+        request.addValue(Headers.igCapabilitiesValue, forHTTPHeaderField: Headers.igCapabilitiesKey)
+        request.addValue(Headers.igConnectionTypeValue, forHTTPHeaderField: Headers.igConnectionTypeKey)
+        request.addValue(Headers.userAgentValue, forHTTPHeaderField: Headers.userAgentKey)
         return request
     }
 

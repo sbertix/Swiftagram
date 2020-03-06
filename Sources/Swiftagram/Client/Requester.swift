@@ -20,7 +20,10 @@ public final class Requester {
 
         // MARK: Lifecycle
         /// Cancel the current request.
-        public func cancel() { request.requester?.requests.remove(self) }
+        public func cancel() {
+            request.task?.cancel()
+            request.requester?.requests.remove(self)
+        }
 
         // MARK: Hashable
         public func hash(into hasher: inout Hasher) { hasher.combine(identifier) }
@@ -29,15 +32,14 @@ public final class Requester {
 
     /// A shared instance of `Requester` using `URLSession.shared`.
     public static let `default` = Requester()
+    /// A `URLSessionConfiguration`.
+    public var configuration: URLSessionConfiguration
     /// A `URLSession` to use for requests. Defaults to `.shared`.
-    public internal(set) var session: URLSession
+    public var session: URLSession { URLSession(configuration: configuration) }
     /// A set of `Task`s currently scheduled or undergoing fetching.
     private var requests: Set<Task> = [] {
         didSet {
             let inserted = requests.subtracting(oldValue)
-            let removed = oldValue.subtracting(inserted)
-            // Cancel `removed` tasks.
-            removed.forEach { $0.request.task?.cancel() }
             // Actually fetch `inserted` tasks.
             inserted.forEach { task in
                 task.request.fetch(using: session) { [weak self] in
@@ -55,7 +57,7 @@ public final class Requester {
         requests = []
     }
     /// Init.
-    public init(session: URLSession = .shared) { self.session = session }
+    public init(configuration: URLSessionConfiguration = .default) { self.configuration = configuration }
 
     // MARK: Schedule
     @discardableResult

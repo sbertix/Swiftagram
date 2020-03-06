@@ -14,13 +14,13 @@ public final class Request {
         /// Data and response.
         case data((Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) -> Void)
         /// Dynamic response.
-        case response((Result<Response, Swift.Error>) -> Void)
+        case response((Result<(data: Response, response: HTTPURLResponse?), Swift.Error>) -> Void)
 
         /// Parse `Data` into the `Completion` specific block input and then call it.
         internal func send(_ data: Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) {
             switch self {
             case .data(let send): send(data)
-            case .response(let send): send(data.map { (try? Response(data: $0.data)) ?? .none })
+            case .response(let send): send(data.map { ((try? Response(data: $0.data)) ?? .none, $0.response) })
             }
         }
     }
@@ -72,7 +72,7 @@ public final class Request {
     }
     /// Add completion block.
     /// - parameter onComplete: A block accepting `Result<Response, Error>`.
-    public func onComplete(_ onComplete: @escaping (Result<Response, Swift.Error>) -> Void) -> Request {
+    public func onComplete(_ onComplete: @escaping (Result<(data: Response, response: HTTPURLResponse?), Swift.Error>) -> Void) -> Request {
         precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
         self.onComplete = .response(onComplete)
         return self
