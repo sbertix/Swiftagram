@@ -44,12 +44,12 @@ public struct Endpoint: Hashable {
     /// Compute the `URLRequest`.
     public var request: URLRequest? {
         var components = URLComponents(string: self.components.joined(separator: "/"))
-        components?.queryItems = queries.map { URLQueryItem(name: $0.key, value: $0.value) }
+        components?.queryItems = queries.isEmpty ? nil : queries.map { URLQueryItem(name: $0.key, value: $0.value) }
         let body = !self.body.isEmpty
             ? self.body.map { $0.key+"="+$0.value }.joined(separator: "&").data(using: .utf8)
             : nil
         var request = components?.url.flatMap { URLRequest(url: $0) }
-        request?.allHTTPHeaderFields = headerFields
+        request?.allHTTPHeaderFields = headerFields.isEmpty ? nil : headerFields
         request?.httpBody = body
         request?.httpMethod = body.flatMap(method.resolve)
         return request
