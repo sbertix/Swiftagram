@@ -10,16 +10,27 @@ import Foundation
 @dynamicMemberLookup
 /// A `struct` defining all possible `Endpoint`s.
 public struct Endpoint: Hashable {
-    /// All the path components.
-    internal let components: [String]
-    /// Compute the `URL`.
-    public var url: URL? { URL(string: components.joined(separator: "/")) }
-    
+    /// A `[String]` composed of all path components.
+    internal var components: [String]
+    /// A `[String: String]` composed of all custom header fields. Defaults to `[:]`.
+    internal var headerFields: [String: String]
+
+    /// Compute the `URLRequest`.
+    public var request: URLRequest? {
+        URL(string: components.joined(separator: "/"))
+            .flatMap { URLRequest(url: $0) }
+    }
+
     // MARK: Lifecycle
     /// Init.
     /// - parameter components: A `Collection` of `String`s, forming a valid `https` address, when joined together using `/`.
-    public init(components: [String]) { self.components = components }
-    
+    /// - parameter headerFields. A `Dictionary` of `(key: String, value: String)`, forming valid header fields.
+    public init(components: [String],
+                headerFields: [String: String] = [:]) {
+        self.components = components
+        self.headerFields = headerFields
+    }
+
     // MARK: Composition
     /// An `Endpoint` pointing to `api/v1`.
     public static var version1: Endpoint { return .init(components: ["https://i.instagram.com/api/v1"]) }
@@ -30,14 +41,27 @@ public struct Endpoint: Hashable {
 
     /// Append `item`.
     public func appending<Item>(_ item: Item) -> Endpoint where Item: LosslessStringConvertible {
-        return .init(components: components+[String(item)])
+        var copy = self
+        copy.components.append(String(item))
+        return copy
     }
     /// Append `item`.
     public func appending<Item>(_ item: Item) -> Endpoint where Item: CustomStringConvertible {
-        return .init(components: components+[item.description])
+        var copy = self
+        copy.components.append(item.description)
+        return copy
     }
     /// Append `component`.
     public subscript(dynamicMember component: String) -> Endpoint {
-        return .init(components: components+[component])
+        var copy = self
+        copy.components.append(component)
+        return copy
+    }
+
+    /// Append `headerFields`.
+    public func headerFields(_ headerFields: [String: String]) -> Endpoint {
+        var copy = self
+        copy.headerFields = copy.headerFields.merging(headerFields, uniquingKeysWith: { _, rhs in rhs })
+        return copy
     }
 }

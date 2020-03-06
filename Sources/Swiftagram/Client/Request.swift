@@ -15,9 +15,13 @@ public final class Request {
         case data((Result<Data, Swift.Error>) -> Void)
         /// Dynamic response.
         case dynamic
-        
+
         /// Parse `Data` into the `Completion` specific block input and then call it.
         internal func send(_ data: Result<Data, Swift.Error>) {
+            switch self {
+            case .data(let send): send(data)
+            default: break
+            }
         }
     }
     /// An `enum` holding reference to `Request`-specific `Error`s.
@@ -27,18 +31,16 @@ public final class Request {
         /// Invalid `URL`.
         case invalidEndpoint
     }
-    
+
     /// The current endpoint.
-    public let endpoint: Endpoint
-    /// The authentication cookies.
-    internal var cookies: [HTTPCookie]?
+    public var endpoint: Endpoint
     /// The block to be called when results are fetched.
     internal var onComplete: Completion?
     /// The `Requester` used to carry out the `Request`. Defaults to `.default`.
     internal weak var requester: Requester?
     /// An optional `URLSessionDataTask`. Defaults to `nil`.
     internal var task: URLSessionTask?
-    
+
     // MARK: Lifecycle
     /// Deinit.
     deinit {
@@ -51,24 +53,26 @@ public final class Request {
         self.endpoint = endpoint
         self.requester = requester
     }
-    
+
     // MARK: Composition
-    /// Authenticate `self` through a set of `HTTPCookie`s.
-    public func authenticating(with cookies: [HTTPCookie]) -> Request {
-        precondition(self.cookies == nil, "`Request.authenticating` can only be called once")
-        self.cookies = cookies
+    /// Authenticate `self` through the authentication `response`.
+    /// - parameter response: An `Authentication.Response`.
+    public func authenticating(with response: Authentication.Response) -> Request {
+        precondition(self.task == nil, "`Request.authenticating` can only be called before resuming")
+        self.endpoint = endpoint.headerFields(response.headerFields)
         return self
     }
     /// Add completion block.
+    /// - parameter response: A block accepting `Result<Data, Error>`.
     public func onComplete(_ onComplete: @escaping (Result<Data, Swift.Error>) -> Void) -> Request {
         precondition(self.onComplete == nil, "`Request.onComplete` can only be called once")
         self.onComplete = .data(onComplete)
         return self
     }
-    
+
     // MARK: Schedule
     @discardableResult
-    /// Start fetching data.
+    /// Create a new `Requester.Task` and start fetching data.
     public func resume() -> Requester.Task {
         precondition(self.task == nil, "`Request.resume` can only be called once")
         return (requester ?? .default).schedule(self)
@@ -77,15 +81,21 @@ public final class Request {
     /// - parameter session: A `URLSession`.
     internal func fetch(using session: URLSession, onComplete: @escaping () -> Void) {
         // Check for a valid `URL`.
-        guard let url = endpoint.url else {
+        guard let request = endpoint.request else {
             self.onComplete?.send(.failure(Error.invalidEndpoint))
             return onComplete()
         }
         // Set `task`.
-        self.task = session.dataTask(with: url) { [weak self] data, _, error in
-            if let error = error { self?.onComplete?.send(.failure(error)); onComplete() }
-            else if let data = data { self?.onComplete?.send(.success(data)); onComplete() }
-            else { self?.onComplete?.send(.failure(Error.invalidData)); onComplete() }
+        self.task = session.dataTask(with: request) { [weak self] data, _, error in
+            if let error = error {
+                self?.onComplete?.send(.failure(error)); onComplete()
+            } else if let data = data {
+                self?.onComplete?.send(.success(data)); onComplete()
+            } else {
+                self?.onComplete?.send(.failure(Error.invalidData))
+                onComplete()
+            }
         }
+        self.task?.resume()
     }
 }
