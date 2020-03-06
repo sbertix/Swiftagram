@@ -1,4 +1,5 @@
 # Swiftagram
+![Swift](https://github.com/sbertix/Swiftagram/workflows/Swift/badge.svg?branch=master)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)
 ![Platforms](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS%20%7C%20Linux-lightgrey?style=flat)
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
