@@ -63,6 +63,9 @@ extension Array: Storage where Element: Storage {
 /// A `struct` holding reference to all transient `Authentication.Response`s.
 /// - note: Use when only dealing with one-shot `Authentication.Response`s.
 public struct TransientStorage: Storage {
+    /// Init.
+    public init() { }
+    
     /// The implementation does nothing.
     /// - returns: `nil`.
     public func find(matching identifier: String) -> Authentication.Response? { return nil }
@@ -93,7 +96,7 @@ public final class KeychainStorage: Storage {
     // MARK: Lifecycle
     /// Init.
     /// - parameter keychain: A `KeychainSwift`.
-    init(keychain: KeychainSwift = .init()) { self.keychain = keychain }
+    public init(keychain: KeychainSwift = .init()) { self.keychain = keychain }
 
     // MARK: Lookup
     /// Find an `Authentication.Response` stored in the keychain.

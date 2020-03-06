@@ -116,3 +116,13 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             .resume()
     }
 }
+/// Extend for `TransientStorage`.
+public extension BasicAuthenticator where Storage == TransientStorage {
+    // MARK: Lifecycle
+    /// Init.
+    /// - parameter username: A `String` representing a valid username.
+    /// - parameter password: A `String` representing a valid password.
+    convenience init(username: String, password: String) {
+        self.init(storage: .init(), username: username, password: password)
+    }
+}
