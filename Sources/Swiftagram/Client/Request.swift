@@ -14,13 +14,13 @@ public final class Request {
         /// Data.
         case data((Result<Data, Swift.Error>) -> Void)
         /// Dynamic response.
-        case dynamic
+        case response((Result<Response, Swift.Error>) -> Void)
 
         /// Parse `Data` into the `Completion` specific block input and then call it.
         internal func send(_ data: Result<Data, Swift.Error>) {
             switch self {
             case .data(let send): send(data)
-            default: break
+            case .response(let send): send(data.map { (try? Response(data: $0)) ?? .none })
             }
         }
     }
@@ -62,11 +62,19 @@ public final class Request {
         self.endpoint = endpoint.headerFields(response.headerFields)
         return self
     }
+    
     /// Add completion block.
     /// - parameter response: A block accepting `Result<Data, Error>`.
     public func onComplete(_ onComplete: @escaping (Result<Data, Swift.Error>) -> Void) -> Request {
-        precondition(self.onComplete == nil, "`Request.onComplete` can only be called once")
+        precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
         self.onComplete = .data(onComplete)
+        return self
+    }
+    /// Add completion block.
+    /// - parameter response: A block accepting `Result<Response, Error>`.
+    public func onComplete(_ onComplete: @escaping (Result<Response, Swift.Error>) -> Void) -> Request {
+        precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
+        self.onComplete = .response(onComplete)
         return self
     }
 
@@ -77,6 +85,7 @@ public final class Request {
         precondition(self.task == nil, "`Request.resume` can only be called once")
         return (requester ?? .default).schedule(self)
     }
+    
     /// Fetch using a given `session`.
     /// - parameter session: A `URLSession`.
     internal func fetch(using session: URLSession, onComplete: @escaping () -> Void) {
