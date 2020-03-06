@@ -62,7 +62,7 @@ public final class Request {
         self.endpoint = endpoint.headerFields(response.headerFields)
         return self
     }
-    
+
     /// Add completion block.
     /// - parameter response: A block accepting `Result<Data, Error>`.
     public func onComplete(_ onComplete: @escaping (Result<Data, Swift.Error>) -> Void) -> Request {
@@ -85,7 +85,7 @@ public final class Request {
         precondition(self.task == nil, "`Request.resume` can only be called once")
         return (requester ?? .default).schedule(self)
     }
-    
+
     /// Fetch using a given `session`.
     /// - parameter session: A `URLSession`.
     internal func fetch(using session: URLSession, onComplete: @escaping () -> Void) {
