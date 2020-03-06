@@ -14,13 +14,13 @@ public final class Requester {
         /// A `String` representing the current `hashValue`.
         internal var identifier: String = UUID().uuidString
         /// A `Date` indicating when the `Request` was first resumed.
-        internal var startedAt: Date = .init()
+        public internal(set) var startedAt: Date = .init()
         /// An associated `Request`.
-        internal var request: Request
+        public internal(set) var request: Request
 
         // MARK: Lifecycle
         /// Cancel the current request.
-        func cancel() { request.requester?.requests.remove(self) }
+        public func cancel() { request.requester?.requests.remove(self) }
 
         // MARK: Hashable
         public func hash(into hasher: inout Hasher) { hasher.combine(identifier) }
@@ -30,7 +30,7 @@ public final class Requester {
     /// A shared instance of `Requester` using `URLSession.shared`.
     public static let `default` = Requester()
     /// A `URLSession` to use for requests. Defaults to `.shared`.
-    public var session: URLSession
+    public internal(set) var session: URLSession
     /// A set of `Task`s currently scheduled or undergoing fetching.
     private var requests: Set<Task> = [] {
         didSet {

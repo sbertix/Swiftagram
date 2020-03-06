@@ -10,19 +10,48 @@ import Foundation
 @dynamicMemberLookup
 /// A `struct` defining all possible `Endpoint`s.
 public struct Endpoint: Hashable {
+    /// An `enum` holding reference to a `Request`'s `Method`.
+    public enum Method {
+        /// Automatic. `.post` when a body is set, `.get` otherwise.
+        case `default`
+        /// GET.
+        case get
+        /// POST.
+        case post
+        
+        /// Resolve starting from a given `body`.
+        /// - parameter body: An optional `Data` holding the body of the request.
+        internal func resolve(using body: Data?) -> String {
+            switch self {
+            case .default: return body == nil ? "GET" : "POST"
+            case .get: return "GET"
+            case .post: return "POST"
+            }
+        }
+    }
+
     /// A `[String]` composed of all path components.
     internal var components: [String]
+    /// A `[String: String]` composed of all key-values to set as body. Defaults to `[:]`.
+    internal var body: [String: String] = [:]
     /// A `[String: String]` composed of all query components. Defaults to `[:]`
     internal var queries: [String: String] = [:]
     /// A `[String: String]` composed of all custom header fields. Defaults to `[:]`.
     internal var headerFields: [String: String] = [:]
+    /// The `Method`. Defaults to `default`.
+    internal var method: Method = .default
 
     /// Compute the `URLRequest`.
     public var request: URLRequest? {
         var components = URLComponents(string: self.components.joined(separator: "/"))
         components?.queryItems = queries.map { URLQueryItem(name: $0.key, value: $0.value) }
+        let body = !self.body.isEmpty
+            ? self.body.map { $0.key+"="+$0.value }.joined(separator: "&").data(using: .utf8)
+            : nil
         var request = components?.url.flatMap { URLRequest(url: $0) }
         request?.allHTTPHeaderFields = headerFields
+        request?.httpBody = body
+        request?.httpMethod = body.flatMap(method.resolve)
         return request
     }
 
@@ -59,6 +88,19 @@ public struct Endpoint: Hashable {
         return copy
     }
 
+    /// Append to `body`.
+    public func body(key: String, value: String?) -> Endpoint {
+        var copy = self
+        copy.body[key] = value
+        return copy
+    }
+    /// Append `body`. Empty `self.body` if `nil`.
+    public func body(_ body: [String: String]?) -> Endpoint {
+        var copy = self
+        copy.body = body.flatMap { copy.body.merging($0) { _, rhs in rhs }} ?? [:]
+        return copy
+    }
+
     /// Append to `queries`.
     public func query(key: String, value: String?) -> Endpoint {
         var copy = self
@@ -76,6 +118,14 @@ public struct Endpoint: Hashable {
     public func headerFields(_ headerFields: [String: String]?) -> Endpoint {
         var copy = self
         copy.headerFields = headerFields.flatMap { copy.headerFields.merging($0) { _, rhs in rhs }} ?? [:]
+        return copy
+    }
+    
+    /// Set `method`.
+    /// - parameter method: A `Method` value.
+    public func method(_ method: Method) -> Self {
+        var copy = self
+        copy.method = method
         return copy
     }
 }
