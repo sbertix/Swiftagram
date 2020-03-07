@@ -11,16 +11,16 @@ import Foundation
 public final class Request {
     /// An `enum` holding reference to possible completion types.
     internal enum Completion {
-        /// Data.
-        case data((Result<Data, Swift.Error>) -> Void)
+        /// Data and response.
+        case data((Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) -> Void)
         /// Dynamic response.
-        case response((Result<Response, Swift.Error>) -> Void)
+        case response((Result<(data: Response, response: HTTPURLResponse?), Swift.Error>) -> Void)
 
         /// Parse `Data` into the `Completion` specific block input and then call it.
-        internal func send(_ data: Result<Data, Swift.Error>) {
+        internal func send(_ data: Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) {
             switch self {
             case .data(let send): send(data)
-            case .response(let send): send(data.map { (try? Response(data: $0)) ?? .none })
+            case .response(let send): send(data.map { ((try? Response(data: $0.data)) ?? .none, $0.response) })
             }
         }
     }
@@ -33,7 +33,7 @@ public final class Request {
     }
 
     /// The current endpoint.
-    public var endpoint: Endpoint
+    public internal(set) var endpoint: Endpoint
     /// The block to be called when results are fetched.
     internal var onComplete: Completion?
     /// The `Requester` used to carry out the `Request`. Defaults to `.default`.
@@ -64,15 +64,15 @@ public final class Request {
     }
 
     /// Add completion block.
-    /// - parameter response: A block accepting `Result<Data, Error>`.
-    public func onComplete(_ onComplete: @escaping (Result<Data, Swift.Error>) -> Void) -> Request {
+    /// - parameter onComplete: A block accepting `Result<Data, Error>`.
+    public func onDataComplete(_ onComplete: @escaping (Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) -> Void) -> Request {
         precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
         self.onComplete = .data(onComplete)
         return self
     }
     /// Add completion block.
-    /// - parameter response: A block accepting `Result<Response, Error>`.
-    public func onComplete(_ onComplete: @escaping (Result<Response, Swift.Error>) -> Void) -> Request {
+    /// - parameter onComplete: A block accepting `Result<Response, Error>`.
+    public func onComplete(_ onComplete: @escaping (Result<(data: Response, response: HTTPURLResponse?), Swift.Error>) -> Void) -> Request {
         precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
         self.onComplete = .response(onComplete)
         return self
@@ -95,11 +95,11 @@ public final class Request {
             return onComplete()
         }
         // Set `task`.
-        self.task = session.dataTask(with: request) { [weak self] data, _, error in
+        self.task = session.dataTask(with: request) { [weak self] data, response, error in
             if let error = error {
                 self?.onComplete?.send(.failure(error)); onComplete()
             } else if let data = data {
-                self?.onComplete?.send(.success(data)); onComplete()
+                self?.onComplete?.send(.success((data, response as? HTTPURLResponse))); onComplete()
             } else {
                 self?.onComplete?.send(.failure(Error.invalidData))
                 onComplete()
