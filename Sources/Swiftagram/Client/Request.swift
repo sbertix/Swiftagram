@@ -84,8 +84,8 @@ public final class Request {
     /// Add completion block.
     /// - parameter onComplete: A block accepting `Result<String, Error>`.
     /// - parameter encoding: A `String.Encoding`. Defaults to `.utf8`.
-    public func onCompleteString(_ onComplete: @escaping (Result<Requester.Task.Response<String>, Swift.Error>) -> Void,
-                                 encoding: String.Encoding = .utf8) -> Request {
+    public func onCompleteString(encoding: String.Encoding = .utf8,
+                                 _ onComplete: @escaping (Result<Requester.Task.Response<String>, Swift.Error>) -> Void) -> Request {
         precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
         self.onComplete = .string(onComplete, encoding: encoding)
         return self

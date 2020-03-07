@@ -77,7 +77,7 @@ public struct Endpoint: Hashable {
     public init(url: URL) {
         self.components = [url.absoluteString.trimmingCharacters(in: .init(charactersIn: "/"))]
     }
-    
+
     // MARK: Composition
     /// An `Endpoint` pointing to `api/v1`.
     public static var version1: Endpoint { return .init(components: ["https://i.instagram.com/api/v1"]) }

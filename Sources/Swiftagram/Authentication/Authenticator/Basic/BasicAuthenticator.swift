@@ -126,7 +126,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             }
         }
     }
-    
+
     // MARK: Checkpoint flow
     /// Handle checkpoint.
     private func handleCheckpoint(result: Requester.Task.Response<Response>,

@@ -19,7 +19,7 @@ public final class Checkpoint {
     public let availableVerification: Set<Verification>
     /// A block providing an `Authentication.Response`.
     internal let onChange: (Result<Authentication.Response, Swift.Error>) -> Void
-    
+
     // MARK: Lifecycle
     /// Init.
     internal init<Storage: Swiftagram.Storage>(storage: Storage,
@@ -33,7 +33,7 @@ public final class Checkpoint {
         self.availableVerification = availableVerification
         self.onChange = onChange
     }
-    
+
     // MARK: Checkpoint flow
     /// Request a code code through the selected `verification` method.
     /// - parameter verification: A `Verification` item to send the code to.
@@ -62,7 +62,7 @@ public final class Checkpoint {
         }
         .resume()
     }
-    
+
     /// Send the received code.
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {

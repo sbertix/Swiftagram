@@ -57,7 +57,7 @@ public struct Authentication {
             storage.store(self)
             return self
         }
-        
+
         @discardableResult
         /// Store in `storage`.
         /// - parameter storage: A value conforming to the `Storage` protocol.
