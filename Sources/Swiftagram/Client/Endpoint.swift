@@ -43,6 +43,7 @@ public struct Endpoint: Hashable {
 
     /// Compute the `URLRequest`.
     public var request: URLRequest? {
+        // prepare the main components.
         var components = URLComponents(string: self.components.joined(separator: "/")+"/")
         components?.queryItems = queries.isEmpty ? nil : queries.map { URLQueryItem(name: $0.key, value: $0.value) }
         let body = !self.body.isEmpty
@@ -53,6 +54,7 @@ public struct Endpoint: Hashable {
                     .joined(separator: "=")
             }.joined(separator: "&").data(using: .utf8)
             : nil
+        // prepare the request.
         guard var request = components?.url.flatMap({
             URLRequest(url: $0,
                        cachePolicy: .useProtocolCachePolicy,
@@ -61,11 +63,6 @@ public struct Endpoint: Hashable {
         request.allHTTPHeaderFields = headerFields
         request.httpBody = body
         request.httpMethod = body.map(method.resolve)
-        request.addValue(Headers.acceptLanguageValue, forHTTPHeaderField: Headers.acceptLanguageKey)
-        request.addValue(Headers.contentTypeApplicationFormValue, forHTTPHeaderField: Headers.contentTypeKey)
-        request.addValue(Headers.igCapabilitiesValue, forHTTPHeaderField: Headers.igCapabilitiesKey)
-        request.addValue(Headers.igConnectionTypeValue, forHTTPHeaderField: Headers.igConnectionTypeKey)
-        request.addValue(Headers.userAgentValue, forHTTPHeaderField: Headers.userAgentKey)
         return request
     }
 
@@ -75,6 +72,12 @@ public struct Endpoint: Hashable {
     /// - parameter headerFields. A `Dictionary` of `(key: String, value: String)`, forming valid header fields.
     public init(components: [String]) { self.components = components }
 
+    /// Init.
+    /// - parameter url: A `URL`.
+    public init(url: URL) {
+        self.components = [url.absoluteString.trimmingCharacters(in: .init(charactersIn: "/"))]
+    }
+    
     // MARK: Composition
     /// An `Endpoint` pointing to `api/v1`.
     public static var version1: Endpoint { return .init(components: ["https://i.instagram.com/api/v1"]) }
@@ -86,19 +89,25 @@ public struct Endpoint: Hashable {
     /// Append `item`.
     public func wrap<Item>(_ item: Item) -> Endpoint where Item: LosslessStringConvertible {
         var copy = self
-        copy.components.append(String(item))
+        copy.components.append(String(item)
+            .trimmingCharacters(in: .init(charactersIn: "/"))
+            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
         return copy
     }
     /// Append `item`.
     public func wrap<Item>(_ item: Item) -> Endpoint where Item: CustomStringConvertible {
         var copy = self
-        copy.components.append(item.description)
+        copy.components.append(item.description
+            .trimmingCharacters(in: .init(charactersIn: "/"))
+            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
         return copy
     }
     /// Append `component`.
     public subscript(dynamicMember component: String) -> Endpoint {
         var copy = self
-        copy.components.append(component)
+        copy.components.append(component
+            .trimmingCharacters(in: .init(charactersIn: "/"))
+            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
         return copy
     }
 
@@ -128,6 +137,16 @@ public struct Endpoint: Hashable {
         return copy
     }
 
+    /// Append default `headerFields`.
+    public var defaultHeaderFields: Endpoint {
+        return self.headerFields(
+            [Headers.acceptLanguageKey: Headers.acceptLanguageValue,
+             Headers.contentTypeKey: Headers.contentTypeApplicationFormValue,
+             Headers.igCapabilitiesKey: Headers.igCapabilitiesValue,
+             Headers.igConnectionTypeKey: Headers.igConnectionTypeValue,
+             Headers.userAgentKey: Headers.userAgentValue]
+        )
+    }
     /// Append `headerFields`. Empty `self.headerFields` if `nil`.
     public func headerFields(_ headerFields: [String: String]?) -> Endpoint {
         var copy = self
