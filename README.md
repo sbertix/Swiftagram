@@ -58,7 +58,7 @@ BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
 ## Caching
 Caching of `Authentication.Response`s is provided through conformance to the `Storage` protocol.  
 
-The library comes with several concrete implementations.
+The library comes with several concrete implementations.  
 A `TransientStorage` should be used when no caching is necessary.  
 `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
 `KeychainStorage`, needing [KeychainSwift](https://github.com/evgenyneu/keychain-swift) to be added as a dependency to your project and imported to become available, stores them safely in the user's keychain.  
