@@ -50,10 +50,20 @@ public struct Authentication {
         }
 
         // MARK: Locker
+        @discardableResult
         /// Store in `storage`.
         /// - parameter storage: A concrete-typed value conforming to the `Storage` protocol.
-        public func store<S: Storage>(in storage: S) {
+        public func store<S: Storage>(in storage: S) -> Authentication.Response {
             storage.store(self)
+            return self
+        }
+        
+        @discardableResult
+        /// Store in `storage`.
+        /// - parameter storage: A value conforming to the `Storage` protocol.
+        public func store(in storage: Storage) -> Authentication.Response {
+            storage.store(self)
+            return self
         }
     }
 }

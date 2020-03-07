@@ -11,15 +11,19 @@ import Foundation
 public final class Request {
     /// An `enum` holding reference to possible completion types.
     internal enum Completion {
-        /// Data and response.
-        case data((Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) -> Void)
+        /// Data.
+        case data((Result<Requester.Task.Response<Data>, Swift.Error>) -> Void)
+        /// String.
+        case string((Result<Requester.Task.Response<String>, Swift.Error>) -> Void, encoding: String.Encoding)
         /// Dynamic response.
-        case response((Result<(data: Response, response: HTTPURLResponse?), Swift.Error>) -> Void)
+        case response((Result<Requester.Task.Response<Response>, Swift.Error>) -> Void)
 
         /// Parse `Data` into the `Completion` specific block input and then call it.
-        internal func send(_ data: Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) {
+        internal func send(_ data: Result<Requester.Task.Response<Data>, Swift.Error>) {
             switch self {
             case .data(let send): send(data)
+            case .string(let send, let encoding):
+                send(data.map { (String(data: $0.data, encoding: encoding) ?? "", $0.response) })
             case .response(let send): send(data.map { ((try? Response(data: $0.data)) ?? .none, $0.response) })
             }
         }
@@ -64,17 +68,26 @@ public final class Request {
     }
 
     /// Add completion block.
+    /// - parameter onComplete: A block accepting `Result<Response, Error>`.
+    public func onComplete(_ onComplete: @escaping (Result<Requester.Task.Response<Response>, Swift.Error>) -> Void) -> Request {
+        precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
+        self.onComplete = .response(onComplete)
+        return self
+    }
+    /// Add completion block.
     /// - parameter onComplete: A block accepting `Result<Data, Error>`.
-    public func onDataComplete(_ onComplete: @escaping (Result<(data: Data, response: HTTPURLResponse?), Swift.Error>) -> Void) -> Request {
+    public func onCompleteData(_ onComplete: @escaping (Result<Requester.Task.Response<Data>, Swift.Error>) -> Void) -> Request {
         precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
         self.onComplete = .data(onComplete)
         return self
     }
     /// Add completion block.
-    /// - parameter onComplete: A block accepting `Result<Response, Error>`.
-    public func onComplete(_ onComplete: @escaping (Result<(data: Response, response: HTTPURLResponse?), Swift.Error>) -> Void) -> Request {
+    /// - parameter onComplete: A block accepting `Result<String, Error>`.
+    /// - parameter encoding: A `String.Encoding`. Defaults to `.utf8`.
+    public func onCompleteString(_ onComplete: @escaping (Result<Requester.Task.Response<String>, Swift.Error>) -> Void,
+                                 encoding: String.Encoding = .utf8) -> Request {
         precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
-        self.onComplete = .response(onComplete)
+        self.onComplete = .string(onComplete, encoding: encoding)
         return self
     }
 

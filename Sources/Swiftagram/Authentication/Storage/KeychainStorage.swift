@@ -10,6 +10,9 @@ import Foundation
 import KeychainSwift
 
 /// A `class` holding reference to all `Authentication.Response`s stored in the keychain.
+/// - note: `
+///     KeychainStorage` is the encoded and ready-to-use alternative to `UserDefaultsStorage`.
+///     Add https://github.com/evgenyneu/keychain-swift to your dependencies and import it to start using it.
 public final class KeychainStorage: Storage {
     /// The shared instance of `Storage`.
     public static let `default` = KeychainStorage()

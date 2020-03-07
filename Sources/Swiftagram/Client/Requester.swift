@@ -11,6 +11,9 @@ import Foundation
 public final class Requester {
     /// A `struct` holding reference to a specific `Request`.
     public struct Task: Hashable {
+        /// A `tuple` holding reference to responses.
+        public typealias Response<Type> = (data: Type, response: HTTPURLResponse?)
+
         /// A `String` representing the current `hashValue`.
         internal var identifier: String = UUID().uuidString
         /// A `Date` indicating when the `Request` was first resumed.
