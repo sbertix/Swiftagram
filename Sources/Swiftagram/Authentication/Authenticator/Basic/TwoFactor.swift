@@ -19,7 +19,7 @@ public final class TwoFactor {
     internal let crossSiteRequestForgery: HTTPCookie
     /// A block providing an `Authentication.Response`.
     internal let onChange: (Result<Authentication.Response, Swift.Error>) -> Void
-    
+
     // MARK: Lifecycle
     /// Init.
     internal init<Storage: Swiftagram.Storage>(storage: Storage,
@@ -33,7 +33,7 @@ public final class TwoFactor {
         self.crossSiteRequestForgery = crossSiteRequestForgery
         self.onChange = onChange
     }
-    
+
     // MARK: 2FA flow
     /// Send the received code.
     /// - parameter code: A `String` containing the authentication code.
