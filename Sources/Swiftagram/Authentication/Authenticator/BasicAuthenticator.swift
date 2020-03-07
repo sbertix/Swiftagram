@@ -1,5 +1,5 @@
 //
-//  BaseAuthenticator.swift
+//  BasicAuthenticator.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 07/03/2020.
@@ -45,25 +45,25 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
 
     // MARK: Authenticator
     /// Return an `Authentication.Response` and store it in `storage`.
-    /// - parameter onComplete: A block providing an `Authentication.Response`.
-    public func authenticate(_ onComplete: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
+    /// - parameter onChange: A block providing an `Authentication.Response`.
+    public func authenticate(_ onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
         /// Remove all cookies.
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         /// Log in.
         Request(.generic)
             .onDataComplete { [self] in
                 switch $0 {
-                case .failure(let error): onComplete(.failure(error))
+                case .failure(let error): onChange(.failure(error))
                 case .success(let value):
                     // Obtain the `csrftoken`.
                     guard let response = value.response else {
-                        return onComplete(.failure(Error.invalidResponse))
+                        return onChange(.failure(Error.invalidResponse))
                     }
                     let headerFields = (response.allHeaderFields as? [String: String]) ?? [:]
                     guard let crossSiteRequestForgery = HTTPCookie.cookies(withResponseHeaderFields: headerFields,
                                                                            for: response.url!)
                         .first(where: { $0.name == "csrftoken" }) else {
-                            return onComplete(.failure(Error.invalidCookies))
+                            return onChange(.failure(Error.invalidCookies))
                     }
                     // Obtain the `ds_user_id` and the `sessionid`.
                     Request(
@@ -85,7 +85,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     )
                     .onComplete {
                         switch $0 {
-                        case .failure(let error): onComplete(.failure(error))
+                        case .failure(let error): onChange(.failure(error))
                         case .success(let value):
                             // Check for authentication.
                             if let checkpoint = value.data.checkpointUrl.string {
@@ -96,15 +96,15 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                 )
                                 .onComplete {
                                     print($0)
-                                    onComplete(.failure(Error.checkpoint))
+                                    onChange(.failure(Error.checkpoint))
                                 }
                                 .resume()
                             } else if value.data.twoFactorInfo != .none {
                                 print(value.data.beautifiedDescription, value.response as Any)
                                 // TODO: resolve two factor authentication.
-                                onComplete(.failure(Error.twoFactor))
+                                onChange(.failure(Error.twoFactor))
                             } else if value.data.user.bool.flatMap({ !$0 }) ?? false {
-                                onComplete(.failure(Error.invalidUsername))
+                                onChange(.failure(Error.invalidUsername))
                             } else if value.data.authenticated.bool ?? false,
                                 let headerFields = value.response?.allHeaderFields as? [String: String],
                                 let url = value.response?.url {
@@ -113,17 +113,18 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                     .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
                                     .sorted { $0.name < $1.name }
                                 guard cookies.count == 2 else {
-                                    return onComplete(.failure(Error.invalidCookies))
+                                    return onChange(.failure(Error.invalidCookies))
                                 }
                                 // Complete.
-                                onComplete(.success(.init(identifier: cookies[0],
-                                                          crossSiteRequestForgery: crossSiteRequestForgery,
-                                                          session: cookies[1])))
+                                onChange(.success(Authentication.Response(identifier: cookies[0],
+                                                                          crossSiteRequestForgery: crossSiteRequestForgery,
+                                                                          session: cookies[1])
+                                    .store(in: self.storage)))
                             } else if value.data.authenticated.bool.flatMap({ !$0 }) ?? false {
-                                onComplete(.failure(Error.invalidPassword))
+                                onChange(.failure(Error.invalidPassword))
                             } else {
                                 print(value.data.beautifiedDescription, value.response as Any)
-                                onComplete(.failure(Error.invalidResponse))
+                                onChange(.failure(Error.invalidResponse))
                             }
                         }
                     }
