@@ -15,5 +15,54 @@ Use this at your own risk.
 ## Status
 **Swiftagram** is currently under development and more features are expected to be implemented everyday, which might result in breaking changes.
 
+## Authentication
+Authentication is provided through conformance to the `Authenticator` protocol.  
+
+The library comes with a concrete implementation allowing access with _username_ and _password_, named `BasicAuthenticator`.  
+Future versions are expected to also provide a web view based `Authenticator`.
+
+#### `BasicAuthenticator`
+```swift
+/// A strong reference to a 2FA object.
+var twoFactor: TwoFactor? {
+  didSet {
+    guard let twoFactor = twoFactor else { return }
+    // ask for the code and then pass it to `twoFactor.send`.
+  }
+}
+/// A strong reference to a Checkpoint object.
+var checkpoint: Checkpoint? {
+  didSet {
+    guard let checkpoint = checkpoint else { return }
+    // ask for validation method then pass it to `checkpoint.request`, 
+    // before sending the code to through `checkpoint.send`.
+  }
+}
+
+/// Login.
+BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
+                   username: /* the username */,
+                   password: /* the password */)
+  .authenticate {
+    switch $0 {
+    case .failure(let error): 
+      switch error {
+        case AuthenticatorError.checkpoint(let response): checkpoint = response
+        case AuthenticatorError.twoFactor(let response): twoFactor = response
+        default: print(error)
+      }
+    case .success: print("Logged in")
+  }
+```
+
+## Caching
+Caching of `Authentication.Response`s is provided through conformance to the `Storage` protocol.  
+
+The library comes with several concrete implementations.
+A `TransientStorage` should be used when no caching is necessary.  
+`UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
+`KeychainStorage`, needing [KeychainSwift](https://github.com/evgenyneu/keychain-swift) to be added as a dependency to your project and imported to become available, stores them safely in the user's keychain.  
+
+
 ## Contributions
 Pull requests and issues are more than welcome.
