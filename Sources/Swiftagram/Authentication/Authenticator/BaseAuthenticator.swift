@@ -31,7 +31,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public internal(set) var username: String
     /// A `String` holding a valid password.
     public internal(set) var password: String
-    
+
     // MARK: Lifecycle
     /// Init.
     /// - parameter storage: A concrete `Storage` value.

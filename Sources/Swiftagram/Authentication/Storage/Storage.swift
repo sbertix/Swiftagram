@@ -10,6 +10,9 @@ import Foundation
 /// A `protocol` describing a form of `Storage` for `Authentication.Response`s.
 /// - warning: `Authentication.Response`s contain sensitive information: avoid storing them unencrypted.
 public protocol Storage {
+    /// A `String` identifying the current storage.
+    var reference: String? { get }
+
     /// Find an `Authentication.Response` stored in `self`.
     /// - returns: A `Response` or `nil` if no response could be found.
     /// - note: Prefer `Authentication.Response.stored` to access it.
@@ -31,6 +34,9 @@ public protocol Storage {
 
 /// An `Array` of `Storage`s should conform to `Storage`, and all values should be returned.
 extension Array: Storage where Element: Storage {
+    /// A `String` identifying the current storage.
+    public var reference: String? { return nil }
+
     /// Find the first `Authentication.Response` stored in one of the elements.
     /// - returns: A `Response` or `nil` if no response could be found.
     /// - note: Prefer `Authentication.Response.stored` to access it.

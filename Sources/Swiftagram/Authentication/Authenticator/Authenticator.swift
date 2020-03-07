@@ -13,7 +13,7 @@ public protocol Authenticator {
     associatedtype Storage: Swiftagram.Storage
     /// A `Storage` instance used to store `Authentication.Response`s.
     var storage: Storage { get }
-    
+
     /// Return an `Authentication.Response` and store it in `storage`.
     /// - parameter onComplete: A block providing a `Result<Authentication.Response, Error>`.
     /// - warning: Always call `Authentication.Response.store` with `storage` when receiving the `Authentication.Response` .

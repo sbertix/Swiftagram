@@ -18,7 +18,7 @@ public struct Endpoint: Hashable {
         case get
         /// POST.
         case post
-        
+
         /// Resolve starting from a given `body`.
         /// - parameter body: An optional `Data` holding the body of the request.
         internal func resolve(using body: Data?) -> String {
@@ -134,7 +134,7 @@ public struct Endpoint: Hashable {
         copy.headerFields = headerFields.flatMap { copy.headerFields.merging($0) { _, rhs in rhs }} ?? [:]
         return copy
     }
-    
+
     /// Set `method`.
     /// - parameter method: A `Method` value.
     public func method(_ method: Method) -> Self {

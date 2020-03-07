@@ -77,7 +77,7 @@ public final class Request {
         self.onComplete = .response(onComplete)
         return self
     }
-    
+
     // MARK: Schedule
     @discardableResult
     /// Create a new `Requester.Task` and start fetching data.

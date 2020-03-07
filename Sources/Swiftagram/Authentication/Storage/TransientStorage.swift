@@ -10,9 +10,12 @@ import Foundation
 /// A `class` holding reference to all transient `Authentication.Response`s.
 /// - note: Use when only dealing with one-shot `Authentication.Response`s.
 public final class TransientStorage: Storage {
+    /// A `String` identifying the current storage.
+    public let reference: String? = "transient"
+
     /// Init.
     public init() { }
-    
+
     /// The implementation does nothing.
     /// - returns: `nil`.
     public func find(matching identifier: String) -> Authentication.Response? { return nil }
