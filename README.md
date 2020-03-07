@@ -13,10 +13,10 @@ These Private API require no token or app registration but they're not authorize
 Use this at your own risk.
 
 ## Status
-**Swiftagram** is currently under development and more features are expected to be implemented everyday, which might result in breaking changes.
+#### **Swiftagram** is currently under development and more features are expected to be implemented everyday, which might result in breaking changes.
 
 ## Installation
-##### Swift Package Manager (Xcode 11 and above)
+#### Swift Package Manager (Xcode 11 and above)
 1. Select `File`/`Swift Packages`/`Add Package Dependency…` from the menu.
 1. Paste `https://github.com/sbertix/Swiftagram.git`.
 1. Follow the steps.
@@ -27,7 +27,7 @@ Authentication is provided through conformance to the `Authenticator` protocol.
 The library comes with a concrete implementation allowing access with _username_ and _password_, named `BasicAuthenticator`.  
 Future versions are expected to also provide a web view based `Authenticator`.
 
-##### `BasicAuthenticator`
+#### `BasicAuthenticator`
 ```swift
 /// A strong reference to a 2FA object.
 var twoFactor: TwoFactor? {
@@ -65,9 +65,9 @@ BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
 Caching of `Authentication.Response`s is provided through conformance to the `Storage` protocol.  
 
 The library comes with several concrete implementations.  
-A `TransientStorage` should be used when no caching is necessary.  
-`UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
-`KeychainStorage`, needing [KeychainSwift](https://github.com/evgenyneu/keychain-swift) to be added as a dependency to your project and imported to become available, stores them safely in the user's keychain.  
+- `TransientStorage` should be used when no caching is necessary.  
+- `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
+- `KeychainStorage`, needing [KeychainSwift](https://github.com/evgenyneu/keychain-swift) to be added as a dependency to your project and imported to become available, stores them safely in the user's keychain.  
 
 
 ## Contributions
