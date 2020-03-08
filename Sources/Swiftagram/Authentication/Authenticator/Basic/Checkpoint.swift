@@ -19,8 +19,8 @@ public final class Checkpoint {
     internal let crossSiteRequestForgery: HTTPCookie
     /// A `Set` of `Verification` representing available methods.
     public let availableVerification: Set<Verification>
-    /// A block providing an `Authentication.Response`.
-    internal let onChange: (Result<Authentication.Response, Swift.Error>) -> Void
+    /// A block providing a `Secret`.
+    internal let onChange: (Result<Secret, Swift.Error>) -> Void
 
     // MARK: Lifecycle
     /// Init.
@@ -29,7 +29,7 @@ public final class Checkpoint {
                                                userAgent: String,
                                                crossSiteRequestForgery: HTTPCookie,
                                                availableVerification: Set<Verification>,
-                                               onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
+                                               onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         self.storage = storage
         self.url = url
         self.userAgent = userAgent
@@ -57,7 +57,7 @@ public final class Checkpoint {
                      "Origin": url.absoluteString,
                      "Content-Type": "application/x-www-form-urlencoded",
                      "User-Agent": userAgent]
-                )
+            )
         )
         .onComplete { [self] in
             switch $0 {
@@ -86,7 +86,7 @@ public final class Checkpoint {
                      "Origin": url.absoluteString,
                      "Content-Type": "application/x-www-form-urlencoded",
                      "User-Agent": userAgent]
-                )
+            )
         )
         .onCompleteString { [self] in
             switch $0 {
@@ -96,7 +96,7 @@ public final class Checkpoint {
                 guard !value.data.contains("instagram://checkpoint/dismiss") else {
                     return self.onChange(.failure(AuthenticatorError.retry))
                 }
-                // Fetch `Authentication.Response`.
+                // Fetch `Secret`.
                 let cookies = HTTPCookieStorage.shared.cookies?
                     .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
                     .sorted { $0.name < $1.name } ?? []
@@ -104,9 +104,9 @@ public final class Checkpoint {
                     return self.onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                self.onChange(.success(Authentication.Response(identifier: cookies[0],
-                                                               crossSiteRequestForgery: self.crossSiteRequestForgery,
-                                                               session: cookies[1])
+                self.onChange(.success(Secret(identifier: cookies[0],
+                                              crossSiteRequestForgery: self.crossSiteRequestForgery,
+                                              session: cookies[1])
                     .store(in: self.storage)))
             }
         }

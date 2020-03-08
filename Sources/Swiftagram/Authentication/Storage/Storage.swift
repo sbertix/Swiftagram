@@ -7,57 +7,57 @@
 
 import Foundation
 
-/// A `protocol` describing a form of `Storage` for `Authentication.Response`s.
-/// - warning: `Authentication.Response`s contain sensitive information: avoid storing them unencrypted.
+/// A `protocol` describing a form of `Storage` for `Secret`s.
+/// - warning: `Secret`s contain sensitive information: avoid storing them unencrypted.
 public protocol Storage {
-    /// Find an `Authentication.Response` stored in `self`.
-    /// - returns: A `Response` or `nil` if no response could be found.
-    /// - note: Prefer `Authentication.Response.stored` to access it.
-    func find(matching identifier: String) -> Authentication.Response?
+    /// Find a `Secret` stored in `self`.
+    /// - returns: A `Secret` or `nil` if no response could be found.
+    /// - note: Prefer `Secret.stored` to access it.
+    func find(matching identifier: String) -> Secret?
 
-    /// Return all `Authentication.Response`s stored in `self`.
-    /// - returns: An `Array` of `Authentication.Response`s stored in `self`.
-    func all() -> [Authentication.Response]
+    /// Return all `Secret`s stored in `self`.
+    /// - returns: An `Array` of `Secret`s stored in `self`.
+    func all() -> [Secret]
 
-    /// Store an `Authentication.Response` in `self`.
-    /// - note: Prefer `Authentication.Response.store` to access it.
-    func store(_ response: Authentication.Response)
+    /// Store a `Secret` in `self`.
+    /// - note: Prefer `Secret.store` to access it.
+    func store(_ response: Secret)
 
     @discardableResult
-    /// Delete an `Authentication.Response` in `self`.
-    /// - returns: The removed `Authentication.Response` or `nil` if none was found.
-    func remove(matching identifier: String) -> Authentication.Response?
+    /// Delete a `Secret` in `self`.
+    /// - returns: The removed `Secret` or `nil` if none was found.
+    func remove(matching identifier: String) -> Secret?
 }
 public extension Storage {
-    /// Delete all cached `Authentication.Response`s.
+    /// Delete all cached `Secret`s.
     func removeAll() { all().map { $0.id }.forEach { remove(matching: $0) }}
 }
 
 /// An `Array` of `Storage`s should conform to `Storage`, and all values should be returned.
 extension Array: Storage where Element: Storage {
-    /// Find the first `Authentication.Response` stored in one of the elements.
-    /// - returns: A `Response` or `nil` if no response could be found.
-    /// - note: Prefer `Authentication.Response.stored` to access it.
-    public func find(matching identifier: String) -> Authentication.Response? {
+    /// Find the first `Secret` stored in one of the elements.
+    /// - returns: A `Secret` or `nil` if no response could be found.
+    /// - note: Prefer `Secret.stored` to access it.
+    public func find(matching identifier: String) -> Secret? {
         return lazy.compactMap { $0.find(matching: identifier) }.first { _ in true }
     }
 
-    /// Return all `Authentication.Response`s stored in all elements.
-    /// - returns: An `Array` of `Authentication.Response`s stored in `self`.
-    public func all() -> [Authentication.Response] {
+    /// Return all `Secret`s stored in all elements.
+    /// - returns: An `Array` of `Secret`s stored in `self`.
+    public func all() -> [Secret] {
         return map { $0.all() }.reduce(into: []) { $0 += $1 }
     }
 
-    /// Store an `Authentication.Response` in all elements.
-    /// - note: Prefer `Authentication.Response.store` to access it.
-    public func store(_ response: Authentication.Response) {
+    /// Store a `Secret` in all elements.
+    /// - note: Prefer `Secret.store` to access it.
+    public func store(_ response: Secret) {
         forEach { $0.store(response) }
     }
 
     @discardableResult
-    /// Delete an `Authentication.Response` from all elements, and return the first found.
-    /// - returns: The removed `Authentication.Response` or `nil` if none was found.
-    public func remove(matching identifier: String) -> Authentication.Response? {
+    /// Delete a `Secret` from all elements, and return the first found.
+    /// - returns: The removed `Secret` or `nil` if none was found.
+    public func remove(matching identifier: String) -> Secret? {
         guard let match = find(matching: identifier) else { return nil }
         forEach { $0.remove(matching: identifier) }
         return match

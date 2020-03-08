@@ -10,6 +10,7 @@ import Foundation
 /**
     A `class` describing an `Authenticator` using `username` and `password`.
  
+    ## Usage
     ```swift
     /// A strong reference to a 2FA object.
     var twoFactor: TwoFactor? {
@@ -44,7 +45,7 @@ import Foundation
     ```
  */
 public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticator {
-    /// A `Storage` instance used to store `Authentication.Response`s.
+    /// A `Storage` instance used to store `Secret`s.
     public internal(set) var storage: Storage
     /// A `String` holding a valid username.
     public internal(set) var username: String
@@ -77,9 +78,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     }
 
     // MARK: Authenticator
-    /// Return an `Authentication.Response` and store it in `storage`.
-    /// - parameter onChange: A block providing an `Authentication.Response`.
-    public func authenticate(_ onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
+    /// Return a `Secret` and store it in `storage`.
+    /// - parameter onChange: A block providing a `Secret`.
+    public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         Request(Endpoint.generic.headerFields(["User-Agent": userAgent]))
             .onComplete { [self] in self.handleFirst(result: $0, onChange: onChange) }
@@ -89,7 +90,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     // MARK: Shared flow
     /// Handle `csrftoken` response.
     private func handleFirst(result: Result<Requester.Task.Response<Response>, Swift.Error>,
-                             onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
+                             onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         switch result {
         case .failure(let error): onChange(.failure(error))
         case .success(let value):
@@ -133,7 +134,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// Handle `ds_user_id` and `sessionid` response.
     private func handleSecond(result: Result<Requester.Task.Response<Response>, Swift.Error>,
                               crossSiteRequestForgery: HTTPCookie,
-                              onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
+                              onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         switch result {
         case .failure(let error): onChange(.failure(error))
         case .success(let value):
@@ -164,9 +165,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     return onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                onChange(.success(Authentication.Response(identifier: cookies[0],
-                                                          crossSiteRequestForgery: crossSiteRequestForgery,
-                                                          session: cookies[1])
+                onChange(.success(Secret(identifier: cookies[0],
+                                         crossSiteRequestForgery: crossSiteRequestForgery,
+                                         session: cookies[1])
                     .store(in: self.storage)))
             } else if value.data.authenticated.bool.flatMap({ !$0 }) ?? false {
                 // User not authenticated.
@@ -183,7 +184,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     private func handleCheckpoint(result: Requester.Task.Response<Response>,
                                   checkpoint: String,
                                   crossSiteRequestForgery: HTTPCookie,
-                                  onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
+                                  onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
         Request(
             Endpoint.generic.wrap(checkpoint)

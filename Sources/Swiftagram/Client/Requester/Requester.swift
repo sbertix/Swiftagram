@@ -9,34 +9,6 @@ import Foundation
 
 /// A `class` used to perform `Request`s.
 public final class Requester {
-    /// A `struct` holding reference to a specific `Request`.
-    public struct Task: Hashable {
-        /// A `tuple` holding reference to responses.
-        public typealias Response<Type> = (data: Type, response: HTTPURLResponse?)
-
-        /// A `String` representing the current `hashValue`.
-        internal var identifier: String = UUID().uuidString
-        /// A `Date` indicating when the `Request` was first resumed.
-        public internal(set) var startedAt: Date = .init()
-        /// An associated `Request`.
-        public internal(set) var request: Request
-
-        // MARK: Lifecycle
-        /// Init.
-        /// - parameter request: A valid `Request`.
-        public init(request: Request) { self.request = request }
-
-        /// Cancel the current request.
-        public func cancel() {
-            request.task?.cancel()
-            request.requester?.requests.remove(self)
-        }
-
-        // MARK: Hashable
-        public func hash(into hasher: inout Hasher) { hasher.combine(identifier) }
-        public static func ==(lhs: Task, rhs: Task) -> Bool { return lhs.identifier == rhs.identifier }
-    }
-
     /// A shared instance of `Requester` using `URLSession.shared`.
     public static let `default` = Requester()
     /// A `URLSessionConfiguration`.
@@ -44,7 +16,7 @@ public final class Requester {
     /// A `URLSession` to use for requests. Defaults to `.shared`.
     public var session: URLSession { return URLSession(configuration: configuration) }
     /// A set of `Task`s currently scheduled or undergoing fetching.
-    private var requests: Set<Task> = [] {
+    internal var requests: Set<Task> = [] {
         didSet {
             let inserted = requests.subtracting(oldValue)
             // Actually fetch `inserted` tasks.

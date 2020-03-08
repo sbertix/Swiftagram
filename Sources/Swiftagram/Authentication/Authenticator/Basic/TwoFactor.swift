@@ -19,8 +19,8 @@ public final class TwoFactor {
     internal let userAgent: String
     /// A `HTTPCookie` for `csrftoken`.
     internal let crossSiteRequestForgery: HTTPCookie
-    /// A block providing an `Authentication.Response`.
-    internal let onChange: (Result<Authentication.Response, Swift.Error>) -> Void
+    /// A block providing a `Secret`.
+    internal let onChange: (Result<Secret, Swift.Error>) -> Void
 
     // MARK: Lifecycle
     /// Init.
@@ -29,7 +29,7 @@ public final class TwoFactor {
                                                identifier: String,
                                                userAgent: String,
                                                crossSiteRequestForgery: HTTPCookie,
-                                               onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
+                                               onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         self.storage = storage
         self.username = username
         self.identifier = identifier
@@ -58,7 +58,7 @@ public final class TwoFactor {
                      "Authority": "www.instagram.com",
                      "Content-Type": "application/x-www-form-urlencoded",
                      "User-Agent": userAgent]
-                )
+            )
         )
         .onCompleteString { [self] in
             switch $0 {
@@ -66,7 +66,7 @@ public final class TwoFactor {
             case .success(let value):
                 switch value.response?.statusCode {
                 case 200:
-                    // Fetch `Authentication.Response`.
+                    // Fetch `Secret`.
                     let cookies = HTTPCookieStorage.shared.cookies?
                         .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
                         .sorted { $0.name < $1.name } ?? []
@@ -74,9 +74,9 @@ public final class TwoFactor {
                         return self.onChange(.failure(AuthenticatorError.invalidCookies))
                     }
                     // Complete.
-                    self.onChange(.success(Authentication.Response(identifier: cookies[0],
-                                                                   crossSiteRequestForgery: self.crossSiteRequestForgery,
-                                                                   session: cookies[1])
+                    self.onChange(.success(Secret(identifier: cookies[0],
+                                                  crossSiteRequestForgery: self.crossSiteRequestForgery,
+                                                  session: cookies[1])
                         .store(in: self.storage)))
                 case 400:
                     // Invalid code.

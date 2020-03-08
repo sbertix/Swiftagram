@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// A `struct` holding reference to all `Authentication.Response`s stored in the `UserDefaults`.
-/// - warning: `UserDefaults` are not safe for storing `Authentication.Response`s. **DO NOT USE THIS IN PRODUCTION**.
+/// A `struct` holding reference to all `Secret`s stored in the `UserDefaults`.
+/// - warning: `UserDefaults` are not safe for storing `Secret`s. **DO NOT USE THIS IN PRODUCTION**.
 /// - note: `
 ///     KeychainStorage` is the encoded and ready-to-use alternative to `UserDefaultsStorage`.
 ///     Add https://github.com/evgenyneu/keychain-swift to your dependencies and import it to start using it.
@@ -22,26 +22,26 @@ public struct UserDefaultsStorage: Storage {
     public init(userDefaults: UserDefaults = .standard) { self.userDefaults = userDefaults }
 
     // MARK: Lookup
-    /// Find an `Authentication.Response` stored in the user defaults.
-    /// - returns: A `Response` or `nil` if no response could be found.
-    /// - note: Use `Authentication.Response.stored` to access it.
-    public func find(matching identifier: String) -> Authentication.Response? {
+    /// Find a `Secret` stored in the user defaults.
+    /// - returns: A `Secret` or `nil` if no response could be found.
+    /// - note: Use `Secret.stored` to access it.
+    public func find(matching identifier: String) -> Secret? {
         return userDefaults
             .data(forKey: identifier)
-            .flatMap { try? JSONDecoder().decode(Authentication.Response.self, from: $0) }
+            .flatMap { try? JSONDecoder().decode(Secret.self, from: $0) }
     }
 
-    /// Return all `Authentication.Response`s stored in the  user defaults.
-    /// - returns: An `Array` of `Authentication.Response`s stored in the `userDefaults`.
-    public func all() -> [Authentication.Response] {
+    /// Return all `Secret`s stored in the  user defaults.
+    /// - returns: An `Array` of `Secret`s stored in the `userDefaults`.
+    public func all() -> [Secret] {
         guard let stored = userDefaults.string(forKey: "swiftagram-stored") else { return [] }
         return Set(stored.components(separatedBy: ",")).compactMap(find)
     }
 
     // MARK: Locker
-    /// Store an `Authentication.Response` in the user defaults.
-    /// - note: Prefer `Authentication.Response.store` to access it.
-    public func store(_ response: Authentication.Response) {
+    /// Store a `Secret` in the user defaults.
+    /// - note: Prefer `Secret.store` to access it.
+    public func store(_ response: Secret) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
         userDefaults.set(data, forKey: response.id)
@@ -52,9 +52,9 @@ public struct UserDefaultsStorage: Storage {
     }
 
     @discardableResult
-    /// Delete an `Authentication.Response` in the user defaults.
-    /// - returns: The removed `Authentication.Response` or `nil` if none was found.
-    public func remove(matching identifier: String) -> Authentication.Response? {
+    /// Delete a `Secret` in the user defaults.
+    /// - returns: The removed `Secret` or `nil` if none was found.
+    public func remove(matching identifier: String) -> Secret? {
         guard let response = find(matching: identifier) else { return nil }
         // Remove the response and update the list.
         userDefaults.removeObject(forKey: identifier)

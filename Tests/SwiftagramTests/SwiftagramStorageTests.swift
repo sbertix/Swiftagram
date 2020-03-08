@@ -3,19 +3,19 @@ import KeychainSwift
 import XCTest
 
 final class SwiftagramStorageTests: XCTestCase {
-    /// Compute the `Authentication.Response`.
-    let response = Authentication.Response(identifier: HTTPCookie(properties: [.name: "ds_user_id",
-                                                                               .path: "test",
-                                                                               .value: "test",
-                                                                               .domain: "test"])!,
-                                           crossSiteRequestForgery: HTTPCookie(properties: [.name: "csrftoken",
-                                                                                            .path: "test",
-                                                                                            .value: "test",
-                                                                                            .domain: "test"])!,
-                                           session: HTTPCookie(properties: [.name: "sessionid",
-                                                                            .path: "test",
-                                                                            .value: "test",
-                                                                            .domain: "test"])!)
+    /// Compute the `Secret`.
+    let response = Secret(identifier: HTTPCookie(properties: [.name: "ds_user_id",
+                                                              .path: "test",
+                                                              .value: "test",
+                                                              .domain: "test"])!,
+                          crossSiteRequestForgery: HTTPCookie(properties: [.name: "csrftoken",
+                                                                           .path: "test",
+                                                                           .value: "test",
+                                                                           .domain: "test"])!,
+                          session: HTTPCookie(properties: [.name: "sessionid",
+                                                           .path: "test",
+                                                           .value: "test",
+                                                           .domain: "test"])!)
 
     /// Test `TransientStorage` flow.
     func testTransientStorage() {

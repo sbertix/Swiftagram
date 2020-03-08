@@ -34,7 +34,7 @@ The library comes with a concrete implementation allowing access with _username_
 Future versions are expected to also provide a web view based `Authenticator`.
 
 ### Caching
-Caching of [`Authentication.Response`](https://github.com/sbertix/Swiftagram/wiki/Authentication_Response)s is provided through conformance to the [`Storage`](https://github.com/sbertix/Swiftagram/wiki/Storage) protocol.  
+Caching of [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Authentication_Response)s is provided through conformance to the [`Storage`](https://github.com/sbertix/Swiftagram/wiki/Storage) protocol.  
 
 The library comes with several concrete implementations.  
 - [`TransientStorage`](https://github.com/sbertix/Swiftagram/wiki/TransientStorage) should be used when no caching is necessary.  

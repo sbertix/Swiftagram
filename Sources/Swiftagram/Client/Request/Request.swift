@@ -9,33 +9,6 @@ import Foundation
 
 /// A `class` binding a specific Instagram endpoint to an `Account`.
 public final class Request {
-    /// An `enum` holding reference to possible completion types.
-    internal enum Completion {
-        /// Data.
-        case data((Result<Requester.Task.Response<Data>, Swift.Error>) -> Void)
-        /// String.
-        case string((Result<Requester.Task.Response<String>, Swift.Error>) -> Void, encoding: String.Encoding)
-        /// Dynamic response.
-        case response((Result<Requester.Task.Response<Response>, Swift.Error>) -> Void)
-
-        /// Parse `Data` into the `Completion` specific block input and then call it.
-        internal func send(_ data: Result<Requester.Task.Response<Data>, Swift.Error>) {
-            switch self {
-            case .data(let send): send(data)
-            case .string(let send, let encoding):
-                send(data.map { (String(data: $0.data, encoding: encoding) ?? "", $0.response) })
-            case .response(let send): send(data.map { ((try? Response(data: $0.data)) ?? .none, $0.response) })
-            }
-        }
-    }
-    /// An `enum` holding reference to `Request`-specific `Error`s.
-    public enum Error: Swift.Error {
-        /// Invalid `Data`.
-        case invalidData
-        /// Invalid `URL`.
-        case invalidEndpoint
-    }
-
     /// The current endpoint.
     public internal(set) var endpoint: Endpoint
     /// The block to be called when results are fetched.
@@ -60,8 +33,8 @@ public final class Request {
 
     // MARK: Composition
     /// Authenticate `self` through the authentication `response`.
-    /// - parameter response: An `Authentication.Response`.
-    public func authenticating(with response: Authentication.Response) -> Request {
+    /// - parameter response: An `Secret`.
+    public func authenticating(with response: Secret) -> Request {
         precondition(self.task == nil, "`Request.authenticating` can only be called before resuming")
         self.endpoint = endpoint.headerFields(response.headerFields)
         return self
