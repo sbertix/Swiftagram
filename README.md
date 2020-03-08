@@ -3,7 +3,8 @@
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
 [![PayPal](https://img.shields.io/badge/support-PayPal-blue?style=flat&logo=paypal)](https://www.paypal.me/sbertix)
 
-**Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**, available for all platforms supporting it.  
+**Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.\
+<br/>
 
 > How does it work?  
 
@@ -13,7 +14,7 @@ This is because Instagram's **oficial APIs**, both the [**Instagram Basic Displa
 
 > Do I need an API token?
 
-**Swiftagram** requires no token or registration.  
+**Swiftagram** requires no token or registration.\
 Unofficial APIs, though, are not authorized by Instagram for external use: use them at your own risk.
 
 > Where can I use this?
