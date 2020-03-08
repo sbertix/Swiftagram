@@ -16,15 +16,15 @@ public struct Endpoints {
         /// Archived stories.
         public static let stories = base.reel.day_shells
     }
-    
+
     /// A `struct` holding reference to `direct_v2` `Endpoint`s. Requires authentication.
     public struct Direct {
         /// The base endpoint.
         private static let base = Endpoint.version1.direct_v2.defaultHeaderFields()
-        
+
         /// All threads.
         public static let threads = base.reel.inbox
-        
+
         /// A thread matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid thread identifier.
         public static func thread(matching identifier: String) -> Endpoint {
@@ -36,14 +36,14 @@ public struct Endpoints {
     public struct Feed {
         /// The base endpoint.
         private static let base = Endpoint.version1.feed.defaultHeaderFields()
-        
+
         /// Stories tray.
         public static let followedStories = base.reels_tray
         /// Liked media.
         public static let likes = base.liked
         /// Timeline.
         public static let timeline = base.timeline
-                
+
         /// All posts for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(by identifier: String) -> Endpoint {
@@ -59,19 +59,19 @@ public struct Endpoints {
         public static func posts(including identifier: String) -> Endpoint {
             return Endpoint.version1.usertags.wrap(identifier).feed.defaultHeaderFields()
         }
-        
+
         /// All media matching `tag`.
         /// - parameter tag: A `String` holding reference to a valid _#tag_.
         public static func tagged(with tag: String) -> Endpoint {
             return base.tag.wrap(tag)
         }
     }
-    
+
     /// A `struct` holding reference to `friendships` `Endpoint`s. Requires authentication.
     public struct Friendship {
         /// The base endpoint.
         private static let base = Endpoint.version1.friendships.defaultHeaderFields()
-        
+
         /// A list of users followed by the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **following**.
@@ -90,12 +90,12 @@ public struct Endpoints {
             return base.show.wrap(identifier)
         }
     }
-    
+
     /// A `struct` holding reference to `users` `Endpoint`s. Requires authentication.
     public struct User {
         /// The base endpoint.
         private static let base = Endpoint.version1.users.defaultHeaderFields()
-        
+
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func summary(for identifier: String) -> Endpoint {

@@ -1,5 +1,5 @@
-@testable import Swiftagram
 import KeychainSwift
+@testable import Swiftagram
 import XCTest
 
 final class SwiftagramStorageTests: XCTestCase {
@@ -16,7 +16,7 @@ final class SwiftagramStorageTests: XCTestCase {
                                                                             .path: "test",
                                                                             .value: "test",
                                                                             .domain: "test"])!)
-    
+
     /// Test `TransientStorage` flow.
     func testTransientStorage() {
         let storage = TransientStorage()
