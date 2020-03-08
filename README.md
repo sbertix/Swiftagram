@@ -1,5 +1,5 @@
 # Swiftagram
-![Swift](https://github.com/sbertix/Swiftagram/workflows/Swift/badge.svg?branch=master)
+![Push (master)](https://github.com/sbertix/Swiftagram/workflows/Push%20(master)/badge.svg)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)
 ![Platforms](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS%20%7C%20Linux-lightgrey?style=flat)
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
@@ -21,7 +21,7 @@ Use this at your own risk.
 1. Paste `https://github.com/sbertix/Swiftagram.git`.
 1. Follow the steps.
 
-**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift).
+**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift), and is compatible with Swift 5.0 or above.
 
 ## Authentication
 Authentication is provided through conformance to the `Authenticator` protocol.  
