@@ -1,12 +1,12 @@
-import XCTest
 @testable import Swiftagram
+import XCTest
 
 final class SwiftagramTests: XCTestCase {
     /// Environmental variables.
     var environemnt: [String: String] = [:]
-    
+
     /// Set up.
-    override func setUp(){
+    override func setUp() {
         environemnt = ProcessInfo.processInfo.environment
     }
 
@@ -16,7 +16,7 @@ final class SwiftagramTests: XCTestCase {
         // Authenticate.
         BasicAuthenticator(username: environemnt["INSTAGRAM_USERNAME"] ?? "",
                            password: environemnt["INSTAGRAM_PASSWORD"] ?? "")
-            .authenticate {
+            .authenticate { [username] in
                 switch $0 {
                 case .success:
                     XCTAssert(true)
@@ -25,7 +25,7 @@ final class SwiftagramTests: XCTestCase {
                     switch error {
                     case let authenticationError as AuthenticatorError:
                         // Checkpoints and 2FA are not handled in the test.
-                        XCTFail(String(describing: authenticationError))
+                        XCTFail(String(describing: authenticationError)+" for \(username)")
                         expectation.fulfill()
                     default:
                         XCTFail(error.localizedDescription)
@@ -37,6 +37,6 @@ final class SwiftagramTests: XCTestCase {
     }
 
     static var allTests = [
-        ("BasicAuthenticator", testBasicAuthenticator),
+        ("BasicAuthenticator", testBasicAuthenticator)
     ]
 }
