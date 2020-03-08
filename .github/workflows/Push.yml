@@ -1,9 +1,7 @@
-name: Swift
+name: Push (master)
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
     branches: [ master ]
 
 jobs:
@@ -19,6 +17,7 @@ jobs:
       env:
         INSTAGRAM_USERNAME: ${{ secrets.INSTAGRAM_USERNAME }}
         INSTAGRAM_PASSWORD: ${{ secrets.INSTAGRAM_PASSWORD }}
+        
   documentation:
     needs: build
     runs-on: ubuntu-latest
