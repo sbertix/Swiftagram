@@ -1,10 +1,9 @@
 # Swiftagram
-
-![Platforms](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS%20%7C%20Linux-lightgrey?style=flat)
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
 [![PayPal](https://img.shields.io/badge/support-PayPal-blue?style=flat&logo=paypal)](https://www.paypal.me/sbertix)
 
-**Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.\
+**Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.
+
 <br/>
 
 > How does it work?  
@@ -45,7 +44,7 @@ Furthermore, with the intregration of the **Swift Package Manager** in **Xcode 1
 Visit the (_auto-generated_) [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
 
 ### Authentication
-Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a `Secret` containing all the cookies needed to sign a request.
+Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret) containing all the cookies needed to sign a [`Request`](https://github.com/sbertix/Swiftagram/wiki/Request).
 
 The library comes with a concrete implementation.
 - [`BasicAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/BasicAuthenticator) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
@@ -55,7 +54,7 @@ The library comes with a concrete implementation.
 Definitely planned: it'll be here in time for an initial stable release.
 
 ### Caching
-Caching of [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Authentication_Response)s is provided through conformance to the [`Storage`](https://github.com/sbertix/Swiftagram/wiki/Storage) protocol.  
+Caching of `Secret`s is provided through conformance to the [`Storage`](https://github.com/sbertix/Swiftagram/wiki/Storage) protocol.  
 
 The library comes with several concrete implementations.  
 - [`TransientStorage`](https://github.com/sbertix/Swiftagram/wiki/TransientStorage) should be used when no caching is necessary.  
