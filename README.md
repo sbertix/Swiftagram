@@ -33,7 +33,8 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 1. Paste `https://github.com/sbertix/Swiftagram.git`.
 1. Follow the steps.
 
-**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift) and requires Swift **5.0** or above.
+**Swiftagram** depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift) and requires **Swift 5.0** or above.\
+[`Request`](https://github.com/sbertix/Swiftagram/wiki/Request) also defines custom [`Publisher`](https://developer.apple.com/documentation/combine/publisher)s when linking against the [**Combine**](https://developer.apple.com/documentation/combine) framework.
 
 > Why not CocoaPods, or Carthage, or ~blank~?
 
@@ -44,7 +45,7 @@ Furthermore, with the intregration of the **Swift Package Manager** in **Xcode 1
 Visit the (_auto-generated_) [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
 
 ### Authentication
-Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret) containing all the cookies needed to sign a [`Request`](https://github.com/sbertix/Swiftagram/wiki/Request).
+Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret) containing all the cookies needed to sign a `Request`.
 
 The library comes with a concrete implementation.
 - [`BasicAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/BasicAuthenticator) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
