@@ -9,7 +9,7 @@ import Foundation
 
 public extension Requester {
     /// A `struct` holding reference to a specific `Request`.
-    struct Task: Hashable {
+    final class Task: Hashable {
         /// A `tuple` holding reference to responses.
         public typealias Response<Type> = (data: Type, response: HTTPURLResponse?)
 
@@ -21,6 +21,9 @@ public extension Requester {
         public internal(set) var request: Request
 
         // MARK: Lifecycle
+        /// Cancel on `deinit`.
+        deinit { cancel() }
+        
         /// Init.
         /// - parameter request: A valid `Request`.
         public init(request: Request) { self.request = request }
