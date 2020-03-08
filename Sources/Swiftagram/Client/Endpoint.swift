@@ -138,7 +138,7 @@ public struct Endpoint: Hashable {
     }
 
     /// Append default `headerFields`.
-    public var defaultHeaderFields: Endpoint {
+    public func defaultHeaderFields() -> Endpoint {
         return self.headerFields(
             [Headers.acceptLanguageKey: Headers.acceptLanguageValue,
              Headers.contentTypeKey: Headers.contentTypeApplicationFormValue,
