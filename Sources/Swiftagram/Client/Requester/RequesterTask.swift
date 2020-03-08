@@ -23,7 +23,7 @@ public extension Requester {
         // MARK: Lifecycle
         /// Cancel on `deinit`.
         deinit { cancel() }
-        
+
         /// Init.
         /// - parameter request: A valid `Request`.
         public init(request: Request) { self.request = request }

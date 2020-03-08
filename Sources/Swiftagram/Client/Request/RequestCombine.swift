@@ -6,8 +6,8 @@
 //
 
 #if canImport(Combine)
-import Foundation
 import Combine
+import Foundation
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 /// A combine extension for `Request`.
@@ -25,7 +25,7 @@ public final class RequestSubscription<Subscriber: Combine.Subscriber>: Subscrip
     private var task: Requester.Task?
     /// A `Subscriber`.
     private var subscriber: Subscriber?
-    
+
     // MARK: Lifecycle
     /// Init.
     /// - parameter request: A valid `Request`.
@@ -43,11 +43,11 @@ public final class RequestSubscription<Subscriber: Combine.Subscriber>: Subscrip
             }
             .resume()
     }
-    
+
     // MARK: Subscription
     /// Request. The default implementation does nothing.
     public func request(_ demand: Subscribers.Demand) { }
-    
+
     /// Cancel.
     public func cancel() {
         self.task = nil
@@ -62,14 +62,14 @@ public struct RequestPublisher: Publisher {
     public typealias Output = Response
     /// Fail to any `Error`.
     public typealias Failure = Error
-    
+
     /// A valid `Request`.
     private var request: Request
-    
+
     /// Init.
     /// - parameter request: A valid `Request`.
     public init(request: Request) { self.request = request }
-    
+
     /// Receive the `Subscriber`.
     /// - parameter subscriber: A valid `Subscriber`.
     public func receive<S>(subscriber: S) where S: Subscriber, Failure == S.Failure, Output == S.Input {
