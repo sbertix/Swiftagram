@@ -3,6 +3,8 @@ name: Push (master)
 on:
   push:
     branches: [ master ]
+    paths:
+        - '**.swift'
 
 jobs:
   build:
