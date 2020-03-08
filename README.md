@@ -3,12 +3,23 @@
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
 [![PayPal](https://img.shields.io/badge/support-PayPal-blue?style=flat&logo=paypal)](https://www.paypal.me/sbertix)
 
-**Instagram** offers two kinds of APIs to developers. The **Instagram Basic Display API** (extremely limited in functionality), and the **Instagram Graph API** for _Professional_, i.e. _Business_ and _Creator_, accounts only.
+**Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.\
+<br/>
 
-However, Instagram apps rely on a third type of API, the so-called Private API or Unofficial API, and **Swiftagram** is an iOS, macOS, tvOS, watchOS and Linux client for them, written entirely in Swift. You can try and create a better Instagram experience for your users, or write bots for automating different tasks.
+> How does it work?  
 
-These Private API require no token or app registration but they're not authorized by Instagram for external use.  
-Use this at your own risk.
+**Swiftagram** relies on Instagram unofficial private APIs, used internally in the Android and iOS apps.  
+
+This is because Instagram's **oficial APIs**, both the [**Instagram Basic Display API**](https://developers.facebook.com/docs/instagram-basic-display-api) and the [**Instagram Graph API**](https://developers.facebook.com/docs/instagram-api/), are either lacking support for even the most mundane of features or limited to a small audience (e.g. _Professional_, i.e. _Creator_ and _Influencer_, accounts).  
+
+> Do I need an API token?
+
+**Swiftagram** requires no token or registration.\
+Unofficial APIs, though, are not authorized by Instagram for external use: use them at your own risk.
+
+> Where can I use this?
+
+**Swiftagram** supports **iOS**, **macOS**, **watchOS**, **tvOS** and **Linux**.
 
 ## Status
 ![Push](https://github.com/sbertix/Swiftagram/workflows/Push%20(master)/badge.svg)
@@ -22,7 +33,7 @@ Use this at your own risk.
 1. Paste `https://github.com/sbertix/Swiftagram.git`.
 1. Follow the steps.
 
-**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift), and is compatible with Swift 5.0 or above.
+**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift) and requires Swift 5.0 or above.
 
 ## Usage
 Visit the [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
@@ -43,4 +54,4 @@ The library comes with several concrete implementations.
 
 
 ## Contributions
-Pull requests and issues are more than welcome.
+[Pull requests](https://github.com/sbertix/Swiftagram/pulls) and [issues](https://github.com/sbertix/Swiftagram/issues) are more than welcome.
