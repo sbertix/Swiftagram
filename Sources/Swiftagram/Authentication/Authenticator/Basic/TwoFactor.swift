@@ -15,6 +15,8 @@ public final class TwoFactor {
     internal let username: String
     /// A `String` representing the 2FA identifier.
     internal let identifier: String
+    /// A `String` representing the user agent to be used for every request.
+    internal let userAgent: String
     /// A `HTTPCookie` for `csrftoken`.
     internal let crossSiteRequestForgery: HTTPCookie
     /// A block providing an `Authentication.Response`.
@@ -25,11 +27,13 @@ public final class TwoFactor {
     internal init<Storage: Swiftagram.Storage>(storage: Storage,
                                                username: String,
                                                identifier: String,
+                                               userAgent: String,
                                                crossSiteRequestForgery: HTTPCookie,
                                                onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
         self.storage = storage
         self.username = username
         self.identifier = identifier
+        self.userAgent = userAgent
         self.crossSiteRequestForgery = crossSiteRequestForgery
         self.onChange = onChange
     }
@@ -52,7 +56,8 @@ public final class TwoFactor {
                      "x-requested-with": "XMLHttpRequest",
                      "Referer": "https://www.instagram.com/accounts/login/ajax/two_factor/",
                      "Authority": "www.instagram.com",
-                     "Content-Type": "application/x-www-form-urlencoded"]
+                     "Content-Type": "application/x-www-form-urlencoded",
+                     "User-Agent": userAgent]
                 )
         )
         .onCompleteString { [self] in
