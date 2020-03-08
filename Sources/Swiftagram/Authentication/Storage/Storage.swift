@@ -10,9 +10,6 @@ import Foundation
 /// A `protocol` describing a form of `Storage` for `Authentication.Response`s.
 /// - warning: `Authentication.Response`s contain sensitive information: avoid storing them unencrypted.
 public protocol Storage {
-    /// A `String` identifying the current storage.
-    var reference: String? { get }
-
     /// Find an `Authentication.Response` stored in `self`.
     /// - returns: A `Response` or `nil` if no response could be found.
     /// - note: Prefer `Authentication.Response.stored` to access it.
@@ -22,21 +19,22 @@ public protocol Storage {
     /// - returns: An `Array` of `Authentication.Response`s stored in `self`.
     func all() -> [Authentication.Response]
 
-    /// Store an `Authenticated.Response` in `self`.
+    /// Store an `Authentication.Response` in `self`.
     /// - note: Prefer `Authentication.Response.store` to access it.
     func store(_ response: Authentication.Response)
 
     @discardableResult
-    /// Delete an `Authenticated.Response` in `self`.
-    /// - returns: The removed `Authenticated.Response` or `nil` if none was found.
+    /// Delete an `Authentication.Response` in `self`.
+    /// - returns: The removed `Authentication.Response` or `nil` if none was found.
     func remove(matching identifier: String) -> Authentication.Response?
+}
+public extension Storage {
+    /// Delete all cached `Authentication.Response`s.
+    func removeAll() { all().map { $0.id }.forEach { remove(matching: $0) }}
 }
 
 /// An `Array` of `Storage`s should conform to `Storage`, and all values should be returned.
 extension Array: Storage where Element: Storage {
-    /// A `String` identifying the current storage.
-    public var reference: String? { return nil }
-
     /// Find the first `Authentication.Response` stored in one of the elements.
     /// - returns: A `Response` or `nil` if no response could be found.
     /// - note: Prefer `Authentication.Response.stored` to access it.
@@ -50,15 +48,15 @@ extension Array: Storage where Element: Storage {
         return map { $0.all() }.reduce(into: []) { $0 += $1 }
     }
 
-    /// Store an `Authenticated.Response` in all elements.
+    /// Store an `Authentication.Response` in all elements.
     /// - note: Prefer `Authentication.Response.store` to access it.
     public func store(_ response: Authentication.Response) {
         forEach { $0.store(response) }
     }
 
     @discardableResult
-    /// Delete an `Authenticated.Response` from all elements, and return the first found.
-    /// - returns: The removed `Authenticated.Response` or `nil` if none was found.
+    /// Delete an `Authentication.Response` from all elements, and return the first found.
+    /// - returns: The removed `Authentication.Response` or `nil` if none was found.
     public func remove(matching identifier: String) -> Authentication.Response? {
         guard let match = find(matching: identifier) else { return nil }
         forEach { $0.remove(matching: identifier) }

@@ -7,18 +7,14 @@
 
 import Foundation
 
-/// A `class` holding reference to all `Authentication.Response`s stored in the `UserDefaults`.
+/// A `struct` holding reference to all `Authentication.Response`s stored in the `UserDefaults`.
 /// - warning: `UserDefaults` are not safe for storing `Authentication.Response`s. **DO NOT USE THIS IN PRODUCTION**.
 /// - note: `
 ///     KeychainStorage` is the encoded and ready-to-use alternative to `UserDefaultsStorage`.
 ///     Add https://github.com/evgenyneu/keychain-swift to your dependencies and import it to start using it.
-public final class UserDefaultsStorage: Storage {
-    /// The shared instance of `Storage`.
-    public static let `default` = UserDefaultsStorage()
+public struct UserDefaultsStorage: Storage {
     /// A `UserDefaults` used as storage. Defaults to `.standard`.
     private let userDefaults: UserDefaults
-    /// A `String` holding reference to the current storage.
-    public let reference: String? = "userdefaults"
 
     // MARK: Lifecycle
     /// Init.
@@ -38,35 +34,35 @@ public final class UserDefaultsStorage: Storage {
     /// Return all `Authentication.Response`s stored in the  user defaults.
     /// - returns: An `Array` of `Authentication.Response`s stored in the `userDefaults`.
     public func all() -> [Authentication.Response] {
-        guard let stored = userDefaults.string(forKey: reference.flatMap { $0+"-stored" } ?? "stored") else { return [] }
+        guard let stored = userDefaults.string(forKey: "swiftagram-stored") else { return [] }
         return Set(stored.components(separatedBy: ",")).compactMap(find)
     }
 
     // MARK: Locker
-    /// Store an `Authenticated.Response` in the user defaults.
+    /// Store an `Authentication.Response` in the user defaults.
     /// - note: Prefer `Authentication.Response.store` to access it.
     public func store(_ response: Authentication.Response) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
         userDefaults.set(data, forKey: response.id)
         // Update the list of stored respones.
-        var stored = Set(userDefaults.string(forKey: reference.flatMap { $0+"-stored" } ?? "stored")?.components(separatedBy: ",") ?? [])
+        var stored = Set(userDefaults.string(forKey: "swiftagram-stored")?.components(separatedBy: ",") ?? [])
         stored.insert(response.id)
-        userDefaults.set(stored.joined(separator: ","), forKey: reference.flatMap { $0+"-stored" } ?? "stored")
+        userDefaults.set(stored.joined(separator: ","), forKey: "swiftagram-stored")
     }
 
     @discardableResult
-    /// Delete an `Authenticated.Response` in the user defaults.
-    /// - returns: The removed `Authenticated.Response` or `nil` if none was found.
+    /// Delete an `Authentication.Response` in the user defaults.
+    /// - returns: The removed `Authentication.Response` or `nil` if none was found.
     public func remove(matching identifier: String) -> Authentication.Response? {
         guard let response = find(matching: identifier) else { return nil }
         // Remove the response and update the list.
         userDefaults.removeObject(forKey: identifier)
-        userDefaults.set((userDefaults.string(forKey: reference.flatMap { $0+"-stored" } ?? "stored") ?? "")
+        userDefaults.set((userDefaults.string(forKey: "swiftagram-stored") ?? "")
             .components(separatedBy: ",")
             .filter { $0 != identifier }
             .joined(separator: ","),
-                         forKey: reference.flatMap { $0+"-stored" } ?? "stored")
+                         forKey: "swiftagram-stored")
         // Return the response.
         return response
     }

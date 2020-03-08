@@ -5,26 +5,32 @@
 //  Created by Stefano Bertagno on 07/03/2020.
 //
 
-#if canImport(KeychainSwift)
 import Foundation
 import KeychainSwift
 
-/// A `class` holding reference to all `Authentication.Response`s stored in the keychain.
+@frozen
+/// A `struct` holding reference to all `Authentication.Response`s stored in the keychain.
 /// - note: `
 ///     KeychainStorage` is the encoded and ready-to-use alternative to `UserDefaultsStorage`.
 ///     Add https://github.com/evgenyneu/keychain-swift to your dependencies and import it to start using it.
-public final class KeychainStorage: Storage {
-    /// The shared instance of `Storage`.
-    public static let `default` = KeychainStorage()
-    /// A `KeychainSwift` used as storage. Defaults to `.init()`.
+public struct KeychainStorage: Storage {
+    /// A `String` identifying the `KeychainSwift` prefix. Defaults to `swiftagram`. Defaults to `swiftagram`.
+    public let prefix: String
+    /// A `Bool` identifying whether the `Authentication.Response`s should be synchronized through iCloud. Defaults to `false`.
+    public let synchronizable: Bool
+    /// A `KeychainSwift` used as storage. Defaults to `.init(keyPrefix: prefix)`.
     private let keychain: KeychainSwift
-    /// A `String` holding reference to the current storage.
-    public let reference: String? = "keychain"
 
     // MARK: Lifecycle
     /// Init.
-    /// - parameter keychain: A `KeychainSwift`.
-    public init(keychain: KeychainSwift = .init()) { self.keychain = keychain }
+    /// - parameter prefix: A `KeychainSwift` prefix.
+    public init(prefix: String = "swiftagram",
+                synchronizable: Bool = false) {
+        self.prefix = prefix
+        self.synchronizable = synchronizable
+        self.keychain = .init(keyPrefix: prefix)
+        self.keychain.synchronizable = synchronizable
+    }
 
     // MARK: Lookup
     /// Find an `Authentication.Response` stored in the keychain.
@@ -39,37 +45,26 @@ public final class KeychainStorage: Storage {
     /// Return all `Authentication.Response`s stored in the `keychain`.
     /// - returns: An `Array` of `Authentication.Response`s stored in the `keychain`.
     public func all() -> [Authentication.Response] {
-        guard let stored = keychain.get(reference.flatMap { $0+"-stored" } ?? "stored") else { return [] }
-        return Set(stored.components(separatedBy: ",")).compactMap(find)
+        return keychain.allKeys
+            .compactMap { $0.starts(with: prefix) ? String($0[prefix.endIndex...]) : nil }
+            .compactMap(find)
     }
 
     // MARK: Locker
-    /// Store an `Authenticated.Response` in the keychain.
+    /// Store an `Authentication.Response` in the keychain.
     /// - note: Prefer `Authentication.Response.store` to access it.
     public func store(_ response: Authentication.Response) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
         keychain.set(data, forKey: response.id)
-        // Update the list of stored respones.
-        var stored = Set(keychain.get(reference.flatMap { $0+"-stored" } ?? "stored")?.components(separatedBy: ",") ?? [])
-        stored.insert(response.id)
-        keychain.set(stored.joined(separator: ","), forKey: reference.flatMap { $0+"-stored" } ?? "stored")
     }
 
     @discardableResult
-    /// Delete an `Authenticated.Response` in the keychain.
-    /// - returns: The removed `Authenticated.Response` or `nil` if none was found.
+    /// Delete an `Authentication.Response` in the keychain.
+    /// - returns: The removed `Authentication.Response` or `nil` if none was found.
     public func remove(matching identifier: String) -> Authentication.Response? {
         guard let response = find(matching: identifier) else { return nil }
-        // Remove the response and update the list.
         keychain.delete(identifier)
-        keychain.set((keychain.get(reference.flatMap { $0+"-stored" } ?? "stored") ?? "")
-            .components(separatedBy: ",")
-            .filter { $0 != identifier }
-            .joined(separator: ","),
-                     forKey: reference.flatMap { $0+"-stored" } ?? "stored")
-        // Return the response.
         return response
     }
 }
-#endif

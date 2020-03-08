@@ -3,5 +3,6 @@ import XCTest
 import SwiftagramTests
 
 var tests = [XCTestCaseEntry]()
-tests += SwiftagramTests.allTests()
+tests += SwiftagramStorageTests.allTests()
+tests += SwiftagramAuthenticatorTests.allTests()
 XCTMain(tests)

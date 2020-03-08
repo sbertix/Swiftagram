@@ -21,6 +21,8 @@ Use this at your own risk.
 1. Paste `https://github.com/sbertix/Swiftagram.git`.
 1. Follow the steps.
 
+**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift).
+
 ## Authentication
 Authentication is provided through conformance to the `Authenticator` protocol.  
 

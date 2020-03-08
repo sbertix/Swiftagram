@@ -1,7 +1,7 @@
 @testable import Swiftagram
 import XCTest
 
-final class SwiftagramTests: XCTestCase {
+final class SwiftagramAuthenticatorTests: XCTestCase {
     /// Environmental variables.
     var environemnt: [String: String] = [:]
 

@@ -13,15 +13,15 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/evgenyneu/keychain-swift.git", from: "16.0.0"),
+        .package(url: "https://github.com/evgenyneu/keychain-swift.git", from: "19.0.0"),
     ],
     targets: [
         .target(
             name: "Swiftagram",
-            dependencies: []
+            dependencies: ["KeychainSwift"]
         ),
         .testTarget(
             name: "SwiftagramTests",
-            dependencies: ["KeychainSwift", "Swiftagram"])
+            dependencies: ["Swiftagram"])
     ]
 )
