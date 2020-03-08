@@ -18,12 +18,22 @@ internal extension Request {
         case response((Result<Requester.Task.Response<Response>, Swift.Error>) -> Void)
 
         /// Parse `Data` into the `Completion` specific block input and then call it.
-        internal func send(_ data: Result<Requester.Task.Response<Data>, Swift.Error>) {
+        internal func send(_ data: Result<Requester.Task.Response<Data>, Swift.Error>,
+                           responseQueue: Requester.Queue) {
             switch self {
             case .data(let send): send(data)
             case .string(let send, let encoding):
-                send(data.map { (String(data: $0.data, encoding: encoding) ?? "", $0.response) })
-            case .response(let send): send(data.map { ((try? Response(data: $0.data)) ?? .none, $0.response) })
+                let response = data.map {
+                    (data: String(data: $0.data, encoding: encoding) ?? "",
+                     response: $0.response)
+                }
+                responseQueue.handle { send(response) }
+            case .response(let send):
+                let response = data.map {
+                    (data: (try? Response(data: $0.data)) ?? .none,
+                     response: $0.response)
+                }
+                responseQueue.handle { send(response) }
             }
         }
     }

@@ -74,23 +74,36 @@ public final class Request {
 
     /// Fetch using a given `session`.
     /// - parameter session: A `URLSession`.
-    internal func fetch(using session: URLSession, onComplete: @escaping () -> Void) {
+    internal func fetch(using session: URLSession,
+                        configuration: Requester.Configuration,
+                        onComplete: @escaping () -> Void) {
         // Check for a valid `URL`.
         guard let request = endpoint.request else {
-            self.onComplete?.send(.failure(Error.invalidEndpoint))
+            configuration.mapQueue.handle { [weak self] in
+                self?.onComplete?.send(.failure(Error.invalidEndpoint),
+                                       responseQueue: configuration.responseQueue)
+            }
             return onComplete()
         }
         // Set `task`.
-        self.task = session.dataTask(with: request) { [weak self] data, response, error in
-            if let error = error {
-                self?.onComplete?.send(.failure(error)); onComplete()
-            } else if let data = data {
-                self?.onComplete?.send(.success((data, response as? HTTPURLResponse))); onComplete()
-            } else {
-                self?.onComplete?.send(.failure(Error.invalidData))
-                onComplete()
+        configuration.requestQueue.handle {
+            self.task = session.dataTask(with: request) { [weak self] data, response, error in
+                configuration.mapQueue.handle {
+                    if let error = error {
+                        self?.onComplete?.send(.failure(error), responseQueue: configuration.responseQueue)
+                        onComplete()
+                    } else if let data = data {
+                        self?.onComplete?.send(.success((data, response as? HTTPURLResponse)),
+                                               responseQueue: configuration.responseQueue)
+                        onComplete()
+                    } else {
+                        self?.onComplete?.send(.failure(Error.invalidData),
+                                               responseQueue: configuration.responseQueue)
+                        onComplete()
+                    }
+                }
             }
+            self.task?.resume()
         }
-        self.task?.resume()
     }
 }

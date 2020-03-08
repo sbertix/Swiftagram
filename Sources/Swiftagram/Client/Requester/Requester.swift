@@ -11,17 +11,17 @@ import Foundation
 public final class Requester {
     /// A shared instance of `Requester` using `URLSession.shared`.
     public static let `default` = Requester()
-    /// A `URLSessionConfiguration`.
-    public var configuration: URLSessionConfiguration
-    /// A `URLSession` to use for requests. Defaults to `.shared`.
-    public var session: URLSession { return URLSession(configuration: configuration) }
+    /// A `Configuration`. Defaults to `.default`.
+    public var configuration: Configuration
+
     /// A set of `Task`s currently scheduled or undergoing fetching.
     internal var requests: Set<Task> = [] {
         didSet {
             let inserted = requests.subtracting(oldValue)
+            let session = configuration.session
             // Actually fetch `inserted` tasks.
             inserted.forEach { task in
-                task.request.fetch(using: session) { [weak self] in
+                task.request.fetch(using: session, configuration: configuration) { [weak self] in
                     // Remove the task once it's done.
                     self?.requests.remove(task)
                 }
@@ -36,7 +36,8 @@ public final class Requester {
         requests = []
     }
     /// Init.
-    public init(configuration: URLSessionConfiguration = .default) { self.configuration = configuration }
+    /// - parameter configuration: A valid `Configuration`.
+    public init(configuration: Configuration = .default) { self.configuration = configuration }
 
     // MARK: Schedule
     @discardableResult
