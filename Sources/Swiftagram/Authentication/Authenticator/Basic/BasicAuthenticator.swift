@@ -15,6 +15,11 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public internal(set) var username: String
     /// A `String` holding a valid password.
     public internal(set) var password: String
+    /// A `String` holding a custom user agent to be passed to every request.
+    /// Defaults to Safari on an iPhone with iOS 13.1.3.
+    public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
+                                    "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
 
     // MARK: Lifecycle
     /// Init.
@@ -26,13 +31,22 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         self.username = username
         self.password = password
     }
+    /// Set `userAgent`.
+    /// - parameter userAgent: A `String` representing a valid user agent.
+    public func userAgent(_ userAgent: String?) -> BasicAuthenticator<Storage> {
+        self.userAgent = userAgent
+            ?? ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
+                "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
+        return self
+    }
 
     // MARK: Authenticator
     /// Return an `Authentication.Response` and store it in `storage`.
     /// - parameter onChange: A block providing an `Authentication.Response`.
     public func authenticate(_ onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        Request(.generic)
+        Request(Endpoint.generic.headerFields(["User-Agent": userAgent]))
             .onComplete { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
@@ -69,7 +83,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                          "Referer": "https://www.instagram.com",
                          "Authority": "www.instagram.com",
                          "Origin": "https://www.instagram.com",
-                         "Content-Type": "application/x-www-form-urlencoded"]
+                         "Content-Type": "application/x-www-form-urlencoded",
+                         "User-Agent": self.userAgent]
                     )
             )
             .onComplete { [self] in
@@ -99,6 +114,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 onChange(.failure(AuthenticatorError.twoFactor(.init(storage: storage,
                                                                      username: username,
                                                                      identifier: twoFactorIdentifier,
+                                                                     userAgent: userAgent,
                                                                      crossSiteRequestForgery: crossSiteRequestForgery,
                                                                      onChange: onChange))))
             } else if value.data.user.bool.flatMap({ !$0 }) ?? false {
@@ -136,8 +152,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         // Get checkpoint info.
         Request(
             Endpoint.generic.wrap(checkpoint)
+                .headerFields(["User-Agent": userAgent])
         )
-        .onCompleteString {
+        .onCompleteString { [self] in
             // Check for errors.
             switch $0 {
             case .failure(let error): onChange(.failure(error))
@@ -165,6 +182,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 }
                 onChange(.failure(AuthenticatorError.checkpoint(Checkpoint(storage: self.storage,
                                                                            url: url,
+                                                                           userAgent: self.userAgent,
                                                                            crossSiteRequestForgery: crossSiteRequestForgery,
                                                                            availableVerification: Set(verification),
                                                                            onChange: onChange))))

@@ -13,6 +13,8 @@ public final class Checkpoint {
     internal let storage: Storage
     /// A `URL` originating the `Checkpoint`.
     internal let url: URL
+    /// A `String` representing the user agent to be used for every request.
+    internal let userAgent: String
     /// A `HTTPCookie` for `csrftoken`.
     internal let crossSiteRequestForgery: HTTPCookie
     /// A `Set` of `Verification` representing available methods.
@@ -24,11 +26,13 @@ public final class Checkpoint {
     /// Init.
     internal init<Storage: Swiftagram.Storage>(storage: Storage,
                                                url: URL,
+                                               userAgent: String,
                                                crossSiteRequestForgery: HTTPCookie,
                                                availableVerification: Set<Verification>,
                                                onChange: @escaping (Result<Authentication.Response, Swift.Error>) -> Void) {
         self.storage = storage
         self.url = url
+        self.userAgent = userAgent
         self.crossSiteRequestForgery = crossSiteRequestForgery
         self.availableVerification = availableVerification
         self.onChange = onChange
@@ -51,7 +55,8 @@ public final class Checkpoint {
                      "Referer": "https://www.instagram.com",
                      "Authority": "www.instagram.com",
                      "Origin": url.absoluteString,
-                     "Content-Type": "application/x-www-form-urlencoded"]
+                     "Content-Type": "application/x-www-form-urlencoded",
+                     "User-Agent": userAgent]
                 )
         )
         .onComplete { [self] in
@@ -79,7 +84,8 @@ public final class Checkpoint {
                      "Referer": "https://www.instagram.com",
                      "Authority": "www.instagram.com",
                      "Origin": url.absoluteString,
-                     "Content-Type": "application/x-www-form-urlencoded"]
+                     "Content-Type": "application/x-www-form-urlencoded",
+                     "User-Agent": userAgent]
                 )
         )
         .onCompleteString { [self] in
