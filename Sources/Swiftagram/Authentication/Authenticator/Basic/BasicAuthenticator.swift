@@ -7,7 +7,42 @@
 
 import Foundation
 
-/// A `class` describing an `Authenticator` using `username` and `password`.
+/**
+    A `class` describing an `Authenticator` using `username` and `password`.
+ 
+    ```swift
+    /// A strong reference to a 2FA object.
+    var twoFactor: TwoFactor? {
+      didSet {
+        guard let twoFactor = twoFactor else { return }
+        // ask for the code and then pass it to `twoFactor.send`.
+      }
+    }
+    /// A strong reference to a Checkpoint object.
+    var checkpoint: Checkpoint? {
+      didSet {
+        guard let checkpoint = checkpoint else { return }
+        // ask for validation method then pass it to `checkpoint.request`,
+        // before sending the code to through `checkpoint.send`.
+      }
+    }
+
+    /// Login.
+    BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
+                       username: /* the username */,
+                       password: /* the password */)
+      .authenticate {
+        switch $0 {
+        case .failure(let error):
+          switch error {
+            case AuthenticatorError.checkpoint(let response): checkpoint = response
+            case AuthenticatorError.twoFactor(let response): twoFactor = response
+            default: print(error)
+          }
+        case .success: print("Logged in")
+      }
+    ```
+ */
 public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticator {
     /// A `Storage` instance used to store `Authentication.Response`s.
     public internal(set) var storage: Storage
