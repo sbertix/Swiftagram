@@ -17,3 +17,6 @@ jobs:
       run: swift build -v
     - name: Run tests
       run: swift test -v
+      env:
+        INSTAGRAM_USERNAME: ${{ secrets.INSTAGRAM_USERNAME }}
+        INSTAGRAM_PASSWORD: ${{ secrets.INSTAGRAM_PASSWORD }}
