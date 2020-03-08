@@ -10,26 +10,6 @@ import Foundation
 @dynamicMemberLookup
 /// A `struct` defining all possible `Endpoint`s.
 public struct Endpoint: Hashable {
-    /// An `enum` holding reference to a `Request`'s `Method`.
-    public enum Method {
-        /// Automatic. `.post` when a body is set, `.get` otherwise.
-        case `default`
-        /// GET.
-        case get
-        /// POST.
-        case post
-
-        /// Resolve starting from a given `body`.
-        /// - parameter body: An optional `Data` holding the body of the request.
-        internal func resolve(using body: Data?) -> String {
-            switch self {
-            case .default: return body == nil ? "GET" : "POST"
-            case .get: return "GET"
-            case .post: return "POST"
-            }
-        }
-    }
-
     /// A `[String]` composed of all path components.
     internal var components: [String]
     /// A `[String: String]` composed of all key-values to set as body. Defaults to `[:]`.
