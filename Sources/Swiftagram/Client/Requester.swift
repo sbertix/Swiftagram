@@ -22,6 +22,10 @@ public final class Requester {
         public internal(set) var request: Request
 
         // MARK: Lifecycle
+        /// Init.
+        /// - parameter request: A valid `Request`.
+        public init(request: Request) { self.request = request }
+
         /// Cancel the current request.
         public func cancel() {
             request.task?.cancel()
@@ -30,7 +34,7 @@ public final class Requester {
 
         // MARK: Hashable
         public func hash(into hasher: inout Hasher) { hasher.combine(identifier) }
-        public static func ==(lhs: Task, rhs: Task) -> Bool { lhs.identifier == rhs.identifier }
+        public static func ==(lhs: Task, rhs: Task) -> Bool { return lhs.identifier == rhs.identifier }
     }
 
     /// A shared instance of `Requester` using `URLSession.shared`.
@@ -38,7 +42,7 @@ public final class Requester {
     /// A `URLSessionConfiguration`.
     public var configuration: URLSessionConfiguration
     /// A `URLSession` to use for requests. Defaults to `.shared`.
-    public var session: URLSession { URLSession(configuration: configuration) }
+    public var session: URLSession { return URLSession(configuration: configuration) }
     /// A set of `Task`s currently scheduled or undergoing fetching.
     private var requests: Set<Task> = [] {
         didSet {

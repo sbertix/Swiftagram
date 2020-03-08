@@ -7,7 +7,6 @@
 
 import Foundation
 
-@frozen
 /// A `struct` holding reference to all transient `Authentication.Response`s.
 /// - note: Use when only dealing with one-shot `Authentication.Response`s.
 public struct TransientStorage: Storage {

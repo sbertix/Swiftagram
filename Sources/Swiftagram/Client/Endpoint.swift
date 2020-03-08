@@ -156,7 +156,7 @@ public struct Endpoint: Hashable {
 
     /// Set `method`.
     /// - parameter method: A `Method` value.
-    public func method(_ method: Method) -> Self {
+    public func method(_ method: Method) -> Endpoint {
         var copy = self
         copy.method = method
         return copy

@@ -8,7 +8,6 @@
 import Foundation
 import KeychainSwift
 
-@frozen
 /// A `struct` holding reference to all `Authentication.Response`s stored in the keychain.
 /// - note: `
 ///     KeychainStorage` is the encoded and ready-to-use alternative to `UserDefaultsStorage`.
