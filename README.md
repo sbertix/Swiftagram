@@ -1,4 +1,5 @@
 # Swiftagram
+
 ![Platforms](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS%20%7C%20Linux-lightgrey?style=flat)
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
 [![PayPal](https://img.shields.io/badge/support-PayPal-blue?style=flat&logo=paypal)](https://www.paypal.me/sbertix)
@@ -22,27 +23,36 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 **Swiftagram** supports **iOS**, **macOS**, **watchOS**, **tvOS** and **Linux**.
 
 ## Status
-![Push](https://github.com/sbertix/Swiftagram/workflows/Push%20(master)/badge.svg)
+![Status](https://github.com/sbertix/Swiftagram/workflows/Push%20(master)/badge.svg)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)
 
-#### **Swiftagram** is currently under development and more features are expected to be implemented everyday, which might result in breaking changes.
+**Swiftagram is currently under active development and more features are expected to be implemented everyday, which might result in breaking changes.**
 
 ## Installation
-#### Swift Package Manager (Xcode 11 and above)
+### Swift Package Manager (Xcode 11 and above)
 1. Select `File`/`Swift Packages`/`Add Package Dependency…` from the menu.
 1. Paste `https://github.com/sbertix/Swiftagram.git`.
 1. Follow the steps.
 
-**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift) and requires Swift 5.0 or above.
+**Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift) and requires Swift **5.0** or above.
+
+> Why not CocoaPods, or Carthage, or ~blank~?
+
+Supporting multiple _dependency managers_ makes maintaining a library exponentially more complicated and time consuming.\
+Furthermore, with the intregration of the **Swift Package Manager** in **Xcode 11** and greater, we expect the need for alternative solutions to fade quickly.
 
 ## Usage
-Visit the [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
+Visit the (_auto-generated_) [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
 
 ### Authentication
-Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol.  
+Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a `Secret` containing all the cookies needed to sign a request.
 
-The library comes with a concrete implementation allowing access with _username_ and _password_, named [`BasicAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/BasicAuthenticator).  
-Future versions are expected to also provide a web view based `Authenticator`.
+The library comes with a concrete implementation.
+- [`BasicAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/BasicAuthenticator) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
+
+> What about a web view based approach?
+
+Definitely planned: it'll be here in time for an initial stable release.
 
 ### Caching
 Caching of [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Authentication_Response)s is provided through conformance to the [`Storage`](https://github.com/sbertix/Swiftagram/wiki/Storage) protocol.  
