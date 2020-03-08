@@ -23,53 +23,22 @@ Use this at your own risk.
 
 **Swiftagram** depends on [KeychainSwift](https://github.com/evgenyneu/keychain-swift), and is compatible with Swift 5.0 or above.
 
-## Authentication
-Authentication is provided through conformance to the `Authenticator` protocol.  
+## Usage
+Visit the [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
 
-The library comes with a concrete implementation allowing access with _username_ and _password_, named `BasicAuthenticator`.  
+## Authentication
+Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol.  
+
+The library comes with a concrete implementation allowing access with _username_ and _password_, named [`BasicAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/BasicAuthenticator).  
 Future versions are expected to also provide a web view based `Authenticator`.
 
-#### `BasicAuthenticator`
-```swift
-/// A strong reference to a 2FA object.
-var twoFactor: TwoFactor? {
-  didSet {
-    guard let twoFactor = twoFactor else { return }
-    // ask for the code and then pass it to `twoFactor.send`.
-  }
-}
-/// A strong reference to a Checkpoint object.
-var checkpoint: Checkpoint? {
-  didSet {
-    guard let checkpoint = checkpoint else { return }
-    // ask for validation method then pass it to `checkpoint.request`, 
-    // before sending the code to through `checkpoint.send`.
-  }
-}
-
-/// Login.
-BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
-                   username: /* the username */,
-                   password: /* the password */)
-  .authenticate {
-    switch $0 {
-    case .failure(let error): 
-      switch error {
-        case AuthenticatorError.checkpoint(let response): checkpoint = response
-        case AuthenticatorError.twoFactor(let response): twoFactor = response
-        default: print(error)
-      }
-    case .success: print("Logged in")
-  }
-```
-
 ## Caching
-Caching of `Authentication.Response`s is provided through conformance to the `Storage` protocol.  
+Caching of `Authentication.Response`s is provided through conformance to the [`Storage`](https://github.com/sbertix/Swiftagram/wiki/Storage) protocol.  
 
 The library comes with several concrete implementations.  
-- `TransientStorage` should be used when no caching is necessary.  
-- `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
-- `KeychainStorage` (preferred) stores them safely in the user's keychain.  
+- [`TransientStorage`](https://github.com/sbertix/Swiftagram/wiki/TransientStorage) should be used when no caching is necessary.  
+- [`UserDefaultsStorage`](https://github.com/sbertix/Swiftagram/wiki/UserDefaultsStorage) allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
+- [`KeychainStorage`](https://github.com/sbertix/Swiftagram/wiki/KeychainStorage) (preferred) stores them safely in the user's keychain.  
 
 
 ## Contributions
