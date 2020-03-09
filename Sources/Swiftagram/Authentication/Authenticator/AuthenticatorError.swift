@@ -19,6 +19,8 @@ public enum AuthenticatorError: Error {
     case invalidPassword
     /// Invalid response.
     case invalidResponse
+    /// Invalid URL.
+    case invalidURL
     /// Invalid username.
     case invalidUsername
     /// Try again immediately.

@@ -47,12 +47,9 @@ Visit the (_auto-generated_) [Wiki](https://github.com/sbertix/Swiftagram/wiki) 
 ### Authentication
 Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret) containing all the cookies needed to sign a `Request`.
 
-The library comes with a concrete implementation.
+The library comes with two concrete implementations.
 - [`BasicAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/BasicAuthenticator) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
-
-> What about a web view based approach?
-
-Definitely planned: it'll be here in time for an initial stable release.
+- [`WebViewAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/WebViewAuthenticator), available for **iOS 11**+ and **macOS 10.13**+, relying on a `WKWebView` for fetching cookies.
 
 ### Caching
 Caching of `Secret`s is provided through conformance to the [`Storage`](https://github.com/sbertix/Swiftagram/wiki/Storage) protocol.  
