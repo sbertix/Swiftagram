@@ -1,5 +1,6 @@
 # Swiftagram
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
+![Codecov](https://img.shields.io/codecov/c/github/sbertix/Swiftagram)
 [![PayPal](https://img.shields.io/badge/support-PayPal-blue?style=flat&logo=paypal)](https://www.paypal.me/sbertix)
 
 **Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.
@@ -27,6 +28,14 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 
 **Swiftagram is currently under active development and more features are expected to be implemented everyday, which might result in breaking changes.**
 
+> What's next?
+
+- **Pagination support**:\
+Bypass setting `max_id` manually after every [`Request`](https://github.com/sbertix/Swiftagram/wiki/Request).  
+
+- **Improve code coverage**:\
+Finish writing tests for **Swiftagram** sources.
+
 ## Installation
 ### Swift Package Manager (Xcode 11 and above)
 1. Select `File`/`Swift Packages`/`Add Package Dependency…` from the menu.
@@ -34,7 +43,7 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 1. Follow the steps.
 
 **Swiftagram** depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift) and requires **Swift 5.0** or above.\
-[`Request`](https://github.com/sbertix/Swiftagram/wiki/Request) also defines custom [`Publisher`](https://developer.apple.com/documentation/combine/publisher)s when linking against the [**Combine**](https://developer.apple.com/documentation/combine) framework.
+`Request` also defines custom [`Publisher`](https://developer.apple.com/documentation/combine/publisher)s when linking against the [**Combine**](https://developer.apple.com/documentation/combine) framework.
 
 > Why not CocoaPods, or Carthage, or ~blank~?
 
