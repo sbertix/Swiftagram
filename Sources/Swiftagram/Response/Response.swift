@@ -8,8 +8,8 @@
 
 import Foundation
 
-@dynamicMemberLookup
 /// An `enum` holding reference to possible `JSON` objects.
+@dynamicMemberLookup
 public enum Response: Equatable {
     /// An `Array`.
     case array([Response])

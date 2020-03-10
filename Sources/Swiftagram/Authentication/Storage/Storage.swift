@@ -23,9 +23,9 @@ public protocol Storage {
     /// - note: Prefer `Secret.store` to access it.
     func store(_ response: Secret)
 
-    @discardableResult
     /// Delete a `Secret` in `self`.
     /// - returns: The removed `Secret` or `nil` if none was found.
+    @discardableResult
     func remove(matching identifier: String) -> Secret?
 }
 public extension Storage {
@@ -54,9 +54,9 @@ extension Array: Storage where Element: Storage {
         forEach { $0.store(response) }
     }
 
-    @discardableResult
     /// Delete a `Secret` from all elements, and return the first found.
     /// - returns: The removed `Secret` or `nil` if none was found.
+    @discardableResult
     public func remove(matching identifier: String) -> Secret? {
         guard let match = find(matching: identifier) else { return nil }
         forEach { $0.remove(matching: identifier) }

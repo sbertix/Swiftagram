@@ -18,6 +18,7 @@ public extension Endpoint {
         public static func summary(for identifier: String) -> Endpoint {
             return base.wrap(identifier).info
         }
+        
         /// All user matching `query`.
         /// - parameter query: A `String` holding reference to a valid user query.
         public static func all(matching query: String) -> Endpoint {

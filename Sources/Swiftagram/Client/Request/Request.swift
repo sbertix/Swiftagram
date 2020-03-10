@@ -24,8 +24,11 @@ public final class Request {
         // Invalidate all requests on `deinit`
         task?.cancel()
     }
+    
     /// Init.
-    /// - parameter endpoint: A valid `Endpoint`.
+    /// - parameters:
+    ///     - endpoint: A valid `Endpoint`.
+    ///     - requester: A valid `Requester`. Defaults to `.default`.
     public init(_ endpoint: Endpoint, through requester: Requester = .default) {
         self.endpoint = endpoint
         self.requester = requester
@@ -33,7 +36,7 @@ public final class Request {
 
     // MARK: Composition
     /// Authenticate `self` through the authentication `response`.
-    /// - parameter response: An `Secret`.
+    /// - parameter response: A `Secret`.
     public func authenticating(with response: Secret) -> Request {
         precondition(self.task == nil, "`Request.authenticating` can only be called before resuming")
         self.endpoint = endpoint.headerFields(response.headerFields)
@@ -47,6 +50,7 @@ public final class Request {
         self.onComplete = .response(onComplete)
         return self
     }
+    
     /// Add completion block.
     /// - parameter onComplete: A block accepting `Result<Data, Error>`.
     public func onCompleteData(_ onComplete: @escaping (Result<Requester.Task.Response<Data>, Swift.Error>) -> Void) -> Request {
@@ -54,9 +58,11 @@ public final class Request {
         self.onComplete = .data(onComplete)
         return self
     }
+    
     /// Add completion block.
-    /// - parameter onComplete: A block accepting `Result<String, Error>`.
-    /// - parameter encoding: A `String.Encoding`. Defaults to `.utf8`.
+    /// - parameters:
+    ///     - encoding: A `String.Encoding`. Defaults to `.utf8`.
+    ///     - onComplete: A block accepting `Result<String, Error>`.
     public func onCompleteString(encoding: String.Encoding = .utf8,
                                  _ onComplete: @escaping (Result<Requester.Task.Response<String>, Swift.Error>) -> Void) -> Request {
         precondition(self.task == nil, "`Request.onComplete` can only be called before resuming")
@@ -65,8 +71,8 @@ public final class Request {
     }
 
     // MARK: Schedule
-    @discardableResult
     /// Create a new `Requester.Task` and start fetching data.
+    @discardableResult
     public func resume() -> Requester.Task {
         precondition(self.task == nil, "`Request.resume` can only be called once")
         return (requester ?? .default).schedule(self)

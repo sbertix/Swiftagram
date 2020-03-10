@@ -9,7 +9,6 @@
 import Foundation
 import WebKit
 
-@available(iOS 11.0, macOS 10.13, *)
 /**
    A `class` describing an `Authenticator` relying on a `WKWebView` to fetch cookies.
 
@@ -40,6 +39,7 @@ import WebKit
    }
    ```
 */
+@available(iOS 11.0, macOS 10.13, *)
 public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authenticator {
     /// A `Storage` instance used to store `Secret`s.
     public internal(set) var storage: Storage
@@ -53,12 +53,14 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
 
     // MARK: Lifecycle
     /// Init.
-    /// - parameter storage: A concrete `Storage` value.
-    /// - parameter webView: A block outputing a configured `WKWebView`.
+    /// - parameters:
+    ///     - storage: A concrete `Storage` value.
+    ///     - webView: A block outputing a configured `WKWebView`.
     public init(storage: Storage, webView: @escaping (WKWebView) -> Void) {
         self.storage = storage
         self.webView = webView
     }
+    
     /// Set `userAgent`.
     /// - parameter userAgent: A `String` representing a valid user agent.
     public func userAgent(_ userAgent: String?) -> WebViewAuthenticator<Storage> {
@@ -97,8 +99,8 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
     }
 }
 
-@available(iOS 11.0, macOS 10.13, *)
 /// Extend for `TransientStorage`.
+@available(iOS 11.0, macOS 10.13, *)
 public extension WebViewAuthenticator where Storage == TransientStorage {
     // MARK: Lifecycle
     /// Init.

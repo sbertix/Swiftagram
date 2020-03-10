@@ -51,9 +51,9 @@ public struct UserDefaultsStorage: Storage {
         userDefaults.set(stored.joined(separator: ","), forKey: "swiftagram-stored")
     }
 
-    @discardableResult
     /// Delete a `Secret` in the user defaults.
     /// - returns: The removed `Secret` or `nil` if none was found.
+    @discardableResult
     public func remove(matching identifier: String) -> Secret? {
         guard let response = find(matching: identifier) else { return nil }
         // Remove the response and update the list.

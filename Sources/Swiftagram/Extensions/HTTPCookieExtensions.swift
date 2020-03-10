@@ -18,6 +18,7 @@ public extension HTTPCookie {
             return NSKeyedArchiver.archivedData(withRootObject: properties ?? [:])
         }
     }
+    
     /// Init with `data`.
     convenience init?(data: Data) {
         if #available(iOS 11, OSX 10.13, tvOS 11, watchOS 4, *) {

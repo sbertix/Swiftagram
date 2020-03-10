@@ -35,9 +35,9 @@ final class FollowersModel: ObservableObject {
     /// Init.
     init() { start() }
 
-    @discardableResult
     /// Check for `Secret` in `KeychainStorage`.
     /// - returns: `true` if it was started, `false` otherwise.
+    @discardableResult
     func start() -> Bool {
         print(KeychainSwift(keyPrefix: "swiftagram").allKeys)
         // Check for `Secret` in `KeychainStorage`.

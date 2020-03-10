@@ -9,17 +9,8 @@
 import Combine
 import Foundation
 
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-/// A combine extension for `Request`.
-public extension Request {
-    /// Return a `Response` publisher.
-    func responsePublisher() -> RequestPublisher {
-        return RequestPublisher(request: self)
-    }
-}
-
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 /// A `class` defining a new `Subscription` specific for `Response`s coming from `Request`s.
+@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class RequestSubscription<Subscriber: Combine.Subscriber>: Subscription where Subscriber.Input == Response, Subscriber.Failure == Error {
     /// A `Requester.Task`.
     private var task: Requester.Task?
@@ -28,8 +19,9 @@ public final class RequestSubscription<Subscriber: Combine.Subscriber>: Subscrip
 
     // MARK: Lifecycle
     /// Init.
-    /// - parameter request: A valid `Request`.
-    /// - parameter subscriber: The `Subscriber`.
+    /// - parameters:
+    ///     - request: A valid `Request`.
+    ///     - subscriber: The `Subscriber`.
     public init(request: Request, subscriber: Subscriber) {
         self.subscriber = subscriber
         self.task = request
@@ -55,8 +47,8 @@ public final class RequestSubscription<Subscriber: Combine.Subscriber>: Subscrip
     }
 }
 
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 /// A `struct` defining a new `Publisher` specific for `Response`s coming from`Request`s.
+@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct RequestPublisher: Publisher {
     /// Output a `Response` item.
     public typealias Output = Response
@@ -76,4 +68,14 @@ public struct RequestPublisher: Publisher {
         subscriber.receive(subscription: RequestSubscription(request: request, subscriber: subscriber))
     }
 }
+
+/// A combine extension for `Request`.
+@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public extension Request {
+    /// Return a `Response` publisher.
+    func responsePublisher() -> RequestPublisher {
+        return RequestPublisher(request: self)
+    }
+}
+
 #endif

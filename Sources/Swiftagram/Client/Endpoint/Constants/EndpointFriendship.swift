@@ -19,12 +19,14 @@ public extension Endpoint {
         public static func followed(by identifier: String) -> Endpoint {
             return base.wrap(identifier).following
         }
+        
         /// A list of users following the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **followers**.
         public static func following(_ identifier: String) -> Endpoint {
             return base.wrap(identifier).followers
         }
+        
         /// The current friendship status between the authenticated user and the one matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func friendship(with identifier: String) -> Endpoint {

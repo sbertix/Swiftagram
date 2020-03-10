@@ -35,14 +35,15 @@ public final class Requester {
         /// Cancell all tasks.
         requests = []
     }
+    
     /// Init.
     /// - parameter configuration: A valid `Configuration`.
     public init(configuration: Configuration = .default) { self.configuration = configuration }
 
     // MARK: Schedule
-    @discardableResult
     /// Schedule a new `request`.
     /// - parameter request: A valid `Request`.
+    @discardableResult
     internal func schedule(_ request: Request) -> Task {
         return requests.insert(Task(request: request)).memberAfterInsert
     }

@@ -29,9 +29,10 @@ public struct Secret: Codable {
 
     // MARK: Lifecycle.
     /// Init.
-    /// - parameter identifier: The `ds_user_id` cookie value.
-    /// - parameter crossSiteRequestForgery: The `csrftoken` cookie value.
-    /// - parameter session: The `sessionid` cookie value.
+    /// - parameters:
+    ///     - identifier: The `ds_user_id` cookie value.
+    ///     - crossSiteRequestForgery: The `csrftoken` cookie value.
+    ///     - session: The `sessionid` cookie value.
     public init(identifier: HTTPCookie,
                 crossSiteRequestForgery: HTTPCookie,
                 session: HTTPCookie) {
@@ -39,25 +40,27 @@ public struct Secret: Codable {
         self.crossSiteRequestForgery = crossSiteRequestForgery
         self.session = session
     }
+    
     /// Init from `Storage`.
-    /// - parameter identifier: The `ds_user_id` cookie value.
-    /// - parameter storage: A concrete-typed value conforming to the `Storage` protocol.
+    /// - parameters:
+    ///     - identifier: The `ds_user_id` cookie value.
+    ///     - storage: A concrete-typed value conforming to the `Storage` protocol.
     public static func stored<S: Storage>(with identifier: String, in storage: S) -> Secret? {
         return storage.find(matching: identifier)
     }
 
     // MARK: Locker
-    @discardableResult
     /// Store in `storage`.
     /// - parameter storage: A concrete-typed value conforming to the `Storage` protocol.
+    @discardableResult
     public func store<S: Storage>(in storage: S) -> Secret {
         storage.store(self)
         return self
     }
 
-    @discardableResult
     /// Store in `storage`.
     /// - parameter storage: A value conforming to the `Storage` protocol.
+    @discardableResult
     public func store(in storage: Storage) -> Secret {
         storage.store(self)
         return self

@@ -24,8 +24,8 @@ public struct TransientStorage: Storage {
     /// The implementation does nothing.
     public func store(_ response: Secret) { }
 
-    @discardableResult
     /// The implementation does nothing.
     /// - returns: `nil`.
+    @discardableResult
     public func remove(matching identifier: String) -> Secret? { return nil }
 }

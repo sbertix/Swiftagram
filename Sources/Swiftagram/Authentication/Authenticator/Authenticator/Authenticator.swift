@@ -11,6 +11,7 @@ import Foundation
 public protocol Authenticator {
     /// A `Storage` concrete type in which `Secret` are stored.
     associatedtype Storage: Swiftagram.Storage
+    
     /// A `Storage` instance used to store `Secret`s.
     var storage: Storage { get }
 

@@ -22,7 +22,9 @@ public struct KeychainStorage: Storage {
 
     // MARK: Lifecycle
     /// Init.
-    /// - parameter prefix: A `KeychainSwift` prefix.
+    /// - parameters:
+    ///     - prefix: A `KeychainSwift` prefix.
+    ///     - synchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not.
     public init(prefix: String = "swiftagram",
                 synchronizable: Bool = false) {
         self.prefix = prefix
@@ -58,9 +60,9 @@ public struct KeychainStorage: Storage {
         keychain.set(data, forKey: response.id)
     }
 
-    @discardableResult
     /// Delete a `Secret` in the keychain.
     /// - returns: The removed `Secret` or `nil` if none was found.
+    @discardableResult
     public func remove(matching identifier: String) -> Secret? {
         guard let response = find(matching: identifier) else { return nil }
         keychain.delete(identifier)

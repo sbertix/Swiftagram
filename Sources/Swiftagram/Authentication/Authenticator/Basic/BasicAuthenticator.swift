@@ -51,6 +51,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public internal(set) var username: String
     /// A `String` holding a valid password.
     public internal(set) var password: String
+    
     /// A `String` holding a custom user agent to be passed to every request.
     /// Defaults to Safari on an iPhone with iOS 13.1.3.
     public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
@@ -59,14 +60,16 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
 
     // MARK: Lifecycle
     /// Init.
-    /// - parameter storage: A concrete `Storage` value.
-    /// - parameter username: A `String` representing a valid username.
-    /// - parameter password: A `String` representing a valid password.
+    /// - parameters:
+    ///     - storage: A concrete `Storage` value.
+    ///     - username: A `String` representing a valid username.
+    ///     - password: A `String` representing a valid password.
     public init(storage: Storage, username: String, password: String) {
         self.storage = storage
         self.username = username
         self.password = password
     }
+    
     /// Set `userAgent`.
     /// - parameter userAgent: A `String` representing a valid user agent.
     public func userAgent(_ userAgent: String?) -> BasicAuthenticator<Storage> {
@@ -131,6 +134,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             .resume()
         }
     }
+    
     /// Handle `ds_user_id` and `sessionid` response.
     private func handleSecond(result: Result<Requester.Task.Response<Response>, Swift.Error>,
                               crossSiteRequestForgery: HTTPCookie,
@@ -232,8 +236,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
 public extension BasicAuthenticator where Storage == TransientStorage {
     // MARK: Lifecycle
     /// Init.
-    /// - parameter username: A `String` representing a valid username.
-    /// - parameter password: A `String` representing a valid password.
+    /// - parameters:
+    ///     - username: A `String` representing a valid username.
+    ///     - password: A `String` representing a valid password.
     convenience init(username: String, password: String) {
         self.init(storage: .init(), username: username, password: password)
     }
