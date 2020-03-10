@@ -44,7 +44,9 @@ public struct KeychainStorage: Storage {
     /// Return all `Secret`s stored in the `keychain`.
     /// - returns: An `Array` of `Secret`s stored in the `keychain`.
     public func all() -> [Secret] {
-        return keychain.allKeys.compactMap(find)
+        return keychain.allKeys
+            .compactMap { $0.starts(with: prefix) ? String($0[prefix.endIndex...]) : nil }
+            .compactMap(find)
     }
 
     // MARK: Locker
