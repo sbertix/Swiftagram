@@ -83,6 +83,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
                                                     let webView = WebView(frame: .zero, configuration: configuration)
                                                     webView.customUserAgent = self.userAgent
                                                     webView.navigationDelegate = webView
+                                                    webView.storage = self.storage
                                                     webView.onChange = onChange
                                                     // Return the web view.
                                                     DispatchQueue.main.async {

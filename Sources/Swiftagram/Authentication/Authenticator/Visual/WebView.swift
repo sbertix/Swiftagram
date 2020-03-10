@@ -12,6 +12,8 @@ import WebKit
 @available(iOS 11, macOS 10.13, *)
 /// A `class` describing a self-navigating `WKWebView`.
 internal final class WebView: WKWebView, WKNavigationDelegate {
+    /// Any `Storage`.
+    internal var storage: Storage!
     /// A block providing a `Secret`.
     internal var onChange: ((Result<Secret, Swift.Error>) -> Void)?
 
@@ -30,9 +32,9 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
                     self.onChange?(.failure(AuthenticatorError.invalidCookies))
                     return
                 }
-                self.onChange?(.success(.init(identifier: cookies[1],
-                                         crossSiteRequestForgery: cookies[0],
-                                         session: cookies[2])))
+                self.onChange?(.success(Secret(identifier: cookies[1],
+                                               crossSiteRequestForgery: cookies[0],
+                                               session: cookies[2]).store(in: self.storage)))
             }
             // No need to check anymore.
             webView.navigationDelegate = nil
@@ -45,9 +47,9 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
                 // Prepare `Secret` or do nothing.
                 guard cookies.count == 3 else { return }
                 webView.navigationDelegate = nil
-                self.onChange?(.success(.init(identifier: cookies[1],
-                                         crossSiteRequestForgery: cookies[0],
-                                         session: cookies[2])))
+                self.onChange?(.success(Secret(identifier: cookies[1],
+                                               crossSiteRequestForgery: cookies[0],
+                                               session: cookies[2]).store(in: self.storage)))
                 // Do not notify again.
                 self.onChange = nil
             }
