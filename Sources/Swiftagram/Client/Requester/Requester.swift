@@ -35,7 +35,7 @@ public final class Requester {
         /// Cancell all tasks.
         requests = []
     }
-    
+
     /// Init.
     /// - parameter configuration: A valid `Configuration`.
     public init(configuration: Configuration = .default) { self.configuration = configuration }

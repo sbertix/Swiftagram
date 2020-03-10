@@ -24,7 +24,7 @@ public final class Request {
         // Invalidate all requests on `deinit`
         task?.cancel()
     }
-    
+
     /// Init.
     /// - parameters:
     ///     - endpoint: A valid `Endpoint`.
@@ -50,7 +50,7 @@ public final class Request {
         self.onComplete = .response(onComplete)
         return self
     }
-    
+
     /// Add completion block.
     /// - parameter onComplete: A block accepting `Result<Data, Error>`.
     public func onCompleteData(_ onComplete: @escaping (Result<Requester.Task.Response<Data>, Swift.Error>) -> Void) -> Request {
@@ -58,7 +58,7 @@ public final class Request {
         self.onComplete = .data(onComplete)
         return self
     }
-    
+
     /// Add completion block.
     /// - parameters:
     ///     - encoding: A `String.Encoding`. Defaults to `.utf8`.

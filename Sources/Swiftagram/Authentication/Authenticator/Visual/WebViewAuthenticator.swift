@@ -60,7 +60,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
         self.storage = storage
         self.webView = webView
     }
-    
+
     /// Set `userAgent`.
     /// - parameter userAgent: A `String` representing a valid user agent.
     public func userAgent(_ userAgent: String?) -> WebViewAuthenticator<Storage> {

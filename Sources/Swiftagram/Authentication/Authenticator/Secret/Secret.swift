@@ -40,7 +40,7 @@ public struct Secret: Codable {
         self.crossSiteRequestForgery = crossSiteRequestForgery
         self.session = session
     }
-    
+
     /// Init from `Storage`.
     /// - parameters:
     ///     - identifier: The `ds_user_id` cookie value.

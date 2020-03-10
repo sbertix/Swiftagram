@@ -51,7 +51,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public internal(set) var username: String
     /// A `String` holding a valid password.
     public internal(set) var password: String
-    
+
     /// A `String` holding a custom user agent to be passed to every request.
     /// Defaults to Safari on an iPhone with iOS 13.1.3.
     public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
@@ -69,7 +69,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         self.username = username
         self.password = password
     }
-    
+
     /// Set `userAgent`.
     /// - parameter userAgent: A `String` representing a valid user agent.
     public func userAgent(_ userAgent: String?) -> BasicAuthenticator<Storage> {
@@ -134,7 +134,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             .resume()
         }
     }
-    
+
     /// Handle `ds_user_id` and `sessionid` response.
     private func handleSecond(result: Result<Requester.Task.Response<Response>, Swift.Error>,
                               crossSiteRequestForgery: HTTPCookie,
@@ -143,13 +143,13 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         case .failure(let error): onChange(.failure(error))
         case .success(let value):
             // Check for authentication.
-            if let checkpoint = value.data.checkpointUrl.string {
+            if let checkpoint = value.data.checkpointUrl.string() {
                 // Handle the checkpoint.
                 handleCheckpoint(result: value,
                                  checkpoint: checkpoint,
                                  crossSiteRequestForgery: crossSiteRequestForgery,
                                  onChange: onChange)
-            } else if let twoFactorIdentifier = value.data.twoFactorInfo.twoFactorIdentifier.string {
+            } else if let twoFactorIdentifier = value.data.twoFactorInfo.twoFactorIdentifier.string() {
                 // Handle 2FA.
                 onChange(.failure(AuthenticatorError.twoFactor(.init(storage: storage,
                                                                      username: username,
@@ -157,10 +157,10 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                                                      userAgent: userAgent,
                                                                      crossSiteRequestForgery: crossSiteRequestForgery,
                                                                      onChange: onChange))))
-            } else if value.data.user.bool.flatMap({ !$0 }) ?? false {
+            } else if value.data.user.bool().flatMap({ !$0 }) ?? false {
                 // User not found.
                 onChange(.failure(AuthenticatorError.invalidUsername))
-            } else if value.data.authenticated.bool ?? false {
+            } else if value.data.authenticated.bool() ?? false {
                 // User authenticated successfuly.
                 let cookies = HTTPCookieStorage.shared.cookies?
                     .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
@@ -173,7 +173,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                          crossSiteRequestForgery: crossSiteRequestForgery,
                                          session: cookies[1])
                     .store(in: self.storage)))
-            } else if value.data.authenticated.bool.flatMap({ !$0 }) ?? false {
+            } else if value.data.authenticated.bool().flatMap({ !$0 }) ?? false {
                 // User not authenticated.
                 onChange(.failure(AuthenticatorError.invalidPassword))
             } else {
@@ -213,10 +213,10 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 }
                 // Obtain available verification.
                 guard let verification = response
-                    .entryData.challenge.array?.first?
-                    .extraData.content.array?.last?
-                    .fields.array?.first?
-                    .values.array?
+                    .entryData.challenge.array()?.first?
+                    .extraData.content.array()?.last?
+                    .fields.array()?.first?
+                    .values.array()?
                     .compactMap(Verification.init) else {
                         return onChange(.failure(AuthenticatorError.checkpoint(nil)))
                 }

@@ -54,7 +54,7 @@ public enum Response: Equatable {
     }
 
     func data(options: JSONSerialization.WritingOptions = []) throws -> Data {
-        return try JSONSerialization.data(withJSONObject: any, options: options)
+        return try JSONSerialization.data(withJSONObject: any(), options: options)
     }
 
     // MARK: Accessories
@@ -70,10 +70,10 @@ public enum Response: Equatable {
     }
 
     /// `Any`.
-    public var any: Any {
+    public func any() -> Any {
         switch self {
-        case .array(let array): return array.map { $0.any }
-        case .dictionary(let dictionary): return dictionary.mapValues { $0.any }
+        case .array(let array): return array.map { $0.any() }
+        case .dictionary(let dictionary): return dictionary.mapValues { $0.any() }
         case .number(let number): return number
         case .string(let string): return string
         case .none: return NSNull()
@@ -81,13 +81,13 @@ public enum Response: Equatable {
     }
 
     /// `[DynamicResponse]` if `.array` or `nil`.
-    public var array: [Response]? {
+    public func array() -> [Response]? {
         guard case let .array(array) = self else { return nil }
         return array
     }
 
     /// `Bool` if  `.bool`, `.int`, `.string` or `nil`.
-    public var bool: Bool? {
+    public func bool() -> Bool? {
         switch self {
         case .number(let number): return number.boolValue
         case .string(let string) where ["yes", "y", "true", "t", "1"].contains(string.lowercased()):
@@ -99,13 +99,13 @@ public enum Response: Equatable {
     }
 
     /// `[String: DynamicResponse]` if `.dictionary` or `nil`.
-    public var dictionary: [String: Response]? {
+    public func dictionary() -> [String: Response]? {
         guard case let .dictionary(dictionary) = self else { return nil }
         return dictionary
     }
 
     /// `Double` if `.double`, `.int` or `nil`.
-    public var double: Double? {
+    public func double() -> Double? {
         switch self {
         case .number(let number): return number.doubleValue
         default: return nil
@@ -113,7 +113,7 @@ public enum Response: Equatable {
     }
 
     /// `Int` if `.int` or `nil`.
-    public var int: Int? {
+    public func int() -> Int? {
         switch self {
         case .number(let number): return number.intValue
         default: return nil
@@ -121,7 +121,7 @@ public enum Response: Equatable {
     }
 
     /// `String` if `.string`, `.url` or `nil`.
-    public var string: String? {
+    public func string() -> String? {
         switch self {
         case .string(let string): return string
         case .number(let number): return String(number.intValue)
@@ -130,10 +130,10 @@ public enum Response: Equatable {
     }
 
     /// `URL` if `.url` or `nil`.
-    public var url: URL? {
+    public func url() -> URL? {
         switch self {
         case .string(let string): return URL(string: string)
-        case .dictionary(let dictionary): return dictionary["url"]?.url
+        case .dictionary(let dictionary): return dictionary["url"]?.url()
         default: return nil
         }
     }

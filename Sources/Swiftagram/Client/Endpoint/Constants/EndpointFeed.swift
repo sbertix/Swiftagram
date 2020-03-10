@@ -25,13 +25,13 @@ public extension Endpoint {
         public static func posts(by identifier: String) -> Endpoint {
             return base.user.wrap(identifier)
         }
-        
+
         /// All available stories for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func stories(by identifier: String) -> Endpoint {
             return base.reelMedia.wrap(identifier)
         }
-        
+
         /// All posts a user matching `identifier` is tagged in.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(including identifier: String) -> Endpoint {

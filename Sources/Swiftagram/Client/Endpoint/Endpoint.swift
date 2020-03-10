@@ -75,7 +75,7 @@ public struct Endpoint: Hashable {
             .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
         return copy
     }
-    
+
     /// Append `item`.
     public func wrap<Item>(_ item: Item) -> Endpoint where Item: CustomStringConvertible {
         var copy = self
@@ -84,7 +84,7 @@ public struct Endpoint: Hashable {
             .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
         return copy
     }
-    
+
     /// Append `component`.
     public subscript(dynamicMember component: String) -> Endpoint {
         var copy = self
@@ -100,7 +100,7 @@ public struct Endpoint: Hashable {
         copy.body[key] = value
         return copy
     }
-    
+
     /// Append `body`. Empty `self.body` if `nil`.
     public func body(_ body: [String: String]?) -> Endpoint {
         var copy = self
@@ -114,7 +114,7 @@ public struct Endpoint: Hashable {
         copy.queries[key] = value
         return copy
     }
-    
+
     /// Append `queries`. Empty `self.queries` if `nil`.
     public func query(_ queries: [String: String]?) -> Endpoint {
         var copy = self
@@ -132,7 +132,7 @@ public struct Endpoint: Hashable {
              Headers.userAgentKey: Headers.userAgentValue]
         )
     }
-    
+
     /// Append `headerFields`. Empty `self.headerFields` if `nil`.
     public func headerFields(_ headerFields: [String: String]?) -> Endpoint {
         var copy = self

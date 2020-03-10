@@ -17,7 +17,7 @@ public extension String {
             .map { $0.offset > 0 ? $0.element.beginningWithUppercase : $0.element.beginningWithLowercase }
             .joined()
     }
-    
+
     /// To `snake-case`.
     var snakeCased: String {
         return reduce(into: "") { result, new in
@@ -29,7 +29,7 @@ public extension String {
     var beginningWithUppercase: String {
         return prefix(1).uppercased()+dropFirst()
     }
-    
+
     /// Convert first letter to lowercase.
     var beginningWithLowercase: String {
         return prefix(1).lowercased()+dropFirst()
