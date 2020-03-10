@@ -28,6 +28,7 @@ opt_in_rules:
     - yoda_condition
 
 included:
+    - Examples
     - Sources
     - Tests
 
@@ -37,7 +38,6 @@ analyzer_rules:
 array_init: error
 class_delegate_protocol: error
 contains_over_first_not_nil: error
-empty_count: error
 empty_string: error
 fatal_error_message: error
 first_where: error

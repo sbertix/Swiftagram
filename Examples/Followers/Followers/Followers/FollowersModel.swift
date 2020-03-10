@@ -25,16 +25,16 @@ final class FollowersModel: ObservableObject {
             fetch(secret: secret)
         }
     }
-    
+
     /// Cancellable for user's info.
     var userCancellable: AnyCancellable?
     /// Cancellable for followers.
     var followersCancellable: AnyCancellable?
-    
+
     // MARK: Lifecycle
     /// Init.
     init() { start() }
-    
+
     @discardableResult
     /// Check for `Secret` in `KeychainStorage`.
     /// - returns: `true` if it was started, `false` otherwise.

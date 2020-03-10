@@ -14,7 +14,7 @@ struct FollowersView: View {
     @ObservedObject var model: FollowersModel
     /// The currently displayed sheet view.
     @State var shouldDisplayLogin: Bool = false
-    
+
     var body: some View {
         List {
             // Add rows.

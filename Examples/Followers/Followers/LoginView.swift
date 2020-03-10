@@ -6,8 +6,8 @@
 //  Copyright © 2020 Stefano Bertagno. All rights reserved.
 //
 
-import UIKit
 import SwiftUI
+import UIKit
 import WebKit
 
 import Swiftagram
@@ -43,7 +43,7 @@ class LoginViewController: UIViewController {
 struct LoginView: UIViewControllerRepresentable {
     /// The current secret.
     @Binding var secret: Secret?
-    
+
     func makeUIViewController(context: Context) -> LoginViewController {
         let controller = LoginViewController()
         controller.completion = { self.secret = $0 }

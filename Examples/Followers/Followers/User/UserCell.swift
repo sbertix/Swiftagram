@@ -44,7 +44,7 @@ struct RemoteImage: View, Equatable {
 struct UserCell: View {
     /// A valid `User`.
     var user: User
-    
+
     /// The actual body.
     var body: some View {
         HStack {
