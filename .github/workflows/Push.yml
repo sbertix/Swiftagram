@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     paths:
         - '**.swift'
+        - '**.yml'
 
 jobs:
   build:
@@ -15,18 +16,18 @@ jobs:
     - name: Build
       run: swift build -v
     - name: Run tests
-      run: swift test -v
+      run: swift test -v --enable-test-discovery --enable-code-coverage
       env:
         INSTAGRAM_USERNAME: ${{ secrets.INSTAGRAM_USERNAME }}
         INSTAGRAM_PASSWORD: ${{ secrets.INSTAGRAM_PASSWORD }}
-
-  coverage:
-    steps:
-    - uses: actions/checkout@master
-    - uses: codecov/codecov-action@v1
+    - name: Coverage
+      run: xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
+    - name: Codecov
+      uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        
+        fail_ci_if_error: false
+
   documentation:
     needs: build
     runs-on: ubuntu-latest

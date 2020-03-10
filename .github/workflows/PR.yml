@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     paths:
       - '**.swift'
+      - '**.yml'
 
 jobs:
   build:
@@ -24,10 +25,3 @@ jobs:
         uses: norio-nomura/action-swiftlint@3.1.0
         with:
           args: --strict
-
-  coverage:
-    steps:
-    - uses: actions/checkout@master
-    - uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
