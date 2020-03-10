@@ -42,7 +42,7 @@ Supporting multiple _dependency managers_ makes maintaining a library exponentia
 Furthermore, with the intregration of the **Swift Package Manager** in **Xcode 11** and greater, we expect the need for alternative solutions to fade quickly.
 
 ## Usage
-Visit the (_auto-generated_) [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
+Check out our [Examples](Examples) or visit the (_auto-generated_) [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
 
 ### Authentication
 Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret) containing all the cookies needed to sign a `Request`.
