@@ -19,6 +19,13 @@ jobs:
       env:
         INSTAGRAM_USERNAME: ${{ secrets.INSTAGRAM_USERNAME }}
         INSTAGRAM_PASSWORD: ${{ secrets.INSTAGRAM_PASSWORD }}
+
+  coverage:
+    steps:
+    - uses: actions/checkout@master
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         
   documentation:
     needs: build
