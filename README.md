@@ -80,7 +80,7 @@ Endpoint.User.summary(for: identifier)
     .task { _ in
       // Do something here.
     }
-    .resume() // Strongly referenced in the `Requester`.
+    .resume() // Strongly referenced by default, no need to worry about it.
 ```
 
 > How can I see all my followers?
@@ -96,7 +96,7 @@ Endpoint.Friendship.following(secret.id)
     .cycleTask(next: { (try? $0.get())?.data.nextMaxId.string() }) { _ in 
       // Do something here.
     }
-    .resume() // Strongly referenced in the `Requester`.
+    .resume()
 ```
 
 ## Contributions
