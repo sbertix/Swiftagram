@@ -29,11 +29,7 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 
 > What's next?
 
-- **Pagination support**:\
-Bypass setting `max_id` manually after every [`Request`](https://github.com/sbertix/Swiftagram/wiki/Request).  
-
-- **Improve code coverage**:\
-Finish writing tests for **Swiftagram** sources.
+Check out the [dashboard](https://github.com/sbertix/Swiftagram/projects/1).
 
 ## Installation
 ### Swift Package Manager (Xcode 11 and above)
