@@ -42,7 +42,8 @@ Finish writing tests for **Swiftagram** sources.
 1. Paste `https://github.com/sbertix/Swiftagram.git`.
 1. Follow the steps.
 
-**Swiftagram** depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift) and requires **Swift 5.0** or above.\
+**Swiftagram** requires **Swift 5.0** or above.\
+**SwiftagramKeychain**, an optional library for storing [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret)s directly into the keychain, depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift).\n
 `Request` also defines custom [`Publisher`](https://developer.apple.com/documentation/combine/publisher)s when linking against the [**Combine**](https://developer.apple.com/documentation/combine) framework.
 
 > Why not CocoaPods, or Carthage, or ~blank~?
@@ -54,7 +55,7 @@ Furthermore, with the intregration of the **Swift Package Manager** in **Xcode 1
 Check out our [Examples](Examples) or visit the (_auto-generated_) [Wiki](https://github.com/sbertix/Swiftagram/wiki) to learn about use cases.  
 
 ### Authentication
-Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret) containing all the cookies needed to sign a `Request`.
+Authentication is provided through conformance to the [`Authenticator`](https://github.com/sbertix/Swiftagram/wiki/Authenticator) protocol, which, on success, returns a `Secret` containing all the cookies needed to sign a `Request`.
 
 The library comes with two concrete implementations.
 - [`BasicAuthenticator`](https://github.com/sbertix/Swiftagram/wiki/BasicAuthenticator) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
@@ -66,7 +67,7 @@ Caching of `Secret`s is provided through conformance to the [`Storage`](https://
 The library comes with several concrete implementations.  
 - [`TransientStorage`](https://github.com/sbertix/Swiftagram/wiki/TransientStorage) should be used when no caching is necessary.  
 - [`UserDefaultsStorage`](https://github.com/sbertix/Swiftagram/wiki/UserDefaultsStorage) allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
-- [`KeychainStorage`](https://github.com/sbertix/Swiftagram/wiki/KeychainStorage) (**preferred**) stores them safely in the user's keychain.  
+- [`KeychainStorage`](https://github.com/sbertix/Swiftagram/wiki/KeychainStorage), part of **SwiftagramKeychain**, (**preferred**) stores them safely in the user's keychain.  
 
 
 ## Contributions

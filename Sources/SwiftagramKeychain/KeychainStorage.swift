@@ -7,11 +7,11 @@
 
 import Foundation
 import KeychainSwift
+import Swiftagram
 
 /// A `struct` holding reference to all `Secret`s stored in the keychain.
 /// - note: `
 ///     KeychainStorage` is the encoded and ready-to-use alternative to `UserDefaultsStorage`.
-///     Add https://github.com/evgenyneu/keychain-swift to your dependencies and import it to start using it.
 public struct KeychainStorage: Storage {
     /// A `String` identifying the `KeychainSwift` prefix. Defaults to `swiftagram`. Defaults to `swiftagram`.
     public let prefix: String

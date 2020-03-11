@@ -111,7 +111,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     .last?
                     .components(separatedBy: "\",\"viewer\"")
                     .first
-                    .flatMap ({
+                    .flatMap({
                         HTTPCookie(properties: [.name: "csrftoken",
                                                 .value: $0,
                                                 .domain: "instagram.com",
