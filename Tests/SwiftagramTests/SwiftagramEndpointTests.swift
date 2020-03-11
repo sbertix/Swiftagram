@@ -106,6 +106,32 @@ final class SwiftagramEndpointTests: XCTestCase {
     }
 
     /// Test pagination.
+    func testDecodable() {
+        struct Response: Decodable {
+            var string: String
+        }
+        // Check for URL.
+        guard let url = URL(string: ["https://gist.githubusercontent.com/sbertix/",
+                                     "8959f2534f815ee3f6018965c6c5f9e2/raw/",
+                                     "c38d855d9aac95fb095b6c5fc75f9a0219183648/Test.json"].joined()) else {
+                                        return XCTFail("Invalid URL.")
+        }
+        let expectation = XCTestExpectation()
+        Endpoint(url: url)
+            .task(decodable: Response.self) {
+                switch $0 {
+                case .success(let result):
+                    XCTAssert(result.data.string == "A random string.")
+                case .failure(let error):
+                    XCTFail(error.localizedDescription)
+                }
+                expectation.fulfill()
+            }
+            .resume()
+        wait(for: [expectation], timeout: 10)
+    }
+
+    /// Test pagination.
     func testPaginationString() {
         // The current offset.
         let expectation = XCTestExpectation()
@@ -150,6 +176,35 @@ final class SwiftagramEndpointTests: XCTestCase {
         wait(for: [expectation], timeout: 30)
     }
 
+    /// Test pagination.
+    func testPaginationDecodable() {
+        struct Response: Decodable {
+            var string: String
+        }
+        // Check for URL.
+        guard let url = URL(string: ["https://gist.githubusercontent.com/sbertix/",
+                                     "8959f2534f815ee3f6018965c6c5f9e2/raw/",
+                                     "c38d855d9aac95fb095b6c5fc75f9a0219183648/Test.json"].joined()) else {
+                                        return XCTFail("Invalid URL.")
+        }
+        let expectation = XCTestExpectation()
+        Endpoint(url: url)
+            .cycleTask(decodable: Response.self,
+                       key: "id",
+                       initial: nil,
+                       next: { _ in nil }) {
+                        switch $0 {
+                        case .success(let result):
+                            XCTAssert(result.data.string == "A random string.")
+                        case .failure(let error):
+                            XCTFail(error.localizedDescription)
+                        }
+                        expectation.fulfill()
+            }
+            .resume()
+        wait(for: [expectation], timeout: 10)
+    }
+
     static var allTests = [
         ("Endpoint.Method", testEndpointMethod),
         ("Endpoint.Archive", testEndpointArchive),
@@ -157,7 +212,9 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Feed", testEndpointFeed),
         ("Endpoint.Friendship", testEndpointFriendship),
         ("Endpoint.User", testEndpointUser),
+        ("Endpoint.Decodable", testDecodable),
         ("Endpoint.Pagination.String", testPaginationString),
-        ("Endpoint.Pagination.Response", testPaginationResponse)
+        ("Endpoint.Pagination.Response", testPaginationResponse),
+        ("Endpoint.Pagination.Decodable", testPaginationDecodable)
     ]
 }

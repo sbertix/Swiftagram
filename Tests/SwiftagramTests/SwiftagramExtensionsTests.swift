@@ -10,7 +10,13 @@ final class SwiftagramExtensionsTests: XCTestCase {
         XCTAssert("BEGIN".beginningWithLowercase == "bEGIN")
     }
 
+    /// Test `DataMappable` extensions.
+    func testDataMappable() {
+        XCTAssert(Data.process(data: Data()) == Data())
+    }
+
     static var allTests = [
-        ("String Extensions", testString)
+        ("String Extensions", testString),
+        ("Data Extensions", testDataMappable)
     ]
 }

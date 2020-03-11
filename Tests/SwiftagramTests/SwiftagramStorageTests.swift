@@ -35,6 +35,8 @@ final class SwiftagramStorageTests: XCTestCase {
         XCTAssert(storage.find(matching: response.id) != nil, "Storage did not retrieve cached response.")
         let count = storage.all().count
         XCTAssert(count == 1, "Storage should contain one response, but it contains \(count).")
+        storage.removeAll()
+        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
     }
     /// Test `UserDefaultsStorage` flow as `[Storage]`.
     func testStorage() {
@@ -45,9 +47,22 @@ final class SwiftagramStorageTests: XCTestCase {
         XCTAssert(storage.find(matching: response.id) != nil, "Storage did not retrieve cached response.")
         let count = storage.all().count
         XCTAssert(count == 1, "Storage should contain one response, but it contains \(count).")
+        storage.removeAll()
+        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
     }
     /// Test `KeychainStorage` flow.
     func testKeychainStorage() {
+        // Keychain is not available during test.
+        // So this should all return empty.
+        let storage = KeychainStorage()
+        storage.removeAll()
+        XCTAssert(storage.all().isEmpty, "Storage did not empty.")
+        storage.store(response)
+        XCTAssert(storage.find(matching: response.id) != nil, "Storage did not retrieve cached response.")
+        XCTAssert(storage.remove(matching: response.id) != nil, "Transient storage was actually not empty.")
+        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")   // Always `nil` during test.
+        storage.removeAll()
+        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
     }
     /// Test `Secret` storing.
     func testSecretStoring() {
