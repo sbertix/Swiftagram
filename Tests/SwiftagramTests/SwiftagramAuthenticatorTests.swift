@@ -46,12 +46,42 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                         expectation.fulfill()
                     }
                 }
-            }
+        }
         wait(for: [expectation], timeout: 20)
     }
-    
+
+    /// Test `TwoFactor`.
+    func testTwoFactor() {
+        let expectation = XCTestExpectation()
+        TwoFactor(storage: TransientStorage(),
+                  username: "A",
+                  identifier: "A",
+                  userAgent: "A",
+                  crossSiteRequestForgery: .init()) {
+                    XCTAssert((try? $0.get()) == nil)
+                    expectation.fulfill()
+        }.send(code: "123456")
+        wait(for: [expectation], timeout: 3)
+    }
+
+    /// Test `TwoFactor`.
+    func testCheckpoint() {
+        let expectation = XCTestExpectation()
+        let verification = Verification(response: .dictionary(["label": .string("email"), "value": .string("1")]))!
+        let checkpoint = Checkpoint(storage: TransientStorage(),
+                                    url: URL(string: "https://instagram.com")!,
+                                    userAgent: "A",
+                                    crossSiteRequestForgery: .init(),
+                                    availableVerification: [verification]) {
+                                        XCTAssert((try? $0.get()) == nil)
+                                        expectation.fulfill()
+        }
+        checkpoint.requestCode(to: verification)
+        checkpoint.send(code: "123456")
+        wait(for: [expectation], timeout: 10)
+    }
+
     /// Test `WebViewAuthenticator` login flow.
-    
     func testWebViewAuthenticator() {
         if #available(macOS 10.13, iOS 11, *) {
             let expectation = XCTestExpectation()
@@ -68,6 +98,6 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
 
     static var allTests = [
         ("BasicAuthenticator", testBasicAuthenticator),
-        ("WebViewAuthenticator", testWebViewAuthenticator),
+        ("WebViewAuthenticator", testWebViewAuthenticator)
     ]
 }
