@@ -1,7 +1,8 @@
 .DS_Store
 .swiftpm/
 .swiftpm/*
-/*.xcodeproj
+*.xcodeproj
+!Followers.xcodeproj
 /.build
 /Packages
 Package.resolved

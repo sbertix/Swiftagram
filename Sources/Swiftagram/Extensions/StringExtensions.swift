@@ -21,7 +21,7 @@ public extension String {
     /// To `snake-case`.
     var snakeCased: String {
         return reduce(into: "") { result, new in
-            result += new.isUppercase ? "-"+String(new).lowercased() : String(new)
+            result += new.isUppercase ? "_"+String(new).lowercased() : String(new)
         }
     }
 

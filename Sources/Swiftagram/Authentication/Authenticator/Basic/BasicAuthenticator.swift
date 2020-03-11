@@ -86,13 +86,13 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         Request(Endpoint.generic.headerFields(["User-Agent": userAgent]))
-            .onComplete { [self] in self.handleFirst(result: $0, onChange: onChange) }
+            .onCompleteString { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
 
     // MARK: Shared flow
     /// Handle `csrftoken` response.
-    private func handleFirst(result: Result<Requester.Task.Response<Response>, Swift.Error>,
+    private func handleFirst(result: Result<Requester.Task.Response<String>, Swift.Error>,
                              onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         switch result {
         case .failure(let error): onChange(.failure(error))
@@ -104,7 +104,19 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             let headerFields = (response.allHeaderFields as? [String: String]) ?? [:]
             guard let crossSiteRequestForgery = HTTPCookie.cookies(withResponseHeaderFields: headerFields,
                                                                    for: response.url!)
-                .first(where: { $0.name == "csrftoken" }) else {
+                .first(where: { $0.name == "csrftoken" })
+                ?? HTTPCookieStorage.shared.cookies?
+                    .first(where: { $0.name == "csrftoken" })
+                ?? value.data.components(separatedBy: "csrf_token\":\"")
+                    .last?
+                    .components(separatedBy: "\",\"viewer\"")
+                    .first
+                    .flatMap ({
+                        HTTPCookie(properties: [.name: "csrftoken",
+                                                .value: $0,
+                                                .domain: "instagram.com",
+                                                .path: ""])
+                    }) else {
                     return onChange(.failure(AuthenticatorError.invalidCookies))
             }
             // Obtain the `ds_user_id` and the `sessionid`.
