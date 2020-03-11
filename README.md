@@ -42,7 +42,8 @@ Finish writing tests for **Swiftagram** sources.
 1. Follow the steps.
 
 **Swiftagram** requires **Swift 5.0** or above.\
-**SwiftagramKeychain**, an optional library for storing [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret)s directly into the keychain, depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift).\n
+**SwiftagramKeychain**, an optional library for storing [`Secret`](https://github.com/sbertix/Swiftagram/wiki/Secret)s directly into the keychain, depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift).
+
 `Request` also defines custom [`Publisher`](https://developer.apple.com/documentation/combine/publisher)s when linking against the [**Combine**](https://developer.apple.com/documentation/combine) framework.
 
 > Why not CocoaPods, or Carthage, or ~blank~?
