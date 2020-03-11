@@ -36,15 +36,48 @@ final class SwiftagramStorageTests: XCTestCase {
         let count = storage.all().count
         XCTAssert(count == 1, "Storage should contain one response, but it contains \(count).")
     }
+    /// Test `UserDefaultsStorage` flow as `[Storage]`.
+    func testStorage() {
+        let storage = [UserDefaultsStorage()]
+        storage.removeAll()
+        XCTAssert(storage.all().isEmpty, "Storage did not empty")
+        storage.store(response)
+        XCTAssert(storage.find(matching: response.id) != nil, "Storage did not retrieve cached response.")
+        let count = storage.all().count
+        XCTAssert(count == 1, "Storage should contain one response, but it contains \(count).")
+    }
     /// Test `KeychainStorage` flow.
     func testKeychainStorage() {
-        /// Cannot mimic the keychain inside the test app.
-        /// Tested on device and guaranteed to work.
+    }
+    /// Test `Secret` storing.
+    func testSecretStoring() {
+        let secret = Secret(identifier: HTTPCookie(properties: [.name: "A", .value: "A", .path: "A", .domain: "A"])!,
+                            crossSiteRequestForgery: HTTPCookie(properties: [.name: "B", .value: "B", .path: "B", .domain: "B"])!,
+                            session: HTTPCookie(properties: [.name: "C", .value: "C", .path: "C", .domain: "C"])!)
+        XCTAssert(
+            secret.headerFields
+                .sorted(by: { $0.key < $1.key })
+                .map { $0.key+$0.value }
+                .joined() == "CookieA=A; B=B; C=C"
+        )
+        XCTAssert(secret.id == "A")
+        secret.store(in: TransientStorage())
+        XCTAssert(Secret.stored(with: "A", in: TransientStorage()) == nil)
+        // Encode and decode.
+        do {
+            let encoded = try JSONEncoder().encode(secret)
+            let decoded = try JSONDecoder().decode(Secret.self, from: encoded)
+            XCTAssert(decoded.id == secret.id)
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
     }
 
     static var allTests = [
         ("TransientStorage", testTransientStorage),
         ("UserDefaultsStorage", testUserDefaultsStorage),
-        ("KeychainStorage", testKeychainStorage)
+        ("Storage", testStorage),
+        ("KeychainStorage", testKeychainStorage),
+        ("Secret", testSecretStoring)
     ]
 }
