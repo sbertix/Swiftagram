@@ -1,9 +1,17 @@
 @testable import Swiftagram
 import XCTest
+#if canImport(WebKit)
+import WebKit
+#endif
 
 final class SwiftagramAuthenticatorTests: XCTestCase {
     /// Environmental variables.
     var environemnt: [String: String] = [:]
+
+    #if canImport(WebKit)
+    /// The web view.
+    var webView: WKWebView?
+    #endif
 
     /// Set up.
     override func setUp() {
@@ -13,6 +21,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
         let expectation = XCTestExpectation(description: "BasicAuthenticator")
+        XCTAssert(Verification(response: .dictionary(["label": .string("Email"), "value": .string("1")]))?.label == "Email")
         // Authenticate.
         BasicAuthenticator(username: environemnt["INSTAGRAM_USERNAME"] ?? "",
                            password: environemnt["INSTAGRAM_PASSWORD"] ?? "")
@@ -40,8 +49,25 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
             }
         wait(for: [expectation], timeout: 20)
     }
+    
+    /// Test `WebViewAuthenticator` login flow.
+    
+    func testWebViewAuthenticator() {
+        if #available(macOS 10.13, iOS 11, *) {
+            let expectation = XCTestExpectation()
+            WebViewAuthenticator {
+                self.webView = $0
+                self.webView?.load(URLRequest(url: URL(string: "https://instagram.com/")!))
+                DispatchQueue.main.asyncAfter(deadline: .now()+1) { expectation.fulfill() }
+            }.authenticate { _ in
+                // It cannot be tested.
+            }
+            wait(for: [expectation], timeout: 3)
+        }
+    }
 
     static var allTests = [
-        ("BasicAuthenticator", testBasicAuthenticator)
+        ("BasicAuthenticator", testBasicAuthenticator),
+        ("WebViewAuthenticator", testWebViewAuthenticator),
     ]
 }
