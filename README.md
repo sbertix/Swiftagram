@@ -1,6 +1,6 @@
 # Swiftagram
 [![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
-[![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/master/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)[![PayPal](https://img.shields.io/badge/support-PayPal-blue?style=flat&logo=paypal)](https://www.paypal.me/sbertix)
+[![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/master/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram) [![PayPal](https://img.shields.io/badge/support-PayPal-blue?style=flat&logo=paypal)](https://www.paypal.me/sbertix)
 
 **Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.
 
