@@ -24,6 +24,8 @@ jobs:
       run: xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Codecov
       uses: codecov/codecov-action@v1
+      timeout-minutes: 1
+      continue-on-error: true
 
   documentation:
     needs: build
