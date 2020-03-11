@@ -14,26 +14,26 @@ public extension Requester {
         public typealias Response<Data> = (data: Data, response: HTTPURLResponse?)
         /// The result.
         public typealias Result<Data> = Swift.Result<Response<Data>, Swift.Error>
-        
+
         /// The task identifier.
         internal var identifier = UUID().uuidString
-        
+
         /// The originating `Endpoint`.
         public let originating: Endpoint
         /// The current `Endpoint`.
         public var current: Endpoint?
-        
+
         /// A weak reference to the `Requester`.
         public weak var requester: Requester?
         /// The current `URLSessionDataTask`.
         internal var sessionTask: URLSessionDataTask?
         /// A block requesting the next `Endpoint`.
         internal var next: (Result<Data>) -> Endpoint?
-        
+
         // MARK: Lifecycle
         /// Deinit.
         deinit { cancel() }
-        
+
         /// Init.
         /// - parameters:
         ///     - endpoint: The originating `Endpoint`.
@@ -47,7 +47,7 @@ public extension Requester {
             self.requester = requester
             self.next = next
         }
-        
+
         // MARK: Handling
         /// Cancel the current and all future requests.
         public func cancel() {
@@ -56,13 +56,13 @@ public extension Requester {
             self.sessionTask = nil
             self.current = nil
         }
-        
+
         /// Cancel the current request.
         public func pause() {
             self.sessionTask?.cancel()
             self.sessionTask = nil
         }
-        
+
         /// Fetch the `current` endpoint.
         /// - returns: `true` if there are no active tasks, `Endpoint` was valid and `requester` was not deallocated, `false` otherwise.
         @discardableResult
@@ -77,7 +77,7 @@ public extension Requester {
             requester.schedule(self)
             return true
         }
-        
+
         // MARK: Fetching
         /// Fetch using a given `session`.
         /// - parameters:
@@ -112,7 +112,7 @@ public extension Requester {
                 self.sessionTask?.resume()
             }
         }
-        
+
         // MARK: Hashable
         /// Conform to hashable.
         public func hash(into hasher: inout Hasher) { hasher.combine(identifier) }

@@ -11,7 +11,8 @@ import Foundation
 
 /// A `class` defining a new `Subscription` specific for `Response`s coming from `Endpoint` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class EndpointSubscription<Subscriber: Combine.Subscriber, Response: DataMappable>: Subscription where Subscriber.Input == Response, Subscriber.Failure == Error {
+public final class EndpointSubscription<Subscriber: Combine.Subscriber, Response: DataMappable>: Subscription
+where Subscriber.Input == Response, Subscriber.Failure == Error {
     /// A `Requester.Task`.
     private var task: Requester.Task?
     /// A `Subscriber`.
@@ -76,7 +77,7 @@ public extension Endpoint {
     func publish<Response: DataMappable>(response: Response.Type) -> EndpointPublisher<Response> {
         return EndpointPublisher(request: self)
     }
-    
+
     /// Return a `Response` publisher.
     func publish() -> EndpointPublisher<Response> {
         return EndpointPublisher(request: self)

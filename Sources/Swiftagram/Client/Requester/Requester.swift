@@ -42,7 +42,7 @@ public final class Requester {
         guard !tasks.insert(request).inserted else { return }
         request.fetch(using: configuration.session, configuration: configuration)
     }
-    
+
     /// Cancel a given `request`.
     /// - parameter request: A valid `Requester.Task`.
     internal func cancel(_ request: Requester.Task) { tasks.remove(request) }

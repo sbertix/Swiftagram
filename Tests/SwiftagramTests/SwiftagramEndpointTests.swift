@@ -104,7 +104,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/search/?q=query")
     }
-    
+
     /// Test pagination.
     func testPaginationString() {
         // The current offset.
@@ -127,7 +127,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .resume()
         wait(for: [expectation], timeout: 30)
     }
-    
+
     /// Test pagination.
     func testPaginationResponse() {
         // The current offset.
@@ -158,6 +158,6 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Friendship", testEndpointFriendship),
         ("Endpoint.User", testEndpointUser),
         ("Endpoint.Pagination.String", testPaginationString),
-        ("Endpoint.Pagination.Response", testPaginationResponse),
+        ("Endpoint.Pagination.Response", testPaginationResponse)
     ]
 }

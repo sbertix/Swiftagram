@@ -24,7 +24,7 @@ public extension Endpoint {
                                 return nil
         }
     }
-    
+
     /// Prepare the `Requester.Task`.
     /// - parameters:
     ///     - responser: A `Decodable` type.
@@ -44,7 +44,7 @@ public extension Endpoint {
                                 return nil
         }
     }
-    
+
     /// Prepare the `Requester.Task`.
     /// - parameters:
     ///     - requester:  A `Requester`. Defaults to `.default`.
@@ -54,7 +54,7 @@ public extension Endpoint {
               onComplete: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task {
         return task(Response.self, onComplete: onComplete)
     }
-    
+
     // MARK: Cycle
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
@@ -85,7 +85,7 @@ public extension Endpoint {
                                 return nextEndpoint
         }
     }
-    
+
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
     ///     - response: A `Decodable` type.
@@ -119,7 +119,7 @@ public extension Endpoint {
                                 return nextEndpoint
         }
     }
-    
+
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
     ///     - key: A `String` representing the url query item name. Defaults to `max_id`.

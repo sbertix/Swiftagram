@@ -11,6 +11,7 @@ import UIKit
 import WebKit
 
 import Swiftagram
+import SwiftagramKeychain
 
 class LoginViewController: UIViewController {
     /// The completion handler.

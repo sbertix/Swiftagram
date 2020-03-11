@@ -33,7 +33,7 @@ public struct Endpoint: Hashable {
     public init(url: URL) {
         self.components = [url.absoluteString.trimmingCharacters(in: .init(charactersIn: "/"))]
     }
-    
+
     // MARK: Accessories
     /// Compute the `URLRequest`.
     public func request() -> URLRequest? {
@@ -140,7 +140,7 @@ public struct Endpoint: Hashable {
         copy.headerFields = headerFields.flatMap { copy.headerFields.merging($0) { _, rhs in rhs }} ?? [:]
         return copy
     }
-    
+
     /// Append `headerFields` for `secret`.
     /// - parameter secret: A valid `Secret`.
     public func authenticating(with secret: Secret) -> Endpoint {
