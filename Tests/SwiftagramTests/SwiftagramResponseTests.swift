@@ -1,4 +1,3 @@
-import KeychainSwift
 @testable import Swiftagram
 import XCTest
 

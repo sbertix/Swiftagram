@@ -10,6 +10,10 @@ let package = Package(
             name: "Swiftagram",
             targets: ["Swiftagram"]
         ),
+        .library(
+            name: "SwiftagramKeychain",
+            targets: ["SwiftagramKeychain"]
+        )
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -17,11 +21,14 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Swiftagram",
-            dependencies: ["KeychainSwift"]
+            name: "Swiftagram"
+        ),
+        .target(
+            name: "SwiftagramKeychain",
+            dependencies: ["Swiftagram", "KeychainSwift"]
         ),
         .testTarget(
             name: "SwiftagramTests",
-            dependencies: ["Swiftagram"])
+            dependencies: ["Swiftagram", "SwiftagramKeychain"])
     ]
 )
