@@ -21,8 +21,22 @@ public struct Endpoint: Hashable {
     /// The `Method`. Defaults to `default`.
     internal var method: Method = .default
 
+    // MARK: Lifecycle
+    /// Init.
+    /// - parameters:
+    ///     - components: A `Collection` of `String`s, forming a valid `https` address, when joined together using `/`.
+    ///     - headerFields. A `Dictionary` of `(key: String, value: String)`, forming valid header fields.
+    public init(components: [String]) { self.components = components }
+
+    /// Init.
+    /// - parameter url: A `URL`.
+    public init(url: URL) {
+        self.components = [url.absoluteString.trimmingCharacters(in: .init(charactersIn: "/"))]
+    }
+
+    // MARK: Accessories
     /// Compute the `URLRequest`.
-    public var request: URLRequest? {
+    public func request() -> URLRequest? {
         // prepare the main components.
         var components = URLComponents(string: self.components.joined(separator: "/")+"/")
         components?.queryItems = queries.isEmpty ? nil : queries.map { URLQueryItem(name: $0.key, value: $0.value) }
@@ -44,19 +58,6 @@ public struct Endpoint: Hashable {
         request.httpBody = body
         request.httpMethod = body.map(method.resolve)
         return request
-    }
-
-    // MARK: Lifecycle
-    /// Init.
-    /// - parameters:
-    ///     - components: A `Collection` of `String`s, forming a valid `https` address, when joined together using `/`.
-    ///     - headerFields. A `Dictionary` of `(key: String, value: String)`, forming valid header fields.
-    public init(components: [String]) { self.components = components }
-
-    /// Init.
-    /// - parameter url: A `URL`.
-    public init(url: URL) {
-        self.components = [url.absoluteString.trimmingCharacters(in: .init(charactersIn: "/"))]
     }
 
     // MARK: Composition
@@ -138,6 +139,12 @@ public struct Endpoint: Hashable {
         var copy = self
         copy.headerFields = headerFields.flatMap { copy.headerFields.merging($0) { _, rhs in rhs }} ?? [:]
         return copy
+    }
+
+    /// Append `headerFields` for `secret`.
+    /// - parameter secret: A valid `Secret`.
+    public func authenticating(with secret: Secret) -> Endpoint {
+        return headerFields(secret.headerFields)
     }
 
     /// Set `method`.

@@ -42,51 +42,49 @@ public final class TwoFactor {
     /// Send the received code.
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
-        Request(
-            Endpoint.generic.accounts.login.ajax.two_factor
-                .body(["username": username,
-                       "verificationCode": code,
-                       "identifier": identifier])
-                .headerFields(
-                    ["Accept": "*/*",
-                     "Accept-Language": "en-US",
-                     "Accept-Encoding": "gzip, deflate",
-                     "Connection": "close",
-                     "x-csrftoken": crossSiteRequestForgery.value,
-                     "x-requested-with": "XMLHttpRequest",
-                     "Referer": "https://www.instagram.com/accounts/login/ajax/two_factor/",
-                     "Authority": "www.instagram.com",
-                     "Content-Type": "application/x-www-form-urlencoded",
-                     "User-Agent": userAgent]
+        Endpoint.generic.accounts.login.ajax.two_factor
+            .body(["username": username,
+                   "verificationCode": code,
+                   "identifier": identifier])
+            .headerFields(
+                ["Accept": "*/*",
+                 "Accept-Language": "en-US",
+                 "Accept-Encoding": "gzip, deflate",
+                 "Connection": "close",
+                 "x-csrftoken": crossSiteRequestForgery.value,
+                 "x-requested-with": "XMLHttpRequest",
+                 "Referer": "https://www.instagram.com/accounts/login/ajax/two_factor/",
+                 "Authority": "www.instagram.com",
+                 "Content-Type": "application/x-www-form-urlencoded",
+                 "User-Agent": userAgent]
             )
-        )
-        .onCompleteString { [self] in
-            switch $0 {
-            case .failure(let error): self.onChange(.failure(error))
-            case .success(let value):
-                switch value.response?.statusCode {
-                case 200:
-                    // Fetch `Secret`.
-                    let cookies = HTTPCookieStorage.shared.cookies?
-                        .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
-                        .sorted { $0.name < $1.name } ?? []
-                    guard cookies.count == 2 else {
-                        return self.onChange(.failure(AuthenticatorError.invalidCookies))
+            .task(String.self) { [self] in
+                switch $0 {
+                case .failure(let error): self.onChange(.failure(error))
+                case .success(let value):
+                    switch value.response?.statusCode {
+                    case 200:
+                        // Fetch `Secret`.
+                        let cookies = HTTPCookieStorage.shared.cookies?
+                            .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
+                            .sorted { $0.name < $1.name } ?? []
+                        guard cookies.count == 2 else {
+                            return self.onChange(.failure(AuthenticatorError.invalidCookies))
+                        }
+                        // Complete.
+                        self.onChange(.success(Secret(identifier: cookies[0],
+                                                      crossSiteRequestForgery: self.crossSiteRequestForgery,
+                                                      session: cookies[1])
+                            .store(in: self.storage)))
+                    case 400:
+                        // Invalid code.
+                        self.onChange(.failure(AuthenticatorError.invalidCode))
+                    default:
+                        // Invalid response.
+                        self.onChange(.failure(AuthenticatorError.invalidResponse))
                     }
-                    // Complete.
-                    self.onChange(.success(Secret(identifier: cookies[0],
-                                                  crossSiteRequestForgery: self.crossSiteRequestForgery,
-                                                  session: cookies[1])
-                        .store(in: self.storage)))
-                case 400:
-                    // Invalid code.
-                    self.onChange(.failure(AuthenticatorError.invalidCode))
-                default:
-                    // Invalid response.
-                    self.onChange(.failure(AuthenticatorError.invalidResponse))
                 }
             }
-        }
-        .resume()
+            .resume()
     }
 }

@@ -42,74 +42,70 @@ public final class Checkpoint {
     /// Request a code code through the selected `verification` method.
     /// - parameter verification: A `Verification` item to send the code to.
     public func requestCode(to verification: Verification) {
-        Request(
-            Endpoint(url: url)
-                .body(key: "choice", value: verification.value)
-                .headerFields(
-                    ["Accept": "*/*",
-                     "Accept-Language": "en-US",
-                     "Accept-Encoding": "gzip, deflate",
-                     "Connection": "close",
-                     "x-csrftoken": crossSiteRequestForgery.value,
-                     "x-requested-with": "XMLHttpRequest",
-                     "Referer": "https://www.instagram.com",
-                     "Authority": "www.instagram.com",
-                     "Origin": url.absoluteString,
-                     "Content-Type": "application/x-www-form-urlencoded",
-                     "User-Agent": userAgent]
+        Endpoint(url: url)
+            .body(key: "choice", value: verification.value)
+            .headerFields(
+                ["Accept": "*/*",
+                 "Accept-Language": "en-US",
+                 "Accept-Encoding": "gzip, deflate",
+                 "Connection": "close",
+                 "x-csrftoken": crossSiteRequestForgery.value,
+                 "x-requested-with": "XMLHttpRequest",
+                 "Referer": "https://www.instagram.com",
+                 "Authority": "www.instagram.com",
+                 "Origin": url.absoluteString,
+                 "Content-Type": "application/x-www-form-urlencoded",
+                 "User-Agent": userAgent]
             )
-        )
-        .onComplete { [self] in
-            switch $0 {
-            case .failure(let error): self.onChange(.failure(error))
-            default: break
+            .task { [self] in
+                switch $0 {
+                case .failure(let error): self.onChange(.failure(error))
+                default: break
+                }
             }
-        }
-        .resume()
+            .resume()
     }
 
     /// Send the received code.
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
-        Request(
-            Endpoint(url: url)
-                .body(key: "security_code", value: code)
-                .headerFields(
-                    ["Accept": "*/*",
-                     "Accept-Language": "en-US",
-                     "Accept-Encoding": "gzip, deflate",
-                     "Connection": "close",
-                     "x-csrftoken": crossSiteRequestForgery.value,
-                     "x-requested-with": "XMLHttpRequest",
-                     "Referer": "https://www.instagram.com",
-                     "Authority": "www.instagram.com",
-                     "Origin": url.absoluteString,
-                     "Content-Type": "application/x-www-form-urlencoded",
-                     "User-Agent": userAgent]
+        Endpoint(url: url)
+            .body(key: "security_code", value: code)
+            .headerFields(
+                ["Accept": "*/*",
+                 "Accept-Language": "en-US",
+                 "Accept-Encoding": "gzip, deflate",
+                 "Connection": "close",
+                 "x-csrftoken": crossSiteRequestForgery.value,
+                 "x-requested-with": "XMLHttpRequest",
+                 "Referer": "https://www.instagram.com",
+                 "Authority": "www.instagram.com",
+                 "Origin": url.absoluteString,
+                 "Content-Type": "application/x-www-form-urlencoded",
+                 "User-Agent": userAgent]
             )
-        )
-        .onCompleteString { [self] in
-            switch $0 {
-            case .failure(let error): self.onChange(.failure(error))
-            case .success(let value):
-                // Try authenticating again.
-                guard !value.data.contains("instagram://checkpoint/dismiss") else {
-                    return self.onChange(.failure(AuthenticatorError.retry))
+            .task(String.self) { [self] in
+                switch $0 {
+                case .failure(let error): self.onChange(.failure(error))
+                case .success(let value):
+                    // Try authenticating again.
+                    guard !value.data.contains("instagram://checkpoint/dismiss") else {
+                        return self.onChange(.failure(AuthenticatorError.retry))
+                    }
+                    // Fetch `Secret`.
+                    let cookies = HTTPCookieStorage.shared.cookies?
+                        .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
+                        .sorted { $0.name < $1.name } ?? []
+                    guard cookies.count == 2 else {
+                        return self.onChange(.failure(AuthenticatorError.invalidCookies))
+                    }
+                    // Complete.
+                    self.onChange(.success(Secret(identifier: cookies[0],
+                                                  crossSiteRequestForgery: self.crossSiteRequestForgery,
+                                                  session: cookies[1])
+                        .store(in: self.storage)))
                 }
-                // Fetch `Secret`.
-                let cookies = HTTPCookieStorage.shared.cookies?
-                    .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
-                    .sorted { $0.name < $1.name } ?? []
-                guard cookies.count == 2 else {
-                    return self.onChange(.failure(AuthenticatorError.invalidCookies))
-                }
-                // Complete.
-                self.onChange(.success(Secret(identifier: cookies[0],
-                                              crossSiteRequestForgery: self.crossSiteRequestForgery,
-                                              session: cookies[1])
-                    .store(in: self.storage)))
             }
-        }
-        .resume()
+            .resume()
     }
 }

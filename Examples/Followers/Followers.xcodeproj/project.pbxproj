@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E0094D262419584A007C0F44 /* SwiftagramKeychain in Frameworks */ = {isa = PBXBuildFile; productRef = E0094D252419584A007C0F44 /* SwiftagramKeychain */; };
+		E0094D282419584A007C0F44 /* Swiftagram in Frameworks */ = {isa = PBXBuildFile; productRef = E0094D272419584A007C0F44 /* Swiftagram */; };
 		E028F0302418DFCC00F9C7F8 /* FollowersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F0212418DFCC00F9C7F8 /* FollowersView.swift */; };
 		E028F0312418DFCC00F9C7F8 /* FollowersModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F0222418DFCC00F9C7F8 /* FollowersModel.swift */; };
 		E028F0322418DFCC00F9C7F8 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F0232418DFCC00F9C7F8 /* LoginView.swift */; };
@@ -18,7 +20,6 @@
 		E028F0382418DFCC00F9C7F8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02C2418DFCC00F9C7F8 /* AppDelegate.swift */; };
 		E028F0392418DFCC00F9C7F8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02D2418DFCC00F9C7F8 /* ContentView.swift */; };
 		E028F03B2418DFCC00F9C7F8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02F2418DFCC00F9C7F8 /* SceneDelegate.swift */; };
-		E028F03E2418E02C00F9C7F8 /* Swiftagram in Frameworks */ = {isa = PBXBuildFile; productRef = E028F03D2418E02C00F9C7F8 /* Swiftagram */; };
 		E028F0412418E04000F9C7F8 /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = E028F0402418E04000F9C7F8 /* Nuke */; };
 /* End PBXBuildFile section */
 
@@ -43,8 +44,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E028F03E2418E02C00F9C7F8 /* Swiftagram in Frameworks */,
+				E0094D282419584A007C0F44 /* Swiftagram in Frameworks */,
 				E028F0412418E04000F9C7F8 /* Nuke in Frameworks */,
+				E0094D262419584A007C0F44 /* SwiftagramKeychain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,8 +130,9 @@
 			);
 			name = Followers;
 			packageProductDependencies = (
-				E028F03D2418E02C00F9C7F8 /* Swiftagram */,
 				E028F0402418E04000F9C7F8 /* Nuke */,
+				E0094D252419584A007C0F44 /* SwiftagramKeychain */,
+				E0094D272419584A007C0F44 /* Swiftagram */,
 			);
 			productName = Followers;
 			productReference = E028F0082418DFAD00F9C7F8 /* Followers.app */;
@@ -160,8 +163,8 @@
 			);
 			mainGroup = E028EFFF2418DFAD00F9C7F8;
 			packageReferences = (
-				E028F03C2418E02C00F9C7F8 /* XCRemoteSwiftPackageReference "Swiftagram" */,
 				E028F03F2418E04000F9C7F8 /* XCRemoteSwiftPackageReference "Nuke" */,
+				E0094D242419584A007C0F44 /* XCRemoteSwiftPackageReference "Swiftagram" */,
 			);
 			productRefGroup = E028F0092418DFAD00F9C7F8 /* Products */;
 			projectDirPath = "";
@@ -393,12 +396,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		E028F03C2418E02C00F9C7F8 /* XCRemoteSwiftPackageReference "Swiftagram" */ = {
+		E0094D242419584A007C0F44 /* XCRemoteSwiftPackageReference "Swiftagram" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sbertix/Swiftagram.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.1;
+				kind = revision;
+				revision = 49e66e4f1ae7136b7a2b0f57e13019e8755f4704;
 			};
 		};
 		E028F03F2418E04000F9C7F8 /* XCRemoteSwiftPackageReference "Nuke" */ = {
@@ -412,9 +415,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E028F03D2418E02C00F9C7F8 /* Swiftagram */ = {
+		E0094D252419584A007C0F44 /* SwiftagramKeychain */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E028F03C2418E02C00F9C7F8 /* XCRemoteSwiftPackageReference "Swiftagram" */;
+			package = E0094D242419584A007C0F44 /* XCRemoteSwiftPackageReference "Swiftagram" */;
+			productName = SwiftagramKeychain;
+		};
+		E0094D272419584A007C0F44 /* Swiftagram */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E0094D242419584A007C0F44 /* XCRemoteSwiftPackageReference "Swiftagram" */;
 			productName = Swiftagram;
 		};
 		E028F0402418E04000F9C7F8 /* Nuke */ = {

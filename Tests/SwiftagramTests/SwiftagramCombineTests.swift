@@ -13,15 +13,15 @@ final class SwiftagramCombineTests: XCTestCase {
     func testRequest() {
         #if canImport(Combine)
         let expectation = XCTestExpectation()
-        requestCancellable = Request(.generic)
-            .responsePublisher()
+        requestCancellable = Endpoint.generic
+            .publish(response: String.self)
             .sink(receiveCompletion: {
                 switch $0 {
                 case .failure(let error): XCTFail(error.localizedDescription)
                 default: break
                 }
                 expectation.fulfill()
-            }, receiveValue: { _ in })
+            }, receiveValue: { print($0) })
         wait(for: [expectation], timeout: 5)
         #endif
     }

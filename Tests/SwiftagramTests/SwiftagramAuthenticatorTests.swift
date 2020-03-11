@@ -35,7 +35,6 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                     case AuthenticatorError.checkpoint:
                         // We might expect a checkpoint but we don't have the tools to actually check for it.
                         // Let's pass if this is the case.
-                        XCTAssert(true)
                         expectation.fulfill()
                     case let authenticationError as AuthenticatorError:
                         // 2FA is not handled in the test.
@@ -92,7 +91,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
             }.authenticate { _ in
                 // It cannot be tested.
             }
-            wait(for: [expectation], timeout: 3)
+            wait(for: [expectation], timeout: 5)
         }
     }
 

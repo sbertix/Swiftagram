@@ -14,18 +14,12 @@ public final class Requester {
     /// A `Configuration`. Defaults to `.default`.
     public var configuration: Configuration
 
-    /// A set of `Task`s currently scheduled or undergoing fetching.
-    internal var requests: Set<Task> = [] {
+    /// A set of `Requester.Task`s currently scheduled or undergoing fetching.
+    private var tasks: Set<Requester.Task> = [] {
         didSet {
-            let inserted = requests.subtracting(oldValue)
             let session = configuration.session
-            // Actually fetch `inserted` tasks.
-            inserted.forEach { task in
-                task.request.fetch(using: session, configuration: configuration) { [weak self] in
-                    // Remove the task once it's done.
-                    self?.requests.remove(task)
-                }
-            }
+            /// Fetch `Requester.Task` as they're added.
+            tasks.subtracting(oldValue).forEach { $0.fetch(using: session, configuration: configuration) }
         }
     }
 
@@ -33,7 +27,7 @@ public final class Requester {
     /// Deinit.
     deinit {
         /// Cancell all tasks.
-        requests = []
+        tasks = []
     }
 
     /// Init.
@@ -41,10 +35,15 @@ public final class Requester {
     public init(configuration: Configuration = .default) { self.configuration = configuration }
 
     // MARK: Schedule
+    // MARK: Schedule
     /// Schedule a new `request`.
-    /// - parameter request: A valid `Request`.
-    @discardableResult
-    internal func schedule(_ request: Request) -> Task {
-        return requests.insert(Task(request: request)).memberAfterInsert
+    /// - parameter request: A valid `Requester.Task`.
+    internal func schedule(_ request: Requester.Task) {
+        guard !tasks.insert(request).inserted else { return }
+        request.fetch(using: configuration.session, configuration: configuration)
     }
+
+    /// Cancel a given `request`.
+    /// - parameter request: A valid `Requester.Task`.
+    internal func cancel(_ request: Requester.Task) { tasks.remove(request) }
 }

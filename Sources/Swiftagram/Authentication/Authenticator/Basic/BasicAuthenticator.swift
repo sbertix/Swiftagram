@@ -85,8 +85,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        Request(Endpoint.generic.headerFields(["User-Agent": userAgent]))
-            .onCompleteString { [self] in self.handleFirst(result: $0, onChange: onChange) }
+        Endpoint.generic.headerFields(["User-Agent": userAgent])
+            .task(String.self) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
 
@@ -120,30 +120,28 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     return onChange(.failure(AuthenticatorError.invalidCookies))
             }
             // Obtain the `ds_user_id` and the `sessionid`.
-            Request(
-                Endpoint.generic.accounts.login.ajax
-                    .body(["username": self.username,
-                           "password": self.password])
-                    .headerFields(
-                        ["Accept": "*/*",
-                         "Accept-Language": "en-US",
-                         "Accept-Encoding": "gzip, deflate",
-                         "Connection": "close",
-                         "x-csrftoken": crossSiteRequestForgery.value,
-                         "x-requested-with": "XMLHttpRequest",
-                         "Referer": "https://www.instagram.com",
-                         "Authority": "www.instagram.com",
-                         "Origin": "https://www.instagram.com",
-                         "Content-Type": "application/x-www-form-urlencoded",
-                         "User-Agent": self.userAgent]
-                    )
-            )
-            .onComplete { [self] in
-                self.handleSecond(result: $0,
-                                  crossSiteRequestForgery: crossSiteRequestForgery,
-                                  onChange: onChange)
-            }
-            .resume()
+            Endpoint.generic.accounts.login.ajax
+                .body(["username": self.username,
+                       "password": self.password])
+                .headerFields(
+                    ["Accept": "*/*",
+                     "Accept-Language": "en-US",
+                     "Accept-Encoding": "gzip, deflate",
+                     "Connection": "close",
+                     "x-csrftoken": crossSiteRequestForgery.value,
+                     "x-requested-with": "XMLHttpRequest",
+                     "Referer": "https://www.instagram.com",
+                     "Authority": "www.instagram.com",
+                     "Origin": "https://www.instagram.com",
+                     "Content-Type": "application/x-www-form-urlencoded",
+                     "User-Agent": self.userAgent]
+                )
+                .task { [self] in
+                    self.handleSecond(result: $0,
+                                      crossSiteRequestForgery: crossSiteRequestForgery,
+                                      onChange: onChange)
+                }
+                .resume()
         }
     }
 
@@ -202,45 +200,43 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                   crossSiteRequestForgery: HTTPCookie,
                                   onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
-        Request(
-            Endpoint.generic.wrap(checkpoint)
-                .headerFields(["User-Agent": userAgent])
-        )
-        .onCompleteString { [self] in
-            // Check for errors.
-            switch $0 {
-            case .failure(let error): onChange(.failure(error))
-            case .success(let value):
-                // Notify checkpoint was reached.
-                guard let url = value.response?.url,
-                    value.data.contains("window._sharedData = ") else {
-                        return onChange(.failure(AuthenticatorError.checkpoint(nil)))
+        Endpoint.generic.wrap(checkpoint)
+            .headerFields(["User-Agent": userAgent])
+            .task(String.self) { [self] in
+                // Check for errors.
+                switch $0 {
+                case .failure(let error): onChange(.failure(error))
+                case .success(let value):
+                    // Notify checkpoint was reached.
+                    guard let url = value.response?.url,
+                        value.data.contains("window._sharedData = ") else {
+                            return onChange(.failure(AuthenticatorError.checkpoint(nil)))
+                    }
+                    guard let data = value.data
+                        .components(separatedBy: "window._sharedData = ")[1]
+                        .components(separatedBy: ";</script>")[0]
+                        .data(using: .utf8),
+                        let response = try? Response(data: data) else {
+                            return onChange(.failure(AuthenticatorError.checkpoint(nil)))
+                    }
+                    // Obtain available verification.
+                    guard let verification = response
+                        .entryData.challenge.array()?.first?
+                        .extraData.content.array()?.last?
+                        .fields.array()?.first?
+                        .values.array()?
+                        .compactMap(Verification.init) else {
+                            return onChange(.failure(AuthenticatorError.checkpoint(nil)))
+                    }
+                    onChange(.failure(AuthenticatorError.checkpoint(Checkpoint(storage: self.storage,
+                                                                               url: url,
+                                                                               userAgent: self.userAgent,
+                                                                               crossSiteRequestForgery: crossSiteRequestForgery,
+                                                                               availableVerification: Set(verification),
+                                                                               onChange: onChange))))
                 }
-                guard let data = value.data
-                    .components(separatedBy: "window._sharedData = ")[1]
-                    .components(separatedBy: ";</script>")[0]
-                    .data(using: .utf8),
-                    let response = try? Response(data: data) else {
-                        return onChange(.failure(AuthenticatorError.checkpoint(nil)))
-                }
-                // Obtain available verification.
-                guard let verification = response
-                    .entryData.challenge.array()?.first?
-                    .extraData.content.array()?.last?
-                    .fields.array()?.first?
-                    .values.array()?
-                    .compactMap(Verification.init) else {
-                        return onChange(.failure(AuthenticatorError.checkpoint(nil)))
-                }
-                onChange(.failure(AuthenticatorError.checkpoint(Checkpoint(storage: self.storage,
-                                                                           url: url,
-                                                                           userAgent: self.userAgent,
-                                                                           crossSiteRequestForgery: crossSiteRequestForgery,
-                                                                           availableVerification: Set(verification),
-                                                                           onChange: onChange))))
             }
-        }
-        .resume()
+            .resume()
     }
 }
 

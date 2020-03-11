@@ -8,11 +8,18 @@
 
 import UIKit
 
+import SwiftagramKeychain
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Delete keychain when reinstalling the app.
+        if !UserDefaults.standard.bool(forKey: "launched.before") {
+            KeychainStorage().removeAll()
+            UserDefaults.standard.set(true, forKey: "launched.before")
+            UserDefaults.standard.synchronize()
+        }
         return true
     }
 
