@@ -65,6 +65,39 @@ The library comes with several concrete implementations.
 - [`UserDefaultsStorage`](https://github.com/sbertix/Swiftagram/wiki/UserDefaultsStorage) allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
 - [`KeychainStorage`](https://github.com/sbertix/Swiftagram/wiki/KeychainStorage), part of **SwiftagramKeychain**, (**preferred**) stores them safely in the user's keychain.  
 
+### Request
+> What if I wanna know the basic info about a profile?
+
+Done. All you need is the user identifier and a valid `Secret`.
+
+```swift
+let identifier: String = /* the profile identifier */
+let secret: Secret = /* the authentication response */
+
+// Perform the request.
+Endpoint.User.summary(for: identifier)
+    .authenticating(with: secret)
+    .task { _ in
+      // Do something here.
+    }
+    .resume() // Strongly referenced in the `Requester`.
+```
+
+> How can I see all my followers?
+
+Easy. Using the `Secret` you obtained above, you can paginate a request as such:
+
+```swift
+let secret: Secret = /* the authentication response */
+
+// Perform the request.
+Endpoint.Friendship.following(secret.id)
+    .authenticating(with: secret)
+    .cycleTask(next: { (try? $0.get())?.data.nextMaxId.string() }) { _ in 
+      // Do something here.
+    }
+    .resume() // Strongly referenced in the `Requester`.
+```
 
 ## Contributions
 [Pull requests](https://github.com/sbertix/Swiftagram/pulls) and [issues](https://github.com/sbertix/Swiftagram/issues) are more than welcome.
