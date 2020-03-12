@@ -9,7 +9,7 @@ import Foundation
 
 /// A `struct` defining all possible `Endpoint`s.
 @dynamicMemberLookup
-public struct Endpoint: Hashable {
+public struct Endpoint: Hashable, Requestable {
     /// A `[String]` composed of all path components.
     internal var components: [String]
     /// A `[String: String]` composed of all key-values to set as body. Defaults to `[:]`.
@@ -69,18 +69,9 @@ public struct Endpoint: Hashable {
     public static var generic: Endpoint { return .init(components: ["https://www.instagram.com"]) }
 
     /// Append `item`.
-    public func wrap<Item>(_ item: Item) -> Endpoint where Item: LosslessStringConvertible {
+    public func wrap(_ item: String) -> Endpoint {
         var copy = self
-        copy.components.append(String(item)
-            .trimmingCharacters(in: .init(charactersIn: "/"))
-            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
-        return copy
-    }
-
-    /// Append `item`.
-    public func wrap<Item>(_ item: Item) -> Endpoint where Item: CustomStringConvertible {
-        var copy = self
-        copy.components.append(item.description
+        copy.components.append(item
             .trimmingCharacters(in: .init(charactersIn: "/"))
             .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
         return copy
@@ -88,16 +79,7 @@ public struct Endpoint: Hashable {
 
     /// Append `component`.
     public subscript(dynamicMember component: String) -> Endpoint {
-        var copy = self
-        copy.components.append(component
-            .trimmingCharacters(in: .init(charactersIn: "/"))
-            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
-        return copy
-    }
-
-    /// Append to `body`.
-    public func body(key: String, value: String?) -> Endpoint {
-        return body([key: value])
+        return wrap(component)
     }
 
     /// Append `body`. Empty `self.body` if `nil`.
@@ -111,11 +93,6 @@ public struct Endpoint: Hashable {
         return copy
     }
 
-    /// Append to `queries`.
-    public func query(key: String, value: String?) -> Endpoint {
-        return query([key: value])
-    }
-
     /// Append `queries`. Empty `self.queries` if `nil`.
     public func query(_ queries: [String: String?]?) -> Endpoint {
         var copy = self
@@ -125,17 +102,6 @@ public struct Endpoint: Hashable {
             queries?.forEach { copy.queries[$0.key] = $0.value }
         }
         return copy
-    }
-
-    /// Append default `headerFields`.
-    public func defaultHeaderFields() -> Endpoint {
-        return self.headerFields(
-            [Headers.acceptLanguageKey: Headers.acceptLanguageValue,
-             Headers.contentTypeKey: Headers.contentTypeApplicationFormValue,
-             Headers.igCapabilitiesKey: Headers.igCapabilitiesValue,
-             Headers.igConnectionTypeKey: Headers.igConnectionTypeValue,
-             Headers.userAgentKey: Headers.userAgentValue]
-        )
     }
 
     /// Append `headerFields`. Empty `self.headerFields` if `nil`.

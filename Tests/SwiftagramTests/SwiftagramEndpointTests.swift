@@ -1,7 +1,23 @@
+import Foundation
 @testable import Swiftagram
 import XCTest
 
+extension HTTPCookie {
+    /// Test.
+    convenience init(text: String) {
+        self.init(properties: [.name: text,
+                               .value: text,
+                               .path: "/",
+                               .domain: ""])!
+    }
+}
+
 final class SwiftagramEndpointTests: XCTestCase {
+    /// A temp `Secret`
+    static let secret = Secret(identifier: HTTPCookie(text: "A"),
+                               crossSiteRequestForgery: HTTPCookie(text: "B"),
+                               session: HTTPCookie(text: "C"))
+
     /// Test `Endpoint.Method` .
     func testEndpointMethod() {
         XCTAssert(Endpoint.Method.get.resolve(using: Data()) == "GET")
@@ -230,6 +246,42 @@ final class SwiftagramEndpointTests: XCTestCase {
             .cancel()
     }
 
+    /// Test `LockedEndpoint`.
+    func testLocked() {
+        struct Lossless: CustomStringConvertible {
+            var description: String { return "lossless" }
+        }
+
+        XCTAssert(Endpoint.generic
+            .locked()
+            .body([:])
+            .headerFields([:])
+            .query([:])
+            .wrap(Lossless())
+            .method(.get)
+            .authenticating(with: SwiftagramEndpointTests.secret)
+            .request()?
+            .url?
+            .absoluteString == "https://www.instagram.com/lossless/")
+    }
+
+    /// Test `deinit` `Requester`.
+    func testDeinit() {
+        let expectation = XCTestExpectation()
+        var requester: Requester? = Requester()
+        Endpoint.generic
+            .task(String.self, by: requester!) {
+                switch $0 {
+                case .failure(let error): XCTAssert(String(describing: error).contains("cancelled"))
+                case .success: XCTFail("It shouldn't suceed.")
+                }
+                expectation.fulfill()
+            }
+            .resume()
+        DispatchQueue.main.async { requester = nil }
+        expectation.fulfill()
+    }
+    
     static var allTests = [
         ("Endpoint.Method", testEndpointMethod),
         ("Endpoint.Archive", testEndpointArchive),
@@ -241,6 +293,8 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Pagination.String", testPaginationString),
         ("Endpoint.Pagination.Response", testPaginationResponse),
         ("Endpoint.Pagination.Decodable", testPaginationDecodable),
-        ("Endpoint.Cancel", testCancel)
+        ("Endpoint.Cancel", testCancel),
+        ("Endpoint.Locked", testLocked),
+        ("Requester.Deinit", testDeinit)
     ]
 }
