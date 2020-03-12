@@ -196,9 +196,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     // MARK: Checkpoint flow
     /// Handle checkpoint.
     internal func handleCheckpoint(result: Requester.Task.Response<Response>,
-                                  checkpoint: String,
-                                  crossSiteRequestForgery: HTTPCookie,
-                                  onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
+                                   checkpoint: String,
+                                   crossSiteRequestForgery: HTTPCookie,
+                                   onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
         Endpoint.generic.wrap(checkpoint)
             .headerFields(["User-Agent": userAgent])

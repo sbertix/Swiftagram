@@ -135,8 +135,8 @@ public extension Endpoint {
                    onChange: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
         return cycleTask(Response.self, key: key, initial: initial, next: next, by: requester, onChange: onChange)
     }
-    
-    // MARK:Debug
+
+    // MARK: Debug
     /// Prepare the `Requester.Task`.
     /// - parameters:
     ///     - response: A `DataMappable` type.
@@ -144,8 +144,8 @@ public extension Endpoint {
     ///     - onComplete: A block accepting a `DataMappable`.
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
     func debugTask<Response>(_ response: Response.Type,
-                        by requester: Requester = .default,
-                        onComplete: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task where Response: DataMappable {
+                             by requester: Requester = .default,
+                             onComplete: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task where Response: DataMappable {
         return Requester.Task(endpoint: self,
                               requester: requester) {
                                 onComplete($0.map { (Response.process(data: $0.data), $0.response) })
@@ -160,8 +160,8 @@ public extension Endpoint {
     ///     - onComplete: A block accepting a `DataMappable`.
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
     func debugTask<Response>(decodable response: Response.Type,
-                        by requester: Requester = .default,
-                        onComplete: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task where Response: Decodable {
+                             by requester: Requester = .default,
+                             onComplete: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task where Response: Decodable {
         return Requester.Task(endpoint: self,
                               requester: requester) {
                                 onComplete($0.flatMap { result in
@@ -179,7 +179,7 @@ public extension Endpoint {
     ///     - onComplete: A block accepting a `DataMappable`.
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
     func debugTask(by requester: Requester = .default,
-              onComplete: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task {
+                   onComplete: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task {
         return debugTask(Response.self, onComplete: onComplete)
     }
 }

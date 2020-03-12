@@ -229,7 +229,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .resume()?
             .cancel()
     }
-    
+
     static var allTests = [
         ("Endpoint.Method", testEndpointMethod),
         ("Endpoint.Archive", testEndpointArchive),
