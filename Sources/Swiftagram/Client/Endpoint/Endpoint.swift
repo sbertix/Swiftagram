@@ -97,29 +97,33 @@ public struct Endpoint: Hashable {
 
     /// Append to `body`.
     public func body(key: String, value: String?) -> Endpoint {
-        var copy = self
-        copy.body[key] = value
-        return copy
+        return body([key: value])
     }
 
     /// Append `body`. Empty `self.body` if `nil`.
-    public func body(_ body: [String: String]?) -> Endpoint {
+    public func body(_ body: [String: String?]?) -> Endpoint {
         var copy = self
-        copy.body = body.flatMap { copy.body.merging($0) { _, rhs in rhs }} ?? [:]
+        if body == nil {
+            copy.body = [:]
+        } else {
+            body?.forEach { copy.body[$0.key] = $0.value }
+        }
         return copy
     }
 
     /// Append to `queries`.
     public func query(key: String, value: String?) -> Endpoint {
-        var copy = self
-        copy.queries[key] = value
-        return copy
+        return query([key: value])
     }
 
     /// Append `queries`. Empty `self.queries` if `nil`.
-    public func query(_ queries: [String: String]?) -> Endpoint {
+    public func query(_ queries: [String: String?]?) -> Endpoint {
         var copy = self
-        copy.queries = queries.flatMap { copy.queries.merging($0) { _, rhs in rhs }} ?? [:]
+        if queries == nil {
+            copy.queries = [:]
+        } else {
+            queries?.forEach { copy.queries[$0.key] = $0.value }
+        }
         return copy
     }
 

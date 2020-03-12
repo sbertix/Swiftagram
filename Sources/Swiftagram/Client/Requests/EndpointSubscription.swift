@@ -29,7 +29,7 @@ where Subscriber.Input == Response, Subscriber.Failure == Error {
             switch $0 {
             case .failure(let error): subscriber.receive(completion: .failure(error))
             case .success(let success):
-                _ = subscriber.receive(success.data)
+                _ = subscriber.receive(success)
                 subscriber.receive(completion: .finished)
             }
         }

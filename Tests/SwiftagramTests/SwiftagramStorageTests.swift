@@ -25,6 +25,7 @@ final class SwiftagramStorageTests: XCTestCase {
         storage.store(response)
         XCTAssert(storage.find(matching: response.id) == nil, "Transient response was actually saved.")
         XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
+        XCTAssert(storage.remove(matching: response.id) == nil, "Transient storage was actually not empty.")
     }
     /// Test `UserDefaultsStorage` flow.
     func testUserDefaultsStorage() {

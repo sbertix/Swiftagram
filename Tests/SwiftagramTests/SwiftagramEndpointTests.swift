@@ -116,19 +116,31 @@ final class SwiftagramEndpointTests: XCTestCase {
                                      "c38d855d9aac95fb095b6c5fc75f9a0219183648/Test.json"].joined()) else {
                                         return XCTFail("Invalid URL.")
         }
-        let expectation = XCTestExpectation()
+        let debug = XCTestExpectation()
+        let regular = XCTestExpectation()
         Endpoint(url: url)
-            .task(decodable: Response.self) {
+            .debugTask(decodable: Response.self) {
                 switch $0 {
                 case .success(let result):
                     XCTAssert(result.data.string == "A random string.")
                 case .failure(let error):
                     XCTFail(error.localizedDescription)
                 }
-                expectation.fulfill()
+                debug.fulfill()
             }
             .resume()
-        wait(for: [expectation], timeout: 10)
+        Endpoint(url: url)
+            .task(decodable: Response.self) {
+                switch $0 {
+                case .success(let result):
+                    XCTAssert(result.string == "A random string.")
+                case .failure(let error):
+                    XCTFail(error.localizedDescription)
+                }
+                regular.fulfill()
+            }
+            .resume()
+        wait(for: [debug, regular], timeout: 10)
     }
 
     /// Test pagination.
@@ -195,7 +207,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                        next: { _ in nil }) {
                         switch $0 {
                         case .success(let result):
-                            XCTAssert(result.data.string == "A random string.")
+                            XCTAssert(result.string == "A random string.")
                         case .failure(let error):
                             XCTFail(error.localizedDescription)
                         }
@@ -205,6 +217,19 @@ final class SwiftagramEndpointTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
     }
 
+    /// Test cancel request.
+    func testCancel() {
+        Endpoint(url: URL(string: "https://instagram.com")!)
+            .task {
+                switch $0 {
+                case .success: XCTFail("It shouldn't succeed.")
+                case .failure(let error): XCTAssert(String(describing: error).contains("-999"))
+                }
+            }
+            .resume()?
+            .cancel()
+    }
+    
     static var allTests = [
         ("Endpoint.Method", testEndpointMethod),
         ("Endpoint.Archive", testEndpointArchive),
@@ -215,6 +240,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Decodable", testDecodable),
         ("Endpoint.Pagination.String", testPaginationString),
         ("Endpoint.Pagination.Response", testPaginationResponse),
-        ("Endpoint.Pagination.Decodable", testPaginationDecodable)
+        ("Endpoint.Pagination.Decodable", testPaginationDecodable),
+        ("Endpoint.Cancel", testCancel)
     ]
 }

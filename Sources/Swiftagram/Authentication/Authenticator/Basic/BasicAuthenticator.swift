@@ -86,7 +86,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         Endpoint.generic.headerFields(["User-Agent": userAgent])
-            .task(String.self) { [self] in self.handleFirst(result: $0, onChange: onChange) }
+            .debugTask(String.self) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
 
@@ -136,7 +136,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                      "Content-Type": "application/x-www-form-urlencoded",
                      "User-Agent": self.userAgent]
                 )
-                .task { [self] in
+                .debugTask { [self] in
                     self.handleSecond(result: $0,
                                       crossSiteRequestForgery: crossSiteRequestForgery,
                                       onChange: onChange)
@@ -195,14 +195,14 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
 
     // MARK: Checkpoint flow
     /// Handle checkpoint.
-    private func handleCheckpoint(result: Requester.Task.Response<Response>,
+    internal func handleCheckpoint(result: Requester.Task.Response<Response>,
                                   checkpoint: String,
                                   crossSiteRequestForgery: HTTPCookie,
                                   onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
         Endpoint.generic.wrap(checkpoint)
             .headerFields(["User-Agent": userAgent])
-            .task(String.self) { [self] in
+            .debugTask(String.self) { [self] in
                 // Check for errors.
                 switch $0 {
                 case .failure(let error): onChange(.failure(error))

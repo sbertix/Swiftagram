@@ -58,7 +58,7 @@ public final class TwoFactor {
                  "Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": userAgent]
             )
-            .task(String.self) { [self] in
+            .debugTask(String.self) { [self] in
                 switch $0 {
                 case .failure(let error): self.onChange(.failure(error))
                 case .success(let value):

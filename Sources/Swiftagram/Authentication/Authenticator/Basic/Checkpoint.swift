@@ -89,7 +89,7 @@ public final class Checkpoint {
                 case .failure(let error): self.onChange(.failure(error))
                 case .success(let value):
                     // Try authenticating again.
-                    guard !value.data.contains("instagram://checkpoint/dismiss") else {
+                    guard !value.contains("instagram://checkpoint/dismiss") else {
                         return self.onChange(.failure(AuthenticatorError.retry))
                     }
                     // Fetch `Secret`.

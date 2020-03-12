@@ -64,18 +64,18 @@ public extension Requester {
         }
 
         /// Fetch the `current` endpoint.
-        /// - returns: `true` if there are no active tasks, `Endpoint` was valid and `requester` was not deallocated, `false` otherwise.
+        /// - returns: `self` if there are no active tasks, `Endpoint` was valid and `requester` was not deallocated, `nil` otherwise.
         @discardableResult
-        public func resume() -> Bool {
+        public func resume() -> Task? {
             guard sessionTask == nil,
                 let endpoint = current,
                 endpoint.request() != nil,
                 let requester = requester else {
-                    return false
+                    return nil
             }
             /// Add to the `requester`.
             requester.schedule(self)
-            return true
+            return self
         }
 
         // MARK: Fetching

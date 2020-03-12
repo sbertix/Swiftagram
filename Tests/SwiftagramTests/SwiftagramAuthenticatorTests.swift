@@ -21,11 +21,28 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
         let expectation = XCTestExpectation(description: "BasicAuthenticator")
+        let invalidUsername = XCTestExpectation()
+        let checkpoint = XCTestExpectation()
         XCTAssert(Verification(response: .dictionary(["label": .string("Email"), "value": .string("1")]))?.label == "Email")
-        // Authenticate.
-        BasicAuthenticator(username: environemnt["INSTAGRAM_USERNAME"] ?? "",
-                           password: environemnt["INSTAGRAM_PASSWORD"] ?? "")
+        // Wrong username.
+        BasicAuthenticator(username: "@#notavalidusername",
+                           password: "password")
             .authenticate { [username = environemnt["INSTAGRAM_USERNAME"] ?? ""] in
+                switch $0 {
+                case .failure(let error):
+                    switch error {
+                    case AuthenticatorError.invalidUsername, AuthenticatorError.invalidPassword: break
+                    default:
+                        XCTFail(error.localizedDescription+" for \(username)")
+                    }
+                default: XCTFail("It should not succeed")
+                }
+                invalidUsername.fulfill()
+        }
+        // Authenticate and checkpoint.
+        let authenticator = BasicAuthenticator(username: environemnt["INSTAGRAM_USERNAME"] ?? "",
+                                               password: environemnt["INSTAGRAM_PASSWORD"] ?? "")
+        authenticator.authenticate { [username = environemnt["INSTAGRAM_USERNAME"] ?? ""] in
                 switch $0 {
                 case .success:
                     XCTAssert(true)
@@ -46,11 +63,21 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                     }
                 }
         }
-        wait(for: [expectation], timeout: 20)
+        authenticator.handleCheckpoint(result: (data: Response.none, response: nil),
+                                       checkpoint: "",
+                                       crossSiteRequestForgery: .init()) {
+                                        switch $0 {
+                                        case .failure: break
+                                        case .success: XCTFail("It shouldn't succeed.")
+                                        }
+                                        checkpoint.fulfill()
+        }
+        wait(for: [expectation, invalidUsername, checkpoint], timeout: 20)
     }
 
     /// Test `TwoFactor`.
     func testTwoFactor() {
+        HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
         TwoFactor(storage: TransientStorage(),
                   username: "A",
@@ -65,6 +92,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
 
     /// Test `TwoFactor`.
     func testCheckpoint() {
+        HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
         let verification = Verification(response: .dictionary(["label": .string("email"), "value": .string("1")]))!
         let checkpoint = Checkpoint(storage: TransientStorage(),
@@ -72,7 +100,10 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                                     userAgent: "A",
                                     crossSiteRequestForgery: .init(),
                                     availableVerification: [verification]) {
-                                        XCTAssert((try? $0.get()) == nil)
+                                        switch $0 {
+                                        case .success: XCTFail("It should not work.")
+                                        default: break
+                                        }
                                         expectation.fulfill()
         }
         checkpoint.requestCode(to: verification)
