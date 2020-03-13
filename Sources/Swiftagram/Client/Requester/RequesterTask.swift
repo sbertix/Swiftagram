@@ -19,16 +19,16 @@ public extension Requester {
         internal var identifier = UUID().uuidString
 
         /// The originating `Endpoint`.
-        public let originating: Endpoint
+        public let originating: ComposableRequest
         /// The current `Endpoint`.
-        public var current: Endpoint?
+        public var current: ComposableRequest?
 
         /// A weak reference to the `Requester`.
         public weak var requester: Requester?
         /// The current `URLSessionDataTask`.
         internal var sessionTask: URLSessionDataTask?
         /// A block requesting the next `Endpoint`.
-        internal var next: (Result<Data>) -> Endpoint?
+        internal var next: (Result<Data>) -> ComposableRequest?
 
         // MARK: Lifecycle
         /// Deinit.
@@ -36,12 +36,12 @@ public extension Requester {
 
         /// Init.
         /// - parameters:
-        ///     - endpoint: The originating `Endpoint`.
+        ///     - endpoint: The originating `ComposableRequest`.
         ///     - requester: A valid `Requester`. Defaults to `.default`.
         ///     - next: A block outputting the last response and requesting the following `Endpoint`. `nil` to stop.
-        internal init(endpoint: Endpoint,
+        internal init(endpoint: ComposableRequest,
                       requester: Requester = .default,
-                      next: @escaping (Result<Data>) -> Endpoint?) {
+                      next: @escaping (Result<Data>) -> ComposableRequest?) {
             self.originating = endpoint
             self.current = endpoint
             self.requester = requester

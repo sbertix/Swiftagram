@@ -42,9 +42,9 @@ public final class Checkpoint {
     /// Request a code code through the selected `verification` method.
     /// - parameter verification: A `Verification` item to send the code to.
     public func requestCode(to verification: Verification) {
-        Endpoint(url: url)
-            .body(key: "choice", value: verification.value)
-            .headerFields(
+        ComposableRequest(url: url)
+            .body("choice", value: verification.value)
+            .header(
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",
@@ -69,9 +69,9 @@ public final class Checkpoint {
     /// Send the received code.
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
-        Endpoint(url: url)
-            .body(key: "security_code", value: code)
-            .headerFields(
+        ComposableRequest(url: url)
+            .body("security_code", value: code)
+            .header(
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",

@@ -11,18 +11,18 @@ public extension Endpoint {
     /// A `struct` holding reference to `users` `Endpoint`s. Requires authentication.
     struct User {
         /// The base endpoint.
-        private static let base = Endpoint.version1.users.defaultHeaderFields().locked()
+        private static let base = Endpoint.version1.users.defaultHeader().locked()
 
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Secreted<Endpoint> {
-            return base.wrap(identifier).info
+        public static func summary(for identifier: String) -> Locked<ComposableRequest> {
+            return base.append(identifier).info
         }
 
         /// All user matching `query`.
         /// - parameter query: A `String` holding reference to a valid user query.
-        public static func all(matching query: String) -> Secreted<Endpoint> {
-            return base.search.query(key: "q", value: query)
+        public static func all(matching query: String) -> Locked<ComposableRequest> {
+            return base.search.query("q", value: query)
         }
     }
 }

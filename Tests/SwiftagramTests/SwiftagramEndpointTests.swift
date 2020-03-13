@@ -20,10 +20,11 @@ final class SwiftagramEndpointTests: XCTestCase {
 
     /// Test `Endpoint.Method` .
     func testEndpointMethod() {
-        XCTAssert(Endpoint.Method.get.resolve(using: Data()) == "GET")
-        XCTAssert(Endpoint.Method.post.resolve(using: nil) == "POST")
-        XCTAssert(Endpoint.Method.default.resolve(using: nil) == "GET")
-        XCTAssert(Endpoint.Method.default.resolve(using: Data()) == "POST")
+        XCTAssert(ComposableRequest.Method.get.resolve(using: Data()) == "GET")
+        XCTAssert(ComposableRequest.Method.post.resolve(using: nil) == "POST")
+        XCTAssert(ComposableRequest.Method.default.resolve(using: nil) == "GET")
+        XCTAssert(ComposableRequest.Method.default.resolve(using: Data()) == "GET")
+        XCTAssert(ComposableRequest.Method.default.resolve(using: "test".data(using: .utf8)) == "POST")
     }
 
     /// Test `Endpoint.Archive`.
@@ -134,7 +135,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         }
         let debug = XCTestExpectation()
         let regular = XCTestExpectation()
-        Endpoint(url: url)
+        ComposableRequest(url: url)
             .debugTask(decodable: Response.self) {
                 switch $0 {
                 case .success(let result):
@@ -145,7 +146,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 debug.fulfill()
             }
             .resume()
-        Endpoint(url: url)
+        ComposableRequest(url: url)
             .task(decodable: Response.self) {
                 switch $0 {
                 case .success(let result):
@@ -216,7 +217,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                                         return XCTFail("Invalid URL.")
         }
         let expectation = XCTestExpectation()
-        Endpoint(url: url)
+        ComposableRequest(url: url)
             .cycleTask(decodable: Response.self,
                        key: "id",
                        initial: nil,
@@ -235,7 +236,7 @@ final class SwiftagramEndpointTests: XCTestCase {
 
     /// Test cancel request.
     func testCancel() {
-        Endpoint(url: URL(string: "https://instagram.com")!)
+        ComposableRequest(url: URL(string: "https://instagram.com")!)
             .task {
                 switch $0 {
                 case .success: XCTFail("It shouldn't succeed.")
@@ -252,17 +253,26 @@ final class SwiftagramEndpointTests: XCTestCase {
             var description: String { return "lossless" }
         }
 
-        XCTAssert(Endpoint.generic
+        XCTAssert(Endpoint.version2
             .locked()
             .body([:])
-            .headerFields([:])
+            .header([:])
             .query([:])
-            .wrap(Lossless())
+            .append(Lossless())
             .method(.get)
             .authenticating(with: SwiftagramEndpointTests.secret)
             .request()?
             .url?
-            .absoluteString == "https://www.instagram.com/lossless/")
+            .absoluteString == "https://i.instagram.com/api/v2/lossless/")
+        XCTAssert(Endpoint.version2
+            .locked()
+            .body(.data(.init()))
+            .header("key", value: "value")
+            .query([URLQueryItem(name: "name", value: "value")])
+            .request()
+            .flatMap {
+                $0.allHTTPHeaderFields?["key"] == "value" && $0.url?.absoluteString.contains("?name=value") == true
+            } ?? false)
     }
 
     /// Test `deinit` `Requester`.
@@ -281,7 +291,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         DispatchQueue.main.async { requester = nil }
         expectation.fulfill()
     }
-    
+
     static var allTests = [
         ("Endpoint.Method", testEndpointMethod),
         ("Endpoint.Archive", testEndpointArchive),

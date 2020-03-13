@@ -64,7 +64,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                 }
         }
         authenticator.handleCheckpoint(result: (data: Response.none, response: nil),
-                                       checkpoint: "https://instagram.com",
+                                       checkpoint: "",
                                        crossSiteRequestForgery: .init()) {
                                         switch $0 {
                                         case .failure: break
@@ -96,7 +96,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         let expectation = XCTestExpectation()
         let verification = Verification(response: .dictionary(["label": .string("email"), "value": .string("1")]))!
         let checkpoint = Checkpoint(storage: TransientStorage(),
-                                    url: URL(string: "https://instagram.com")!,
+                                    url: URL(string: "/")!,
                                     userAgent: "A",
                                     crossSiteRequestForgery: .init(),
                                     availableVerification: [verification]) {

@@ -18,11 +18,11 @@ public struct EndpointPublisher<Response: DataMappable>: Publisher {
     public typealias Failure = Error
 
     /// A valid `Endpoint`.
-    private var request: Endpoint
+    private var request: ComposableRequest
 
     /// Init.
     /// - parameter request: A valid `Endpoint`.
-    public init(request: Endpoint) { self.request = request }
+    public init(request: ComposableRequest) { self.request = request }
 
     /// Receive the `Subscriber`.
     /// - parameter subscriber: A valid `Subscriber`.
@@ -33,7 +33,7 @@ public struct EndpointPublisher<Response: DataMappable>: Publisher {
 
 /// A combine extension for `Request`.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension Endpoint {
+public extension ComposableRequest {
     /// Return a `Response` publisher.
     /// - parameter response: A `DataMappable` concrete type.
     func publish<Response: DataMappable>(response: Response.Type) -> EndpointPublisher<Response> {

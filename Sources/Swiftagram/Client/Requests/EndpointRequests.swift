@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension Endpoint {
+public extension ComposableRequest {
     // MARK: Once
     /// Prepare the `Requester.Task`.
     /// - parameters:
@@ -75,9 +75,9 @@ public extension Endpoint {
                               requester: requester) {
                                 // Get the next `Endpoint`.
                                 let mapped = $0.map { Response.process(data: $0.data) }
-                                var nextEndpoint: Endpoint?
+                                var nextEndpoint: ComposableRequest?
                                 if let nextValue = next(mapped) {
-                                    nextEndpoint = self.query(key: key, value: nextValue)
+                                    nextEndpoint = self.query(key, value: nextValue)
                                 }
                                 // Notify completion.
                                 onChange(mapped)
@@ -109,9 +109,9 @@ public extension Endpoint {
                                     decoder.keyDecodingStrategy = .convertFromSnakeCase
                                     return Result { try decoder.decode(Response.self, from: result.data) }
                                 }
-                                var nextEndpoint: Endpoint?
+                                var nextEndpoint: ComposableRequest?
                                 if let nextValue = next(mapped) {
-                                    nextEndpoint = self.query(key: key, value: nextValue)
+                                    nextEndpoint = self.query(key, value: nextValue)
                                 }
                                 // Notify completion.
                                 onChange(mapped)

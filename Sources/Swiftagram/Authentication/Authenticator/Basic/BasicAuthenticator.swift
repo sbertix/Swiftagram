@@ -85,7 +85,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        Endpoint.generic.headerFields(["User-Agent": userAgent])
+        Endpoint.generic.header(["User-Agent": userAgent])
             .debugTask(String.self) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
@@ -123,7 +123,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             Endpoint.generic.accounts.login.ajax
                 .body(["username": self.username,
                        "password": self.password])
-                .headerFields(
+                .header(
                     ["Accept": "*/*",
                      "Accept-Language": "en-US",
                      "Accept-Encoding": "gzip, deflate",
@@ -200,8 +200,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                    crossSiteRequestForgery: HTTPCookie,
                                    onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
-        Endpoint.generic.wrap(checkpoint)
-            .headerFields(["User-Agent": userAgent])
+        Endpoint.generic.append(checkpoint)
+            .header(["User-Agent": userAgent])
             .debugTask(String.self) { [self] in
                 // Check for errors.
                 switch $0 {

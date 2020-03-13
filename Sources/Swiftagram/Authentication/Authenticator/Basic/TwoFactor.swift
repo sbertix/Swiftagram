@@ -46,7 +46,7 @@ public final class TwoFactor {
             .body(["username": username,
                    "verificationCode": code,
                    "identifier": identifier])
-            .headerFields(
+            .header(
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",

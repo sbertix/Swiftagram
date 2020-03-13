@@ -23,7 +23,7 @@ where Subscriber.Input == Response, Subscriber.Failure == Error {
     /// - parameters:
     ///     - request: A valid `Endpoint`.
     ///     - subscriber: The `Subscriber`.
-    public init(request: Endpoint, subscriber: Subscriber) {
+    public init(request: ComposableRequest, subscriber: Subscriber) {
         self.subscriber = subscriber
         self.task = request.task(Response.self) {
             switch $0 {
