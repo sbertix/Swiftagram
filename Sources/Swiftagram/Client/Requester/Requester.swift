@@ -27,7 +27,7 @@ public final class Requester {
     /// Deinit.
     deinit {
         /// Cancell all tasks.
-        tasks = []
+        tasks.forEach { $0.cancel() }
     }
 
     /// Init.

@@ -12,6 +12,11 @@ public struct Locked<Composable: Swiftagram.Composable>: WrappedComposable {
     /// A valid `Composable`.
     public var composable: Composable
 
+    /// Init.
+    /// - parameter composable: A valid `Composable`.
+    /// - note: use `composable.locked()` instead.
+    internal init(composable: Composable) { self.composable = composable }
+
     // MARK: Resolve
     /// Unlock the underlying `Composable`.
     /// - parameter secret: A valid `Secret`.

@@ -86,7 +86,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         Endpoint.generic.header(["User-Agent": userAgent])
-            .debugTask(String.self) { [self] in self.handleFirst(result: $0, onChange: onChange) }
+            .expecting(String.self)
+            .debugTask { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
 
@@ -202,7 +203,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         // Get checkpoint info.
         Endpoint.generic.append(checkpoint)
             .header(["User-Agent": userAgent])
-            .debugTask(String.self) { [self] in
+            .expecting(String.self)
+            .debugTask { [self] in
                 // Check for errors.
                 switch $0 {
                 case .failure(let error): onChange(.failure(error))

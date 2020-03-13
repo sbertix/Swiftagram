@@ -93,10 +93,10 @@ let secret: Secret = /* the authentication response */
 // Perform the request.
 Endpoint.Friendship.following(secret.id)
     .authenticating(with: secret)
-    .cycleTask(next: { (try? $0.get())?.nextMaxId.string() }) { _ in 
+    .cycleTask { _ in 
       // Do something here.
     }
-    .resume()
+    .resume() // Exhaust all followers.
 ```
 
 ## Contributions

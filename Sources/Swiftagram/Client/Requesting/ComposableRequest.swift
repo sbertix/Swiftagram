@@ -9,7 +9,10 @@ import Foundation
 
 /// A `struct` representing a composable `URLRequest`.
 @dynamicMemberLookup
-public struct ComposableRequest: Hashable {
+public struct ComposableRequest: Hashable, Requestable {
+    /// `ComposableRequest` defaults to `Response`.
+    public typealias Response = Swiftagram.Response
+
     /// An `enum` representing a `URLRequest` possible `httpBody`-s.
     public enum Body: Hashable {
         /// A `Dictionary` of `String`s.
@@ -104,7 +107,7 @@ extension ComposableRequest: Composable {
 
     /// Append to `queryItems`. Empty `queryItems` if `nil`.
     /// - parameter method: A `ComposableRequest.Method` value.
-    public func query(_ items: [String: String?]?) -> Self {
+    public func query(_ items: [String: String?]?) -> ComposableRequest {
         return copy(self) {
             guard let items = items else {
                 $0.components.queryItems = nil
@@ -124,21 +127,21 @@ extension ComposableRequest: Composable {
 
     /// Set `method`.
     /// - parameter method: A `ComposableRequest.Method` value.
-    public func method(_ method: ComposableRequest.Method) -> Self {
+    public func method(_ method: ComposableRequest.Method) -> ComposableRequest {
         return copy(self) { $0.method = method }
     }
 
     /// Set `body`.
     /// - parameter body: A valid `ComposableRequest.Body`.
-    public func body(_ body: ComposableRequest.Body) -> Self {
+    public func body(_ body: ComposableRequest.Body) -> ComposableRequest {
         return copy(self) { $0.body = body }
     }
 
     /// Append to `ComposableRequest.Body.parameters`. Empty `body` if `nil`.
     /// - parameter parameters: An optional `Dictionary` of  option`String`s.
-    public func body(_ parameters: [String: String?]?) -> Self {
+    public func body(_ parameters: [String: String?]?) -> ComposableRequest {
         return copy(self) {
-            guard case .parameters(var dictionary) = $0.body else {
+            guard let body = $0.body, case .parameters(var dictionary) = body else {
                 $0.body = parameters.flatMap { .parameters($0.compactMapValues { $0 }) }
                 return
             }
@@ -149,7 +152,7 @@ extension ComposableRequest: Composable {
 
     /// Append to `headerFields`. Empty `headerFields` if `nil`.
     /// - parameter fields: An optional `Dictionary` of  option`String`s.
-    public func header(_ fields: [String: String?]?) -> Self {
+    public func header(_ fields: [String: String?]?) -> ComposableRequest {
         return copy(self) {
             var dictionary = $0.headerFields
             fields?.forEach { dictionary[$0.key] = $0.value }

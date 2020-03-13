@@ -84,7 +84,8 @@ public final class Checkpoint {
                  "Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": userAgent]
             )
-            .task(String.self) { [self] in
+            .expecting(String.self)
+            .task { [self] in
                 switch $0 {
                 case .failure(let error): self.onChange(.failure(error))
                 case .success(let value):
