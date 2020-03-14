@@ -69,7 +69,7 @@ final class FollowersModel: ObservableObject {
         // Load the first set of followers.
         followersCancellable = Endpoint.Friendship.following(secret.id)
             .authenticating(with: secret)
-            .publish()
+            .publishOnce()
             .map {
                 $0.users
                     .array()?

@@ -401,7 +401,7 @@
 			repositoryURL = "https://github.com/sbertix/Swiftagram.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.3;
+				minimumVersion = 1.0.0;
 			};
 		};
 		E028F03F2418E04000F9C7F8 /* XCRemoteSwiftPackageReference "Nuke" */ = {
