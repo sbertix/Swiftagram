@@ -157,7 +157,7 @@ extension ComposableRequest: Lockable {
     ///     - unlockable: A valid `Unlockable`.
     ///     - secret:  A valid `Secret`.
     /// - warning: Do not call directly.
-    public static func unlock(_ unlockable: Locked<Self>, with secret: Secret) -> ComposableRequest {
+    public static func unlock(_ unlockable: Locked<ComposableRequest>, with secret: Secret) -> ComposableRequest {
         return copy(unlockable.lockable) { $0 = $0.header(secret.headerFields) }
     }
 }

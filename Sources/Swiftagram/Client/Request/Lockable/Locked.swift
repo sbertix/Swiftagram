@@ -37,25 +37,25 @@ extension Locked: Paginatable where Lockable: Paginatable {
 
     /// The `paginatable`.
     public var paginatable: Originating {
-        get { lockable.paginatable }
+        get { return lockable.paginatable }
         set { lockable.paginatable = newValue }
     }
 
     /// The `name` of the `URLQueryItem` used for paginating.
     public var key: String {
-        get { lockable.key }
+        get { return lockable.key }
         set { lockable.key = newValue }
     }
 
     /// The inital `value` of the `URLQueryItem` used for paginating.
     public var initial: String? {
-        get { lockable.initial }
+        get { return lockable.initial }
         set { lockable.initial = newValue }
     }
 
     /// The next `value` of the `URLQueryItem` user for paginating, based on the last `Response`.
     public var next: (Result<Lockable.Response, Error>) -> String? {
-        get { lockable.next }
+        get { return lockable.next }
         set { lockable.next = newValue }
     }
 }
