@@ -66,7 +66,7 @@ The library comes with several concrete implementations.
 ### Request
 > What if I wanna know the basic info about a profile?
 
-Done. All you need is the user identifier and a valid `Secret`.
+All you need is the user identifier and a valid `Secret`.
 
 ```swift
 let identifier: String = /* the profile identifier */
@@ -94,7 +94,7 @@ let task = Endpoint.Friendship.following(secret.id)
     .cycleTask(max: 10) { _ in 
       // Do something here.
     }
-    .resume() // Exhaust all followers.
+    .resume() // Exhaust 10 pages of followers.
     
 // Cancel it.
 task?.cancel()
