@@ -12,7 +12,7 @@ public extension Endpoint {
     struct Discover {
         /// The base endpoint.
         private static let base = Endpoint.version1.discover.defaultHeader().locked()
-        
+
         /// The explore feed.
         public static let explore = base.explore.paginating()
     }
