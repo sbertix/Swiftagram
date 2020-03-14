@@ -13,6 +13,9 @@ public extension Endpoint {
         /// The base endpoint.
         private static let base = Endpoint.version1.users.defaultHeader().locked()
 
+        /// A list of all profiles blocked by the user.
+        public static let blocked = base.blocked_list
+        
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func summary(for identifier: String) -> Locked<ComposableRequest> {

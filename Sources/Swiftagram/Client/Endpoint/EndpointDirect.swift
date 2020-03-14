@@ -15,6 +15,8 @@ public extension Endpoint {
 
         /// All threads.
         public static let threads = base.inbox.paginating(key: "cursor", initial: nil) { try? $0.get().oldestCursor.string() }
+        /// Top ranked recipients.
+        public static let rankedRecipients = base.ranked_recipients
 
         /// A thread matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid thread identifier.

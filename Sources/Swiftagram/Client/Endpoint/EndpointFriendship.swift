@@ -12,7 +12,7 @@ public extension Endpoint {
     struct Friendship {
         /// The base endpoint.
         private static let base = Endpoint.version1.friendships.defaultHeader().locked()
-
+        
         /// A list of users followed by the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **following**.
