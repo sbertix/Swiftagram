@@ -54,6 +54,12 @@ final class SwiftagramEndpointTests: XCTestCase {
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/direct_v2/threads/id/")
+        XCTAssert(Endpoint.Direct
+            .rankedRecipients
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/ranked_recipients/")
     }
 
     /// Test `Endpoint.Feed`.
@@ -133,11 +139,53 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/id/info/")
         XCTAssert(Endpoint.User
+            .blocked
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/users/blocked_list/")
+        XCTAssert(Endpoint.User
             .all(matching: "query")
             .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/search/?q=query")
+    }
+
+    func testEndpointDiscover() {
+        XCTAssert(Endpoint.Discover
+            .explore
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/discover/explore/")
+    }
+
+    func testEndpointMedia() {
+        XCTAssert(Endpoint.Media
+            .summary(for: "id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/media/id/info/")
+        XCTAssert(Endpoint.Media
+            .likers(for: "id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/media/id/likers/")
+        XCTAssert(Endpoint.Media
+            .comments(for: "id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/media/id/comments/")
+        XCTAssert(Endpoint.Media
+            .permalink(for: "id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/media/id/permalink/")
     }
 
     /// Test pagination.
@@ -336,8 +384,10 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Method", testEndpointMethod),
         ("Endpoint.Archive", testEndpointArchive),
         ("Endpoint.Direct", testEndpointDirect),
+        ("Endpoint.Discover", testEndpointDiscover),
         ("Endpoint.Feed", testEndpointFeed),
         ("Endpoint.Friendship", testEndpointFriendship),
+        ("Endpoint.Media", testEndpointMedia),
         ("Endpoint.User", testEndpointUser),
         //("Endpoint.Decodable", testDecodable),
         ("Endpoint.Pagination.String", testPaginationString),

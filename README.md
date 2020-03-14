@@ -22,7 +22,7 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 **Swiftagram** supports **iOS**, **macOS**, **watchOS**, **tvOS** and **Linux**.
 
 ## Status
-![Status](https://github.com/sbertix/Swiftagram/workflows/Push%20(master)/badge.svg)
+![Status](https://github.com/sbertix/Swiftagram/workflows/Master/badge.svg)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)
 
 > What's next?
