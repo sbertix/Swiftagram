@@ -13,8 +13,8 @@ final class SwiftagramCombineTests: XCTestCase {
     func testStringRequest() {
         let expectation = XCTestExpectation()
         requestCancellable = Endpoint.generic
-            .expecting(String.self)
-            .publish()
+            .paginating()
+            .publishOnce()
             .sink(receiveCompletion: {
                 switch $0 {
                 case .failure(let error): XCTFail(error.localizedDescription)

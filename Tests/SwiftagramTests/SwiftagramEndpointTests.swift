@@ -249,6 +249,34 @@ final class SwiftagramEndpointTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
     }
 
+    /// Test locked pagination.
+    func testPaginationLocked() {
+        var locked = Endpoint.version1
+            .paginating()
+            .locked()
+        locked.key = "new_key"
+        locked.initial = "new_initial"
+        locked.next = { _ in "new_next" }
+        XCTAssert(locked.key == "new_key")
+        XCTAssert(locked.initial == "new_initial")
+        XCTAssert(locked.next(.success(.none)) == "new_next")
+        let unlocked = locked.authenticating(with: secret)
+        XCTAssert(unlocked.key == "new_key")
+        XCTAssert(unlocked.initial == "new_initial")
+        XCTAssert(unlocked.next(.success(.none)) == "new_next")
+        locked.composable = Endpoint.version2.paginating()
+        locked.paginatable = Endpoint.generic
+        XCTAssert(locked
+            .authenticating(with: secret)
+            .once()
+            .locked()
+            .expecting(String.self)
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://www.instagram.com")
+    }
+
     /// Test cancel request.
     func testCancel() {
         ComposableRequest(url: URL(string: "https://instagram.com")!)
@@ -315,6 +343,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Pagination.String", testPaginationString),
         ("Endpoint.Pagination.Response", testPaginationResponse),
         ("Endpoint.Pagination.Debug", testPaginationDebug),
+        ("Endpoint.Pagination.Locked", testPaginationLocked),
         ("Endpoint.Cancel", testCancel),
         ("Endpoint.Locked", testLocked),
         ("Requester.Deinit", testDeinit)
