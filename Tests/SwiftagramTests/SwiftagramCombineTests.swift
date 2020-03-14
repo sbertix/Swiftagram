@@ -11,10 +11,10 @@ final class SwiftagramCombineTests: XCTestCase {
 
     /// Test `Request`.
     func testStringRequest() {
-        #if canImport(Combine)
         let expectation = XCTestExpectation()
         requestCancellable = Endpoint.generic
-            .publish(response: String.self)
+            .paginating()
+            .publishOnce()
             .sink(receiveCompletion: {
                 switch $0 {
                 case .failure(let error): XCTFail(error.localizedDescription)
@@ -23,12 +23,10 @@ final class SwiftagramCombineTests: XCTestCase {
                 expectation.fulfill()
             }, receiveValue: { _ in })
         wait(for: [expectation], timeout: 5)
-        #endif
     }
 
     /// Test `Request`.
     func testRequest() {
-        #if canImport(Combine)
         let expectation = XCTestExpectation()
         requestCancellable = Endpoint.generic
             .publish()
@@ -40,12 +38,23 @@ final class SwiftagramCombineTests: XCTestCase {
                 expectation.fulfill()
             }, receiveValue: { _ in })
         wait(for: [expectation], timeout: 5)
-        #endif
+    }
+
+    /// Test `Request` cancelling.
+    func testCancel() {
+        let expectation = XCTestExpectation()
+        Endpoint.generic
+            .publish()
+            .handleEvents(receiveCancel: { expectation.fulfill() })
+            .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+            .cancel()
+        wait(for: [expectation], timeout: 5)
     }
 
     static var allTests = [
         ("Request", testRequest),
-        ("Request.String", testStringRequest)
+        ("Request.String", testStringRequest),
+        ("Request.Cancel", testCancel)
     ]
 }
 #endif

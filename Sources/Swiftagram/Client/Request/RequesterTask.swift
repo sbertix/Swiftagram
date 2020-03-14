@@ -19,16 +19,16 @@ public extension Requester {
         internal var identifier = UUID().uuidString
 
         /// The originating `Endpoint`.
-        public let originating: Endpoint
+        public let originating: Composable & Requestable
         /// The current `Endpoint`.
-        public var current: Endpoint?
+        public var current: (Composable & Requestable)?
 
         /// A weak reference to the `Requester`.
         public weak var requester: Requester?
         /// The current `URLSessionDataTask`.
         internal var sessionTask: URLSessionDataTask?
         /// A block requesting the next `Endpoint`.
-        internal var next: (Result<Data>) -> Endpoint?
+        internal var next: (Result<Data>) -> (Composable & Requestable)?
 
         // MARK: Lifecycle
         /// Deinit.
@@ -36,12 +36,12 @@ public extension Requester {
 
         /// Init.
         /// - parameters:
-        ///     - endpoint: The originating `Endpoint`.
+        ///     - endpoint: The originating `ComposableRequest`.
         ///     - requester: A valid `Requester`. Defaults to `.default`.
         ///     - next: A block outputting the last response and requesting the following `Endpoint`. `nil` to stop.
-        internal init(endpoint: Endpoint,
+        internal init(endpoint: (Composable & Requestable),
                       requester: Requester = .default,
-                      next: @escaping (Result<Data>) -> Endpoint?) {
+                      next: @escaping (Result<Data>) -> (Composable & Requestable)?) {
             self.originating = endpoint
             self.current = endpoint
             self.requester = requester
@@ -51,10 +51,10 @@ public extension Requester {
         // MARK: Handling
         /// Cancel the current and all future requests.
         public func cancel() {
-            self.requester?.cancel(self)
             self.sessionTask?.cancel()
             self.sessionTask = nil
             self.current = nil
+            self.requester?.cancel(self)
         }
 
         /// Cancel the current request.

@@ -64,7 +64,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                 }
         }
         authenticator.handleCheckpoint(result: (data: Response.none, response: nil),
-                                       checkpoint: "https://instagram.com",
+                                       checkpoint: "",
                                        crossSiteRequestForgery: .init()) {
                                         switch $0 {
                                         case .failure: break
@@ -96,7 +96,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         let expectation = XCTestExpectation()
         let verification = Verification(response: .dictionary(["label": .string("email"), "value": .string("1")]))!
         let checkpoint = Checkpoint(storage: TransientStorage(),
-                                    url: URL(string: "https://instagram.com")!,
+                                    url: URL(string: "/")!,
                                     userAgent: "A",
                                     crossSiteRequestForgery: .init(),
                                     availableVerification: [verification]) {
@@ -117,12 +117,17 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
             let expectation = XCTestExpectation()
             WebViewAuthenticator {
                 self.webView = $0
-                self.webView?.load(URLRequest(url: URL(string: "https://instagram.com/")!))
-                DispatchQueue.main.asyncAfter(deadline: .now()+1) { expectation.fulfill() }
+                self.webView?.load(URLRequest(url: URL(string: "https://google.com/")!))
+                DispatchQueue.main.asyncAfter(deadline: .now()+3) {
+                    self.webView?.load(URLRequest(url: URL(string: "https://instagram.com/")!))
+                    DispatchQueue.main.asyncAfter(deadline: .now()+3) {
+                        expectation.fulfill()
+                    }
+                }
             }.authenticate { _ in
                 // It cannot be tested.
             }
-            wait(for: [expectation], timeout: 5)
+            wait(for: [expectation], timeout: 10)
         }
     }
 

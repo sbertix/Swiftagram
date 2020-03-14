@@ -1,19 +1,37 @@
+import Foundation
 @testable import Swiftagram
 import XCTest
 
+extension HTTPCookie {
+    /// Test.
+    convenience init(text: String) {
+        self.init(properties: [.name: text,
+                               .value: text,
+                               .path: "/",
+                               .domain: ""])!
+    }
+}
+
 final class SwiftagramEndpointTests: XCTestCase {
+    /// A temp `Secret`
+    let secret = Secret(identifier: HTTPCookie(text: "A"),
+                        crossSiteRequestForgery: HTTPCookie(text: "B"),
+                        session: HTTPCookie(text: "C"))
+
     /// Test `Endpoint.Method` .
     func testEndpointMethod() {
-        XCTAssert(Endpoint.Method.get.resolve(using: Data()) == "GET")
-        XCTAssert(Endpoint.Method.post.resolve(using: nil) == "POST")
-        XCTAssert(Endpoint.Method.default.resolve(using: nil) == "GET")
-        XCTAssert(Endpoint.Method.default.resolve(using: Data()) == "POST")
+        XCTAssert(ComposableRequest.Method.get.resolve(using: Data()) == "GET")
+        XCTAssert(ComposableRequest.Method.post.resolve(using: nil) == "POST")
+        XCTAssert(ComposableRequest.Method.default.resolve(using: nil) == "GET")
+        XCTAssert(ComposableRequest.Method.default.resolve(using: Data()) == "GET")
+        XCTAssert(ComposableRequest.Method.default.resolve(using: "test".data(using: .utf8)) == "POST")
     }
 
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {
         XCTAssert(Endpoint.Archive
             .stories
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/archive/reel/day_shells/")
@@ -23,11 +41,16 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointDirect() {
         XCTAssert(Endpoint.Direct
             .threads
+            .key("key")
+            .initial("value")
+            .expecting(String.self) { _ in nil }
+            .authenticating(with: secret)
             .request()?
             .url?
-            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/reel/inbox/")
+            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/inbox/")
         XCTAssert(Endpoint.Direct
             .thread(matching: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/direct_v2/threads/id/")
@@ -37,36 +60,43 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointFeed() {
         XCTAssert(Endpoint.Feed
             .followedStories
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/reels_tray/")
         XCTAssert(Endpoint.Feed
             .likes
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/liked/")
         XCTAssert(Endpoint.Feed
             .timeline
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/timeline/")
         XCTAssert(Endpoint.Feed
             .posts(by: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/user/id/")
         XCTAssert(Endpoint.Feed
             .stories(by: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/user/id/reel_media/")
         XCTAssert(Endpoint.Feed
             .posts(including: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/usertags/id/feed/")
         XCTAssert(Endpoint.Feed
             .tagged(with: "tag")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/tag/tag/")
@@ -76,16 +106,19 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointFriendship() {
         XCTAssert(Endpoint.Friendship
             .followed(by: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/id/following/")
         XCTAssert(Endpoint.Friendship
             .following("id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/id/followers/")
         XCTAssert(Endpoint.Friendship
             .friendship(with: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/show/id/")
@@ -95,18 +128,20 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointUser() {
         XCTAssert(Endpoint.User
             .summary(for: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/id/info/")
         XCTAssert(Endpoint.User
             .all(matching: "query")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/search/?q=query")
     }
 
     /// Test pagination.
-    func testDecodable() {
+    /*func testDecodable() {
         struct Response: Decodable {
             var string: String
         }
@@ -118,7 +153,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         }
         let debug = XCTestExpectation()
         let regular = XCTestExpectation()
-        Endpoint(url: url)
+        ComposableRequest(url: url)
             .debugTask(decodable: Response.self) {
                 switch $0 {
                 case .success(let result):
@@ -129,7 +164,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 debug.fulfill()
             }
             .resume()
-        Endpoint(url: url)
+        ComposableRequest(url: url)
             .task(decodable: Response.self) {
                 switch $0 {
                 case .success(let result):
@@ -141,7 +176,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             }
             .resume()
         wait(for: [debug, regular], timeout: 10)
-    }
+    }*/
 
     /// Test pagination.
     func testPaginationString() {
@@ -151,16 +186,18 @@ final class SwiftagramEndpointTests: XCTestCase {
         let languages = ["de", "it", "fr"]
         // Paginate.
         Endpoint.generic
-            .cycleTask(String.self,
-                       key: "l",
-                       initial: "en",
-                       next: { _ in offset += 1; return offset < languages.count ? languages[offset] : nil }) {
-                        switch $0 {
-                        case .success: break
-                        case .failure(let error): XCTFail(error.localizedDescription)
-                        }
-                        // Finish on the last one.
-                        if offset == 2 { expectation.fulfill() }
+            .expecting(String.self)
+            .paginating(key: "l", initial: "en") { _ in
+                offset += 1
+                return offset < languages.count ? languages[offset] : nil
+            }
+            .cycleTask {
+                switch $0 {
+                case .success: break
+                case .failure(let error): XCTFail(error.localizedDescription)
+                }
+                // Finish on the last one.
+                if offset == 2 { expectation.fulfill() }
             }
             .resume()
         wait(for: [expectation], timeout: 30)
@@ -174,22 +211,24 @@ final class SwiftagramEndpointTests: XCTestCase {
         let languages = ["de", "it", "fr"]
         // Paginate.
         Endpoint.generic
-            .cycleTask(key: "l",
-                       initial: "en",
-                       next: { _ in offset += 1; return offset < languages.count ? languages[offset] : nil }) {
-                        switch $0 {
-                        case .success: break
-                        case .failure(let error): XCTFail(error.localizedDescription)
-                        }
-                        // Finish on the last one.
-                        if offset == 2 { expectation.fulfill() }
+            .paginating(key: "l", initial: "en") { _ in
+                offset += 1
+                return offset < languages.count ? languages[offset] : nil
+            }
+            .cycleTask {
+                switch $0 {
+                case .success: break
+                case .failure(let error): XCTFail(error.localizedDescription)
+                }
+                // Finish on the last one.
+                if offset == 2 { expectation.fulfill() }
             }
             .resume()
         wait(for: [expectation], timeout: 30)
     }
 
     /// Test pagination.
-    func testPaginationDecodable() {
+    func testPaginationDebug() {
         struct Response: Decodable {
             var string: String
         }
@@ -200,26 +239,47 @@ final class SwiftagramEndpointTests: XCTestCase {
                                         return XCTFail("Invalid URL.")
         }
         let expectation = XCTestExpectation()
-        Endpoint(url: url)
-            .cycleTask(decodable: Response.self,
-                       key: "id",
-                       initial: nil,
-                       next: { _ in nil }) {
-                        switch $0 {
-                        case .success(let result):
-                            XCTAssert(result.string == "A random string.")
-                        case .failure(let error):
-                            XCTFail(error.localizedDescription)
-                        }
-                        expectation.fulfill()
+        ComposableRequest(url: url)
+            .paginating()
+            .debugCycleTask {
+                XCTAssert((try? $0.get())?.response?.statusCode == 200)
+                expectation.fulfill()
             }
             .resume()
         wait(for: [expectation], timeout: 10)
     }
 
+    /// Test locked pagination.
+    func testPaginationLocked() {
+        var locked = Endpoint.version1
+            .paginating()
+            .locked()
+        locked.key = "new_key"
+        locked.initial = "new_initial"
+        locked.next = { _ in "new_next" }
+        XCTAssert(locked.key == "new_key")
+        XCTAssert(locked.initial == "new_initial")
+        XCTAssert(locked.next(.success(.none)) == "new_next")
+        let unlocked = locked.authenticating(with: secret)
+        XCTAssert(unlocked.key == "new_key")
+        XCTAssert(unlocked.initial == "new_initial")
+        XCTAssert(unlocked.next(.success(.none)) == "new_next")
+        locked.composable = Endpoint.version2.paginating()
+        locked.paginatable = Endpoint.generic
+        XCTAssert(locked
+            .authenticating(with: secret)
+            .once()
+            .locked()
+            .expecting(String.self)
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://www.instagram.com")
+    }
+
     /// Test cancel request.
     func testCancel() {
-        Endpoint(url: URL(string: "https://instagram.com")!)
+        ComposableRequest(url: URL(string: "https://instagram.com")!)
             .task {
                 switch $0 {
                 case .success: XCTFail("It shouldn't succeed.")
@@ -230,6 +290,48 @@ final class SwiftagramEndpointTests: XCTestCase {
             .cancel()
     }
 
+    /// Test `LockedEndpoint`.
+    func testLocked() {
+        struct Lossless: CustomStringConvertible {
+            var description: String { return "lossless" }
+        }
+
+        XCTAssert(Endpoint.version2
+            .expecting(String.self)
+            .locked()
+            .body([:])
+            .header([:])
+            .query([:])
+            .append(Lossless())
+            .method(.get)
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v2/lossless/")
+        XCTAssert(Endpoint.version2
+            .locked()
+            .body(.data(.init()))
+            .header("key", value: "value")
+            .query([URLQueryItem(name: "name", value: "value")])
+            .authenticating(with: secret)
+            .request()
+            .flatMap {
+                $0.allHTTPHeaderFields?["key"] == "value" && $0.url?.absoluteString.contains("?name=value") == true
+            } ?? false)
+    }
+
+    /// Test `deinit` `Requester`.
+    func testDeinit() {
+        let expectation = XCTestExpectation()
+        var requester: Requester? = Requester()
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+            requester = nil
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 3)
+        XCTAssert(requester == nil)
+    }
+
     static var allTests = [
         ("Endpoint.Method", testEndpointMethod),
         ("Endpoint.Archive", testEndpointArchive),
@@ -237,10 +339,13 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Feed", testEndpointFeed),
         ("Endpoint.Friendship", testEndpointFriendship),
         ("Endpoint.User", testEndpointUser),
-        ("Endpoint.Decodable", testDecodable),
+        //("Endpoint.Decodable", testDecodable),
         ("Endpoint.Pagination.String", testPaginationString),
         ("Endpoint.Pagination.Response", testPaginationResponse),
-        ("Endpoint.Pagination.Decodable", testPaginationDecodable),
-        ("Endpoint.Cancel", testCancel)
+        ("Endpoint.Pagination.Debug", testPaginationDebug),
+        ("Endpoint.Pagination.Locked", testPaginationLocked),
+        ("Endpoint.Cancel", testCancel),
+        ("Endpoint.Locked", testLocked),
+        ("Requester.Deinit", testDeinit)
     ]
 }

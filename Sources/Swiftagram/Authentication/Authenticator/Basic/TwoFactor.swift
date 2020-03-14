@@ -46,7 +46,7 @@ public final class TwoFactor {
             .body(["username": username,
                    "verificationCode": code,
                    "identifier": identifier])
-            .headerFields(
+            .header(
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",
@@ -58,7 +58,8 @@ public final class TwoFactor {
                  "Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": userAgent]
             )
-            .debugTask(String.self) { [self] in
+            .expecting(String.self)
+            .debugTask { [self] in
                 switch $0 {
                 case .failure(let error): self.onChange(.failure(error))
                 case .success(let value):

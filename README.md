@@ -25,8 +25,6 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 ![Status](https://github.com/sbertix/Swiftagram/workflows/Push%20(master)/badge.svg)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)
 
-**Swiftagram is currently under active development and more features are expected to be implemented everyday, which might result in breaking changes.**
-
 > What's next?
 
 Check out the [dashboard](https://github.com/sbertix/Swiftagram/projects/1).
@@ -83,20 +81,23 @@ Endpoint.User.summary(for: identifier)
     .resume() // Strongly referenced by default, no need to worry about it.
 ```
 
-> How can I see all my followers?
+> What about cancelling an ongoing request?
 
-Easy. Using the `Secret` you obtained above, you can paginate a request as such:
+Easy!
 
 ```swift
 let secret: Secret = /* the authentication response */
 
 // Perform the request.
-Endpoint.Friendship.following(secret.id)
+let task = Endpoint.Friendship.following(secret.id)
     .authenticating(with: secret)
-    .cycleTask(next: { (try? $0.get())?.nextMaxId.string() }) { _ in 
+    .cycleTask(max: 10) { _ in 
       // Do something here.
     }
-    .resume()
+    .resume() // Exhaust all followers.
+    
+// Cancel it.
+task?.cancel()
 ```
 
 ## Contributions
