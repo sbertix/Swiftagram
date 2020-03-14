@@ -1,5 +1,5 @@
 //
-//  EndpointSubscription.swift
+//  SingularSubscription.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 11/03/2020.
@@ -11,7 +11,7 @@ import Foundation
 
 /// A `class` defining a new `Subscription` specific for `Response`s coming from `Endpoint` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class EndpointSubscription<Subscriber: Combine.Subscriber>: Subscription
+public final class SingularSubscription<Subscriber: Combine.Subscriber>: Subscription
 where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
     /// A `Requester.Task`.
     private var task: Requester.Task?
@@ -23,7 +23,7 @@ where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
     /// - parameters:
     ///     - request: A valid `Endpoint`.
     ///     - subscriber: The `Subscriber`.
-    public init<Request: Composable & Requestable>(request: Request, subscriber: Subscriber) where Subscriber.Input == Request.Response {
+    public init<Request: Composable & Requestable & Singular>(request: Request, subscriber: Subscriber) where Subscriber.Input == Request.Response {
         self.subscriber = subscriber
         self.task = request.expecting(Request.Response.self).task {
             switch $0 {

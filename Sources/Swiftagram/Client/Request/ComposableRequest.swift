@@ -9,7 +9,7 @@ import Foundation
 
 /// A `struct` representing a composable `URLRequest`.
 @dynamicMemberLookup
-public struct ComposableRequest: Hashable, Requestable {
+public struct ComposableRequest: Hashable, Singular {
     /// `ComposableRequest` defaults to `Response`.
     public typealias Response = Swiftagram.Response
 
@@ -81,18 +81,6 @@ public struct ComposableRequest: Hashable, Requestable {
 // MARK: Composable
 /// `Composable` conformacies.
 extension ComposableRequest: Composable {
-    /// Compute the `URLRequest`.
-    /// - returns: An optional `URLRequest`.
-    public func request() -> URLRequest? {
-        return components.url.flatMap {
-            var request = URLRequest(url: $0)
-            request.httpBody = body?.data
-            request.httpMethod = method.resolve(using: request.httpBody)
-            request.allHTTPHeaderFields = headerFields
-            return request
-        }
-    }
-
     /// Append `pathComponent`.
     /// - parameter pathComponent: A `String` representing a path component.
     public func append(_ pathComponent: String) -> ComposableRequest {
@@ -157,6 +145,35 @@ extension ComposableRequest: Composable {
             var dictionary = $0.headerFields
             fields?.forEach { dictionary[$0.key] = $0.value }
             $0.headerFields = dictionary
+        }
+    }
+}
+
+// MARK: Lockable
+/// `Lockable` conformacies.
+extension ComposableRequest: Lockable {
+    /// Update as the `Unlockable` was unloacked.
+    /// - parameters:
+    ///     - unlockable: A valid `Unlockable`.
+    ///     - secret:  A valid `Secret`.
+    /// - warning: Do not call directly.
+    public static func unlock(_ unlockable: Locked<Self>, with secret: Secret) -> ComposableRequest {
+        return copy(unlockable.lockable) { $0 = $0.header(secret.headerFields) }
+    }
+}
+
+// MARK: Requestable
+/// `Requestable` conformacies.
+extension ComposableRequest: Requestable {
+    /// Compute the `URLRequest`.
+    /// - returns: An optional `URLRequest`.
+    public func request() -> URLRequest? {
+        return components.url.flatMap {
+            var request = URLRequest(url: $0)
+            request.httpBody = body?.data
+            request.httpMethod = method.resolve(using: request.httpBody)
+            request.allHTTPHeaderFields = headerFields
+            return request
         }
     }
 }

@@ -83,20 +83,23 @@ Endpoint.User.summary(for: identifier)
     .resume() // Strongly referenced by default, no need to worry about it.
 ```
 
-> How can I see all my followers?
+> What about cancelling an ongoing request?
 
-Easy. Using the `Secret` you obtained above, you can paginate a request as such:
+Easy!
 
 ```swift
 let secret: Secret = /* the authentication response */
 
 // Perform the request.
-Endpoint.Friendship.following(secret.id)
+let task = Endpoint.Friendship.following(secret.id)
     .authenticating(with: secret)
-    .cycleTask { _ in 
+    .cycleTask(max: 10) { _ in 
       // Do something here.
     }
     .resume() // Exhaust all followers.
+    
+// Cancel it.
+task?.cancel()
 ```
 
 ## Contributions

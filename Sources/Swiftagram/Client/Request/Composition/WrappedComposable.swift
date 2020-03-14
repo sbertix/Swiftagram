@@ -17,10 +17,6 @@ public protocol WrappedComposable: Composable {
 }
 
 public extension WrappedComposable {
-    /// Compute the `URLRequest`.
-    /// - returns: An optional `URLRequest`.
-    func request() -> URLRequest? { return composable.request() }
-
     /// Append `pathComponent`.
     /// - parameter pathComponent: A `String` representing a path component.
     func append(_ pathComponent: String) -> Self {

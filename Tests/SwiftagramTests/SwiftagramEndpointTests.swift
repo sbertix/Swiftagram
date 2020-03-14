@@ -14,9 +14,9 @@ extension HTTPCookie {
 
 final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
-    static let secret = Secret(identifier: HTTPCookie(text: "A"),
-                               crossSiteRequestForgery: HTTPCookie(text: "B"),
-                               session: HTTPCookie(text: "C"))
+    let secret = Secret(identifier: HTTPCookie(text: "A"),
+                        crossSiteRequestForgery: HTTPCookie(text: "B"),
+                        session: HTTPCookie(text: "C"))
 
     /// Test `Endpoint.Method` .
     func testEndpointMethod() {
@@ -31,6 +31,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointArchive() {
         XCTAssert(Endpoint.Archive
             .stories
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/archive/reel/day_shells/")
@@ -40,11 +41,16 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointDirect() {
         XCTAssert(Endpoint.Direct
             .threads
+            .key("key")
+            .initial("value")
+            .expecting(String.self) { _ in nil }
+            .authenticating(with: secret)
             .request()?
             .url?
-            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/reel/inbox/")
+            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/inbox/")
         XCTAssert(Endpoint.Direct
             .thread(matching: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/direct_v2/threads/id/")
@@ -54,36 +60,43 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointFeed() {
         XCTAssert(Endpoint.Feed
             .followedStories
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/reels_tray/")
         XCTAssert(Endpoint.Feed
             .likes
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/liked/")
         XCTAssert(Endpoint.Feed
             .timeline
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/timeline/")
         XCTAssert(Endpoint.Feed
             .posts(by: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/user/id/")
         XCTAssert(Endpoint.Feed
             .stories(by: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/user/id/reel_media/")
         XCTAssert(Endpoint.Feed
             .posts(including: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/usertags/id/feed/")
         XCTAssert(Endpoint.Feed
             .tagged(with: "tag")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/tag/tag/")
@@ -93,16 +106,19 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointFriendship() {
         XCTAssert(Endpoint.Friendship
             .followed(by: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/id/following/")
         XCTAssert(Endpoint.Friendship
             .following("id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/id/followers/")
         XCTAssert(Endpoint.Friendship
             .friendship(with: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/show/id/")
@@ -112,11 +128,13 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointUser() {
         XCTAssert(Endpoint.User
             .summary(for: "id")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/id/info/")
         XCTAssert(Endpoint.User
             .all(matching: "query")
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/search/?q=query")
@@ -258,7 +276,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .query([:])
             .append(Lossless())
             .method(.get)
-            .authenticating(with: SwiftagramEndpointTests.secret)
+            .authenticating(with: secret)
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v2/lossless/")
@@ -267,6 +285,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .body(.data(.init()))
             .header("key", value: "value")
             .query([URLQueryItem(name: "name", value: "value")])
+            .authenticating(with: secret)
             .request()
             .flatMap {
                 $0.allHTTPHeaderFields?["key"] == "value" && $0.url?.absoluteString.contains("?name=value") == true

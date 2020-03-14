@@ -1,5 +1,5 @@
 //
-//  EndpointPublisher.swift
+//  SingularPublisher.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 08/03/2020.
@@ -11,7 +11,7 @@ import Foundation
 
 /// A `struct` defining a new `Publisher` specific for `Response`s coming from`Endpoint` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct EndpointPublisher<Request: Composable & Requestable>: Publisher {
+public struct SingularPublisher<Request: Composable & Requestable & Singular>: Publisher {
     /// Output a `Response` item.
     public typealias Output = Request.Response
     /// Fail to any `Error`.
@@ -27,22 +27,25 @@ public struct EndpointPublisher<Request: Composable & Requestable>: Publisher {
     /// Receive the `Subscriber`.
     /// - parameter subscriber: A valid `Subscriber`.
     public func receive<S>(subscriber: S) where S: Subscriber, Failure == S.Failure, Output == S.Input {
-        subscriber.receive(subscription: EndpointSubscription(request: request, subscriber: subscriber))
+        subscriber.receive(subscription: SingularSubscription(request: request, subscriber: subscriber))
     }
 }
 
 /// A combine extension for `Request`.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension Composable where Self: Requestable {
+public extension Composable where Self: Requestable, Self: Singular {
     /// Return a `Response` publisher.
-    /// - parameter response: A `DataMappable` concrete type.
-    func publish<Response: DataMappable>(response: Response.Type) -> EndpointPublisher<Self> {
-        return EndpointPublisher(request: self)
+    func publish() -> SingularPublisher<Self> {
+        return SingularPublisher(request: self)
     }
+}
 
+/// A combine extension for `Request`.
+@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public extension Paginatable where Originating: Composable & Requestable {
     /// Return a `Response` publisher.
-    func publish() -> EndpointPublisher<Self> {
-        return EndpointPublisher(request: self)
+    func publishOnce() -> SingularPublisher<Expected<Originating, Response>> {
+        return SingularPublisher(request: self.once())
     }
 }
 #endif

@@ -11,8 +11,8 @@ public extension Endpoint {
     /// A `struct` holding reference to `archive` `Endpoint`s. Requires authentication.
     struct Archive {
         /// The base endpoint.
-        private static let base = Endpoint.version1.archive.defaultHeader()
+        private static let base = Endpoint.version1.archive.defaultHeader().locked()
         /// Archived stories.
-        public static let stories = base.reel.day_shells.paginating().locked()
+        public static let stories = base.reel.day_shells.paginating()
     }
 }

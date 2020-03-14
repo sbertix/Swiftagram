@@ -10,10 +10,6 @@ import Foundation
 /// A `protocol` representing a composable `URLRequest`.
 @dynamicMemberLookup
 public protocol Composable {
-    /// Compute the `URLRequest`.
-    /// - returns: An optional `URLRequest`.
-    func request() -> URLRequest?
-
     /// Append `pathComponent`.
     /// - parameter pathComponent: A `String` representing a path component.
     func append(_ pathComponent: String) -> Self
@@ -95,9 +91,4 @@ public extension Composable {
                 .joined()]
         )
     }
-
-    // MARK: Accessories
-    /// Lock `self` until a `Secret` is used for authenticating the request.
-    /// - returns: A `Locked<Self>` value wrapping `self`.
-    func locked() -> Locked<Self> { return .init(composable: self) }
 }
