@@ -189,7 +189,6 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 // User not authenticated.
                 onChange(.failure(AuthenticatorError.invalidPassword))
             } else {
-                print(value.data.beautifiedDescription, value.response as Any)
                 onChange(.failure(AuthenticatorError.invalidResponse))
             }
         }
