@@ -5,8 +5,8 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
-import Foundation
 import ComposableRequest
+import Foundation
 
 public extension Endpoint {
     /// A `struct` holding reference to `direct_v2` `Endpoint`s. Requires authentication.

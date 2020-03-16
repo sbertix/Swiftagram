@@ -5,8 +5,8 @@
 //  Created by Stefano Bertagno on 14/03/2020.
 //
 
-import Foundation
 import ComposableRequest
+import Foundation
 
 public extension Endpoint {
     /// A `struct` holding reference to `media` `Endpoint`s. Requires authentication.

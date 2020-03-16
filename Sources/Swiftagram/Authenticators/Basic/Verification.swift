@@ -5,8 +5,8 @@
 //  Created by Stefano Bertagno on 07/03/2020.
 //
 
-import Foundation
 import ComposableRequest
+import Foundation
 
 /// A `struct` representing verification methods.
 public struct Verification: Hashable {

@@ -1,6 +1,6 @@
+import ComposableRequest
 import Foundation
 @testable import Swiftagram
-import ComposableRequest
 import XCTest
 
 extension HTTPCookie {
@@ -191,6 +191,6 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Feed", testEndpointFeed),
         ("Endpoint.Friendship", testEndpointFriendship),
         ("Endpoint.Media", testEndpointMedia),
-        ("Endpoint.User", testEndpointUser),
+        ("Endpoint.User", testEndpointUser)
     ]
 }

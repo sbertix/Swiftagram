@@ -5,8 +5,8 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
-import Foundation
 import ComposableRequest
+import Foundation
 
 /// A `struct` defining an `Authenticator` response.
 public struct Secret: Codable, Secreted {
