@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ComposableRequest
 
 /// A `class` holding reference to a `Checkpoint`.
 public final class Checkpoint {
@@ -42,7 +43,7 @@ public final class Checkpoint {
     /// Request a code code through the selected `verification` method.
     /// - parameter verification: A `Verification` item to send the code to.
     public func requestCode(to verification: Verification) {
-        ComposableRequest(url: url)
+        Request(url: url)
             .body("choice", value: verification.value)
             .header(
                 ["Accept": "*/*",
@@ -69,7 +70,7 @@ public final class Checkpoint {
     /// Send the received code.
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
-        ComposableRequest(url: url)
+        Request(url: url)
             .body("security_code", value: code)
             .header(
                 ["Accept": "*/*",

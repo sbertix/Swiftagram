@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ComposableRequest
 
 public extension Endpoint {
     /// A `struct` holding reference to `users` `Endpoint`s. Requires authentication.
@@ -18,13 +19,13 @@ public extension Endpoint {
 
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Locked<ComposableRequest> {
+        public static func summary(for identifier: String) -> Locked<Request> {
             return base.append(identifier).info
         }
 
         /// All user matching `query`.
         /// - parameter query: A `String` holding reference to a valid user query.
-        public static func all(matching query: String) -> Paginated<Locked<ComposableRequest>, Response> {
+        public static func all(matching query: String) -> Paginated<Locked<Request>, Response> {
             return base.search.query("q", value: query).paginating()
         }
     }

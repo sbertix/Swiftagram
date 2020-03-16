@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ComposableRequest
 
 public extension Endpoint {
     /// A `struct` holding reference to `direct_v2` `Endpoint`s. Requires authentication.
@@ -20,7 +21,7 @@ public extension Endpoint {
 
         /// A thread matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid thread identifier.
-        public static func thread(matching identifier: String) -> Paginated<Locked<ComposableRequest>, Response> {
+        public static func thread(matching identifier: String) -> Paginated<Locked<Request>, Response> {
             return base.threads.append(identifier).paginating(key: "cursor", initial: nil) { try? $0.get().thread.oldestCursor.string() }
         }
     }

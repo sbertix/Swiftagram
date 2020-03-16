@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ComposableRequest
 
 /**
     A `class` describing an `Authenticator` using `username` and `password`.

@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import ComposableRequest
 
 /// A `struct` defining an `Authenticator` response.
-public struct Secret: Codable {
+public struct Secret: Codable, Secreted {
     /// A `HTTPCookie` representing the logged in user identifier.
     public let identifier: HTTPCookie
     /// A `HTTPCookie` representing the `csrftoken` cookie.
@@ -21,7 +22,7 @@ public struct Secret: Codable {
     public var id: String { return identifier.value }
 
     /// A `[String: String]` composed of all properties above.
-    internal var headerFields: [String: String] {
+    public var headerFields: [String: String] {
         return HTTPCookie.requestHeaderFields(with: [identifier,
                                                      crossSiteRequestForgery,
                                                      session])
@@ -50,14 +51,6 @@ public struct Secret: Codable {
     }
 
     // MARK: Locker
-    /// Store in `storage`.
-    /// - parameter storage: A concrete-typed value conforming to the `Storage` protocol.
-    @discardableResult
-    public func store<S: Storage>(in storage: S) -> Secret {
-        storage.store(self)
-        return self
-    }
-
     /// Store in `storage`.
     /// - parameter storage: A value conforming to the `Storage` protocol.
     @discardableResult

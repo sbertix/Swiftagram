@@ -1,4 +1,5 @@
 @testable import Swiftagram
+import ComposableRequest
 import XCTest
 #if canImport(WebKit)
 import WebKit

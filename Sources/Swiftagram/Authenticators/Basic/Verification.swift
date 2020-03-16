@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ComposableRequest
 
 /// A `struct` representing verification methods.
 public struct Verification: Hashable {
