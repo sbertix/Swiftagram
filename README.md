@@ -23,7 +23,7 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 
 ## Status
 ![Status](https://github.com/sbertix/Swiftagram/workflows/master/badge.svg)
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)](https://github.com/sbertix/Swiftagram/wiki)
 
 > What's next?
 
@@ -95,7 +95,7 @@ let task = Endpoint.Friendship.following(secret.id)
       // Do something here.
     }
     .resume() // Exhaust 10 pages of followers.
-    
+
 // Cancel it.
 task?.cancel()
 ```

@@ -35,8 +35,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Publish Jazzy Docs
+    - name: Create and publish docs
       uses: steven0351/publish-jazzy-docs@v1
       with:
         personal_access_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-        args: "--theme fullwidth --author Stefano Bertagno"
+        args: "--theme fullwidth --author \"Stefano Bertagno\""
