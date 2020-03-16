@@ -10,22 +10,6 @@ final class SwiftagramCombineTests: XCTestCase {
     var requestCancellable: AnyCancellable?
 
     /// Test `Request`.
-    func testStringRequest() {
-        let expectation = XCTestExpectation()
-        requestCancellable = Endpoint.generic
-            .paginating()
-            .publishOnce()
-            .sink(receiveCompletion: {
-                switch $0 {
-                case .failure(let error): XCTFail(error.localizedDescription)
-                default: break
-                }
-                expectation.fulfill()
-            }, receiveValue: { _ in })
-        wait(for: [expectation], timeout: 5)
-    }
-
-    /// Test `Request`.
     func testRequest() {
         let expectation = XCTestExpectation()
         requestCancellable = Endpoint.generic
@@ -40,6 +24,38 @@ final class SwiftagramCombineTests: XCTestCase {
         wait(for: [expectation], timeout: 5)
     }
 
+    /// Test `Pagination`.
+    func testPagination() {
+        var count = 0
+        let expectation = XCTestExpectation()
+        requestCancellable = Endpoint.generic
+            .paginating(key: "l", initial: "en", next: { _ in "en" })
+            .publish()
+            .prefix(10)
+            .sink(receiveCompletion: { _ in expectation.fulfill() },
+                  receiveValue: { _ in
+                    count += 1
+            })
+        wait(for: [expectation], timeout: 10)
+        XCTAssert(count == 10)
+    }
+    
+    /// Test empty `Pagination`.
+    func testEmptyPagination() {
+        var count = 0
+        let expectation = XCTestExpectation()
+        requestCancellable = Endpoint.generic
+            .paginating(key: "l", initial: "en", next: { _ in "en" })
+            .publish()
+            .prefix(0)
+            .sink(receiveCompletion: { _ in expectation.fulfill() },
+                  receiveValue: { _ in
+                    count += 1
+            })
+        wait(for: [expectation], timeout: 10)
+        XCTAssert(count == 0)
+    }
+    
     /// Test `Request` cancelling.
     func testCancel() {
         let expectation = XCTestExpectation()
@@ -53,7 +69,8 @@ final class SwiftagramCombineTests: XCTestCase {
 
     static var allTests = [
         ("Request", testRequest),
-        ("Request.String", testStringRequest),
+        ("Request.Pagination", testPagination),
+        ("Request.Empty.Pagination", testEmptyPagination),
         ("Request.Cancel", testCancel)
     ]
 }

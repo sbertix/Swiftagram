@@ -104,9 +104,12 @@ extension ComposableRequest: Composable {
             var dictionary = Dictionary(uniqueKeysWithValues:
                 $0.components.queryItems?.compactMap { item in
                     item.value.flatMap { (item.name, $0) }
-                    } ?? []
+                } ?? []
             )
-            items.forEach { dictionary[$0.key] = $0.value }
+            items.forEach {
+                guard !$0.key.isEmpty else { return }
+                dictionary[$0.key] = $0.value
+            }
             $0.components.queryItems = dictionary.isEmpty
                 ? nil
                 : dictionary.map { URLQueryItem(name: $0.key, value: $0.value) }
@@ -133,7 +136,10 @@ extension ComposableRequest: Composable {
                 $0.body = parameters.flatMap { .parameters($0.compactMapValues { $0 }) }
                 return
             }
-            parameters?.forEach { dictionary[$0.key] = $0.value }
+            parameters?.forEach {
+                guard !$0.key.isEmpty else { return }
+                dictionary[$0.key] = $0.value
+            }
             $0.body = dictionary.isEmpty ? nil : .parameters(dictionary)
         }
     }
@@ -143,7 +149,10 @@ extension ComposableRequest: Composable {
     public func header(_ fields: [String: String?]?) -> ComposableRequest {
         return copy(self) {
             var dictionary = $0.headerFields
-            fields?.forEach { dictionary[$0.key] = $0.value }
+            fields?.forEach {
+                guard !$0.key.isEmpty else { return }
+                dictionary[$0.key] = $0.value
+            }
             $0.headerFields = dictionary
         }
     }

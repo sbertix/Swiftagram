@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  Requestable.swift
+//  Swiftagram
 //
 //  Created by Stefano Bertagno on 14/03/2020.
 //
@@ -18,13 +18,16 @@ public protocol Requestable {
 public extension Requestable where Self: Paginatable, Self: Composable {
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
-    ///     - max: The maximum amount of time we should keep calling `next`. Defaults to `.max`.
+    ///     - max: The maximum amount of time we should keep calling `next`. Defaults to `.max`. Must be bigger than `0`.
     ///     - requester:  A `Requester`. Defaults to `.default`.
+    ///     - onComplete: A block called when `maxLength` is reached or no next endpoint is provided, passing how many pages it fetched.
     ///     - onChange: A block accepting a `DataMappable` and returning the next max id value.
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
-    func cycleTask(max: Int = .max,
+    func cycleTask(maxLength: Int = .max,
                    by requester: Requester = .default,
+                   onComplete: ((Int) -> Void)? = nil,
                    onChange: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
+        precondition(maxLength > 0, "`cycleTask` requires a positive `max` value")
         var count = 0
         return Requester.Task(endpoint: self.query(self.key, value: self.initial),
                               requester: requester) {
@@ -35,22 +38,28 @@ public extension Requestable where Self: Paginatable, Self: Composable {
                                     nextEndpoint = self.query(self.key, value: nextValue)
                                 }
                                 // Notify completion.
-                                requester.configuration.responseQueue.handle { onChange(mapped) }
-                                // Return the new endpoint.
                                 count += 1
-                                return count < max ? nextEndpoint : nil
+                                requester.configuration.responseQueue.handle {
+                                    onChange(mapped)
+                                    if count >= maxLength || nextEndpoint == nil { onComplete?(count) }
+                                }
+                                // Return the new endpoint.
+                                return count < maxLength ? nextEndpoint : nil
         }
     }
 
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
-    ///     - max: The maximum amount of time we should keep calling `next`. Defaults to `.max`.
+    ///     - max: The maximum amount of time we should keep calling `next`. Defaults to `.max`. Must be bigger than `0`.
     ///     - requester:  A `Requester`. Defaults to `.default`.
+    ///     - onComplete: A block called when `maxLength` is reached or no next endpoint is provided, passing how many pages it fetched.
     ///     - onChange: A block accepting a `DataMappable` and returning the next max id value.
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
-    func debugCycleTask(max: Int = .max,
+    func debugCycleTask(maxLength: Int = .max,
                         by requester: Requester = .default,
+                        onComplete: ((Int) -> Void)? = nil,
                         onChange: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task {
+        precondition(maxLength > 0, "`cycleTask` requires a positive `max` value")
         var count = 0
         return Requester.Task(endpoint: self.query(self.key, value: self.initial),
                               requester: requester) {
@@ -61,10 +70,13 @@ public extension Requestable where Self: Paginatable, Self: Composable {
                                     nextEndpoint = self.query(self.key, value: nextValue)
                                 }
                                 // Notify completion.
-                                requester.configuration.responseQueue.handle { onChange(mapped) }
-                                // Return the new endpoint.
                                 count += 1
-                                return count < max ? nextEndpoint : nil
+                                requester.configuration.responseQueue.handle {
+                                    onChange(mapped)
+                                    if count >= maxLength || nextEndpoint == nil { onComplete?(count) }
+                                }
+                                // Return the new endpoint.
+                                return count < maxLength ? nextEndpoint : nil
         }
     }
 }
