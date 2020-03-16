@@ -17,11 +17,13 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
+        .package(url: "https://github.com/sbertix/ComposableRequest", from: "1.0.1"),
         .package(url: "https://github.com/evgenyneu/keychain-swift.git", from: "19.0.0"),
     ],
     targets: [
         .target(
-            name: "Swiftagram"
+            name: "Swiftagram",
+            dependencies: ["ComposableRequest"]
         ),
         .target(
             name: "SwiftagramKeychain",

@@ -5,6 +5,7 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
+import ComposableRequest
 import Foundation
 
 public extension Endpoint {
@@ -20,7 +21,7 @@ public extension Endpoint {
 
         /// A thread matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid thread identifier.
-        public static func thread(matching identifier: String) -> Paginated<Locked<ComposableRequest>, Response> {
+        public static func thread(matching identifier: String) -> Paginated<Locked<Request>, Response> {
             return base.threads.append(identifier).paginating(key: "cursor", initial: nil) { try? $0.get().thread.oldestCursor.string() }
         }
     }

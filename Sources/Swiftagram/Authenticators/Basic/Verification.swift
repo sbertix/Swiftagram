@@ -5,6 +5,7 @@
 //  Created by Stefano Bertagno on 07/03/2020.
 //
 
+import ComposableRequest
 import Foundation
 
 /// A `struct` representing verification methods.
