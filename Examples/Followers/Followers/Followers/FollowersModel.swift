@@ -18,6 +18,11 @@ final class FollowersModel: ObservableObject {
     @Published var current: User?
     /// Initial followers for the logged in user.
     @Published var followers: [User]?
+    /// Append followers.
+    var appendFollowers: [User] {
+        get { [] }
+        set { followers?.append(contentsOf: newValue) }
+    }
     /// The logged in secret.
     var secret: Secret? {
         didSet {
@@ -67,9 +72,11 @@ final class FollowersModel: ObservableObject {
             .catch { _ in Empty() }
             .assign(to: \.current, on: self)
         // Load the first set of followers.
+        followers = []
         followersCancellable = Endpoint.Friendship.following(secret.id)
             .authenticating(with: secret)
-            .publishOnce()
+            .publish()
+            .prefix(3)
             .map {
                 $0.users
                     .array()?
@@ -84,6 +91,6 @@ final class FollowersModel: ObservableObject {
                     } ?? []
             }
             .catch { _ in Empty() }
-            .assign(to: \.followers, on: self)
+            .assign(to: \.appendFollowers, on: self)
     }
 }
