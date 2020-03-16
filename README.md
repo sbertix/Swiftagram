@@ -36,7 +36,7 @@ Check out our [milestones](https://github.com/sbertix/Swiftagram/milestones), [i
 1. Follow the steps.
 
 **Swiftagram** requires **Swift 5.0** or above, and depends on [**sbertix/ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**.\
-**SwiftagramKeychain**, an optional library for storing `Secret`s directly into the keychain, depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift).\
+**SwiftagramKeychain**, an optional library for storing `Secret`s directly into the keychain, depends on [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift).
 
 **ComposableRequest** also provides custom [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s.
 
