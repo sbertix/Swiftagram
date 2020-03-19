@@ -2,41 +2,47 @@ name: master
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
     paths:
-        - '**.swift'
-        - '**.yml'
+      - '**.swift'
+      - '**.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**.swift'
+      - '**.yml'
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Lint
+        uses: norio-nomura/action-swiftlint@3.1.0
+        with:
+          args: --strict
+
   build:
+    needs: lint
     runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Build
       run: swift build -v
-    - name: Run tests
+    - name: Test
       run: swift test -v --enable-test-discovery --enable-code-coverage
       env:
         INSTAGRAM_USERNAME: ${{ secrets.INSTAGRAM_USERNAME }}
         INSTAGRAM_PASSWORD: ${{ secrets.INSTAGRAM_PASSWORD }}
-    - name: Coverage
+    - name: Coverage (1)
       run: xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
-    - name: Codecov
+    - name: Coverage (2)
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
       timeout-minutes: 1
       continue-on-error: true
-
-  documentation:
-    needs: build
-    runs-on: macos-latest
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Create and publish docs
-      uses: steven0351/publish-jazzy-docs@v1
-      with:
-        personal_access_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-        args: "--theme fullwidth --author \"Stefano Bertagno\""
