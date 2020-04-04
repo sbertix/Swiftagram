@@ -19,13 +19,13 @@ public extension Endpoint {
 
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Locked<Request> {
+        public static func summary(for identifier: String) -> Lock<Request> {
             return base.append(identifier).info
         }
 
         /// All user matching `query`.
         /// - parameter query: A `String` holding reference to a valid user query.
-        public static func all(matching query: String) -> Paginated<Locked<Request>, Response> {
+        public static func all(matching query: String) -> Paginated<Lock<Request>, Response> {
             return base.search.query("q", value: query).paginating()
         }
     }

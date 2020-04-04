@@ -15,9 +15,9 @@ extension HTTPCookie {
 
 final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
-    let secret = Secret(identifier: HTTPCookie(text: "A"),
-                        crossSiteRequestForgery: HTTPCookie(text: "B"),
-                        session: HTTPCookie(text: "C"))
+    let secret = Secret(identifier: HTTPCookie(text: "ds_user_id"),
+                        crossSiteRequestForgery: HTTPCookie(text: "sessionid"),
+                        session: HTTPCookie(text: "csrftoken"))
 
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {
@@ -40,7 +40,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/direct_v2/inbox/")
-        XCTAssert(Endpoint.Direct.threads.next(.success(.dictionary(["oldestCursor": .string("next")]))) == "next")
+        XCTAssert(Endpoint.Direct.threads.next(.success(["oldestCursor": "next"])) == "next")
         XCTAssert(Endpoint.Direct
             .thread(matching: "id")
             .authenticating(with: secret)
@@ -48,7 +48,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/direct_v2/threads/id/")
         XCTAssert(Endpoint.Direct.thread(matching: "id").next(
-            .success(.dictionary(["thread": .dictionary(["oldestCursor": .string("next")])]))
+            .success(["thread": Response(["oldestCursor": Response("next")])])
         ) == "next")
         XCTAssert(Endpoint.Direct
             .rankedRecipients
