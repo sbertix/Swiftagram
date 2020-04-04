@@ -1,12 +1,12 @@
 name: releases
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - '*'
 
 jobs:
   documentation:
-    needs: build
     runs-on: macos-latest
 
     steps:
