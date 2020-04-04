@@ -52,8 +52,8 @@ Check out our [Examples](Examples) or visit the (_auto-generated_) [Documentatio
 Authentication is provided through conformance to the `Authenticator` protocol, which, on success, returns a `Secret` containing all the cookies needed to sign an `Endpoint`'s request.
 
 The library comes with two concrete implementations.
-- `BasicAuthenticator` requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
-- `WebViewAuthenticator`, available for **iOS 11**+ and **macOS 10.13**+, relying on a `WKWebView` for fetching cookies.
+- [`BasicAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/BasicAuthenticator.html) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
+- [`WebViewAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/WebViewAuthenticator.html), available for **iOS 11**+ and **macOS 10.13**+, relying on a `WKWebView` for fetching cookies.
 
 ### Caching
 Caching of `Secret`s is provided through conformance to the `Storage` protocol.  
