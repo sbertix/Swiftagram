@@ -7,6 +7,8 @@
 
 import Foundation
 
+import ComposableRequest
+
 /// A `protocol` describing a form of fetching `Secret`s.
 public protocol Authenticator {
     /// A `Storage` concrete type in which `Secret` are stored.
@@ -20,4 +22,13 @@ public protocol Authenticator {
     /// - warning: Always call `Secret.store` with `storage` when receiving the `Secret` .
     /// - note: Using `TransientStorage` as `Storage` allows to disregard any storing mechanism.
     func authenticate(_ onChange: @escaping (Result<Secret, Error>) -> Void)
+}
+
+public extension Requester {
+    /// An ephemeral `Requester` guaranteed to be fired immediately to be used with `Authenticator`s.
+    static let authentication = Requester(configuration: .init(sessionConfiguration: .default,
+                                                               requestQueue: .main,
+                                                               mapQueue: .global(qos: .userInitiated),
+                                                               responseQueue: .main,
+                                                               waiting: 0...0))
 }

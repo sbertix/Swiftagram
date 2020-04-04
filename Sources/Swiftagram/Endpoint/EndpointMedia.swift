@@ -16,25 +16,25 @@ public extension Endpoint {
 
         /// A media matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func summary(for identifier: String) -> Locked<Request> {
+        public static func summary(for identifier: String) -> Lock<Request> {
             return base.append(identifier).info
         }
 
         /// A list of all users liking the media matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func likers(for identifier: String) -> Paginated<Locked<Request>, Response> {
+        public static func likers(for identifier: String) -> Paginated<Lock<Request>, Response> {
             return base.append(identifier).likers.paginating()
         }
 
         /// A list of all comments the media matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func comments(for identifier: String) -> Paginated<Locked<Request>, Response> {
+        public static func comments(for identifier: String) -> Paginated<Lock<Request>, Response> {
             return base.append(identifier).comments.paginating()
         }
 
         /// The permalinkg for the media matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func permalink(for identifier: String) -> Locked<Request> {
+        public static func permalink(for identifier: String) -> Lock<Request> {
             return base.append(identifier).permalink
         }
     }

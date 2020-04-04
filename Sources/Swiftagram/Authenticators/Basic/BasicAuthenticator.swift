@@ -28,7 +28,7 @@ import Foundation
         // before sending the code to through `checkpoint.send`.
       }
     }
-
+ 
     /// Login.
     BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
                        username: /* the username */,
@@ -88,7 +88,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         Endpoint.generic.header(["User-Agent": userAgent])
             .expecting(String.self)
-            .debugTask { [self] in self.handleFirst(result: $0, onChange: onChange) }
+            .debugTask(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
 
@@ -138,7 +138,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                      "Content-Type": "application/x-www-form-urlencoded",
                      "User-Agent": self.userAgent]
                 )
-                .debugTask { [self] in
+                .debugTask(by: .authentication) { [self] in
                     self.handleSecond(result: $0,
                                       crossSiteRequestForgery: crossSiteRequestForgery,
                                       onChange: onChange)
@@ -204,7 +204,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         Endpoint.generic.append(checkpoint)
             .header(["User-Agent": userAgent])
             .expecting(String.self)
-            .debugTask { [self] in
+            .debugTask(by: .authentication) { [self] in
                 // Check for errors.
                 switch $0 {
                 case .failure(let error): onChange(.failure(error))
@@ -218,7 +218,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                         .components(separatedBy: "window._sharedData = ")[1]
                         .components(separatedBy: ";</script>")[0]
                         .data(using: .utf8),
-                        let response = try? Response(data: data) else {
+                        let response = try? JSONDecoder().decode(Response.self, from: data) else {
                             return onChange(.failure(AuthenticatorError.checkpoint(nil)))
                     }
                     // Obtain available verification.

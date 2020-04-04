@@ -58,7 +58,7 @@ public final class Checkpoint {
                  "Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": userAgent]
             )
-            .task { [self] in
+            .task(by: .authentication) { [self] in
                 switch $0 {
                 case .failure(let error): self.onChange(.failure(error))
                 default: break
@@ -86,7 +86,7 @@ public final class Checkpoint {
                  "User-Agent": userAgent]
             )
             .expecting(String.self)
-            .task { [self] in
+            .task(by: .authentication) { [self] in
                 switch $0 {
                 case .failure(let error): self.onChange(.failure(error))
                 case .success(let value):

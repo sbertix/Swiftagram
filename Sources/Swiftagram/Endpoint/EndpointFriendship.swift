@@ -17,20 +17,20 @@ public extension Endpoint {
         /// A list of users followed by the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **following**.
-        public static func followed(by identifier: String) -> Paginated<Locked<Request>, Response> {
+        public static func followed(by identifier: String) -> Paginated<Lock<Request>, Response> {
             return base.append(identifier).following.paginating()
         }
 
         /// A list of users following the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **followers**.
-        public static func following(_ identifier: String) -> Paginated<Locked<Request>, Response> {
+        public static func following(_ identifier: String) -> Paginated<Lock<Request>, Response> {
             return base.append(identifier).followers.paginating()
         }
 
         /// The current friendship status between the authenticated user and the one matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func friendship(with identifier: String) -> Paginated<Locked<Request>, Response> {
+        public static func friendship(with identifier: String) -> Paginated<Lock<Request>, Response> {
             return base.show.append(identifier).paginating()
         }
     }

@@ -24,18 +24,13 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         let expectation = XCTestExpectation(description: "BasicAuthenticator")
         let invalidUsername = XCTestExpectation()
         let checkpoint = XCTestExpectation()
-        XCTAssert(Verification(response: .dictionary(["label": .string("Email"), "value": .string("1")]))?.label == "Email")
+        XCTAssert(Verification(response: ["label": "Email", "value": "1"])?.label == "Email")
         // Wrong username.
-        BasicAuthenticator(username: "@#notavalidusername",
-                           password: "password")
-            .authenticate { [username = environemnt["INSTAGRAM_USERNAME"] ?? ""] in
+        BasicAuthenticator(username: "°°°°°°°°",
+                           password: "°°°°°°°°")
+            .authenticate {
                 switch $0 {
-                case .failure(let error):
-                    switch error {
-                    case AuthenticatorError.invalidUsername, AuthenticatorError.invalidPassword: break
-                    default:
-                        XCTFail(error.localizedDescription+" for \(username)")
-                    }
+                case .failure: break
                 default: XCTFail("It should not succeed")
                 }
                 invalidUsername.fulfill()
@@ -64,7 +59,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                     }
                 }
         }
-        authenticator.handleCheckpoint(result: (data: Response.none, response: nil),
+        authenticator.handleCheckpoint(result: (data: Response.empty, response: nil),
                                        checkpoint: "",
                                        crossSiteRequestForgery: .init()) {
                                         switch $0 {
@@ -95,7 +90,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     func testCheckpoint() {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
-        let verification = Verification(response: .dictionary(["label": .string("email"), "value": .string("1")]))!
+        let verification = Verification(response: ["label": "email", "value": "1"])!
         let checkpoint = Checkpoint(storage: TransientStorage(),
                                     url: URL(string: "/")!,
                                     userAgent: "A",

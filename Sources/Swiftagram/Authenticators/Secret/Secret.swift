@@ -9,7 +9,7 @@ import ComposableRequest
 import Foundation
 
 /// A `struct` defining an `Authenticator` response.
-public struct Secret: Codable, Secreted {
+public struct Secret: Codable, ComposableRequest.Secret {
     /// A `HTTPCookie` representing the logged in user identifier.
     public let identifier: HTTPCookie
     /// A `HTTPCookie` representing the `csrftoken` cookie.
@@ -26,6 +26,10 @@ public struct Secret: Codable, Secreted {
         return HTTPCookie.requestHeaderFields(with: [identifier,
                                                      crossSiteRequestForgery,
                                                      session])
+    }
+    /// An empty `[String: String]`.
+    public var body: [String: String] {
+        return [:]
     }
 
     // MARK: Lifecycle.
