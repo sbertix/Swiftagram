@@ -64,6 +64,25 @@ The library comes with several concrete implementations.
 - `KeychainStorage`, part of **SwiftagramKeychain**, (**preferred**) stores them safely in the user's keychain.  
 
 ### Request
+> How can I bypass Instagram "spam" filter, and make them believe I'm not actually a bot?
+
+Just set the default `waiting` time in the `Requester` to something greater than `0`.
+
+```swift
+import ComposableRequest
+
+// Somewhere in your code, for instance in your `AppDelegate`, set a new `default` `Requester`.
+// `O.5` to `1.5` seconds is a long enough time, usually.
+Requester.default = .init(configuration: .init(sessionConfiguration: .default,
+                                               requestQueue: .main,
+                                               mapQueue: .global(qos: .userInitiated),
+                                               responseQueue: .main,
+                                               waiting: 0.5...1.5))
+```
+
+Or just create a custom `Requester` and pass it to every single request you make.  
+<br/>
+
 > What if I wanna know the basic info about a profile?
 
 All you need is the user identifier and a valid `Secret`.
@@ -80,6 +99,7 @@ Endpoint.User.summary(for: identifier)
     }
     .resume() // Strongly referenced by default, no need to worry about it.
 ```
+<br/>
 
 > What about cancelling an ongoing request?
 

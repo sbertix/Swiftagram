@@ -8,6 +8,7 @@
 
 import UIKit
 
+import ComposableRequest
 import SwiftagramKeychain
 
 @UIApplicationMain
@@ -20,6 +21,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UserDefaults.standard.set(true, forKey: "launched.before")
             UserDefaults.standard.synchronize()
         }
+        // Update the `Requester`.
+        Requester.default = .init(configuration: .init(sessionConfiguration: .default,
+                                                       requestQueue: .main,
+                                                       mapQueue: .global(qos: .userInitiated),
+                                                       responseQueue: .main,
+                                                       waiting: 0.5...1.5))
         return true
     }
 
