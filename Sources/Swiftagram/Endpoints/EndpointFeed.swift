@@ -46,7 +46,8 @@ public extension Endpoint {
                 "is_async_ads_in_headload_enabled": "false",
                 "is_async_ads_double_request": "false",
                 "is_async_ads_rti": "false",
-                "latest_story_pk": ""
+                "latest_story_pk": "",
+                "reason": "cold_start_fresh"
             ])
             .locking {
                 guard let secret = $1 as? Secret else {
@@ -56,7 +57,11 @@ public extension Endpoint {
                     .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
                     .body("client_session_id", value: secret.session.value)
             }
-            .paginating()
+            .paginating(nextBody: {
+                (try? $0.get().nextMaxId.string()).flatMap {
+                    ["reason": "pagination", "max_id": $0]
+                }
+            })
 
         /// All posts for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
