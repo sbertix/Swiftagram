@@ -49,7 +49,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
     /// Defaults to Safari on an iPhone with iOS 13.1.3.
     public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
                                     "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
+                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
 
     // MARK: Lifecycle
     /// Init.
@@ -67,7 +67,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
         self.userAgent = userAgent
             ?? ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
                 "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
+                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
         return self
     }
 

@@ -7,11 +7,13 @@
 
 import Foundation
 
+import ComposableRequest
+
 public extension Endpoint {
     /// A `struct` holding reference to `discover` `Endpoint`s. Requires authentication.
     struct Discover {
         /// The base endpoint.
-        private static let base = Endpoint.version1.discover.defaultHeader().locked()
+        private static let base = Endpoint.version1.discover.defaultHeader().locking(into: Lock.self)
 
         /// The explore feed.
         public static let explore = base.explore.paginating()

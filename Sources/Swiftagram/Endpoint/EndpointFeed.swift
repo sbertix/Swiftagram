@@ -5,14 +5,15 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
-import ComposableRequest
 import Foundation
+
+import ComposableRequest
 
 public extension Endpoint {
     /// A `struct` holding reference to `feed` and `usertags` `Endpoint`s. Requires authentication.
     struct Feed {
         /// The base endpoint.
-        private static let base = Endpoint.version1.feed.defaultHeader().locked()
+        private static let base = Endpoint.version1.feed.defaultHeader().locking(into: Lock.self)
 
         /// Stories tray.
         public static let followedStories = base.reels_tray
@@ -36,7 +37,12 @@ public extension Endpoint {
         /// All posts a user matching `identifier` is tagged in.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(including identifier: String) -> Paginated<Lock<Request>, Response> {
-            return Endpoint.version1.usertags.append(identifier).feed.defaultHeader().locked().paginating()
+            return Endpoint.version1.usertags
+                .append(identifier)
+                .feed
+                .defaultHeader()
+                .locking(into: Lock.self)
+                .paginating()
         }
 
         /// All media matching `tag`.

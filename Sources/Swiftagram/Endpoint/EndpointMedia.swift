@@ -5,14 +5,15 @@
 //  Created by Stefano Bertagno on 14/03/2020.
 //
 
-import ComposableRequest
 import Foundation
+
+import ComposableRequest
 
 public extension Endpoint {
     /// A `struct` holding reference to `media` `Endpoint`s. Requires authentication.
     struct Media {
         /// The base endpoint.
-        private static let base = Endpoint.version1.media.defaultHeader().locked()
+        private static let base = Endpoint.version1.media.defaultHeader().locking(into: Lock.self)
 
         /// A media matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.

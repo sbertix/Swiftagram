@@ -5,14 +5,15 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
-import ComposableRequest
 import Foundation
+
+import ComposableRequest
 
 public extension Endpoint {
     /// A `struct` holding reference to `direct_v2` `Endpoint`s. Requires authentication.
     struct Direct {
         /// The base endpoint.
-        private static let base = Endpoint.version1.direct_v2.defaultHeader().locked()
+        private static let base = Endpoint.version1.direct_v2.defaultHeader().locking(into: Lock.self)
 
         /// All threads.
         public static let threads = base.inbox.paginating(key: "cursor", initial: nil) { try? $0.get().oldestCursor.string() }

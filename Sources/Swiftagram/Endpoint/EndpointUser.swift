@@ -5,14 +5,15 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
-import ComposableRequest
 import Foundation
+
+import ComposableRequest
 
 public extension Endpoint {
     /// A `struct` holding reference to `users` `Endpoint`s. Requires authentication.
     struct User {
         /// The base endpoint.
-        private static let base = Endpoint.version1.users.defaultHeader().locked()
+        private static let base = Endpoint.version1.users.defaultHeader().locking(into: Lock.self)
 
         /// A list of all profiles blocked by the user.
         public static let blocked = base.blocked_list

@@ -5,14 +5,15 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
-import ComposableRequest
 import Foundation
+
+import ComposableRequest
 
 public extension Endpoint {
     /// A `struct` holding reference to `friendships` `Endpoint`s. Requires authentication.
     struct Friendship {
         /// The base endpoint.
-        private static let base = Endpoint.version1.friendships.defaultHeader().locked()
+        private static let base = Endpoint.version1.friendships.defaultHeader().locking(into: Lock.self)
 
         /// A list of users followed by the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
