@@ -11,13 +11,13 @@ import Foundation
 /// A `struct` defining an `Authenticator` response.
 public struct Secret: Codable, ComposableRequest.Secret {
     /// A `HTTPCookie` representing the logged in user identifier.
-    public let identifier: HTTPCookie
+    internal let identifier: HTTPCookie
     /// A `HTTPCookie` representing the `csrftoken` cookie.
     /// - note: Access is set to `private` to discourage developers to access sensitive information.
-    private let crossSiteRequestForgery: HTTPCookie
+    internal let crossSiteRequestForgery: HTTPCookie
     /// A `HTTPCookie` representinng the `sessionid` cookie.
     /// - note: Access is set to `private` to discourage developers to access sensitive information.
-    private let session: HTTPCookie
+    internal let session: HTTPCookie
     /// A `String` representing the logged in user identifier.
     public var id: String { return identifier.value }
 

@@ -20,7 +20,43 @@ public extension Endpoint {
         /// Liked media.
         public static let likes = base.liked.paginating()
         /// Timeline.
-        public static let timeline = base.timeline.paginating()
+        public static let timeline = Endpoint.version1
+            .feed
+            .timeline
+            .defaultHeader()
+            .header([
+                "X-Ads-Opt-Out": "0",
+                "X-Google-AD-ID": Device.default.googleAdId.uuidString,
+                "X-DEVICE-ID": Device.default.deviceGUID.uuidString,
+                "X-FB": "1"
+            ])
+            .body([
+                "is_prefetch": "0",
+                "feed_view_info": "",
+                "seen_posts": "",
+                "phone_id": Device.default.phoneGUID.uuidString,
+                "is_pull_to_refresh": "0",
+                "battery_level": "72",
+                "timezone_offset": "43200",
+                "device_id": Device.default.deviceGUID.uuidString,
+                "_uuid": Device.default.deviceGUID.uuidString,
+                "is_charging": "0",
+                "will_sound_on": "1",
+                "is_on_screen": "true",
+                "is_async_ads_in_headload_enabled": "false",
+                "is_async_ads_double_request": "false",
+                "is_async_ads_rti": "false",
+                "latest_story_pk": ""
+            ])
+            .locking {
+                guard let secret = $1 as? Secret else {
+                    fatalError("A `Swiftagram.Secret` is required to authenticate `.timeline`.")
+                }
+                return $0.header(secret.headerFields)
+                    .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
+                    .body("client_session_id", value: secret.session.value)
+            }
+            .paginating()
 
         /// All posts for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.

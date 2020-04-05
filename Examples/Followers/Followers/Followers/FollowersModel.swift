@@ -35,6 +35,8 @@ final class FollowersModel: ObservableObject {
     var userCancellable: AnyCancellable?
     /// Cancellable for followers.
     var followersCancellable: AnyCancellable?
+    /// Cancellable for timeline.
+    var timelineCancellable: AnyCancellable?
 
     // MARK: Lifecycle
     /// Init.
