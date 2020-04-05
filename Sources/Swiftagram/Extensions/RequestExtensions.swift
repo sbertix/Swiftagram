@@ -24,3 +24,13 @@ public extension Composable {
         )
     }
 }
+
+/// **Instagram** specific accessories for `Requester`.
+public extension Requester {
+    /// An **Instagram** `Requester` matching `.default` with a longer, safer, `waiting` range.
+    static let instagram = Requester(configuration: .init(sessionConfiguration: .default,
+                                                          requestQueue: .main,
+                                                          mapQueue: .global(qos: .userInitiated),
+                                                          responseQueue: .main,
+                                                          waiting: 0.5...1.5))
+}
