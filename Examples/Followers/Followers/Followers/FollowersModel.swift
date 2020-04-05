@@ -35,8 +35,6 @@ final class FollowersModel: ObservableObject {
     var userCancellable: AnyCancellable?
     /// Cancellable for followers.
     var followersCancellable: AnyCancellable?
-    /// Cancellable for timeline.
-    var timelineCancellable: AnyCancellable?
 
     // MARK: Lifecycle
     /// Init.
@@ -92,7 +90,8 @@ final class FollowersModel: ObservableObject {
                                     avatar: $0.profilePicUrl.url())
                     } ?? []
             }
-            .catch { _ in Empty() }
+            .catch { error -> Empty<[User], Never> in print(error); return Empty() }
             .assign(to: \.appendFollowers, on: self)
     }
 }
+
