@@ -90,7 +90,7 @@ final class FollowersModel: ObservableObject {
                                     avatar: $0.profilePicUrl.url())
                     } ?? []
             }
-            .catch { _ in Empty() }
+            .catch { error -> Empty<[User], Never> in print(error); return Empty() }
             .assign(to: \.appendFollowers, on: self)
     }
 }

@@ -73,11 +73,8 @@ import ComposableRequest
 
 // Somewhere in your code, for instance in your `AppDelegate`, set a new `default` `Requester`.
 // `O.5` to `1.5` seconds is a long enough time, usually.
-Requester.default = .init(configuration: .init(sessionConfiguration: .default,
-                                               requestQueue: .main,
-                                               mapQueue: .global(qos: .userInitiated),
-                                               responseQueue: .main,
-                                               waiting: 0.5...1.5))
+// `Requester.instagram` is the suggested one.
+Requester.default = .instagram
 ```
 
 Or just create a custom `Requester` and pass it to every single request you make.  
