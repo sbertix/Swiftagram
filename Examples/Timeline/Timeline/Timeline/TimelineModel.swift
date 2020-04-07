@@ -40,7 +40,7 @@ final class TimelineModel: ObservableObject {
     private var nextMaxId: String?
     /// Loading.
     @Published private(set) var isLoading: Bool = false
-    
+
     // MARK: Lifecycle
     /// Init.
     init() { start() }
@@ -57,7 +57,7 @@ final class TimelineModel: ObservableObject {
             .flatMap { try? JSONDecoder().decode(User.self, from: $0) }
         return true
     }
-    
+
     /// Fetch values.
     private func fetch(secret: Swiftagram.Secret) {
         // Load info for the logged in user.
@@ -82,7 +82,7 @@ final class TimelineModel: ObservableObject {
         posts = nil
         next()
     }
-    
+
     /// Load next page.
     func next() {
         guard !isLoading, let secret = secret else { return }
@@ -152,4 +152,3 @@ final class TimelineModel: ObservableObject {
             .resume()
     }
 }
-

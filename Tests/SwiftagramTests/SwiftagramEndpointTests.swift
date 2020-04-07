@@ -79,6 +79,9 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/timeline/")
         XCTAssert(Endpoint.Feed
+            .timeline
+            .nextBody?(.success(["nextMaxId": "max"]))?["max_id"] == "max")
+        XCTAssert(Endpoint.Feed
             .posts(by: "id")
             .authenticating(with: secret)
             .request()?
@@ -124,6 +127,54 @@ final class SwiftagramEndpointTests: XCTestCase {
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/show/id/")
+        XCTAssert(Endpoint.Friendship
+            .pendingRequests
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/pending/")
+        XCTAssert(Endpoint.Friendship
+            .follow("id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/create/id/")
+        XCTAssert(Endpoint.Friendship
+            .unfollow("id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/destroy/id/")
+        XCTAssert(Endpoint.Friendship
+            .remove(follower: "id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/remove_follower/id/")
+        XCTAssert(Endpoint.Friendship
+            .acceptRequest(from: "id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/approve/id/")
+        XCTAssert(Endpoint.Friendship
+            .rejectRequest(from: "id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/reject/id/")
+        XCTAssert(Endpoint.Friendship
+            .block("id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/block/id/")
+        XCTAssert(Endpoint.Friendship
+            .unblock("id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/friendships/unblock/id/")
     }
 
     /// Test `Endpoint.User`.
@@ -146,6 +197,12 @@ final class SwiftagramEndpointTests: XCTestCase {
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/search/?q=query")
+        XCTAssert(Endpoint.User
+            .report("id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/users/id/flag_user/")
     }
 
     func testEndpointDiscover() {
@@ -182,6 +239,24 @@ final class SwiftagramEndpointTests: XCTestCase {
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/media/id/permalink/")
+        XCTAssert(Endpoint.Media
+            .like("id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/media/id/like/")
+        XCTAssert(Endpoint.Media
+            .unlike("id")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/media/id/unlike/")
+        XCTAssert(Endpoint.Media
+            .reportComment("id", in: "mediaId")
+            .authenticating(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/media/mediaId/comment/id/flag/")
     }
 
     static var allTests = [

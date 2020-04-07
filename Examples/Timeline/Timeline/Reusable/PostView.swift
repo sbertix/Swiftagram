@@ -14,10 +14,10 @@ struct PostView: View {
     @Environment(\.pixelLength) var pixelLength
     /// A valid `Post`.
     var post: Post
-    
+
     /// Init.
     init(post: Post) { self.post = post }
-    
+
     /// The actual body.
     var body: some View {
         VStack(alignment: .leading) {

@@ -16,19 +16,19 @@ public struct Device: Equatable, Codable {
     public let model: String
     /// The device model boot.
     public let modelBoot: String
-    
+
     /// The device GUID.
     public let deviceGUID: UUID
     /// The phone GUID.
     public let phoneGUID: UUID
     /// The goold AD ID.
     public let googleAdId: UUID
-    
+
     /// The DPI.
     public let dpi: Int
     /// The resolution of the screen.
     public let resolution: CGSize
-    
+
     /// The API version.
     public let api: String
     /// The OS version.
@@ -37,7 +37,7 @@ public struct Device: Equatable, Codable {
     public let release: String
     /// The application code.
     public let code: String
-    
+
     /// The API user agent.
     public var apiUserAgent: String {
         return [
@@ -62,7 +62,6 @@ public struct Device: Equatable, Codable {
         ].joined(separator: " ")
     }
 
-    
     /// Init.
     /// - parameters:
     ///     - deviceGUID: A valid `UUID`. Defaults to `.init()`.
@@ -108,7 +107,7 @@ public struct Device: Equatable, Codable {
 public extension Device {
     /// The current `Device`. Defaults to `.galaxyS10`.
     static var `default` = Device.galaxyS10
-    
+
     /// A European **Samsung Galaxy S10**.
     static let galaxyS10 = Device(brand: "samsung",
                                   model: "SM-G973F",

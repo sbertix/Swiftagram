@@ -19,11 +19,11 @@ struct Post: Codable, Identifiable {
         var video: URL?
         /// The size.
         var size: CGSize
-        
+
         /// The aspect ratio.
         var aspectRatio: CGFloat { return size.width/size.height }
     }
-    
+
     /// The id.
     var id: String
     /// The media.

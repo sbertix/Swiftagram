@@ -12,7 +12,7 @@ import Foundation
 public struct Endpoint {
     // MARK: Composition
     /// An `Endpoint` pointing to `api/v1`.
-    public static var version1: Request { return .init(url: URL(string: "https://i.instagram.com/api/v1")!) }
+    public static var version1: Request { return .init(URL(string: "https://i.instagram.com/api/v1")!) }
     /// An `Endpoint` pointing to the Instagram homepage.
-    public static var generic: Request { return .init(url: URL(string: "https://www.instagram.com")!) }
+    public static var generic: Request { return .init(URL(string: "https://www.instagram.com")!) }
 }

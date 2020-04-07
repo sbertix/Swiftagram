@@ -94,4 +94,3 @@ final class FollowersModel: ObservableObject {
             .assign(to: \.appendFollowers, on: self)
     }
 }
-
