@@ -15,13 +15,14 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/evgenyneu/keychain-swift.git", Version("19.0.0")..<Version("19.1.0")),
-        .package(url: "https://github.com/sbertix/ComposableRequest", Version("2.1.0")..<Version("2.2.0"))
+        .package(url: "https://github.com/evgenyneu/keychain-swift.git", .upToNextMinor(from: "19.0.0")),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift", .upToNextMinor(from: "1.3.1")),
+        .package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "2.1.0"))
     ],
     targets: [
         .target(
             name: "Swiftagram",
-            dependencies: ["ComposableRequest"]
+            dependencies: ["ComposableRequest", "CryptoSwift"]
         ),
         .target(
             name: "SwiftagramKeychain",

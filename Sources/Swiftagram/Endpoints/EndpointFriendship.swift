@@ -40,123 +40,67 @@ public extension Endpoint {
         public static let pendingRequests = base.locking(into: Lock.self).pending.paginating()
 
         // MARK: Actions
+        /// Perform an action involving the user matching `identifier`.
+        /// - parameters:
+        ///     - transformation: A `KeyPath` defining the endpoint path.
+        ///     - identifier: A `String` holding reference to a valid user identifier.
+        private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> CustomLock<Request> {
+            return base[keyPath: keyPath].append(identifier)
+                .locking {
+                    guard let secret = $1 as? Secret else {
+                        fatalError("A `Swiftagram.Secret` is required to authenticate `Friendship` actions.")
+                    }
+                    // return.
+                    return $0.header(secret.headerFields)
+                        .signedBody(["_csrftoken": secret.crossSiteRequestForgery.value,
+                                     "user_id": identifier,
+                                     "radio_type": "wifi-none",
+                                     "_uid": secret.id,
+                                     "device_id": Device.default.deviceIdentifier,
+                                     "_uuid": Device.default.deviceGUID.uuidString])
+                }
+        }
+
         /// Follow (or send a follow request) the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func follow(_ identifier: String) -> CustomLock<Request> {
-            return base.create.append(identifier)
-                .locking {
-                    guard let secret = $1 as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `.follow`.")
-                    }
-                    return $0.header(secret.headerFields)
-                        .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
-                        .body("_uuid", value: Device.default.deviceGUID.uuidString)
-                        .body("_uid", value: secret.id)
-                        .body("user_id", value: identifier)
-                        .body("radio_type", value: "wifi-none")
-                }
+            return edit(\.create, identifier)
         }
 
         /// Unfollow the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func unfollow(_ identifier: String) -> CustomLock<Request> {
-            return base.destroy.append(identifier)
-                .locking {
-                    guard let secret = $1 as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `.unfollow`.")
-                    }
-                    return $0.header(secret.headerFields)
-                        .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
-                        .body("_uuid", value: Device.default.deviceGUID.uuidString)
-                        .body("_uid", value: secret.id)
-                        .body("user_id", value: identifier)
-                        .body("radio_type", value: "wifi-none")
-                }
+            return edit(\.destroy, identifier)
         }
 
         /// Remove a user following you, matching the `identifier`. Said user will stop following you.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func remove(follower identifier: String) -> CustomLock<Request> {
-            return base.remove_follower.append(identifier)
-                .locking {
-                    guard let secret = $1 as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `.remove`.")
-                    }
-                    return $0.header(secret.headerFields)
-                        .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
-                        .body("_uuid", value: Device.default.deviceGUID.uuidString)
-                        .body("_uid", value: secret.id)
-                        .body("user_id", value: identifier)
-                        .body("radio_type", value: "wifi-none")
-                }
+            return edit(\.remove_follower, identifier)
         }
 
         /// Accept a follow request from the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func acceptRequest(from identifier: String) -> CustomLock<Request> {
-            return base.approve.append(identifier)
-                .locking {
-                    guard let secret = $1 as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `.acceptRequest`.")
-                    }
-                    return $0.header(secret.headerFields)
-                        .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
-                        .body("_uuid", value: Device.default.deviceGUID.uuidString)
-                        .body("_uid", value: secret.id)
-                        .body("user_id", value: identifier)
-                        .body("radio_type", value: "wifi-none")
-                }
+            return edit(\.approve, identifier)
         }
 
         /// Reject a follow request from the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func rejectRequest(from identifier: String) -> CustomLock<Request> {
-            return base.reject.append(identifier)
-                .locking {
-                    guard let secret = $1 as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `.rejectRequest`.")
-                    }
-                    return $0.header(secret.headerFields)
-                        .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
-                        .body("_uuid", value: Device.default.deviceGUID.uuidString)
-                        .body("_uid", value: secret.id)
-                        .body("user_id", value: identifier)
-                        .body("radio_type", value: "wifi-none")
-                }
+            return edit(\.reject, identifier)
         }
 
         /// Block the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func block(_ identifier: String) -> CustomLock<Request> {
-            return base.block.append(identifier)
-                .locking {
-                    guard let secret = $1 as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `.block`.")
-                    }
-                    return $0.header(secret.headerFields)
-                        .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
-                        .body("_uuid", value: Device.default.deviceGUID.uuidString)
-                        .body("_uid", value: secret.id)
-                        .body("user_id", value: identifier)
-                        .body("radio_type", value: "wifi-none")
-                }
+            return edit(\.block, identifier)
         }
 
         /// Unblock the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func unblock(_ identifier: String) -> CustomLock<Request> {
-            return base.unblock.append(identifier)
-                .locking {
-                    guard let secret = $1 as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `.unblock`.")
-                    }
-                    return $0.header(secret.headerFields)
-                        .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
-                        .body("_uuid", value: Device.default.deviceGUID.uuidString)
-                        .body("_uid", value: secret.id)
-                        .body("user_id", value: identifier)
-                        .body("radio_type", value: "wifi-none")
-                }
+            return edit(\.unblock, identifier)
         }
     }
 }
