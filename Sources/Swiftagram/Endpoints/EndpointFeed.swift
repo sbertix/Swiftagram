@@ -38,7 +38,7 @@ public extension Endpoint {
                 "is_pull_to_refresh": "0",
                 "battery_level": "72",
                 "timezone_offset": "43200",
-                "device_id": Device.default.deviceGUID.uuidString,
+                "device_id": Device.default.deviceIdentifier,
                 "_uuid": Device.default.deviceGUID.uuidString,
                 "is_charging": "0",
                 "will_sound_on": "1",

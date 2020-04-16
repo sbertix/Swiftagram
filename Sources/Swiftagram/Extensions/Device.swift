@@ -8,6 +8,10 @@
 import CoreGraphics
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 /// A `struct` holding reference to a custom Android device to be used for requests.
 public struct Device: Equatable, Codable {
     /// The brand.
@@ -61,10 +65,14 @@ public struct Device: Equatable, Codable {
             "Chrome/79.0.3945.93 Mobile Safari/537.36"
         ].joined(separator: " ")
     }
+    /// The device identifier.
+    public var deviceIdentifier: String {
+        return ["android-", deviceGUID.uuidString.replacingOccurrences(of: "-", with: "").prefix(16)].joined()
+    }
 
     /// Init.
     /// - parameters:
-    ///     - deviceGUID: A valid `UUID`. Defaults to `.init()`.
+    ///     - deviceGUID: An optional `UUID`. Defaults to `nil`, meaning a `UUID` will be inferred.
     ///     - phoneGUID: A valid `UUID`. Defaults to `.init()`.
     ///     - googleAdId: A valid `UUID`. Defaults to `.init()`.
     ///     - brand: A valid `String`.
@@ -76,7 +84,7 @@ public struct Device: Equatable, Codable {
     ///     - version: A valid `String`. Defaults to `10.0.0`.
     ///     - release: A valid `String`. Defaults to `29`.
     ///     - code: A valid `String`. Defaults to `Constants.code`.
-    public init(deviceGUID: UUID = .init(),
+    public init(deviceGUID: UUID? = nil,
                 phoneGUID: UUID = .init(),
                 googleAdId: UUID = .init(),
                 brand: String,
@@ -88,7 +96,14 @@ public struct Device: Equatable, Codable {
                 version: String = "10.0.0",
                 release: String = "29",
                 code: String = Constants.code) {
-        self.deviceGUID = deviceGUID
+        // prepare a fallback `UUID`.
+        let fallbackGUID = UserDefaults.standard.string(forKey: "com.swiftagram.device").flatMap(UUID.init) ?? .init()
+        #if canImport(UIKit)
+        self.deviceGUID = UIDevice.current.identifierForVendor ?? fallbackGUID
+        #else
+        self.deviceGUID = fallbackGUID
+        #endif
+        // set other values.
         self.phoneGUID = phoneGUID
         self.googleAdId = googleAdId
         self.brand = brand
@@ -100,6 +115,9 @@ public struct Device: Equatable, Codable {
         self.version = version
         self.release = release
         self.code = code
+        // store `UUID`.
+        UserDefaults.standard.set(self.deviceGUID.uuidString, forKey: "com.swiftagram.device")
+        UserDefaults.standard.synchronize()
     }
 }
 
