@@ -9,6 +9,8 @@
 import Foundation
 import WebKit
 
+import ComposableRequest
+
 /**
    A `class` describing an `Authenticator` relying on a `WKWebView` to fetch cookies.
 
@@ -46,10 +48,6 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
     /// A block outputing a configured `WKWebView`.
     /// A `String` holding a custom user agent to be passed to every request.
     internal var webView: (WKWebView) -> Void
-    /// Defaults to Safari on an iPhone with iOS 13.1.3.
-    public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                                    "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
 
     // MARK: Lifecycle
     /// Init.
@@ -63,13 +61,9 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
 
     /// Set `userAgent`.
     /// - parameter userAgent: A `String` representing a valid user agent.
-    public func userAgent(_ userAgent: String?) -> WebViewAuthenticator<Storage> {
-        self.userAgent = userAgent
-            ?? ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
-        return self
-    }
+    /// - warning: This method will be removed in the next major release.
+    @available(*, deprecated, message: "custom user agents are no longer supported")
+    public func userAgent(_ userAgent: String?) -> WebViewAuthenticator<Storage> { return self }
 
     // MARK: Authenticator
     /// Return a `Secret` and store it in `storage`.
@@ -83,17 +77,20 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
                                                     let configuration = WKWebViewConfiguration()
                                                     configuration.processPool = WKProcessPool()
                                                     let webView = WebView(frame: .zero, configuration: configuration)
-                                                    webView.customUserAgent = self.userAgent
                                                     webView.navigationDelegate = webView
                                                     webView.storage = self.storage
                                                     webView.onChange = onChange
                                                     // Return the web view.
                                                     DispatchQueue.main.async {
                                                         self.webView(webView)
-                                                        guard let url = URL(string: "https://www.instagram.com/accounts/login/") else {
-                                                            return onChange(.failure(AuthenticatorError.invalidURL))
+                                                        guard let url = URL(string: "https://www.instagram.com/accounts/login/"),
+                                                            let request = Request(url)
+                                                                .defaultHeader()
+                                                                .header("User-Agent", value: Device.default.browserUserAgent)
+                                                                .request() else {
+                                                                    return onChange(.failure(AuthenticatorError.invalidURL))
                                                         }
-                                                        webView.load(.init(url: url))
+                                                        webView.load(request)
                                                     }
         }
     }

@@ -109,9 +109,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 .first(where: { $0.name == "csrftoken" })
                 ?? HTTPCookieStorage.shared.cookies?
                     .first(where: { $0.name == "csrftoken" })
-                ?? value.data.components(separatedBy: "csrf_token\":\"")
+                ?? value.data.components(separatedBy: #"csrf_token":""#)
                     .last?
-                    .components(separatedBy: "\",\"viewer\"")
+                    .components(separatedBy: #"","viewer""#)
                     .first
                     .flatMap({
                         HTTPCookie(properties: [.name: "csrftoken",
