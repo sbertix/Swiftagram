@@ -53,12 +53,6 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// A `String` holding a valid password.
     public internal(set) var password: String
 
-    /// A `String` holding a custom user agent to be passed to every request.
-    /// Defaults to Safari on an iPhone with iOS 13.1.3.
-    public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                                    "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
-
     // MARK: Lifecycle
     /// Init.
     /// - parameters:
@@ -71,22 +65,12 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         self.password = password
     }
 
-    /// Set `userAgent`.
-    /// - parameter userAgent: A `String` representing a valid user agent.
-    public func userAgent(_ userAgent: String?) -> BasicAuthenticator<Storage> {
-        self.userAgent = userAgent
-            ?? ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
-        return self
-    }
-
     // MARK: Authenticator
     /// Return a `Secret` and store it in `storage`.
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        Endpoint.generic.header(["User-Agent": userAgent])
+        Endpoint.generic.header(["User-Agent": Device.default.browserUserAgent])
             .expecting(String.self)
             .task(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
@@ -129,7 +113,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                      "Authority": "www.instagram.com",
                      "Origin": "https://www.instagram.com",
                      "Content-Type": "application/x-www-form-urlencoded",
-                     "User-Agent": self.userAgent]
+                     "User-Agent": Device.default.browserUserAgent]
                 )
                 .task(by: .authentication) { [self] in
                     self.handleSecond(result: $0,
@@ -158,7 +142,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 onChange(.failure(AuthenticatorError.twoFactor(.init(storage: storage,
                                                                      username: username,
                                                                      identifier: twoFactorIdentifier,
-                                                                     userAgent: userAgent,
+                                                                     userAgent: Device.default.browserUserAgent,
                                                                      crossSiteRequestForgery: crossSiteRequestForgery,
                                                                      onChange: onChange))))
             } else if value.user.bool().flatMap({ !$0 }) ?? false {
@@ -167,13 +151,13 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             } else if value.authenticated.bool() ?? false {
                 // User authenticated successfuly.
                 let cookies = HTTPCookieStorage.shared.cookies?
-                    .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
+                    .filter { $0.domain.contains(".instagram.com") }
                     .sorted { $0.name < $1.name } ?? []
-                guard cookies.count == 2 else {
+                guard cookies.count >= 2 else {
                     return onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                onChange(.success(Secret(cookies: [cookies[0], crossSiteRequestForgery, cookies[1]]).store(in: self.storage)))
+                onChange(.success(Secret(cookies: cookies).store(in: self.storage)))
             } else if value.authenticated.bool().flatMap({ !$0 }) ?? false {
                 // User not authenticated.
                 onChange(.failure(AuthenticatorError.invalidPassword))
@@ -190,7 +174,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                    onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
         Endpoint.generic.append(checkpoint)
-            .header(["User-Agent": userAgent])
+            .header(["User-Agent": Device.default.browserUserAgent])
             .expecting(String.self)
             .debugTask(by: .authentication) { [self] in
                 // Check for errors.
@@ -220,7 +204,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     }
                     onChange(.failure(AuthenticatorError.checkpoint(Checkpoint(storage: self.storage,
                                                                                url: url,
-                                                                               userAgent: self.userAgent,
+                                                                               userAgent: Device.default.browserUserAgent,
                                                                                crossSiteRequestForgery: crossSiteRequestForgery,
                                                                                availableVerification: Set(verification),
                                                                                onChange: onChange))))

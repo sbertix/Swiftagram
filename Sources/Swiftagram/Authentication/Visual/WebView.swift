@@ -24,28 +24,24 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
             // Check the `WKWebView`.
             webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [self] in // keep alive.
                 // Obtain cookies.
-                let cookies = $0.filter {
-                    $0.domain.contains(".instagram.com") && ["ds_user_id", "sessionid", "csrftoken"].contains($0.name)
-                }.sorted { $0.name < $1.name }
+                let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                 // Prepare `Secret`.
-                guard cookies.count == 3 else {
+                guard cookies.count >= 3 else {
                     self.onChange?(.failure(AuthenticatorError.invalidCookies))
                     return
                 }
-                self.onChange?(.success(Secret(cookies: [cookies[1], cookies[0], cookies[2]]).store(in: self.storage)))
+                self.onChange?(.success(Secret(cookies: cookies).store(in: self.storage)))
             }
             // No need to check anymore.
             webView.navigationDelegate = nil
         default:
             webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [self] in // keep alive.
                 // Obtain cookies.
-                let cookies = $0.filter {
-                    $0.domain.contains(".instagram.com") && ["ds_user_id", "sessionid", "csrftoken"].contains($0.name)
-                }.sorted { $0.name < $1.name }
+                let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                 // Prepare `Secret` or do nothing.
-                guard cookies.count == 3 else { return }
+                guard cookies.count >= 3 else { return }
                 webView.navigationDelegate = nil
-                self.onChange?(.success(Secret(cookies: [cookies[1], cookies[0], cookies[2]]).store(in: self.storage)))
+                self.onChange?(.success(Secret(cookies: cookies).store(in: self.storage)))
                 // Do not notify again.
                 self.onChange = nil
             }
