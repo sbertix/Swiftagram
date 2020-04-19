@@ -7,37 +7,32 @@
 //
 
 import SwiftUI
-import UIKit
 
-import Nuke
+import FetchImage
 
 /// A `struct` displaying a remote image.
-struct RemoteImage: View, Equatable {
-    @State private var uiImage: UIImage?
+struct RemoteImage: View {
+    /// The current image.
+    @ObservedObject var image: FetchImage
+    /// The placeholder.
+    var placeholder: UIImage
 
-    var url: URL?
-    let placeholder: UIImage
-    var transition: AnyTransition = .opacity
-
+    /// Init.
+    /// - parameters:
+    ///     - url: An optional `URL`.
+    ///     - placeholder: A valid `UIImage`.
+    init(url: URL?, placeholder: UIImage) {
+        self.image = FetchImage(url: url ?? URL(string: "https://example.com")!)
+        self.placeholder = placeholder
+    }
+    
     var body: some View {
-        if let url = url {
-            ImagePipeline.shared.loadImage(with: url) { result in
-                switch result {
-                case .success(let response): self.uiImage = response.image
-                case .failure(let error): print(error)
-                }
-            }
-        }
-        return Image(uiImage: uiImage ?? placeholder)
+        (image.view ?? Image(uiImage: placeholder))
             .renderingMode(.original)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .transition(transition)
-    }
-
-    static func == (lhs: RemoteImage, rhs: RemoteImage) -> Bool {
-        lhs.url == rhs.url
-            && (lhs.uiImage == rhs.uiImage
-                || (lhs.uiImage == nil && rhs.uiImage == nil && lhs.placeholder == rhs.placeholder))
+            .animation(.default)
+            .onAppear(perform: image.fetch)
+            .onDisappear(perform: image.cancel)
     }
 }
