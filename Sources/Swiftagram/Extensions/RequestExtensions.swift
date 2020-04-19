@@ -42,3 +42,21 @@ public extension Unlockable {
         return unlocking(with: key)
     }
 }
+
+/// `Requestable & Paginatable` extension.
+public extension Requestable where Self: Paginatable, Self: Composable {
+    /// Prepare a pagination `Requester.Task`.
+    /// - parameters:
+    ///     - maxLength: The maximum amount of pages that should be returned. Pass `.max` to keep fetching until no next requet is found.
+    ///     - requester: A valid `Requester`. Defaults to `.default`.
+    ///     - onComplete: An optional block called when `maxLength` is reached or no next endpoint is provided.
+    ///     - onChange: A block called everytime a new page is fetched.
+    /// - returns: A `Requester.Task`. You need to `resume` it for it to start.
+    @available(*, deprecated, renamed: "task")
+    func cycleTask(maxLength: Int,
+                   by requester: Requester = .default,
+                   onComplete: ((_ length: Int) -> Void)? = nil,
+                   onChange: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
+        return self.task(maxLength: maxLength, by: requester, onComplete: onComplete, onChange: onChange)
+    }
+}
