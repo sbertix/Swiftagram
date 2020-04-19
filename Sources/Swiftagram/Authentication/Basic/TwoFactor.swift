@@ -60,10 +60,10 @@ public final class TwoFactor {
             )
             .expecting(String.self)
             .debugTask { [self] in
-                switch $0 {
+                switch $0.value {
                 case .failure(let error): self.onChange(.failure(error))
-                case .success(let value):
-                    switch value.response?.statusCode {
+                case .success:
+                    switch $0.response?.statusCode {
                     case 200:
                         // Fetch `Secret`.
                         let cookies = HTTPCookieStorage.shared.cookies?
@@ -73,9 +73,7 @@ public final class TwoFactor {
                             return self.onChange(.failure(AuthenticatorError.invalidCookies))
                         }
                         // Complete.
-                        self.onChange(.success(Secret(identifier: cookies[0],
-                                                      crossSiteRequestForgery: self.crossSiteRequestForgery,
-                                                      session: cookies[1])
+                        self.onChange(.success(Secret(cookies: [cookies[0], self.crossSiteRequestForgery, cookies[1]])
                             .store(in: self.storage)))
                     case 400:
                         // Invalid code.

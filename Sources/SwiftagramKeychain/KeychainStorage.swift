@@ -57,7 +57,7 @@ public struct KeychainStorage: Storage {
     public func store(_ response: Secret) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
-        keychain.set(data, forKey: response.id)
+        keychain.set(data, forKey: response.identifier)
     }
 
     /// Delete a `Secret` in the keychain.

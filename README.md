@@ -70,10 +70,11 @@ Just set the default `waiting` time in the `Requester` to something greater than
 
 ```swift
 import ComposableRequest
+import Swiftagram
 
 // Somewhere in your code, for instance in your `AppDelegate`, set a new `default` `Requester`.
 // `O.5` to `1.5` seconds is a long enough time, usually.
-// `Requester.instagram` is the suggested one.
+// `Requester.instagram` deals about it for you.
 Requester.default = .instagram
 ```
 

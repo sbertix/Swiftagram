@@ -44,10 +44,10 @@ public struct UserDefaultsStorage: Storage {
     public func store(_ response: Secret) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
-        userDefaults.set(data, forKey: response.id)
+        userDefaults.set(data, forKey: response.identifier)
         // Update the list of stored respones.
         var stored = Set(userDefaults.string(forKey: "swiftagram-stored")?.components(separatedBy: ",") ?? [])
-        stored.insert(response.id)
+        stored.insert(response.identifier)
         userDefaults.set(stored.joined(separator: ","), forKey: "swiftagram-stored")
     }
 

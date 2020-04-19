@@ -13,7 +13,7 @@ public extension Endpoint {
     /// A `struct` holding reference to `feed` and `usertags` `Endpoint`s. Requires authentication.
     struct Feed {
         /// The base endpoint.
-        private static let base = Endpoint.version1.feed.defaultHeader().locking(into: Lock.self)
+        private static let base = Endpoint.version1.feed.defaultHeader().locking(authenticator: \.header)
 
         /// Stories tray.
         public static let followedStories = base.reels_tray
@@ -50,10 +50,10 @@ public extension Endpoint {
                 "reason": "cold_start_fresh"
             ])
             .locking {
-                guard let secret = $1 as? Secret else {
+                guard let secret = $0.key as? Secret else {
                     fatalError("A `Swiftagram.Secret` is required to authenticate `.timeline`.")
                 }
-                return $0.header(secret.headerFields)
+                return $0.request.header(secret.header)
                     .body("_csrftoken", value: secret.crossSiteRequestForgery.value)
                     .body("client_session_id", value: secret.session.value)
             }
@@ -82,7 +82,7 @@ public extension Endpoint {
                 .append(identifier)
                 .feed
                 .defaultHeader()
-                .locking(into: Lock.self)
+                .locking(authenticator: \.header)
                 .paginating()
         }
 

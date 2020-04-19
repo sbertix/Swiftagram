@@ -102,9 +102,7 @@ public final class Checkpoint {
                         return self.onChange(.failure(AuthenticatorError.invalidCookies))
                     }
                     // Complete.
-                    self.onChange(.success(Secret(identifier: cookies[0],
-                                                  crossSiteRequestForgery: self.crossSiteRequestForgery,
-                                                  session: cookies[1])
+                    self.onChange(.success(Secret(cookies: [cookies[0], self.crossSiteRequestForgery, cookies[1]])
                         .store(in: self.storage)))
                 }
             }

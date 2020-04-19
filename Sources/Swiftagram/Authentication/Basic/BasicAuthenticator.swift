@@ -88,38 +88,31 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         Endpoint.generic.header(["User-Agent": userAgent])
             .expecting(String.self)
-            .debugTask(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
+            .task(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
 
     // MARK: Shared flow
     /// Handle `csrftoken` response.
-    private func handleFirst(result: Result<Requester.Task.Response<String>, Swift.Error>,
+    private func handleFirst(result: Result<String, Swift.Error>,
                              onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
+        // Check for value.
         switch result {
         case .failure(let error): onChange(.failure(error))
         case .success(let value):
             // Obtain the `csrftoken`.
-            guard let response = value.response else {
-                return onChange(.failure(AuthenticatorError.invalidResponse))
-            }
-            let headerFields = (response.allHeaderFields as? [String: String]) ?? [:]
-            guard let crossSiteRequestForgery = HTTPCookie.cookies(withResponseHeaderFields: headerFields,
-                                                                   for: response.url!)
-                .first(where: { $0.name == "csrftoken" })
-                ?? HTTPCookieStorage.shared.cookies?
-                    .first(where: { $0.name == "csrftoken" })
-                ?? value.data.components(separatedBy: #"csrf_token":""#)
-                    .last?
-                    .components(separatedBy: #"","viewer""#)
-                    .first
-                    .flatMap({
-                        HTTPCookie(properties: [.name: "csrftoken",
-                                                .value: $0,
-                                                .domain: "instagram.com",
-                                                .path: ""])
-                    }) else {
-                    return onChange(.failure(AuthenticatorError.invalidCookies))
+            guard let crossSiteRequestForgery = value
+                .components(separatedBy: #"csrf_token":""#)
+                .last?
+                .components(separatedBy: #"","viewer""#)
+                .first
+                .flatMap({
+                    HTTPCookie(properties: [.name: "csrftoken",
+                                            .value: $0,
+                                            .domain: "instagram.com",
+                                            .path: ""])
+                }) else {
+                return onChange(.failure(AuthenticatorError.invalidCookies))
             }
             // Obtain the `ds_user_id` and the `sessionid`.
             Endpoint.generic.accounts.login.ajax
@@ -138,7 +131,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                      "Content-Type": "application/x-www-form-urlencoded",
                      "User-Agent": self.userAgent]
                 )
-                .debugTask(by: .authentication) { [self] in
+                .task(by: .authentication) { [self] in
                     self.handleSecond(result: $0,
                                       crossSiteRequestForgery: crossSiteRequestForgery,
                                       onChange: onChange)
@@ -148,20 +141,19 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     }
 
     /// Handle `ds_user_id` and `sessionid` response.
-    private func handleSecond(result: Result<Requester.Task.Response<Response>, Swift.Error>,
+    private func handleSecond(result: Result<Response, Swift.Error>,
                               crossSiteRequestForgery: HTTPCookie,
                               onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         switch result {
         case .failure(let error): onChange(.failure(error))
         case .success(let value):
             // Check for authentication.
-            if let checkpoint = value.data.checkpointUrl.string() {
+            if let checkpoint = value.checkpointUrl.string() {
                 // Handle the checkpoint.
-                handleCheckpoint(result: value,
-                                 checkpoint: checkpoint,
+                handleCheckpoint(checkpoint: checkpoint,
                                  crossSiteRequestForgery: crossSiteRequestForgery,
                                  onChange: onChange)
-            } else if let twoFactorIdentifier = value.data.twoFactorInfo.twoFactorIdentifier.string() {
+            } else if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
                 // Handle 2FA.
                 onChange(.failure(AuthenticatorError.twoFactor(.init(storage: storage,
                                                                      username: username,
@@ -169,10 +161,10 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                                                      userAgent: userAgent,
                                                                      crossSiteRequestForgery: crossSiteRequestForgery,
                                                                      onChange: onChange))))
-            } else if value.data.user.bool().flatMap({ !$0 }) ?? false {
+            } else if value.user.bool().flatMap({ !$0 }) ?? false {
                 // User not found.
                 onChange(.failure(AuthenticatorError.invalidUsername))
-            } else if value.data.authenticated.bool() ?? false {
+            } else if value.authenticated.bool() ?? false {
                 // User authenticated successfuly.
                 let cookies = HTTPCookieStorage.shared.cookies?
                     .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
@@ -181,11 +173,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     return onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                onChange(.success(Secret(identifier: cookies[0],
-                                         crossSiteRequestForgery: crossSiteRequestForgery,
-                                         session: cookies[1])
-                    .store(in: self.storage)))
-            } else if value.data.authenticated.bool().flatMap({ !$0 }) ?? false {
+                onChange(.success(Secret(cookies: [cookies[0], crossSiteRequestForgery, cookies[1]]).store(in: self.storage)))
+            } else if value.authenticated.bool().flatMap({ !$0 }) ?? false {
                 // User not authenticated.
                 onChange(.failure(AuthenticatorError.invalidPassword))
             } else {
@@ -196,8 +185,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
 
     // MARK: Checkpoint flow
     /// Handle checkpoint.
-    internal func handleCheckpoint(result: Requester.Task.Response<Response>,
-                                   checkpoint: String,
+    internal func handleCheckpoint(checkpoint: String,
                                    crossSiteRequestForgery: HTTPCookie,
                                    onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
@@ -206,15 +194,15 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             .expecting(String.self)
             .debugTask(by: .authentication) { [self] in
                 // Check for errors.
-                switch $0 {
+                switch $0.value {
                 case .failure(let error): onChange(.failure(error))
                 case .success(let value):
                     // Notify checkpoint was reached.
-                    guard let url = value.response?.url,
-                        value.data.contains("window._sharedData = ") else {
+                    guard let url = $0.response?.url,
+                        value.contains("window._sharedData = ") else {
                             return onChange(.failure(AuthenticatorError.checkpoint(nil)))
                     }
-                    guard let data = value.data
+                    guard let data = value
                         .components(separatedBy: "window._sharedData = ")[1]
                         .components(separatedBy: ";</script>")[0]
                         .data(using: .utf8),

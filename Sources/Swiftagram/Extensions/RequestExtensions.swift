@@ -27,8 +27,18 @@ public extension Composable {
 public extension Requester {
     /// An **Instagram** `Requester` matching `.default` with a longer, safer, `waiting` range.
     static let instagram = Requester(configuration: .init(sessionConfiguration: .default,
-                                                          requestQueue: .main,
-                                                          mapQueue: .global(qos: .userInitiated),
-                                                          responseQueue: .main,
+                                                          dispatcher: .init(),
                                                           waiting: 0.5...1.5))
+}
+
+/// `Unlockable` extension.
+public extension Unlockable {
+    /// Unlock using `Key`.
+    /// - parameter key: A valid `Key`.
+    /// - returns: The authenticated `Locked`.
+    /// - warning: `authenticating` will be removed in the next minor.
+    @available(*, deprecated, renamed: "unlocking")
+    func authenticating(with key: Key) -> Locked {
+        return unlocking(with: key)
+    }
 }

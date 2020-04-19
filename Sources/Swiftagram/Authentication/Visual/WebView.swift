@@ -32,9 +32,7 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
                     self.onChange?(.failure(AuthenticatorError.invalidCookies))
                     return
                 }
-                self.onChange?(.success(Secret(identifier: cookies[1],
-                                               crossSiteRequestForgery: cookies[0],
-                                               session: cookies[2]).store(in: self.storage)))
+                self.onChange?(.success(Secret(cookies: [cookies[1], cookies[0], cookies[2]]).store(in: self.storage)))
             }
             // No need to check anymore.
             webView.navigationDelegate = nil
@@ -47,9 +45,7 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
                 // Prepare `Secret` or do nothing.
                 guard cookies.count == 3 else { return }
                 webView.navigationDelegate = nil
-                self.onChange?(.success(Secret(identifier: cookies[1],
-                                               crossSiteRequestForgery: cookies[0],
-                                               session: cookies[2]).store(in: self.storage)))
+                self.onChange?(.success(Secret(cookies: [cookies[1], cookies[0], cookies[2]]).store(in: self.storage)))
                 // Do not notify again.
                 self.onChange = nil
             }

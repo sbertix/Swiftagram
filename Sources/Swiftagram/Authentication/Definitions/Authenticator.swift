@@ -27,8 +27,6 @@ public protocol Authenticator {
 public extension Requester {
     /// An ephemeral `Requester` guaranteed to be fired immediately to be used with `Authenticator`s.
     static let authentication = Requester(configuration: .init(sessionConfiguration: .default,
-                                                               requestQueue: .main,
-                                                               mapQueue: .global(qos: .userInitiated),
-                                                               responseQueue: .main,
+                                                               dispatcher: .init(),
                                                                waiting: 0...0))
 }

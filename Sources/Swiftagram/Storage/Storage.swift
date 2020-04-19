@@ -30,7 +30,7 @@ public protocol Storage {
 }
 public extension Storage {
     /// Delete all cached `Secret`s.
-    func removeAll() { all().map { $0.id }.forEach { remove(matching: $0) }}
+    func removeAll() { all().map { $0.identifier }.forEach { remove(matching: $0) }}
 }
 
 /// An `Array` of `Storage`s should conform to `Storage`, and all values should be returned.

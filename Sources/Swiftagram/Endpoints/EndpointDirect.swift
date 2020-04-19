@@ -13,7 +13,7 @@ public extension Endpoint {
     /// A `struct` holding reference to `direct_v2` `Endpoint`s. Requires authentication.
     struct Direct {
         /// The base endpoint.
-        private static let base = Endpoint.version1.direct_v2.defaultHeader().locking(into: Lock.self)
+        private static let base = Endpoint.version1.direct_v2.defaultHeader().locking(authenticator: \.header)
 
         /// All threads.
         public static let threads = base.inbox.paginating(key: "cursor", initial: nil) { try? $0.get().oldestCursor.string() }

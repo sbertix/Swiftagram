@@ -8,42 +8,49 @@
 import ComposableRequest
 import Foundation
 
-/// A `struct` defining an `Authenticator` response.
-public struct Secret: Codable, ComposableRequest.Secret {
-    /// A `HTTPCookie` representing the logged in user identifier.
-    internal let identifier: HTTPCookie
-    /// A `HTTPCookie` representing the `csrftoken` cookie.
-    /// - note: Access is set to `private` to discourage developers to access sensitive information.
-    internal let crossSiteRequestForgery: HTTPCookie
-    /// A `HTTPCookie` representinng the `sessionid` cookie.
-    /// - note: Access is set to `private` to discourage developers to access sensitive information.
-    internal let session: HTTPCookie
-    /// A `String` representing the logged in user identifier.
-    public var id: String { return identifier.value }
+public struct Secret: Key {
+    /// All cookies.
+    public private(set) var cookies: [CodableHTTPCookie]
+    
+    /// User info.
+    public var userInfo: [String: String]
 
-    /// A `[String: String]` composed of all properties above.
-    public var headerFields: [String: String] {
-        return HTTPCookie.requestHeaderFields(with: [identifier,
-                                                     crossSiteRequestForgery,
-                                                     session])
+    /// A `String` representing the logged in user identifier.
+    public var identifier: String! {
+        return cookies.first(where: { $0.name == "ds_user_id" })?.value
     }
-    /// An empty `[String: String]`.
-    public var body: [String: String] {
-        return [:]
+    
+    /// A `String` representing the logged in user identifier.
+    @available(*, deprecated, renamed: "identifier")
+    public var id: String! {
+        return identifier
+    }
+    
+    /// All header fields.
+    public var header: [String: String] {
+        return HTTPCookie.requestHeaderFields(with: cookies)
+    }
+
+    /// An `HTTPCookie` holding reference to the cross site request forgery token.
+    internal var crossSiteRequestForgery: HTTPCookie! {
+        return cookies.first(where: { $0.name == "csrftoken" })
+    }
+    
+    /// An `HTTPCookie` holding reference to the session identifier.
+    internal var session: HTTPCookie! {
+        return cookies.first(where: { $0.name == "sessionid" })
     }
 
     // MARK: Lifecycle.
     /// Init.
     /// - parameters:
-    ///     - identifier: The `ds_user_id` cookie value.
-    ///     - crossSiteRequestForgery: The `csrftoken` cookie value.
-    ///     - session: The `sessionid` cookie value.
-    public init(identifier: HTTPCookie,
-                crossSiteRequestForgery: HTTPCookie,
-                session: HTTPCookie) {
-        self.identifier = identifier
-        self.crossSiteRequestForgery = crossSiteRequestForgery
-        self.session = session
+    ///     - cookies: A `Collection` of `HTTPCookie`s.
+    ///     - userInfo: A `Dictionary` of `String`s. Defaults to empty.
+    public init<Cookies: Collection>(cookies: Cookies,
+                                     userInfo: [String: String] = [:]) where Cookies.Element: HTTPCookie {
+        precondition(Set(["ds_user_id", "sessionid", "csrftoken"]).subtracting(cookies.map(\.name)).isEmpty)
+        self.cookies = cookies.compactMap(CodableHTTPCookie.init)
+        self.userInfo = userInfo
     }
 
     /// Init from `Storage`.
@@ -61,27 +68,5 @@ public struct Secret: Codable, ComposableRequest.Secret {
     public func store(in storage: Storage) -> Secret {
         storage.store(self)
         return self
-    }
-
-    // MARK: Codable
-    /// Encoding.
-    /// - parameter encoder: An `Encoder`.
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: Key.self)
-        try container.encode(identifier.data, forKey: .identifier)
-        try container.encode(crossSiteRequestForgery.data, forKey: .crossSiteRequestForgery)
-        try container.encode(session.data, forKey: .session)
-    }
-
-    /// Decoding.
-    /// - parameter encoder: A `Decoder`.
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: Key.self)
-        guard let identifier = try HTTPCookie(data: container.decode(Data.self, forKey: .identifier)),
-            let crossSiteRequestForgery = try HTTPCookie(data: container.decode(Data.self, forKey: .crossSiteRequestForgery)),
-            let session = try HTTPCookie(data: container.decode(Data.self, forKey: .session)) else { throw Error.invalidCookie }
-        self.identifier = identifier
-        self.crossSiteRequestForgery = crossSiteRequestForgery
-        self.session = session
     }
 }
