@@ -22,11 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UserDefaults.standard.synchronize()
         }
         // Update the `Requester`.
-        Requester.default = .init(configuration: .init(sessionConfiguration: .default,
-                                                       requestQueue: .main,
-                                                       mapQueue: .global(qos: .userInitiated),
-                                                       responseQueue: .main,
-                                                       waiting: 0.5...1.5))
+        Requester.default = .instagram
         return true
     }
 

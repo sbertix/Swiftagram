@@ -29,7 +29,6 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         // Authenticate.
         WebViewAuthenticator(storage: KeychainStorage()) { self.webView = $0 }
-            .userAgent(Device.default.browserUserAgent)
             .authenticate { [weak self] in
                 switch $0 {
                 case .failure(let error): print(error.localizedDescription)

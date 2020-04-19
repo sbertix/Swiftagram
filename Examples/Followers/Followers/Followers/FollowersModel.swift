@@ -26,7 +26,7 @@ final class FollowersModel: ObservableObject {
     /// The logged in secret.
     var secret: Secret? {
         didSet {
-            guard let secret = secret, secret.id != oldValue?.id else { return }
+            guard let secret = secret, secret.identifier != oldValue?.identifier else { return }
             fetch(secret: secret)
         }
     }
@@ -48,15 +48,15 @@ final class FollowersModel: ObservableObject {
         guard let secret = KeychainStorage().all().first else { return false }
         self.secret = secret
         self.current = UserDefaults.standard
-            .data(forKey: secret.id)
+            .data(forKey: secret.identifier)
             .flatMap { try? JSONDecoder().decode(User.self, from: $0) }
         return true
     }
     /// Fetch values.
     func fetch(secret: Secret) {
         // Load info for the logged in user.
-        userCancellable = Endpoint.User.summary(for: secret.id)
-            .authenticating(with: secret)
+        userCancellable = Endpoint.User.summary(for: secret.identifier)
+            .unlocking(with: secret)
             .publish()
             .map {
                 guard let username = $0.user.username.string() else { return nil }
@@ -66,15 +66,15 @@ final class FollowersModel: ObservableObject {
             }
             .handleEvents(receiveOutput: {
                 $0.flatMap { try? JSONEncoder().encode($0) }
-                    .flatMap { UserDefaults.standard.set($0, forKey: secret.id) }
+                    .flatMap { UserDefaults.standard.set($0, forKey: secret.identifier) }
                 UserDefaults.standard.synchronize()
             })
             .catch { _ in Empty() }
             .assign(to: \.current, on: self)
         // Load the first set of followers.
         followers = []
-        followersCancellable = Endpoint.Friendship.following(secret.id)
-            .authenticating(with: secret)
+        followersCancellable = Endpoint.Friendship.following(secret.identifier)
+            .unlocking(with: secret)
             .publish()
             .prefix(3)
             .map {
