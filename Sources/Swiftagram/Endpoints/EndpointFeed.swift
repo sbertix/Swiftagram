@@ -88,7 +88,7 @@ public extension Endpoint {
                                  "user_ids": Array(identifiers),
                                  "_uid": secret.identifier ?? "",
                                  "_uuid": Device.default.deviceGUID.uuidString,
-                                 "supported_capabilities_new": SupportedCapabilities.default,
+                                 "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
                                  "source": "feed_timeline"])
             }
         }

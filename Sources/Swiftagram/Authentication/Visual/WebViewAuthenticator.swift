@@ -78,19 +78,19 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
                                                     configuration.processPool = WKProcessPool()
                                                     let webView = WebView(frame: .zero, configuration: configuration)
                                                     webView.navigationDelegate = webView
+                                                    webView.customUserAgent = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
+                                                                               "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                                                                               "Version/13.0.1 Mobile/15E148 Safari/604.1"]
+                                                        .joined(separator: " ")
                                                     webView.storage = self.storage
                                                     webView.onChange = onChange
                                                     // Return the web view.
                                                     DispatchQueue.main.async {
                                                         self.webView(webView)
-                                                        guard let url = URL(string: "https://www.instagram.com/accounts/login/"),
-                                                            let request = Request(url)
-                                                                .defaultHeader()
-                                                                .header("User-Agent", value: Device.default.browserUserAgent)
-                                                                .request() else {
-                                                                    return onChange(.failure(AuthenticatorError.invalidURL))
+                                                        guard let url = URL(string: "https://www.instagram.com/accounts/login/") else {
+                                                            return onChange(.failure(AuthenticatorError.invalidURL))
                                                         }
-                                                        webView.load(request)
+                                                        webView.load(URLRequest(url: url))
                                                     }
         }
     }

@@ -20,15 +20,11 @@ public struct Secret: Key {
         return cookies.first(where: { $0.name == "ds_user_id" })?.value
     }
     
-    /// A `String` representing the logged in user identifier.
-    @available(*, deprecated, renamed: "identifier")
-    public var id: String! {
-        return identifier
-    }
-    
     /// All header fields.
     public var header: [String: String] {
-        return HTTPCookie.requestHeaderFields(with: cookies)
+        return HTTPCookie.requestHeaderFields(with: cookies.filter {
+            ["ds_user_id", "sessionid", "csrftoken"].contains($0.name)
+        })
     }
 
     /// An `HTTPCookie` holding reference to the cross site request forgery token.

@@ -91,7 +91,7 @@ let secret: Secret = /* the authentication response */
 
 // Perform the request.
 Endpoint.User.summary(for: identifier)
-    .authenticating(with: secret)
+    .unlocking(with: secret)
     .task { _ in
       // Do something here.
     }
@@ -108,8 +108,8 @@ let secret: Secret = /* the authentication response */
 
 // Perform the request.
 let task = Endpoint.Friendship.following(secret.id)
-    .authenticating(with: secret)
-    .cycleTask(maxLength: 10) { _ in
+    .unlocking(with: secret)
+    .task(maxLength: 10) { _ in
       // Do something here.
     }
     .resume() // Exhaust 10 pages of followers.
@@ -117,6 +117,11 @@ let task = Endpoint.Friendship.following(secret.id)
 // Cancel it.
 task?.cancel()
 ```
+
+>  What about loading the next page?
+
+Just `resume` it once more. 
+If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
 
 ## Contributions
 [Pull requests](https://github.com/sbertix/Swiftagram/pulls) and [issues](https://github.com/sbertix/Swiftagram/issues) are more than welcome.

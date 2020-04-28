@@ -15,9 +15,9 @@ public struct Constants {
     public static let code = "197825254"
 
     /// The signature key.
-    internal static let signatureKey = "9193488027538fd3450b83b7d05286d4ca9599a0f7eeed90d8c85925698a05dc"
+    internal static let signatureKey = "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc"
     /// The signature version.
-    internal static let signatureVersion = "4"
+    internal static let signatureVersion = "5"
 }
 
 /// A `struct` holding reference to the API supported capabilities.

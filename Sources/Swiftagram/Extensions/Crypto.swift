@@ -16,7 +16,7 @@ internal extension Request {
     /// - parameter parameters: A valid `Dictionary` of `String`s.
     func signedBody(_ parameters: [String: Any]) -> Request {
         guard let json = try? JSONSerialization.data(withJSONObject: parameters, options: []),
-            let string = String(data: json, encoding: .utf8)?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            let string = String(data: json, encoding: .utf8) else {
                 fatalError("`body` for `Friendship` action is not a proper JSON structure.")
         }
         guard let hash = try? HMAC(key: Constants.signatureKey, variant: .sha256)
@@ -25,7 +25,11 @@ internal extension Request {
                 fatalError("Could not sign the body for `Friendship` action.")
         }
         // return.
-        return body(["signed_body": [hash, ".", string].joined(),
-                     "ig_sig_key_version": Constants.signatureVersion])
+        let encodedParameters = [
+            "signed_body": "\(hash).\(string)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,
+            "ig_sig_key_version": Constants.signatureVersion
+        ]
+        let data = encodedParameters.map { "\($0.key)=\($0.value)" }.joined(separator: "&").data(using: .utf8)!
+        return self.body(.data(data))
     }
 }

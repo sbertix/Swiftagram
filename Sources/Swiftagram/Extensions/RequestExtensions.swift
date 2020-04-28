@@ -32,15 +32,15 @@ public extension Composable {
             "X-IG-WWW-Claim": "0",
             "X-Bloks-Is-Layout-RTL": "false",
             "X-IG-Connection-Type": "WIFI",
-            "X-IG-Capabilities": "3brTvwE=",
+            "X-IG-Capabilities": "3brTvw==",
             "X-IG-App-ID": "567067343352427",
             "X-IG-Device-ID": Device.default.deviceGUID.uuidString,
             "X-IG-Android-ID": Device.default.deviceIdentifier,
             "Accept-Language": "en-US",
             "X-FB-HTTP-Engine": "Liger",
             "Host": "i.instagram.com",
-            "Accept-Encoding": "gzip",
-            "Connection": "close"
+            "Connection": "close",
+            "Content-Type": "application/x-www-form-urlencoded"
         ])
     }
 }
