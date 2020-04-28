@@ -52,6 +52,12 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public internal(set) var username: String
     /// A `String` holding a valid password.
     public internal(set) var password: String
+    
+    /// A `String` holding a custom user agent to be passed to every request.
+    /// Defaults to Safari on an iPhone with iOS 13.1.3.
+    public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
+                                    "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
 
     // MARK: Lifecycle
     /// Init.
@@ -65,37 +71,69 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         self.password = password
     }
 
+    /// Set `userAgent`.
+    /// - parameter userAgent: A `String` representing a valid user agent.
+    public func userAgent(_ userAgent: String?) -> BasicAuthenticator<Storage> {
+        self.userAgent = userAgent
+            ?? ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
+                "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
+        return self
+    }
+    
+    /// Update `userAgent` with the `Device.default`'s one.
+    public func defaultDeviceUserAgent() -> BasicAuthenticator<Storage> {
+        self.userAgent = Device.default.browserUserAgent
+        return self
+    }
+
     // MARK: Authenticator
     /// Return a `Secret` and store it in `storage`.
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        Endpoint.generic.header(["User-Agent": Device.default.browserUserAgent])
+        Endpoint.generic.header(["User-Agent": userAgent])
             .expecting(String.self)
-            .task(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
+            .debugTask(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
 
     // MARK: Shared flow
     /// Handle `csrftoken` response.
-    private func handleFirst(result: Result<String, Swift.Error>,
+    private func handleFirst(result: Requester.Task.Response<String>,
                              onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Check for value.
-        switch result {
+        switch result.value {
         case .failure(let error): onChange(.failure(error))
         case .success(let value):
             // Obtain the `csrftoken`.
-            guard let crossSiteRequestForgery = value
-                .components(separatedBy: #"csrf_token":""#)
-                .last?
-                .components(separatedBy: #"","viewer""#)
-                .first
-                .flatMap({
-                    HTTPCookie(properties: [.name: "csrftoken",
-                                            .value: $0,
-                                            .domain: "instagram.com",
-                                            .path: ""])
-                }) else {
+            var crossSisteRequestForgery: HTTPCookie?
+            // Check the response.
+            if let response = result.response,
+                let header = response.allHeaderFields as? [String: String],
+                let url = response.url {
+                crossSisteRequestForgery = HTTPCookie.cookies(withResponseHeaderFields: header,
+                                                              for: url).first { $0.name == "csrftoken" }
+            }
+            // Check the default storage.
+            if crossSisteRequestForgery == nil {
+                crossSisteRequestForgery = HTTPCookieStorage.shared.cookies?.first { $0.name == "csrftoken" }
+            }
+            // Compute from `window`.
+            if crossSisteRequestForgery == nil {
+                crossSisteRequestForgery = value.components(separatedBy: #"csrf_token":""#)
+                    .last?
+                    .components(separatedBy: #"","viewer""#)
+                    .first
+                    .flatMap {
+                        HTTPCookie(properties: [.name: "csrftoken",
+                                                .value: $0,
+                                                .domain: "instagram.com",
+                                                .path: ""])
+                    }
+            }
+            // Continue if needed.
+            guard let crossSiteRequestForgery = crossSisteRequestForgery else {
                 return onChange(.failure(AuthenticatorError.invalidCookies))
             }
             // Obtain the `ds_user_id` and the `sessionid`.
@@ -113,7 +151,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                      "Authority": "www.instagram.com",
                      "Origin": "https://www.instagram.com",
                      "Content-Type": "application/x-www-form-urlencoded",
-                     "User-Agent": Device.default.browserUserAgent]
+                     "User-Agent": userAgent]
                 )
                 .task(by: .authentication) { [self] in
                     self.handleSecond(result: $0,
@@ -157,7 +195,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     return onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                onChange(.success(Secret(cookies: cookies).store(in: self.storage)))
+                onChange(.success(Secret(cookies: cookies.filter { $0.name != crossSiteRequestForgery.name }+[crossSiteRequestForgery]).store(in: self.storage)))
             } else if value.authenticated.bool().flatMap({ !$0 }) ?? false {
                 // User not authenticated.
                 onChange(.failure(AuthenticatorError.invalidPassword))
@@ -174,7 +212,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                    onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
         Endpoint.generic.append(checkpoint)
-            .header(["User-Agent": Device.default.browserUserAgent])
+            .header(["User-Agent": userAgent])
             .expecting(String.self)
             .debugTask(by: .authentication) { [self] in
                 // Check for errors.

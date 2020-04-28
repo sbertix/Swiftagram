@@ -19,15 +19,21 @@ public struct KeychainStorage: Storage {
     public let synchronizable: Bool
     /// A `KeychainSwift` used as storage. Defaults to `.init(keyPrefix: prefix)`.
     private let keychain: KeychainSwift
+    /// A `KeychainSwiftAccessOptions` value. Defaults to `.accessibleWhenUnlocked`.
+    /// - note: If you need to support different access options for different `Secret`s, simply instantiate different `KeychainStorage`s.
+    private let access: KeychainSwiftAccessOptions
 
     // MARK: Lifecycle
     /// Init.
     /// - parameters:
     ///     - prefix: A `KeychainSwift` prefix.
+    ///     - access: A valid `KeychainSwiftAccessOptions` value. Defaults to `.accessibleWhenUnlocked`.
     ///     - synchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not.
     public init(prefix: String = "swiftagram",
+                access: KeychainSwiftAccessOptions = .accessibleWhenUnlocked,
                 synchronizable: Bool = false) {
         self.prefix = prefix
+        self.access = access
         self.synchronizable = synchronizable
         self.keychain = .init(keyPrefix: prefix)
         self.keychain.synchronizable = synchronizable
@@ -57,7 +63,7 @@ public struct KeychainStorage: Storage {
     public func store(_ response: Secret) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
-        keychain.set(data, forKey: response.identifier)
+        keychain.set(data, forKey: response.identifier, withAccess: access)
     }
 
     /// Delete a `Secret` in the keychain.

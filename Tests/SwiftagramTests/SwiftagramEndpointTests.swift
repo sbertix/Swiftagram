@@ -94,6 +94,12 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/user/id/reel_media/")
         XCTAssert(Endpoint.Feed
+            .stories(by: ["id"])
+            .unlocking(with: secret)
+            .request()?
+            .url?
+            .absoluteString == "https://i.instagram.com/api/v1/feed/reels_media/")
+        XCTAssert(Endpoint.Feed
             .posts(including: "id")
             .unlocking(with: secret)
             .request()?

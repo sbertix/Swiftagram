@@ -55,7 +55,7 @@ public extension Endpoint {
                         .signedBody(["_csrftoken": secret.crossSiteRequestForgery.value,
                                      "user_id": identifier,
                                      "radio_type": "wifi-none",
-                                     "_uid": secret.identifier,
+                                     "_uid": secret.identifier ?? "",
                                      "device_id": Device.default.deviceIdentifier,
                                      "_uuid": Device.default.deviceGUID.uuidString])
                 }

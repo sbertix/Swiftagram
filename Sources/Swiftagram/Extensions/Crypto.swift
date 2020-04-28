@@ -14,7 +14,7 @@ import CryptoSwift
 internal extension Request {
     /// Sign body parameters.
     /// - parameter parameters: A valid `Dictionary` of `String`s.
-    func signedBody(_ parameters: [String: String]) -> Request {
+    func signedBody(_ parameters: [String: Any]) -> Request {
         guard let json = try? JSONSerialization.data(withJSONObject: parameters, options: []),
             let string = String(data: json, encoding: .utf8)?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
                 fatalError("`body` for `Friendship` action is not a proper JSON structure.")

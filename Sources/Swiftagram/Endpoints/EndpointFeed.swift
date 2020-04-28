@@ -75,6 +75,24 @@ public extension Endpoint {
             return base.user.append(identifier).reel_media.paginating()
         }
 
+        /// All available stories for user matching `identifiers`.
+        /// - parameter identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
+        public static func stories<C: Collection>(by identifiers: C) -> Lock<Request> where C.Element == String {
+            return Endpoint.version1.feed.reels_media.defaultHeader().locking {
+                guard let secret = $0.key as? Secret else {
+                    fatalError("A `Swiftagram.Secret` is required to authenticate `Friendship` actions.")
+                }
+                // return.
+                return $0.request.header(secret.header)
+                    .signedBody(["_csrftoken": secret.crossSiteRequestForgery.value,
+                                 "user_ids": Array(identifiers),
+                                 "_uid": secret.identifier ?? "",
+                                 "_uuid": Device.default.deviceGUID.uuidString,
+                                 "supported_capabilities_new": SupportedCapabilities.default,
+                                 "source": "feed_timeline"])
+            }
+        }
+        
         /// All posts a user matching `identifier` is tagged in.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(including identifier: String) -> Paginated<Lock<Request>, Response> {
