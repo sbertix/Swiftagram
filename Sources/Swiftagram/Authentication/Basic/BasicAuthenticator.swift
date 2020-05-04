@@ -52,7 +52,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public internal(set) var username: String
     /// A `String` holding a valid password.
     public internal(set) var password: String
-    
+
     /// A `String` holding a custom user agent to be passed to every request.
     /// Defaults to Safari on an iPhone with iOS 13.1.3.
     public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
@@ -80,7 +80,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
         return self
     }
-    
+
     /// Update `userAgent` with the `Device.default`'s one.
     public func defaultDeviceUserAgent() -> BasicAuthenticator<Storage> {
         self.userAgent = Device.default.browserUserAgent
@@ -195,7 +195,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     return onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                onChange(.success(Secret(cookies: cookies.filter { $0.name != crossSiteRequestForgery.name }+[crossSiteRequestForgery]).store(in: self.storage)))
+                onChange(.success(Secret(cookies: cookies.filter { $0.name != crossSiteRequestForgery.name }+[crossSiteRequestForgery])
+                    .store(in: self.storage)))
             } else if value.authenticated.bool().flatMap({ !$0 }) ?? false {
                 // User not authenticated.
                 onChange(.failure(AuthenticatorError.invalidPassword))

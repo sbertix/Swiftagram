@@ -19,13 +19,13 @@ struct LoginView: View {
     @ObservedObject var model: LoginModel
     /// The binding.
     @Binding var secret: Secret?
-    
+
     /// Init.
     init(secret: Binding<Secret?>) {
         self.model = .init()
         self._secret = secret
     }
-    
+
     /// The actual body.
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

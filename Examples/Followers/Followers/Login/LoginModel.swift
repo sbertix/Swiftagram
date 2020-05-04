@@ -22,7 +22,7 @@ final class LoginModel: ObservableObject {
         case failed(String)
         case done
         indirect case invalid(Stage)
-        
+
         /// The button title.
         var button: String {
             switch self {
@@ -38,13 +38,13 @@ final class LoginModel: ObservableObject {
             case .done: return "Done!"
             }
         }
-        
+
         /// Should show username and password.
         var shouldDisplayBasicAuth: Bool { self.valid == .authentication }
-        
+
         /// Should show code.
         var shouldDisplayCode: Bool { if case .challenge = valid { return true }; return false }
-        
+
         /// Whether it's locked or not.
         var isLocked: Bool {
             switch self {
@@ -52,7 +52,7 @@ final class LoginModel: ObservableObject {
             default: return true
             }
         }
-        
+
         /// The valid underlying stage.
         var valid: Stage {
             switch self {
@@ -61,7 +61,7 @@ final class LoginModel: ObservableObject {
             }
         }
     }
-    
+
     /// The user's profile username.
     @Published var username: String = ""
     /// The user's profile password.
@@ -72,15 +72,15 @@ final class LoginModel: ObservableObject {
     @Published var stage: Stage = .invalid(.authentication)
     /// The authenticated secret.
     @Published var secret: Secret?
-    
+
     /// The current checkpoint.
     private var checkpoint: Checkpoint?
     /// The current two factor authenticator.
     private var twoFactor: TwoFactor?
-    
+
     /// The stage cancellable.
     var invalidCancellable: AnyCancellable?
-    
+
     // MARK: Lifecycle
     init() {
         invalidCancellable = $username.combineLatest($password)
@@ -93,7 +93,7 @@ final class LoginModel: ObservableObject {
             .removeDuplicates()
             .assign(to: \.stage, on: self)
     }
-    
+
     // MARK: Advance
     /// Advance to the next `stage` if `stage` is not `.invalid`.
     func advance() {

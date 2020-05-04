@@ -25,7 +25,7 @@ struct RemoteImage: View {
         self.image = FetchImage(url: url ?? URL(string: "https://example.com")!)
         self.placeholder = placeholder
     }
-    
+
     var body: some View {
         (image.view ?? Image(uiImage: placeholder))
             .renderingMode(.original)

@@ -11,7 +11,7 @@ import Foundation
 public struct Secret: Key {
     /// All cookies.
     public private(set) var cookies: [CodableHTTPCookie]
-    
+
     /// User info.
     public var userInfo: [String: String]
 
@@ -19,7 +19,7 @@ public struct Secret: Key {
     public var identifier: String! {
         return cookies.first(where: { $0.name == "ds_user_id" })?.value
     }
-    
+
     /// All header fields.
     public var header: [String: String] {
         return HTTPCookie.requestHeaderFields(with: cookies.filter {
@@ -31,7 +31,7 @@ public struct Secret: Key {
     internal var crossSiteRequestForgery: HTTPCookie! {
         return cookies.first(where: { $0.name == "csrftoken" })
     }
-    
+
     /// An `HTTPCookie` holding reference to the session identifier.
     internal var session: HTTPCookie! {
         return cookies.first(where: { $0.name == "sessionid" })

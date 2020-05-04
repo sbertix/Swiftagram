@@ -92,7 +92,7 @@ public extension Endpoint {
                                  "source": "feed_timeline"])
             }
         }
-        
+
         /// All posts a user matching `identifier` is tagged in.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(including identifier: String) -> Paginated<Lock<Request>, Response> {
