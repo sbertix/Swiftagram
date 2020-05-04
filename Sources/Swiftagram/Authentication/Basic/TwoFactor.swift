@@ -73,8 +73,9 @@ public final class TwoFactor {
                             return self.onChange(.failure(AuthenticatorError.invalidCookies))
                         }
                         // Complete.
-                        self.onChange(.success(Secret(cookies: [cookies[0], self.crossSiteRequestForgery, cookies[1]])
-                            .store(in: self.storage)))
+                        self.onChange(Secret(cookies: cookies.filter { $0.name != self.crossSiteRequestForgery.name }+[self.crossSiteRequestForgery])
+                            .flatMap { .success($0.store(in: self.storage)) }
+                            ?? .failure(Secret.Error.invalidCookie))
                     case 400:
                         // Invalid code.
                         self.onChange(.failure(AuthenticatorError.invalidCode))

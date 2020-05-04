@@ -195,8 +195,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     return onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                onChange(.success(Secret(cookies: cookies.filter { $0.name != crossSiteRequestForgery.name }+[crossSiteRequestForgery])
-                    .store(in: self.storage)))
+                onChange(Secret(cookies: cookies.filter { $0.name != crossSiteRequestForgery.name }+[crossSiteRequestForgery])
+                    .flatMap { .success($0.store(in: self.storage)) }
+                    ?? .failure(Secret.Error.invalidCookie))
             } else if value.authenticated.bool().flatMap({ !$0 }) ?? false {
                 // User not authenticated.
                 onChange(.failure(AuthenticatorError.invalidPassword))

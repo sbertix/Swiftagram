@@ -15,7 +15,7 @@ final class SwiftagramStorageTests: XCTestCase {
                                     HTTPCookie(properties: [.name: "sessionid",
                                                             .path: "test",
                                                             .value: "test",
-                                                            .domain: "test"])!])
+                                                            .domain: "test"])!])!
 
     /// Test `TransientStorage` flow.
     func testTransientStorage() {
@@ -74,7 +74,7 @@ final class SwiftagramStorageTests: XCTestCase {
     func testSecretStoring() {
         let secret = Secret(cookies: [HTTPCookie(properties: [.name: "ds_user_id", .value: "A", .path: "A", .domain: "A"])!,
                                       HTTPCookie(properties: [.name: "csrftoken", .value: "B", .path: "B", .domain: "B"])!,
-                                      HTTPCookie(properties: [.name: "sessionid", .value: "C", .path: "C", .domain: "C"])!])
+                                      HTTPCookie(properties: [.name: "sessionid", .value: "C", .path: "C", .domain: "C"])!])!
         XCTAssert(
             secret.header
                 .sorted(by: { $0.key < $1.key })

@@ -67,7 +67,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                                         }
                                         checkpoint.fulfill()
         }
-        wait(for: [expectation, invalidUsername, checkpoint], timeout: 20)
+        wait(for: [expectation, invalidUsername, checkpoint], timeout: 60)
     }
 
     /// Test `TwoFactor`.

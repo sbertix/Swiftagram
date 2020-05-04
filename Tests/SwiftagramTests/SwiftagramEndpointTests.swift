@@ -17,7 +17,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
     let secret = Secret(cookies: [HTTPCookie(text: "ds_user_id"),
                                   HTTPCookie(text: "sessionid"),
-                                  HTTPCookie(text: "csrftoken")])
+                                  HTTPCookie(text: "csrftoken")])!
 
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {

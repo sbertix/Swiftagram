@@ -42,9 +42,8 @@ public struct Secret: Key {
     /// - parameters:
     ///     - cookies: A `Collection` of `HTTPCookie`s.
     ///     - userInfo: A `Dictionary` of `String`s. Defaults to empty.
-    public init<Cookies: Collection>(cookies: Cookies,
-                                     userInfo: [String: String] = [:]) where Cookies.Element: HTTPCookie {
-        precondition(Set(["ds_user_id", "sessionid", "csrftoken"]).subtracting(cookies.map(\.name)).isEmpty)
+    public init?<Cookies: Collection>(cookies: Cookies, userInfo: [String: String] = [:]) where Cookies.Element: HTTPCookie {
+        guard Set(["ds_user_id", "sessionid", "csrftoken"]).subtracting(cookies.map(\.name)).isEmpty else { return nil }
         self.cookies = cookies.compactMap(CodableHTTPCookie.init)
         self.userInfo = userInfo
     }
