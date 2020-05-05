@@ -117,6 +117,7 @@ let task = Endpoint.Friendship.following(secret.id)
 // Cancel it.
 task?.cancel()
 ```
+<br/>
 
 >  What about loading the next page?
 
