@@ -39,7 +39,7 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
                 // Obtain cookies.
                 let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                 // Prepare `Secret` or do nothing.
-                guard cookies.count >= 3 else { return }
+                guard Secret.hasValidCookies(cookies) else { return }
                 webView.navigationDelegate = nil
                 self.onChange?(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) } ?? .failure(Secret.Error.invalidCookie))
                 // Do not notify again.

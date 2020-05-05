@@ -21,43 +21,18 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
 
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
-        let expectation = XCTestExpectation(description: "BasicAuthenticator")
         let invalidUsername = XCTestExpectation()
         let checkpoint = XCTestExpectation()
         XCTAssert(Verification(response: ["label": "Email", "value": "1"])?.label == "Email")
-        // Wrong username.
-        BasicAuthenticator(username: "°°°°°°°°",
-                           password: "°°°°°°°°")
-            .authenticate {
-                switch $0 {
-                case .failure: break
-                default: XCTFail("It should not succeed")
-                }
-                invalidUsername.fulfill()
-        }
         // Authenticate and checkpoint.
-        let authenticator = BasicAuthenticator(username: environemnt["INSTAGRAM_USERNAME"] ?? "",
-                                               password: environemnt["INSTAGRAM_PASSWORD"] ?? "")
-        authenticator.authenticate { [username = environemnt["INSTAGRAM_USERNAME"] ?? ""] in
-                switch $0 {
-                case .success:
-                    XCTAssert(true)
-                    expectation.fulfill()
-                case .failure(let error):
-                    switch error {
-                    case AuthenticatorError.checkpoint:
-                        // We might expect a checkpoint but we don't have the tools to actually check for it.
-                        // Let's pass if this is the case.
-                        expectation.fulfill()
-                    case let authenticationError as AuthenticatorError:
-                        // 2FA is not handled in the test.
-                        XCTFail(String(describing: authenticationError)+" for \(username)")
-                        expectation.fulfill()
-                    default:
-                        XCTFail(error.localizedDescription+" for \(username)")
-                        expectation.fulfill()
-                    }
-                }
+        let authenticator = BasicAuthenticator(username: "°°°°°°°°",
+                                               password: "°°°°°°°°")
+        authenticator.authenticate {
+            switch $0 {
+            case .failure: break
+            default: XCTFail("It should not succeed")
+            }
+            invalidUsername.fulfill()
         }
         authenticator.handleCheckpoint(checkpoint: "",
                                        crossSiteRequestForgery: .init()) {
@@ -67,7 +42,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                                         }
                                         checkpoint.fulfill()
         }
-        wait(for: [expectation, invalidUsername, checkpoint], timeout: 60)
+        wait(for: [invalidUsername, checkpoint], timeout: 60)
     }
 
     /// Test `TwoFactor`.
