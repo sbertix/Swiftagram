@@ -48,15 +48,14 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                     case AuthenticatorError.checkpoint:
                         // We might expect a checkpoint but we don't have the tools to actually check for it.
                         // Let's pass if this is the case.
-                        expectation.fulfill()
+                        break
                     case let authenticationError as AuthenticatorError:
                         // 2FA is not handled in the test.
                         XCTFail(String(describing: authenticationError)+" for \(username)")
-                        expectation.fulfill()
                     default:
                         XCTFail(error.localizedDescription+" for \(username)")
-                        expectation.fulfill()
                     }
+                    expectation.fulfill()
                 }
         }
         authenticator.handleCheckpoint(checkpoint: "",

@@ -22,9 +22,8 @@ public struct Secret: Key {
 
     /// All header fields.
     public var header: [String: String] {
-        return HTTPCookie.requestHeaderFields(with: cookies.filter {
-            ["ds_user_id", "sessionid", "csrftoken"].contains($0.name)
-        })
+        let required = ["ds_user_id", "sessionid", "csrftoken"]
+        return HTTPCookie.requestHeaderFields(with: cookies.filter { required.contains($0.name) })
     }
 
     /// An `HTTPCookie` holding reference to the cross site request forgery token.
@@ -37,13 +36,21 @@ public struct Secret: Key {
         return cookies.first(where: { $0.name == "sessionid" })
     }
 
+    // MARK: Accessories
+    /// Return whether you have access to at least the required cookies.
+    /// - parameter cookies: A `Collection` of `HTTPCookie`s.
+    public static func hasValidCookies<Cookies: Collection>(_ cookies: Cookies) -> Bool where Cookies.Element: HTTPCookie {
+        let required = ["ds_user_id", "sessionid", "csrftoken"]
+        return cookies.count >= 3 && cookies.filter { required.contains($0.name) }.count >= 3
+    }
+
     // MARK: Lifecycle.
     /// Init.
     /// - parameters:
     ///     - cookies: A `Collection` of `HTTPCookie`s.
     ///     - userInfo: A `Dictionary` of `String`s. Defaults to empty.
     public init?<Cookies: Collection>(cookies: Cookies, userInfo: [String: String] = [:]) where Cookies.Element: HTTPCookie {
-        guard Set(["ds_user_id", "sessionid", "csrftoken"]).subtracting(cookies.map(\.name)).isEmpty else { return nil }
+        guard Secret.hasValidCookies(cookies) else { return nil }
         self.cookies = cookies.compactMap(CodableHTTPCookie.init)
         self.userInfo = userInfo
     }
