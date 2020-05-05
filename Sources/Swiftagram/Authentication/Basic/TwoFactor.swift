@@ -66,15 +66,17 @@ public final class TwoFactor {
                     switch $0.response?.statusCode {
                     case 200:
                         // Fetch `Secret`.
-                        let cookies = HTTPCookieStorage.shared.cookies?
+                        let instagramCookies = HTTPCookieStorage.shared.cookies?
                             .filter { ["sessionid", "ds_user_id"].contains($0.name) && $0.domain.contains(".instagram.com") }
                             .sorted { $0.name < $1.name } ?? []
-                        guard cookies.count == 2 else {
+                        guard instagramCookies.count == 2 else {
                             return self.onChange(.failure(AuthenticatorError.invalidCookies))
                         }
                         // Complete.
-                        self.onChange(Secret(cookies: cookies.filter { $0.name != self.crossSiteRequestForgery.name }+[self.crossSiteRequestForgery])
-                            .flatMap { .success($0.store(in: self.storage)) }
+                        let cookies = Secret.hasValidCookies(instagramCookies)
+                            ? instagramCookies
+                            : instagramCookies+[self.crossSiteRequestForgery]
+                        self.onChange(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) }
                             ?? .failure(Secret.Error.invalidCookie))
                     case 400:
                         // Invalid code.

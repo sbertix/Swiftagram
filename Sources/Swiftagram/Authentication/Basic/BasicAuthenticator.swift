@@ -188,15 +188,17 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 onChange(.failure(AuthenticatorError.invalidUsername))
             } else if value.authenticated.bool() ?? false {
                 // User authenticated successfuly.
-                let cookies = HTTPCookieStorage.shared.cookies?
+                let instagramCookies = HTTPCookieStorage.shared.cookies?
                     .filter { $0.domain.contains(".instagram.com") }
                     .sorted { $0.name < $1.name } ?? []
-                guard cookies.count >= 2 else {
+                guard instagramCookies.count >= 2 else {
                     return onChange(.failure(AuthenticatorError.invalidCookies))
                 }
                 // Complete.
-                onChange(Secret(cookies: cookies.filter { $0.name != crossSiteRequestForgery.name }+[crossSiteRequestForgery])
-                    .flatMap { .success($0.store(in: self.storage)) }
+                let cookies = Secret.hasValidCookies(instagramCookies)
+                    ? instagramCookies
+                    : instagramCookies+[crossSiteRequestForgery]
+                onChange(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) }
                     ?? .failure(Secret.Error.invalidCookie))
             } else if value.authenticated.bool().flatMap({ !$0 }) ?? false {
                 // User not authenticated.
