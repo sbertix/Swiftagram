@@ -20,20 +20,20 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **following**.
         public static func followed(by identifier: String) -> Paginated {
-            return base.append(path: identifier).following.paginating().locking(Secret.self)
+            return base.appending(path: identifier).following.paginating().locking(Secret.self)
         }
 
         /// A list of users following the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **followers**.
         public static func following(_ identifier: String) -> Paginated {
-            return base.append(path: identifier).followers.paginating().locking(Secret.self)
+            return base.appending(path: identifier).followers.paginating().locking(Secret.self)
         }
 
         /// The current friendship status between the authenticated user and the one matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func friendship(with identifier: String) -> Paginated {
-            return base.show.append(path: identifier).paginating().locking(Secret.self)
+            return base.show.appending(path: identifier).paginating().locking(Secret.self)
         }
 
         /// A list of users who requested to follow you, without having been processed yet.
@@ -46,10 +46,10 @@ public extension Endpoint {
         ///     - identifier: A `String` holding reference to a valid user identifier.
         private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Disposable {
             return base[keyPath: keyPath]
-                .append(path: identifier)
+                .appending(path: identifier)
                 .prepare()
                 .locking(Secret.self) {
-                    $0.append(header: $1.header)
+                    $0.appending(header: $1.header)
                         .signedBody(["_csrftoken": $1.crossSiteRequestForgery.value,
                                      "user_id": identifier,
                                      "radio_type": "wifi-none",

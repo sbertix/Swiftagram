@@ -43,10 +43,10 @@ public final class TwoFactor {
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
         Endpoint.generic.accounts.login.ajax.two_factor
-            .replace(body: ["username": username,
+            .replacing(body: ["username": username,
                             "verœicationCode": code,
                             "ideœifier": identifier])
-            .replace(header:
+            .replacing(header:
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",

@@ -24,7 +24,7 @@ public extension Endpoint {
             .feed
             .timeline
             .defaultHeader()
-            .append(header: [
+            .appending(header: [
                 "X-Ads-Opt-Out": "0",
                 "X-Google-AD-ID": Device.default.googleAdId.uuidString,
                 "X-DEVICE-ID": Device.default.deviceGUID.uuidString,
@@ -39,8 +39,8 @@ public extension Endpoint {
             }
             .locking(Secret.self) {
                 return $0
-                    .append(header: $1.header)
-                    .replace(body: [
+                    .appending(header: $1.header)
+                    .replacing(body: [
                         "is_prefetch": "0",
                         "feed_view_info": "",
                         "seen_posts": "",
@@ -66,13 +66,13 @@ public extension Endpoint {
         /// All posts for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(by identifier: String) -> Paginated {
-            return base.user.append(path: identifier).paginating().locking(Secret.self)
+            return base.user.appending(path: identifier).paginating().locking(Secret.self)
         }
 
         /// All available stories for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func stories(by identifier: String) -> Paginated {
-            return base.user.append(path: identifier).reel_media.paginating().locking(Secret.self)
+            return base.user.appending(path: identifier).reel_media.paginating().locking(Secret.self)
         }
 
         /// All available stories for user matching `identifiers`.
@@ -82,7 +82,7 @@ public extension Endpoint {
                 .defaultHeader()
                 .prepare()
                 .locking(Secret.self) {
-                    $0.append(header: $1.header)
+                    $0.appending(header: $1.header)
                         .signedBody(["_csrftoken": $1.crossSiteRequestForgery.value,
                                      "user_ids": Array(identifiers),
                                      "_uid": $1.identifier ?? "",
@@ -96,7 +96,7 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(including identifier: String) -> Paginated {
             return Endpoint.version1.usertags
-                .append(path: identifier)
+                .appending(path: identifier)
                 .feed
                 .defaultHeader()
                 .paginating()
@@ -106,7 +106,7 @@ public extension Endpoint {
         /// All media matching `tag`.
         /// - parameter tag: A `String` holding reference to a valid _#tag_.
         public static func tagged(with tag: String) -> Paginated {
-            return base.tag.append(path: tag).paginating().locking(Secret.self)
+            return base.tag.appending(path: tag).paginating().locking(Secret.self)
         }
     }
 }

@@ -13,7 +13,7 @@ import ComposableRequest
 public extension HeaderComposable {
     /// Append to `headerFields`.
     func defaultHeader() -> Self {
-        return append(header: [
+        return appending(header: [
             "User-Agent": Device.default.apiUserAgent,
             "X-Ads-Opt-Out": "0",
             "X-CM-Bandwidth-KBPS": "-1.000",
@@ -52,7 +52,7 @@ public extension Requestable where Self: QueryComposable {
     func paginating(key: String = "max_id",
                     keyPath: KeyPath<Response, Response> = \.nextMaxId) -> Fetcher<Self, Response>.Paginated {
         return self.prepare { request, result in
-            request.replace(query: key, with: result.flatMap { try? $0.get()[keyPath: keyPath].string() })
+            request.appending(query: key, with: result.flatMap { try? $0.get()[keyPath: keyPath].string() })
         }
     }
 }

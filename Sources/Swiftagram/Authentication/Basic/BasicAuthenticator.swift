@@ -57,7 +57,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// Defaults to Safari on an iPhone with iOS 13.1.3.
     public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
                                     "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
+                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
 
     // MARK: Lifecycle
     /// Init.
@@ -77,7 +77,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         self.userAgent = userAgent
             ?? ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
                 "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined()
+                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
         return self
     }
 
@@ -93,7 +93,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         Endpoint.generic
-            .append(header: ["User-Agent": userAgent])
+            .appending(header: ["User-Agent": userAgent])
             .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .debugTask(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
@@ -139,9 +139,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             }
             // Obtain the `ds_user_id` and the `sessionid`.
             Endpoint.generic.accounts.login.ajax
-                .replace(body: ["username": self.username,
+                .replacing(body: ["username": self.username,
                                 "password": self.password])
-                .replace(header:
+                .replacing(header:
                     ["Accept": "*/*",
                      "Accept-Language": "en-US",
                      "Accept-Encoding": "gzip, deflate",
@@ -217,8 +217,8 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                    crossSiteRequestForgery: HTTPCookie,
                                    onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
-        Endpoint.generic.append(path: checkpoint)
-            .replace(header: ["User-Agent": userAgent])
+        Endpoint.generic.appending(path: checkpoint)
+            .replacing(header: ["User-Agent": userAgent])
             .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .debugTask(by: .authentication) { [self] in
                 // Check for errors.

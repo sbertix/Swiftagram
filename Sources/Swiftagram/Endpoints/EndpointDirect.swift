@@ -23,7 +23,7 @@ public extension Endpoint {
         /// A thread matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid thread identifier.
         public static func thread(matching identifier: String) -> Paginated {
-            return base.threads.append(path: identifier).paginating(key: "cursor", keyPath: \.thread.oldestCursor).locking(Secret.self)
+            return base.threads.appending(path: identifier).paginating(key: "cursor", keyPath: \.thread.oldestCursor).locking(Secret.self)
         }
     }
 }
