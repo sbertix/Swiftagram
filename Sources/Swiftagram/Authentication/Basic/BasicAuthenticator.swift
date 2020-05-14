@@ -92,8 +92,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        Endpoint.generic.header(["User-Agent": userAgent])
-            .expecting(String.self)
+        Endpoint.generic
+            .append(header: ["User-Agent": userAgent])
+            .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .debugTask(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
             .resume()
     }
@@ -138,9 +139,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             }
             // Obtain the `ds_user_id` and the `sessionid`.
             Endpoint.generic.accounts.login.ajax
-                .body(["username": self.username,
-                       "password": self.password])
-                .header(
+                .replace(body: ["username": self.username,
+                                "password": self.password])
+                .replace(header:
                     ["Accept": "*/*",
                      "Accept-Language": "en-US",
                      "Accept-Encoding": "gzip, deflate",
@@ -153,6 +154,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                      "Content-Type": "application/x-www-form-urlencoded",
                      "User-Agent": userAgent]
                 )
+                .prepare()
                 .task(by: .authentication) { [self] in
                     self.handleSecond(result: $0,
                                       crossSiteRequestForgery: crossSiteRequestForgery,
@@ -215,9 +217,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                    crossSiteRequestForgery: HTTPCookie,
                                    onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Get checkpoint info.
-        Endpoint.generic.append(checkpoint)
-            .header(["User-Agent": userAgent])
-            .expecting(String.self)
+        Endpoint.generic.append(path: checkpoint)
+            .replace(header: ["User-Agent": userAgent])
+            .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .debugTask(by: .authentication) { [self] in
                 // Check for errors.
                 switch $0.value {

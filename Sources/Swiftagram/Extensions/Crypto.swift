@@ -30,6 +30,6 @@ internal extension Request {
             "ig_sig_key_version": Constants.signatureVersion
         ]
         let data = encodedParameters.map { "\($0.key)=\($0.value)" }.joined(separator: "&").data(using: .utf8)!
-        return self.body(.data(data))
+        return self.replace(body: data)
     }
 }

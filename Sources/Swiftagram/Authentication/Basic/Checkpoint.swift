@@ -44,8 +44,8 @@ public final class Checkpoint {
     /// - parameter verification: A `Verification` item to send the code to.
     public func requestCode(to verification: Verification) {
         Request(url)
-            .body("choice", value: verification.value)
-            .header(
+            .replace(body: ["choice": verification.value])
+            .replace(header:
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",
@@ -58,6 +58,7 @@ public final class Checkpoint {
                  "Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": userAgent]
             )
+            .prepare()
             .task(by: .authentication) { [self] in
                 switch $0 {
                 case .failure(let error): self.onChange(.failure(error))
@@ -71,8 +72,8 @@ public final class Checkpoint {
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
         Request(url)
-            .body("security_code", value: code)
-            .header(
+            .replace(body: ["security_code": code])
+            .replace(header:
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",
@@ -85,7 +86,7 @@ public final class Checkpoint {
                  "Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": userAgent]
             )
-            .expecting(String.self)
+            .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .task(by: .authentication) { [self] in
                 switch $0 {
                 case .failure(let error): self.onChange(.failure(error))

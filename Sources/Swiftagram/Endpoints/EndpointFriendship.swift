@@ -19,43 +19,41 @@ public extension Endpoint {
         /// A list of users followed by the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **following**.
-        public static func followed(by identifier: String) -> Paginated<Lock<Request>, Response> {
-            return base.locking(authenticator: \.header).append(identifier).following.paginating()
+        public static func followed(by identifier: String) -> Paginated {
+            return base.append(path: identifier).following.paginating().locking(Secret.self)
         }
 
         /// A list of users following the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         /// - note: This is equal to the user's **followers**.
-        public static func following(_ identifier: String) -> Paginated<Lock<Request>, Response> {
-            return base.locking(authenticator: \.header).append(identifier).followers.paginating()
+        public static func following(_ identifier: String) -> Paginated {
+            return base.append(path: identifier).followers.paginating().locking(Secret.self)
         }
 
         /// The current friendship status between the authenticated user and the one matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func friendship(with identifier: String) -> Paginated<Lock<Request>, Response> {
-            return base.locking(authenticator: \.header).show.append(identifier).paginating()
+        public static func friendship(with identifier: String) -> Paginated {
+            return base.show.append(path: identifier).paginating().locking(Secret.self)
         }
 
         /// A list of users who requested to follow you, without having been processed yet.
-        public static let pendingRequests = base.locking(authenticator: \.header).pending.paginating()
+        public static let pendingRequests: Paginated = base.pending.paginating().locking(Secret.self)
 
         // MARK: Actions
         /// Perform an action involving the user matching `identifier`.
         /// - parameters:
         ///     - transformation: A `KeyPath` defining the endpoint path.
         ///     - identifier: A `String` holding reference to a valid user identifier.
-        private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Lock<Request> {
-            return base[keyPath: keyPath].append(identifier)
-                .locking {
-                    guard let secret = $0.key as? Secret else {
-                        fatalError("A `Swiftagram.Secret` is required to authenticate `Friendship` actions.")
-                    }
-                    // return.
-                    return $0.request.header(secret.header)
-                        .signedBody(["_csrftoken": secret.crossSiteRequestForgery.value,
+        private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Disposable {
+            return base[keyPath: keyPath]
+                .append(path: identifier)
+                .prepare()
+                .locking(Secret.self) {
+                    $0.append(header: $1.header)
+                        .signedBody(["_csrftoken": $1.crossSiteRequestForgery.value,
                                      "user_id": identifier,
                                      "radio_type": "wifi-none",
-                                     "_uid": secret.identifier ?? "",
+                                     "_uid": $1.identifier ?? "",
                                      "device_id": Device.default.deviceIdentifier,
                                      "_uuid": Device.default.deviceGUID.uuidString])
                 }
@@ -63,43 +61,43 @@ public extension Endpoint {
 
         /// Follow (or send a follow request) the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func follow(_ identifier: String) -> Lock<Request> {
+        public static func follow(_ identifier: String) -> Disposable {
             return edit(\.create, identifier)
         }
 
         /// Unfollow the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func unfollow(_ identifier: String) -> Lock<Request> {
+        public static func unfollow(_ identifier: String) -> Disposable {
             return edit(\.destroy, identifier)
         }
 
         /// Remove a user following you, matching the `identifier`. Said user will stop following you.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func remove(follower identifier: String) -> Lock<Request> {
+        public static func remove(follower identifier: String) -> Disposable {
             return edit(\.remove_follower, identifier)
         }
 
         /// Accept a follow request from the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func acceptRequest(from identifier: String) -> Lock<Request> {
+        public static func acceptRequest(from identifier: String) -> Disposable {
             return edit(\.approve, identifier)
         }
 
         /// Reject a follow request from the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func rejectRequest(from identifier: String) -> Lock<Request> {
+        public static func rejectRequest(from identifier: String) -> Disposable {
             return edit(\.reject, identifier)
         }
 
         /// Block the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func block(_ identifier: String) -> Lock<Request> {
+        public static func block(_ identifier: String) -> Disposable {
             return edit(\.block, identifier)
         }
 
         /// Unblock the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func unblock(_ identifier: String) -> Lock<Request> {
+        public static func unblock(_ identifier: String) -> Disposable {
             return edit(\.unblock, identifier)
         }
     }

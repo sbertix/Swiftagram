@@ -43,10 +43,10 @@ public final class TwoFactor {
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
         Endpoint.generic.accounts.login.ajax.two_factor
-            .body(["username": username,
-                   "verificationCode": code,
-                   "identifier": identifier])
-            .header(
+            .replace(body: ["username": username,
+                            "verœicationCode": code,
+                            "ideœifier": identifier])
+            .replace(header:
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
                  "Accept-Encoding": "gzip, deflate",
@@ -58,8 +58,8 @@ public final class TwoFactor {
                  "Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": userAgent]
             )
-            .expecting(String.self)
-            .debugTask { [self] in
+            .prepare(processor: { $0.map { String(data: $0, encoding: .utf8) }})
+            .debugTask(by: .authentication) { [self] in
                 switch $0.value {
                 case .failure(let error): self.onChange(.failure(error))
                 case .success:
