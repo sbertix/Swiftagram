@@ -19,9 +19,8 @@
 		E028F0382418DFCC00F9C7F8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02C2418DFCC00F9C7F8 /* AppDelegate.swift */; };
 		E028F0392418DFCC00F9C7F8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02D2418DFCC00F9C7F8 /* ContentView.swift */; };
 		E028F03B2418DFCC00F9C7F8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02F2418DFCC00F9C7F8 /* SceneDelegate.swift */; };
-		E059DA702458CA830016294D /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E059DA6D2458CA830016294D /* LoginModel.swift */; };
-		E059DA712458CA830016294D /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E059DA6E2458CA830016294D /* LoginView.swift */; };
 		E06D4F71244C7EA500C9AD05 /* FetchImage in Frameworks */ = {isa = PBXBuildFile; productRef = E06D4F70244C7EA500C9AD05 /* FetchImage */; };
+		E0EA4715246DE2C700F409E6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0EA4714246DE2C700F409E6 /* LoginView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,8 +36,7 @@
 		E028F02D2418DFCC00F9C7F8 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E028F02E2418DFCC00F9C7F8 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E028F02F2418DFCC00F9C7F8 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		E059DA6D2458CA830016294D /* LoginModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginModel.swift; sourceTree = "<group>"; };
-		E059DA6E2458CA830016294D /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		E0EA4714246DE2C700F409E6 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,8 +116,7 @@
 		E059DA6B2458CA830016294D /* Login */ = {
 			isa = PBXGroup;
 			children = (
-				E059DA6D2458CA830016294D /* LoginModel.swift */,
-				E059DA6E2458CA830016294D /* LoginView.swift */,
+				E0EA4714246DE2C700F409E6 /* LoginView.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -207,11 +204,10 @@
 				E028F0382418DFCC00F9C7F8 /* AppDelegate.swift in Sources */,
 				E028F0342418DFCC00F9C7F8 /* User.swift in Sources */,
 				E028F0392418DFCC00F9C7F8 /* ContentView.swift in Sources */,
-				E059DA702458CA830016294D /* LoginModel.swift in Sources */,
 				E028F0302418DFCC00F9C7F8 /* FollowersView.swift in Sources */,
 				E028F0352418DFCC00F9C7F8 /* UserCell.swift in Sources */,
-				E059DA712458CA830016294D /* LoginView.swift in Sources */,
 				E028F0312418DFCC00F9C7F8 /* FollowersModel.swift in Sources */,
+				E0EA4715246DE2C700F409E6 /* LoginView.swift in Sources */,
 				E028F03B2418DFCC00F9C7F8 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,8 +408,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sbertix/Swiftagram.git";
 			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 2.0.0;
+				branch = 3.0.0;
+				kind = branch;
 			};
 		};
 		E06D4F6F244C7EA500C9AD05 /* XCRemoteSwiftPackageReference "FetchImage" */ = {
