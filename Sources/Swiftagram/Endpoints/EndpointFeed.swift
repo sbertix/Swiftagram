@@ -62,7 +62,7 @@ public extension Endpoint {
                         "client_session_id": $1.session.value
                     ])
             }
-        
+
         /// All posts for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func posts(by identifier: String) -> Paginated {

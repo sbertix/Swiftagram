@@ -18,7 +18,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     let secret = Secret(cookies: [HTTPCookie(text: "ds_user_id"),
                                   HTTPCookie(text: "sessionid"),
                                   HTTPCookie(text: "csrftoken")])!
-    
+
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {
         XCTAssert(Endpoint.Archive
@@ -29,7 +29,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/archive/reel/day_shells")
     }
-    
+
     /// Test `Endpoint.Direct`.
     func testEndpointDirect() {
         XCTAssert(Endpoint.Direct
@@ -54,7 +54,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/direct_v2/ranked_recipients")
     }
-    
+
     /// Test `Endpoint.Feed`.
     func testEndpointFeed() {
         XCTAssert(Endpoint.Feed
@@ -114,7 +114,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/tag/tag")
     }
-    
+
     /// Test `Endpoint.Friendship`.
     func testEndpointFriendship() {
         XCTAssert(Endpoint.Friendship
@@ -195,7 +195,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/unblock/id")
     }
-    
+
     /// Test `Endpoint.User`.
     func testEndpointUser() {
         XCTAssert(Endpoint.User
@@ -227,7 +227,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/users/id/flag_user")
     }
-    
+
     func testEndpointDiscover() {
         XCTAssert(Endpoint.Discover
             .explore
@@ -237,7 +237,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/discover/explore")
     }
-    
+
     func testEndpointMedia() {
         XCTAssert(Endpoint.Media
             .summary(for: "id")
@@ -289,7 +289,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/media/mediaId/comment/id/flag")
     }
-    
+
     static var allTests = [
         ("Endpoint.Archive", testEndpointArchive),
         ("Endpoint.Direct", testEndpointDirect),

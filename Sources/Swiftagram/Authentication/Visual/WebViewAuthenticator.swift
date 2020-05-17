@@ -59,12 +59,6 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
         self.webView = webView
     }
 
-    /// Set `userAgent`.
-    /// - parameter userAgent: A `String` representing a valid user agent.
-    /// - warning: This method will be removed in the next major release.
-    @available(*, deprecated, message: "custom user agents are no longer supported")
-    public func userAgent(_ userAgent: String?) -> WebViewAuthenticator<Storage> { return self }
-
     // MARK: Authenticator
     /// Return a `Secret` and store it in `storage`.
     /// - parameter onChange: A block providing a `Secret`.

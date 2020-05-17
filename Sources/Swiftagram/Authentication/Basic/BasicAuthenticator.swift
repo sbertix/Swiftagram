@@ -55,9 +55,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
 
     /// A `String` holding a custom user agent to be passed to every request.
     /// Defaults to Safari on an iPhone with iOS 13.1.3.
-    public var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                                    "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                    "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
+    internal var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
+                                      "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                                      "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
 
     // MARK: Lifecycle
     /// Init.
@@ -69,22 +69,6 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         self.storage = storage
         self.username = username
         self.password = password
-    }
-
-    /// Set `userAgent`.
-    /// - parameter userAgent: A `String` representing a valid user agent.
-    public func userAgent(_ userAgent: String?) -> BasicAuthenticator<Storage> {
-        self.userAgent = userAgent
-            ?? ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
-        return self
-    }
-
-    /// Update `userAgent` with the `Device.default`'s one.
-    public func defaultDeviceUserAgent() -> BasicAuthenticator<Storage> {
-        self.userAgent = Device.default.browserUserAgent
-        return self
     }
 
     // MARK: Authenticator
@@ -140,7 +124,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             // Obtain the `ds_user_id` and the `sessionid`.
             Endpoint.generic.accounts.login.ajax
                 .replacing(body: ["username": self.username,
-                                "password": self.password])
+                                  "enc_password": "#PWD_INSTAGRAM_BROWSER:0:\(Date().timeIntervalSince1970):\(self.password)"])
                 .replacing(header:
                     ["Accept": "*/*",
                      "Accept-Language": "en-US",

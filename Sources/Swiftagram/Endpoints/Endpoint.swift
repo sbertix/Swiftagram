@@ -17,7 +17,7 @@ public struct Endpoint {
     /// An `Endpoint` allowing for a single request.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
     public typealias Disposable = Locker<Fetcher<Request, Response>.Disposable, Secret>
-    
+
     // MARK: Composition
     /// An `Endpoint` pointing to `api/v1`.
     public static let version1: Request = .init("https://i.instagram.com/api/v1")

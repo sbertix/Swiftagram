@@ -44,8 +44,8 @@ public final class TwoFactor {
     public func send(code: String) {
         Endpoint.generic.accounts.login.ajax.two_factor
             .replacing(body: ["username": username,
-                            "verœicationCode": code,
-                            "ideœifier": identifier])
+                              "verificationCode": code,
+                              "identifier": identifier])
             .replacing(header:
                 ["Accept": "*/*",
                  "Accept-Language": "en-US",
