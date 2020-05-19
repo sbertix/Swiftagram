@@ -5,15 +5,13 @@
 //  Created by Stefano Bertagno on 08/03/2020.
 //
 
-import ComposableRequest
 import Foundation
 
-public struct Secret: Key {
+import ComposableRequest
+
+public struct Secret: CookieKey {
     /// All cookies.
     public private(set) var cookies: [CodableHTTPCookie]
-
-    /// User info.
-    public var userInfo: [String: String]
 
     /// A `String` representing the logged in user identifier.
     public var identifier: String! {
@@ -48,11 +46,9 @@ public struct Secret: Key {
     /// Init.
     /// - parameters:
     ///     - cookies: A `Collection` of `HTTPCookie`s.
-    ///     - userInfo: A `Dictionary` of `String`s. Defaults to empty.
-    public init?<Cookies: Collection>(cookies: Cookies, userInfo: [String: String] = [:]) where Cookies.Element: HTTPCookie {
+    public init?<Cookies: Collection>(cookies: Cookies) where Cookies.Element: HTTPCookie {
         guard Secret.hasValidCookies(cookies) else { return nil }
         self.cookies = cookies.compactMap(CodableHTTPCookie.init)
-        self.userInfo = userInfo
     }
 
     /// Init from `Storage`.

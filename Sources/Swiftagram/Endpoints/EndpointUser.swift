@@ -13,7 +13,7 @@ public extension Endpoint {
     /// A `struct` holding reference to `users` `Endpoint`s. Requires authentication.
     struct User {
         /// The base endpoint.
-        private static let base = Endpoint.version1.users.defaultHeader()
+        private static let base = Endpoint.version1.users.appendingDefaultHeader()
 
         // MARK: Info
         /// A list of all profiles blocked by the user.

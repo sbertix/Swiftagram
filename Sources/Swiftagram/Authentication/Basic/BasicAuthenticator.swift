@@ -5,8 +5,10 @@
 //  Created by Stefano Bertagno on 07/03/2020.
 //
 
-import ComposableRequest
 import Foundation
+
+import ComposableRequest
+import SwCrypt
 
 /**
     A `class` describing an `Authenticator` using `username` and `password`.
@@ -76,82 +78,115 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        Endpoint.generic
-            .appending(header: ["User-Agent": userAgent])
-            .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
-            .debugTask(by: .authentication) { [self] in self.handleFirst(result: $0, onChange: onChange) }
+        // Update values.
+        Endpoint.version1.qe.sync.appending(path: "/")
+            .appendingDefaultHeader()
+            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
+            .signing(body: ["id": Device.default.deviceGUID.uuidString,
+                            "experiments": Constants.loginExperiments])
+            .prepare()
+            .debugTask { [self] in
+                guard let response = $0.response else { return onChange(.failure(AuthenticatorError.invalidResponse)) }
+                switch $0.value {
+                case .failure(let error): onChange(.failure(error))
+                case .success(let value) where value.status.string() == "ok":
+                    // Process headers and handle encryption.
+                    switch self.encryptPassword(with: response.allHeaderFields as? [String: String] ?? [:]) {
+                    case .failure(let error): onChange(.failure(error))
+                    case .success(let encrypted):
+                        // Request authentication.
+                        self.authenticate(with: encrypted,
+                                          header: response.allHeaderFields,
+                                          onChange: onChange)
+                    }
+                default: onChange(.failure(AuthenticatorError.invalidResponse))
+                }
+            }
             .resume()
     }
 
     // MARK: Shared flow
-    /// Handle `csrftoken` response.
-    private func handleFirst(result: Requester.Task.Response<String>,
-                             onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
-        // Check for value.
-        switch result.value {
-        case .failure(let error): onChange(.failure(error))
-        case .success(let value):
-            // Obtain the `csrftoken`.
-            var crossSisteRequestForgery: HTTPCookie?
-            // Check the response.
-            if let response = result.response,
-                let header = response.allHeaderFields as? [String: String],
-                let url = response.url {
-                crossSisteRequestForgery = HTTPCookie.cookies(withResponseHeaderFields: header,
-                                                              for: url).first { $0.name == "csrftoken" }
-            }
-            // Check the default storage.
-            if crossSisteRequestForgery == nil {
-                crossSisteRequestForgery = HTTPCookieStorage.shared.cookies?.first { $0.name == "csrftoken" }
-            }
-            // Compute from `window`.
-            if crossSisteRequestForgery == nil {
-                crossSisteRequestForgery = value.components(separatedBy: #"csrf_token":""#)
-                    .last?
-                    .components(separatedBy: #"","viewer""#)
-                    .first
-                    .flatMap {
-                        HTTPCookie(properties: [.name: "csrftoken",
-                                                .value: $0,
-                                                .domain: "instagram.com",
-                                                .path: ""])
-                    }
-            }
-            // Continue if needed.
-            guard let crossSiteRequestForgery = crossSisteRequestForgery else {
-                return onChange(.failure(AuthenticatorError.invalidCookies))
-            }
-            // Obtain the `ds_user_id` and the `sessionid`.
-            Endpoint.generic.accounts.login.ajax
-                .replacing(body: ["username": self.username,
-                                  "enc_password": "#PWD_INSTAGRAM_BROWSER:0:\(Date().timeIntervalSince1970):\(self.password)"])
-                .replacing(header:
-                    ["Accept": "*/*",
-                     "Accept-Language": "en-US",
-                     "Accept-Encoding": "gzip, deflate",
-                     "Connection": "close",
-                     "x-csrftoken": crossSiteRequestForgery.value,
-                     "x-requested-with": "XMLHttpRequest",
-                     "Referer": "https://www.instagram.com",
-                     "Authority": "www.instagram.com",
-                     "Origin": "https://www.instagram.com",
-                     "Content-Type": "application/x-www-form-urlencoded",
-                     "User-Agent": userAgent]
-                )
-                .prepare()
-                .task(by: .authentication) { [self] in
-                    self.handleSecond(result: $0,
-                                      crossSiteRequestForgery: crossSiteRequestForgery,
-                                      onChange: onChange)
-                }
-                .resume()
+    /// Encrypt `password`.
+    private func encryptPassword(with header: [String: String]) -> Result<(timestamp: String, password: String), Swift.Error> {
+        guard let passwordKeyId = header["ig-set-password-encryption-key-id"],
+            let passwordPublicKey = header["ig-set-password-encryption-pub-key"]
+                .flatMap({ Data(base64Encoded: $0).flatMap { String(data: $0, encoding: .utf8) }}) else {
+                    return .failure(AuthenticatorError.invalidResponse)
+        }
+        // Encrypt.
+        let randomKey = (0..<32).map { _ in UInt8.random(in: 0...255) }
+        let iv = (0..<12).map { _ in UInt8.random(in: 0...255) }
+        let time = "\(Int(Date().timeIntervalSince1970))"
+        do {
+            // AES-GCM-256.
+            let (aesEncrypted, authenticationTag) = try CC.GCM.crypt(.encrypt,
+                                                                     algorithm: .aes,
+                                                                     data: password.data(using: .utf8)!,
+                                                                     key: Data(randomKey),
+                                                                     iv: Data(iv),
+                                                                     aData: time.data(using: .utf8)!,
+                                                                     tagLength: 16)
+            // RSA.
+            let publicKey = try SwKeyConvert.PublicKey.pemToPKCS1DER(passwordPublicKey)
+            let rsaEncrypted = try CC.RSA.encrypt(Data(randomKey),
+                                                  derKey: publicKey,
+                                                  tag: .init(),
+                                                  padding: .pkcs1,
+                                                  digest: .none)
+            // Compute `enc_password`.
+            var data = Data()
+            data.append(contentsOf: [1]+passwordKeyId.data(using: .utf8)!.arrayOfBytes())
+            data.append(contentsOf: iv)
+            data.append(contentsOf: [0, 8])
+            data.append(rsaEncrypted)
+            data.append(authenticationTag)
+            data.append(aesEncrypted)
+            return .success((timestamp: time, password: data.base64EncodedString()))
+        } catch {
+            return .failure(error)
         }
     }
-
-    /// Handle `ds_user_id` and `sessionid` response.
-    private func handleSecond(result: Result<Response, Swift.Error>,
-                              crossSiteRequestForgery: HTTPCookie,
+    
+    /// Request authentication.
+    private func authenticate(with encrypted: (timestamp: String, password: String),
+                              header: [AnyHashable: Any],
                               onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
+        // Check for cross site request forgery token.
+        guard let crossSiteRequestForgery = HTTPCookie.cookies(withResponseHeaderFields: header as? [String: String] ?? [:],
+                                                               for: URL(string: ".instagram.com")!)
+            .first(where: { $0.name == "csrftoken" }) else {
+                return onChange(.failure(AuthenticatorError.invalidCookies))
+        }
+        // Obtain the `ds_user_id` and the `sessionid`.
+        Endpoint.generic.accounts.login.ajax
+            .replacing(body: ["username": self.username,
+                              "enc_password": "#PWD_INSTAGRAM:4:\(encrypted.timestamp):\(encrypted.password)"])
+            .replacing(header:
+                ["Accept": "*/*",
+                 "Accept-Language": "en-US",
+                 "Accept-Encoding": "gzip, deflate",
+                 "Connection": "close",
+                 "x-csrftoken": crossSiteRequestForgery.value,
+                 "x-requested-with": "XMLHttpRequest",
+                 "Referer": "https://www.instagram.com",
+                 "Authority": "www.instagram.com",
+                 "Origin": "https://www.instagram.com",
+                 "Content-Type": "application/x-www-form-urlencoded",
+                 "User-Agent": userAgent]
+            )
+            .prepare()
+            .task(by: .authentication) { [self] in
+                self.process(result: $0,
+                             crossSiteRequestForgery: crossSiteRequestForgery,
+                             onChange: onChange)
+            }
+            .resume()
+    }
+    
+    /// Handle `ds_user_id` and `sessionid` response.
+    private func process(result: Result<Response, Swift.Error>,
+                         crossSiteRequestForgery: HTTPCookie,
+                         onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         switch result {
         case .failure(let error): onChange(.failure(error))
         case .success(let value):

@@ -13,7 +13,7 @@ public extension Endpoint {
     /// A `struct` holding reference to `friendships` `Endpoint`s. Requires authentication.
     struct Friendship {
         /// The base endpoint.
-        private static let base = Endpoint.version1.friendships.defaultHeader()
+        private static let base = Endpoint.version1.friendships.appendingDefaultHeader()
 
         // MARK: Info
         /// A list of users followed by the user matching `identifier`.
@@ -50,12 +50,12 @@ public extension Endpoint {
                 .prepare()
                 .locking(Secret.self) {
                     $0.appending(header: $1.header)
-                        .signedBody(["_csrftoken": $1.crossSiteRequestForgery.value,
-                                     "user_id": identifier,
-                                     "radio_type": "wifi-none",
-                                     "_uid": $1.identifier ?? "",
-                                     "device_id": Device.default.deviceIdentifier,
-                                     "_uuid": Device.default.deviceGUID.uuidString])
+                        .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
+                                        "user_id": identifier,
+                                        "radio_type": "wifi-none",
+                                        "_uid": $1.identifier ?? "",
+                                        "device_id": Device.default.deviceIdentifier,
+                                        "_uuid": Device.default.deviceGUID.uuidString])
                 }
         }
 

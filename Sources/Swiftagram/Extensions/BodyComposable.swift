@@ -8,22 +8,19 @@
 import Foundation
 
 import ComposableRequest
-import CryptoSwift
+import SwCrypt
 
 /// An `internal` extension for `Request` to deal with signed bodies.
-internal extension Request {
+internal extension BodyComposable {
     /// Sign body parameters.
     /// - parameter parameters: A valid `Dictionary` of `String`s.
-    func signedBody(_ parameters: [String: Any]) -> Request {
+    func signing(body parameters: [String: Any]) -> Self {
         guard let json = try? JSONSerialization.data(withJSONObject: parameters, options: []),
             let string = String(data: json, encoding: .utf8) else {
                 fatalError("`body` for `Friendship` action is not a proper JSON structure.")
         }
-        guard let hash = try? HMAC(key: Constants.signatureKey, variant: .sha256)
-            .authenticate(json.bytes)
-            .toHexString() else {
-                fatalError("Could not sign the body for `Friendship` action.")
-        }
+        let hash = CC.HMAC(json, alg: .sha256, key: Constants.signatureKey.dataFromHexadecimalString()!)
+            .hexadecimalString()
         // return.
         let encodedParameters = [
             "signed_body": "\(hash).\(string)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,

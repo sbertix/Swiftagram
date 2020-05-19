@@ -13,7 +13,7 @@ public extension Endpoint {
     /// A `struct` holding reference to `media` `Endpoint`s. Requires authentication.
     struct Media {
         /// The base endpoint.
-        private static let base = Endpoint.version1.media.defaultHeader()
+        private static let base = Endpoint.version1.media.appendingDefaultHeader()
 
         // MARK: Info
         /// A media matching `identifier`'s info.

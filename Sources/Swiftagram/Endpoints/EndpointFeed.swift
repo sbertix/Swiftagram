@@ -13,7 +13,7 @@ public extension Endpoint {
     /// A `struct` holding reference to `feed` and `usertags` `Endpoint`s. Requires authentication.
     struct Feed {
         /// The base endpoint.
-        private static let base = Endpoint.version1.feed.defaultHeader()
+        private static let base = Endpoint.version1.feed.appendingDefaultHeader()
 
         /// Stories tray.
         public static let followedStories: Disposable = base.reels_tray.prepare().locking(Secret.self)
@@ -23,7 +23,7 @@ public extension Endpoint {
         public static let timeline: Paginated = Endpoint.version1
             .feed
             .timeline
-            .defaultHeader()
+            .appendingDefaultHeader()
             .appending(header: [
                 "X-Ads-Opt-Out": "0",
                 "X-Google-AD-ID": Device.default.googleAdId.uuidString,
@@ -79,16 +79,16 @@ public extension Endpoint {
         /// - parameter identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
         public static func stories<C: Collection>(by identifiers: C) -> Disposable where C.Element == String {
             return Endpoint.version1.feed.reels_media
-                .defaultHeader()
+                .appendingDefaultHeader()
                 .prepare()
                 .locking(Secret.self) {
                     $0.appending(header: $1.header)
-                        .signedBody(["_csrftoken": $1.crossSiteRequestForgery.value,
-                                     "user_ids": Array(identifiers),
-                                     "_uid": $1.identifier ?? "",
-                                     "_uuid": Device.default.deviceGUID.uuidString,
-                                     "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
-                                     "source": "feed_timeline"])
+                        .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
+                                        "user_ids": Array(identifiers),
+                                        "_uid": $1.identifier ?? "",
+                                        "_uuid": Device.default.deviceGUID.uuidString,
+                                        "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
+                                        "source": "feed_timeline"])
                 }
         }
 
@@ -98,7 +98,7 @@ public extension Endpoint {
             return Endpoint.version1.usertags
                 .appending(path: identifier)
                 .feed
-                .defaultHeader()
+                .appendingDefaultHeader()
                 .paginating()
                 .locking(Secret.self)
         }
