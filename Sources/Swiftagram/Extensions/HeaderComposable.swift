@@ -29,7 +29,7 @@ public extension HeaderComposable {
             "X-IG-Bandwidth-TotalTime-MS": "0",
             "X-IG-EU-DC-ENABLED": "0",
             "X-IG-Extended-CDN-Thumbnail-Cache-Busting-Value": "1000",
-            "X-Bloks-Version-Id": "1b030ce63a06c25f3e4de6aaaf6802fe1e76401bc5ab6e5fb85ed6c2d333e0c7",
+            "X-Bloks-Version-Id": Constants.bloksVersionId,
             "X-IG-WWW-Claim": "0",
             "X-Bloks-Is-Layout-RTL": "false",
             "X-IG-Connection-Type": "WIFI",
@@ -43,11 +43,5 @@ public extension HeaderComposable {
             "Connection": "close",
             "Content-Type": "application/x-www-form-urlencoded"
         ])
-    }
-    
-    /// Replace header fields with default ones.
-    /// - returns: `self` with updated header fields.
-    func replacingWithDefaultHeader() -> Self {
-        return replacing(header: [:]).appendingDefaultHeader()
     }
 }

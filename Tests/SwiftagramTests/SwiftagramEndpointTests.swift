@@ -65,7 +65,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/reels_tray")
         XCTAssert(Endpoint.Feed
-            .likes
+            .liked
             .unlocking(with: secret)
             .request
             .request()?

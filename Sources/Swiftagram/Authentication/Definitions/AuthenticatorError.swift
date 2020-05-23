@@ -11,6 +11,8 @@ import Foundation
 public enum AuthenticatorError: Error {
     /// Checkpoint encountered.
     case checkpoint(Checkpoint?)
+    /// Cryptography functions unavailable.
+    case cryptographyUnavailable
     /// Invalid code.
     case invalidCode
     /// Invalid cookies.

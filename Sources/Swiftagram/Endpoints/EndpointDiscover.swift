@@ -16,6 +16,6 @@ public extension Endpoint {
         private static let base = Endpoint.version1.discover.appendingDefaultHeader()
 
         /// The explore feed.
-        public static let explore: Paginated = base.explore.paginating().locking(Secret.self)
+        public static let explore: ResponsePaginated = base.explore.paginating().locking(Secret.self)
     }
 }

@@ -12,9 +12,13 @@ import SwCrypt
 
 /// An `internal` extension for `Request` to deal with signed bodies.
 internal extension BodyComposable {
-    /// Sign body parameters.
+    /// Replace body parameters with a signed version of `parameters`.
     /// - parameter parameters: A valid `Dictionary` of `String`s.
+    /// - returns: An updated copy of `self`.
     func signing(body parameters: [String: Any]) -> Self {
+        guard CC.hmacAvailable() else {
+            fatalError("Cryptography unavailable.")
+        }
         guard let json = try? JSONSerialization.data(withJSONObject: parameters, options: []),
             let string = String(data: json, encoding: .utf8) else {
                 fatalError("`body` for `Friendship` action is not a proper JSON structure.")
@@ -23,10 +27,9 @@ internal extension BodyComposable {
             .hexadecimalString()
         // return.
         let encodedParameters = [
-            "signed_body": "\(hash).\(string)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,
+            "signed_body": "\(hash).\(string)",
             "ig_sig_key_version": Constants.signatureVersion
         ]
-        let data = encodedParameters.map { "\($0.key)=\($0.value)" }.joined(separator: "&").data(using: .utf8)!
-        return self.replacing(body: data)
+        return replacing(body: encodedParameters)
     }
 }

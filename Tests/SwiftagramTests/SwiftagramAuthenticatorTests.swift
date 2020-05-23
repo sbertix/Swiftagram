@@ -29,7 +29,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                                                password: "°°°°°°°°")
         authenticator.authenticate {
             switch $0 {
-            case .failure: break
+            case .failure(let error): print(error)
             default: XCTFail("It should not succeed")
             }
             invalidUsername.fulfill()

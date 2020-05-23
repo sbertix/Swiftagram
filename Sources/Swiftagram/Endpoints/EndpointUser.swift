@@ -17,24 +17,24 @@ public extension Endpoint {
 
         // MARK: Info
         /// A list of all profiles blocked by the user.
-        public static let blocked: Disposable = base.blocked_list.prepare().locking(Secret.self)
+        public static let blocked: ResponseDisposable = base.blocked_list.prepare().locking(Secret.self)
 
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Disposable {
+        public static func summary(for identifier: String) -> ResponseDisposable {
             return base.appending(path: identifier).info.prepare().locking(Secret.self)
         }
 
         /// All user matching `query`.
         /// - parameter query: A `String` holding reference to a valid user query.
-        public static func all(matching query: String) -> Paginated {
+        public static func all(matching query: String) -> ResponsePaginated {
             return base.search.appending(query: "q", with: query).paginating().locking(Secret.self)
         }
 
         // MARK: Actions
         /// Report the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func report(_ identifier: String) -> Disposable {
+        public static func report(_ identifier: String) -> ResponseDisposable {
             return base.appending(path: identifier).flag_user
                 .prepare()
                 .locking(Secret.self) {

@@ -15,6 +15,6 @@ public extension Endpoint {
         /// The base endpoint.
         private static let base = Endpoint.version1.archive.appendingDefaultHeader()
         /// Archived stories.
-        public static let stories: Paginated = base.reel.day_shells.paginating().locking(Secret.self)
+        public static let stories: ResponsePaginated = base.reel.day_shells.paginating().locking(Secret.self)
     }
 }

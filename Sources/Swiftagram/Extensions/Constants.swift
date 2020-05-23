@@ -7,6 +7,7 @@
 
 import Foundation
 
+//swiftlint:disable type_body_length
 /// A `struct` holding reference to API constants.
 public struct Constants {
     /// The app version.

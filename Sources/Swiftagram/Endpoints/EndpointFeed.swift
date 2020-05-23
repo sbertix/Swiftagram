@@ -16,11 +16,16 @@ public extension Endpoint {
         private static let base = Endpoint.version1.feed.appendingDefaultHeader()
 
         /// Stories tray.
-        public static let followedStories: Disposable = base.reels_tray.prepare().locking(Secret.self)
+        public static let followedStories: ResponseDisposable = base.reels_tray.prepare().locking(Secret.self)
         /// Liked media.
-        public static let likes: Paginated = base.liked.paginating().locking(Secret.self)
+        public static let liked: ResponsePaginated = base.liked.paginating().locking(Secret.self)
+        /// All saved media.
+        public static let saved: ResponsePaginated = base.saved
+            .appending(header: "include_igtv_preview", with: "false")
+            .paginating()
+            .locking(Secret.self)
         /// Timeline.
-        public static let timeline: Paginated = Endpoint.version1
+        public static let timeline: ResponsePaginated = Endpoint.version1
             .feed
             .timeline
             .appendingDefaultHeader()
@@ -65,19 +70,19 @@ public extension Endpoint {
 
         /// All posts for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func posts(by identifier: String) -> Paginated {
+        public static func posts(by identifier: String) -> ResponsePaginated {
             return base.user.appending(path: identifier).paginating().locking(Secret.self)
         }
 
         /// All available stories for user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func stories(by identifier: String) -> Paginated {
+        public static func stories(by identifier: String) -> ResponsePaginated {
             return base.user.appending(path: identifier).reel_media.paginating().locking(Secret.self)
         }
 
         /// All available stories for user matching `identifiers`.
         /// - parameter identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
-        public static func stories<C: Collection>(by identifiers: C) -> Disposable where C.Element == String {
+        public static func stories<C: Collection>(by identifiers: C) -> ResponseDisposable where C.Element == String {
             return Endpoint.version1.feed.reels_media
                 .appendingDefaultHeader()
                 .prepare()
@@ -94,7 +99,7 @@ public extension Endpoint {
 
         /// All posts a user matching `identifier` is tagged in.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func posts(including identifier: String) -> Paginated {
+        public static func posts(including identifier: String) -> ResponsePaginated {
             return Endpoint.version1.usertags
                 .appending(path: identifier)
                 .feed
@@ -105,7 +110,7 @@ public extension Endpoint {
 
         /// All media matching `tag`.
         /// - parameter tag: A `String` holding reference to a valid _#tag_.
-        public static func tagged(with tag: String) -> Paginated {
+        public static func tagged(with tag: String) -> ResponsePaginated {
             return base.tag.appending(path: tag).paginating().locking(Secret.self)
         }
     }

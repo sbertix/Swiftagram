@@ -77,15 +77,13 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     /// Return a `Secret` and store it in `storage`.
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
-        HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         // Update values.
         Endpoint.version1.qe.sync.appending(path: "/")
             .appendingDefaultHeader()
-            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
             .signing(body: ["id": Device.default.deviceGUID.uuidString,
                             "experiments": Constants.loginExperiments])
             .prepare()
-            .debugTask { [self] in
+            .debugTask(by: .authentication) { [self] in
                 guard let response = $0.response else { return onChange(.failure(AuthenticatorError.invalidResponse)) }
                 switch $0.value {
                 case .failure(let error): onChange(.failure(error))
@@ -93,9 +91,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                     // Process headers and handle encryption.
                     switch self.encryptPassword(with: response.allHeaderFields as? [String: String] ?? [:]) {
                     case .failure(let error): onChange(.failure(error))
-                    case .success(let encrypted):
+                    case .success(let encryptedPassword):
                         // Request authentication.
-                        self.authenticate(with: encrypted,
+                        self.authenticate(with: encryptedPassword,
                                           header: response.allHeaderFields,
                                           onChange: onChange)
                     }
@@ -107,48 +105,53 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
 
     // MARK: Shared flow
     /// Encrypt `password`.
-    private func encryptPassword(with header: [String: String]) -> Result<(timestamp: String, password: String), Swift.Error> {
-        guard let passwordKeyId = header["ig-set-password-encryption-key-id"],
-            let passwordPublicKey = header["ig-set-password-encryption-pub-key"]
-                .flatMap({ Data(base64Encoded: $0).flatMap { String(data: $0, encoding: .utf8) }}) else {
-                    return .failure(AuthenticatorError.invalidResponse)
+    private func encryptPassword(with header: [String: String]) -> Result<String, Swift.Error> {
+        guard CC.RSA.available(), CC.GCM.available() else {
+            return .failure(AuthenticatorError.cryptographyUnavailable)
         }
+        guard let passwordKeyId = header["ig-set-password-encryption-key-id"].flatMap(UInt8.init),
+            let passwordPublicKey = header["ig-set-password-encryption-pub-key"]
+                .flatMap({ Data(base64Encoded: $0) })
+                .flatMap({ String(data: $0, encoding: .utf8) }) else { return .failure(AuthenticatorError.invalidResponse) }
         // Encrypt.
-        let randomKey = (0..<32).map { _ in UInt8.random(in: 0...255) }
-        let iv = (0..<12).map { _ in UInt8.random(in: 0...255) }
+        let randomKey = Data((0..<32).map { _ in UInt8.random(in: 0...255) })
+        let iv = Data((0..<12).map { _ in UInt8.random(in: 0...255) })
         let time = "\(Int(Date().timeIntervalSince1970))"
         do {
             // AES-GCM-256.
             let (aesEncrypted, authenticationTag) = try CC.GCM.crypt(.encrypt,
                                                                      algorithm: .aes,
                                                                      data: password.data(using: .utf8)!,
-                                                                     key: Data(randomKey),
-                                                                     iv: Data(iv),
+                                                                     key: randomKey,
+                                                                     iv: iv,
                                                                      aData: time.data(using: .utf8)!,
                                                                      tagLength: 16)
             // RSA.
             let publicKey = try SwKeyConvert.PublicKey.pemToPKCS1DER(passwordPublicKey)
-            let rsaEncrypted = try CC.RSA.encrypt(Data(randomKey),
+            let rsaEncrypted = try CC.RSA.encrypt(randomKey,
                                                   derKey: publicKey,
                                                   tag: .init(),
                                                   padding: .pkcs1,
-                                                  digest: .none)
+                                                  digest: .sha1)
+            var rsaEncryptedLELength = UInt16(littleEndian: UInt16(rsaEncrypted.count))
+            let rsaEncryptedLength = Data(bytes: &rsaEncryptedLELength, count: MemoryLayout<UInt16>.size)
             // Compute `enc_password`.
             var data = Data()
-            data.append(contentsOf: [1]+passwordKeyId.data(using: .utf8)!.arrayOfBytes())
-            data.append(contentsOf: iv)
-            data.append(contentsOf: [0, 8])
+            data.append(1)
+            data.append(passwordKeyId)
+            data.append(iv)
+            data.append(rsaEncryptedLength)
             data.append(rsaEncrypted)
             data.append(authenticationTag)
             data.append(aesEncrypted)
-            return .success((timestamp: time, password: data.base64EncodedString()))
+            return .success("#PWD_INSTAGRAM:4:\(time):\(data.base64EncodedString())")
         } catch {
             return .failure(error)
         }
     }
-    
+
     /// Request authentication.
-    private func authenticate(with encrypted: (timestamp: String, password: String),
+    private func authenticate(with encryptedPassword: String,
                               header: [AnyHashable: Any],
                               onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Check for cross site request forgery token.
@@ -158,31 +161,32 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 return onChange(.failure(AuthenticatorError.invalidCookies))
         }
         // Obtain the `ds_user_id` and the `sessionid`.
-        Endpoint.generic.accounts.login.ajax
-            .replacing(body: ["username": self.username,
-                              "enc_password": "#PWD_INSTAGRAM:4:\(encrypted.timestamp):\(encrypted.password)"])
-            .replacing(header:
-                ["Accept": "*/*",
-                 "Accept-Language": "en-US",
-                 "Accept-Encoding": "gzip, deflate",
-                 "Connection": "close",
-                 "x-csrftoken": crossSiteRequestForgery.value,
-                 "x-requested-with": "XMLHttpRequest",
-                 "Referer": "https://www.instagram.com",
-                 "Authority": "www.instagram.com",
-                 "Origin": "https://www.instagram.com",
-                 "Content-Type": "application/x-www-form-urlencoded",
-                 "User-Agent": userAgent]
-            )
+        Endpoint.version1.accounts.login.appending(path: "/")
+            .appendingDefaultHeader()
+            .signing(body: [
+                "username": self.username,
+                "password": self.password,
+                "enc_password": encryptedPassword,
+                "guid": UUID().uuidString,
+                "phone_id": Device.default.phoneGUID.uuidString,
+                "_csrftoken": crossSiteRequestForgery.value,
+                "device_id": Device.default.deviceIdentifier,
+                "adid": "",
+                "google_tokens": "[]",
+                "country_codes": JSONSerialization.stringify([["country_code": "1", "source": "default"]]),
+                "login_attempt_count": 0,
+                "jazoest": "2\(Device.default.phoneGUID.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
+            ])
             .prepare()
             .task(by: .authentication) { [self] in
+                print($0)
                 self.process(result: $0,
                              crossSiteRequestForgery: crossSiteRequestForgery,
                              onChange: onChange)
             }
             .resume()
     }
-    
+
     /// Handle `ds_user_id` and `sessionid` response.
     private func process(result: Result<Response, Swift.Error>,
                          crossSiteRequestForgery: HTTPCookie,
