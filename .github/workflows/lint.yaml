@@ -1,0 +1,22 @@
+name:                    Lint
+
+on:
+  push:
+    paths:
+      - '**/*.swift'
+  pull_request:
+    paths:
+      - '**/*.swift'
+    repository_dispatch:
+      types:             [lint-command, test-command]
+
+jobs:
+  lint:
+    runs-on:             ubuntu-latest
+
+    steps:
+      - uses:            actions/checkout@v1
+      - name:            Lint
+        uses:            norio-nomura/action-swiftlint@3.1.0
+        with:
+          args:          --strict

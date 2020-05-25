@@ -1,0 +1,32 @@
+name:                    Test
+
+on:
+  push:
+    paths:
+      - '**/*.swift'
+      - '**/*.yaml'
+  pull_request:
+    paths:
+      - '**/*.swift'
+      - '**/*.yaml'
+  repository_dispatch:
+    types:               [test-command]
+
+jobs:
+  build:
+    runs-on:             macos-latest
+
+    steps:
+    - uses:              actions/checkout@v2
+    - name:              Build
+      run:               swift build -v
+    - name:              Test
+      run:               swift test -v --enable-test-discovery --enable-code-coverage
+    - name:              Coverage (1)
+      run:               xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
+    - name:              Coverage (2)
+      uses:              codecov/codecov-action@v1
+      with:
+        token:           ${{ secrets.CODECOV_TOKEN }}
+      timeout-minutes:   1
+      continue-on-error: true

@@ -1,4 +1,4 @@
-name: releases
+name:                          releases
 
 on:
   push:
@@ -7,12 +7,12 @@ on:
 
 jobs:
   documentation:
-    runs-on: macos-latest
+    runs-on:                   macos-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Docs
-      uses: steven0351/publish-jazzy-docs@v1
+    - uses:                    actions/checkout@v1
+    - name:                    Docs
+      uses:                    steven0351/publish-jazzy-docs@v1
       with:
         personal_access_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-        args: "--theme fullwidth --author \"Stefano Bertagno\""
+        args:                  "--theme fullwidth --author \"Stefano Bertagno\""
