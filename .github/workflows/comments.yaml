@@ -1,0 +1,16 @@
+name: Comments
+
+on:
+  issue_comment:
+    types: [created]
+    
+jobs:
+  comments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slash Command Dispatch
+        uses: peter-evans/slash-command-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+          reaction-token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+          commands: test
