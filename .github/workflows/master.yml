@@ -13,6 +13,8 @@ on:
     paths:
       - '**.swift'
       - '**.yml'
+  repository_dispatch:
+      types: [test]
 
 jobs:
   lint:
@@ -35,9 +37,6 @@ jobs:
       run: swift build -v
     - name: Test
       run: swift test -v --enable-test-discovery --enable-code-coverage
-      env:
-        INSTAGRAM_USERNAME: ${{ secrets.INSTAGRAM_USERNAME }}
-        INSTAGRAM_PASSWORD: ${{ secrets.INSTAGRAM_PASSWORD }}
     - name: Coverage (1)
       run: xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Coverage (2)
