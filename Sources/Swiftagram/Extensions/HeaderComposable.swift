@@ -10,7 +10,7 @@ import Foundation
 import ComposableRequest
 
 /// Extend `HeaderComposable` to accept default headers.
-public extension HeaderComposable {
+public extension HeaderComposable where Self: HeaderParsable {
     /// Append default headers.
     /// - returns: `self` with updated header fields.
     func appendingDefaultHeader() -> Self {
@@ -40,6 +40,8 @@ public extension HeaderComposable {
             "Accept-Language": "en-US",
             "X-FB-HTTP-Engine": "Liger",
             "Host": "i.instagram.com",
+            "Referer": "i.instagram.com",
+            "Origin": "i.instagram.com",
             "Connection": "close",
             "Content-Type": "application/x-www-form-urlencoded"
         ])

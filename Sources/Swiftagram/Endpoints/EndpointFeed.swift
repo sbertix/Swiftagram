@@ -35,12 +35,11 @@ public extension Endpoint {
                 "X-DEVICE-ID": Device.default.deviceGUID.uuidString,
                 "X-FB": "1"
             ])
-            .prepare { _, _ in nil
-                /*
-                 (try? $0.get().nextMaxId.string()).flatMap {
-                     ["reason": "pagination", "max_id": $0]
-                 }
-                 */
+            .prepare { request, response in
+                guard let response = response else { return request }
+                guard let nextMaxId = try? response.get().nextMaxId.string() else { return nil }
+                // Update current `body`.
+                return try? request.appending(body: ["reason": "pagination", "max_id": nextMaxId])
             }
             .locking(Secret.self) {
                 return $0
@@ -53,7 +52,7 @@ public extension Endpoint {
                         "is_pull_to_refresh": "0",
                         "battery_level": "72",
                         "timezone_offset": "43200",
-                        "device_id": Device.default.deviceIdentifier,
+                        "device_id": Device.default.deviceGUID.uuidString,
                         "_uuid": Device.default.deviceGUID.uuidString,
                         "is_charging": "0",
                         "will_sound_on": "1",

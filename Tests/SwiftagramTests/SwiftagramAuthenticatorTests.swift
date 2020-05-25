@@ -22,7 +22,6 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
         let invalidUsername = XCTestExpectation()
-        let checkpoint = XCTestExpectation()
         XCTAssert(Verification(response: ["label": "Email", "value": "1"])?.label == "Email")
         // Authenticate and checkpoint.
         let authenticator = BasicAuthenticator(username: "°°°°°°°°",
@@ -34,15 +33,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
             }
             invalidUsername.fulfill()
         }
-        authenticator.handleCheckpoint(checkpoint: "",
-                                       crossSiteRequestForgery: .init()) {
-                                        switch $0 {
-                                        case .failure: break
-                                        case .success: XCTFail("It shouldn't succeed.")
-                                        }
-                                        checkpoint.fulfill()
-        }
-        wait(for: [invalidUsername, checkpoint], timeout: 60)
+        wait(for: [invalidUsername], timeout: 60)
     }
 
     /// Test `TwoFactor`.
@@ -94,7 +85,9 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                         expectation.fulfill()
                     }
                 }
-            }.authenticate { _ in
+            }
+            .userAgent(UserAgent.default.string)
+            .authenticate { _ in
                 // It cannot be tested.
             }
             wait(for: [expectation], timeout: 10)

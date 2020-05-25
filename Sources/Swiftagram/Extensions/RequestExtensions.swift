@@ -10,13 +10,14 @@ import Foundation
 import ComposableRequest
 
 /// **Instagram** specific pagination.
-public extension Requestable where Self: QueryComposable {
+public extension Requestable where Self: QueryComposable & QueryParsable {
     /// Returns a `Fetcher`.
     /// - returns: A `Fetcher` wrapping `self`.
     func paginating(key: String = "max_id",
                     keyPath: KeyPath<Response, Response> = \.nextMaxId) -> Fetcher<Self, Response>.Paginated {
-        return self.prepare { request, result in
-            request.appending(query: key, with: result.flatMap { try? $0.get()[keyPath: keyPath].string() })
+        return self.prepare { request, response in
+            guard let response = response else { return request }
+            return try? response.get()[keyPath: keyPath].string().flatMap { request.appending(query: key, with: $0) }
         }
     }
 }

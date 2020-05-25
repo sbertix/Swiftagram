@@ -73,39 +73,9 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         self.password = password
     }
 
-    // MARK: Authenticator
-    /// Return a `Secret` and store it in `storage`.
-    /// - parameter onChange: A block providing a `Secret`.
-    public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
-        // Update values.
-        Endpoint.version1.qe.sync.appending(path: "/")
-            .appendingDefaultHeader()
-            .signing(body: ["id": Device.default.deviceGUID.uuidString,
-                            "experiments": Constants.loginExperiments])
-            .prepare()
-            .debugTask(by: .authentication) { [self] in
-                guard let response = $0.response else { return onChange(.failure(AuthenticatorError.invalidResponse)) }
-                switch $0.value {
-                case .failure(let error): onChange(.failure(error))
-                case .success(let value) where value.status.string() == "ok":
-                    // Process headers and handle encryption.
-                    switch self.encryptPassword(with: response.allHeaderFields as? [String: String] ?? [:]) {
-                    case .failure(let error): onChange(.failure(error))
-                    case .success(let encryptedPassword):
-                        // Request authentication.
-                        self.authenticate(with: encryptedPassword,
-                                          header: response.allHeaderFields,
-                                          onChange: onChange)
-                    }
-                default: onChange(.failure(AuthenticatorError.invalidResponse))
-                }
-            }
-            .resume()
-    }
-
-    // MARK: Shared flow
+    // MARK: Static
     /// Encrypt `password`.
-    private func encryptPassword(with header: [String: String]) -> Result<String, Swift.Error> {
+    private static func encrypt(password: String, with header: [String: String]) -> Result<String, Swift.Error> {
         guard CC.RSA.available(), CC.GCM.available() else {
             return .failure(AuthenticatorError.cryptographyUnavailable)
         }
@@ -132,7 +102,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                                                   derKey: publicKey,
                                                   tag: .init(),
                                                   padding: .pkcs1,
-                                                  digest: .sha1)
+                                                  digest: .none)
             var rsaEncryptedLELength = UInt16(littleEndian: UInt16(rsaEncrypted.count))
             let rsaEncryptedLength = Data(bytes: &rsaEncryptedLELength, count: MemoryLayout<UInt16>.size)
             // Compute `enc_password`.
@@ -150,19 +120,91 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         }
     }
 
+    // MARK: Authenticator
+    /// Return a `Secret` and store it in `storage`.
+    /// - parameter onChange: A block providing a `Secret`.
+    public func authenticate(_ onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
+        // Update cookies.
+        header { [self] in
+            switch $0 {
+            case .failure(let error): onChange(.failure(error))
+            case .success(let cookies):
+                self.encryptedPassword(with: cookies) {
+                    switch $0 {
+                    case .failure(let error): onChange(.failure(error))
+                    case .success(let password):
+                        self.authenticate(with: password,
+                                          cookies: cookies,
+                                          onChange: onChange)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: Shared flow
+    /// Pre-login flow.
+    private func header(onComplete: @escaping (Result<[HTTPCookie], Error>) -> Void) {
+        // Obtain cookies.
+        Endpoint.version1.accounts.read_msisdn_header.appending(path: "/")
+            .appendingDefaultHeader()
+            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
+            .signing(body: ["mobile_subno_usage": "default",
+                            "device_id": Device.default.deviceGUID.uuidString])
+            .prepare()
+            .debugTask(by: .authentication) {
+                guard let header = $0.response?.allHeaderFields as? [String: String] else {
+                    return onComplete(.failure(AuthenticatorError.invalidResponse))
+                }
+                // Get cookies.
+                let cookies = HTTPCookie.cookies(withResponseHeaderFields: header,
+                                                 for: URL(string: ".instagram.com")!)
+                onComplete(.success(cookies))
+            }
+            .resume()
+    }
+
+    /// Fetch password public key and encrypt password.
+    private func encryptedPassword(with cookies: [HTTPCookie], onComplete: @escaping (Result<String, Error>) -> Void) {
+        // Obtain password key.
+        Endpoint.version1.qe.sync.appending(path: "/")
+            .appendingDefaultHeader()
+            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
+            .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
+            .signing(body: ["id": Device.default.deviceGUID.uuidString,
+                            "experiments": Constants.loginExperiments])
+            .prepare()
+            .debugTask(by: .authentication) { [self] in
+                guard let response = $0.response else {
+                    return onComplete(.failure(AuthenticatorError.invalidResponse))
+                }
+                switch $0.value {
+                case .failure(let error): onComplete(.failure(error))
+                case .success(let value) where value.status.string() == "ok":
+                    // Process headers and handle encryption.
+                    guard let header = response.allHeaderFields as? [String: String] else {
+                        return onComplete(.failure(AuthenticatorError.invalidCookies))
+                    }
+                    onComplete(BasicAuthenticator<Storage>.encrypt(password: self.password, with: header))
+                default: onComplete(.failure(AuthenticatorError.invalidResponse))
+                }
+            }
+            .resume()
+    }
+
     /// Request authentication.
     private func authenticate(with encryptedPassword: String,
-                              header: [AnyHashable: Any],
+                              cookies: [HTTPCookie],
                               onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         // Check for cross site request forgery token.
-        guard let crossSiteRequestForgery = HTTPCookie.cookies(withResponseHeaderFields: header as? [String: String] ?? [:],
-                                                               for: URL(string: ".instagram.com")!)
-            .first(where: { $0.name == "csrftoken" }) else {
-                return onChange(.failure(AuthenticatorError.invalidCookies))
+        guard let crossSiteRequestForgery = cookies.first(where: { $0.name == "csrftoken" }) else {
+            return onChange(.failure(AuthenticatorError.invalidCookies))
         }
         // Obtain the `ds_user_id` and the `sessionid`.
         Endpoint.version1.accounts.login.appending(path: "/")
             .appendingDefaultHeader()
+            .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
+            .appending(header: "x-csrftoken", with: crossSiteRequestForgery.value)
             .signing(body: [
                 "username": self.username,
                 "password": self.password,
@@ -173,14 +215,14 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 "device_id": Device.default.deviceIdentifier,
                 "adid": "",
                 "google_tokens": "[]",
-                "country_codes": JSONSerialization.stringify([["country_code": "1", "source": "default"]]),
-                "login_attempt_count": 0,
+                "country_codes": #"[{"country_code":"1", "source": "default"}]"#,
+                "login_attempt_count": "0",
                 "jazoest": "2\(Device.default.phoneGUID.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
             .prepare()
-            .task(by: .authentication) { [self] in
+            .debugTask(by: .authentication) { [self] in
                 print($0)
-                self.process(result: $0,
+                self.process(result: $0.value,
                              crossSiteRequestForgery: crossSiteRequestForgery,
                              onChange: onChange)
             }
