@@ -1,6 +1,6 @@
 ---
 name: Support
-about: Describe this issue template's purpose here.
+about: Any issues setting up your project? Ask away
 title: ''
 labels: support
 assignees: sbertix
