@@ -23,7 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         // Update the `Requester`.
         Requester.default = .instagram
-        // Logger.level = .requests
+        // Uncomment to log requests.
+        //Logger.level = .full
         return true
     }
 

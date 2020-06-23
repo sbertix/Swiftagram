@@ -52,7 +52,7 @@ Check out our [Examples](Examples) or visit the (_auto-generated_) [Documentatio
 Authentication is provided through conformance to the `Authenticator` protocol, which, on success, returns a `Secret` containing all the cookies needed to sign an `Endpoint`'s request.
 
 The library comes with two concrete implementations.
-- [`BasicAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/BasicAuthenticator.html) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.
+- ~[`BasicAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/BasicAuthenticator.html) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.~ (`BasicAuthenticator` is currently unavailable due to recent changes in **Instagram** authentication methods, but we're actively working on a fix).
 - [`WebViewAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/WebViewAuthenticator.html), available for **iOS 11**+ and **macOS 10.13**+, relying on a `WKWebView` for fetching cookies.
 
 ### Caching
@@ -92,9 +92,9 @@ let secret: Secret = /* the authentication response */
 // Perform the request.
 Endpoint.User.summary(for: identifier)
     .unlocking(with: secret)
-    .task { _ in
-      // Do something here.
-    }
+    .task {
+        // Do something here.
+    })
     .resume() // Strongly referenced by default, no need to worry about it.
 ```
 <br/>
@@ -109,9 +109,11 @@ let secret: Secret = /* the authentication response */
 // Perform the request.
 let task = Endpoint.Friendship.following(secret.id)
     .unlocking(with: secret)
-    .task(maxLength: 10) { _ in
-      // Do something here.
-    }
+    .task(maxLength: 10,
+          onComplete: { _ in },
+          onChange: { _ in  
+            // Do something here.
+    })
     .resume() // Exhaust 10 pages of followers.
 
 // Cancel it.

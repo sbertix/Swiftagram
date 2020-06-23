@@ -27,20 +27,20 @@ internal extension BodyComposable where Self: BodyParsable {
         do {
             guard CC.hmacAvailable() else { throw SigningError.cryptographyUnavailable }
             // Encode parameters.
-            let encodedParameters = try Response(parameters).encode()
-            guard let parametersDescription = String(data: encodedParameters, encoding: .utf8) else {
-                throw SigningError.invalidRepresentation
+            guard let description = try Response.description(for: parameters),
+                let encoded = description.data(using: .utf8, allowLossyConversion: true) else {
+                    throw SigningError.invalidRepresentation
             }
             // Compute hash.
-            let hash = CC.HMAC(encodedParameters, alg: .sha256, key: Constants.signatureKey.dataFromHexadecimalString()!)
+            let hash = CC.HMAC(encoded, alg: .sha256, key: Constants.signatureKey.dataFromHexadecimalString()!)
                 .hexadecimalString()
             // Sign body.
             return try appending(body: [
-                "signed_body": [hash, parametersDescription].joined(separator: "."),
+                "signed_body": [hash, description].joined(separator: "."),
                 "ig_sig_key_version": Constants.signatureVersion
             ])
         } catch {
-            fatalError("Exception raised when signing. "+error.localizedDescription)
+            fatalError("Exception raised when signing. "+error.localizedDescription+" Please open an issue at `https://github.com/sbertix/Swiftagram/issues`.")
         }
     }
 }
