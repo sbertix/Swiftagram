@@ -60,11 +60,11 @@ final class SwiftagramStorageTests: XCTestCase {
         XCTAssert(storage.all().isEmpty, "Storage did not empty.")
         storage.store(response)
         #if canImport(UIKit)
-            XCTAssert(storage.find(matching: response.identifier) == nil, "Storage did not retrieve cached response.")
-            XCTAssert(storage.remove(matching: response.identifier) == nil, "Transient storage was actually not empty.")
+        XCTAssert(storage.find(matching: response.identifier) == nil, "Storage did not retrieve cached response.")
+        XCTAssert(storage.remove(matching: response.identifier) == nil, "Transient storage was actually not empty.")
         #else
-            XCTAssert(storage.find(matching: response.identifier) != nil, "Storage did not retrieve cached response.")
-            XCTAssert(storage.remove(matching: response.identifier) != nil, "Transient storage was actually not empty.")
+        XCTAssert(storage.find(matching: response.identifier) != nil, "Storage did not retrieve cached response.")
+        XCTAssert(storage.remove(matching: response.identifier) != nil, "Transient storage was actually not empty.")
         #endif
         XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")   // Always `nil` during test.
         storage.removeAll()

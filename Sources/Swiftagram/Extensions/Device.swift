@@ -92,10 +92,10 @@ public struct Device: Equatable, Codable {
                 modelBoot: String,
                 dpi: Int,
                 resolution: CGSize,
-                api: String = Constants.api,
+                api: String = Constants.appVersion,
                 version: String = "10.0.0",
                 release: String = "29",
-                code: String = Constants.code) {
+                code: String = Constants.appVersionCode) {
         // prepare a fallback `UUID`.
         let fallbackGUID = UserDefaults.standard.string(forKey: "com.swiftagram.device").flatMap(UUID.init) ?? .init()
         #if canImport(UIKit)

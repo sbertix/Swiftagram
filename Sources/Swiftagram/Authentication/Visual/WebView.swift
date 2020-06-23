@@ -10,7 +10,7 @@ import Foundation
 import WebKit
 
 /// A `class` describing a self-navigating `WKWebView`.
-@available(iOS 11, macOS 10.13, *)
+@available(iOS 11, macOS 10.13, macCatalyst 13, *)
 internal final class WebView: WKWebView, WKNavigationDelegate {
     /// Any `Storage`.
     internal var storage: Storage!

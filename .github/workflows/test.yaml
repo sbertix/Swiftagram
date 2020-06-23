@@ -9,8 +9,8 @@ on:
     paths:
       - '**/*.swift'
       - '**/*.yaml'
-    repository_dispatch:
-      types:             [test-command]
+  repository_dispatch:
+    types:               [test-command]
 
 jobs:
   build:

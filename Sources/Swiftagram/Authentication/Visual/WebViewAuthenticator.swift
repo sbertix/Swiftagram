@@ -20,8 +20,9 @@ import ComposableRequest
        /// The web view.
        var webView: WKWebView? {
            didSet {
+               oldValue?.removeFromSuperview()  // Just in case.
                guard let webView = webView else { return }
-               webView.frame = view.frame
+               webView.frame = view.frame       // Fill the parent view.
                view.addSubview(webView)
            }
        }
@@ -41,10 +42,12 @@ import ComposableRequest
    }
    ```
 */
-@available(iOS 11.0, macOS 10.13, *)
+@available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
 public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authenticator {
     /// A `Storage` instance used to store `Secret`s.
     public internal(set) var storage: Storage
+    /// A `UserAgent`.
+    public var userAgent: UserAgent = .default
     /// A block outputing a configured `WKWebView`.
     /// A `String` holding a custom user agent to be passed to every request.
     internal var webView: (WKWebView) -> Void
@@ -59,11 +62,22 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
         self.webView = webView
     }
 
-    /// Set `userAgent`.
-    /// - parameter userAgent: A `String` representing a valid user agent.
-    /// - warning: This method will be removed in the next major release.
-    @available(*, deprecated, message: "custom user agents are no longer supported")
-    public func userAgent(_ userAgent: String?) -> WebViewAuthenticator<Storage> { return self }
+    /// Set a custom User Agent.
+    /// - parameter userAgent: A valid `UserAgent`.
+    /// - returns: `self`.
+    /// - warning: Custom User Agents are not guaranteed to work.
+    public func userAgent(_ userAgent: UserAgent) -> WebViewAuthenticator<Storage> {
+        self.userAgent = userAgent
+        return self
+    }
+
+    /// Set a custom User Agent.
+    /// - parameter userAgent: A `String` representing a valid User Agent.
+    /// - returns: `self`.
+    /// - warning: Custom User Agents are not guaranteed to work.
+    public func userAgent(_ userAgent: String) -> WebViewAuthenticator<Storage> {
+        return self.userAgent(.custom(userAgent))
+    }
 
     // MARK: Authenticator
     /// Return a `Secret` and store it in `storage`.
@@ -78,10 +92,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
                                                     configuration.processPool = WKProcessPool()
                                                     let webView = WebView(frame: .zero, configuration: configuration)
                                                     webView.navigationDelegate = webView
-                                                    webView.customUserAgent = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                                                                               "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                                                               "Version/13.0.1 Mobile/15E148 Safari/604.1"]
-                                                        .joined(separator: " ")
+                                                    webView.customUserAgent = self.userAgent.string
                                                     webView.storage = self.storage
                                                     webView.onChange = onChange
                                                     // Return the web view.
@@ -97,7 +108,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
 }
 
 /// Extend for `TransientStorage`.
-@available(iOS 11.0, macOS 10.13, *)
+@available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
 public extension WebViewAuthenticator where Storage == TransientStorage {
     // MARK: Lifecycle
     /// Init.
