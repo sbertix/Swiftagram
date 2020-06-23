@@ -8,17 +8,17 @@ import WebKit
 final class SwiftagramAuthenticatorTests: XCTestCase {
     /// Environmental variables.
     var environemnt: [String: String] = [:]
-    
+
     #if canImport(WebKit)
     /// The web view.
     var webView: WKWebView?
     #endif
-    
+
     /// Set up.
     override func setUp() {
         environemnt = ProcessInfo.processInfo.environment
     }
-    
+
     /// Test signing.
     func testSigning() {
         let request = Request("https://google.com")
@@ -31,7 +31,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                 .contains("{\"key\":\"value\"}") == true
         )
     }
-    
+
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
         // removed implementation.
@@ -49,7 +49,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
          }
          wait(for: [invalidUsername], timeout: 60)*/
     }
-    
+
     /// Test `TwoFactor`.
     func testTwoFactor() {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
@@ -64,7 +64,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         }.send(code: "123456")
         wait(for: [expectation], timeout: 3)
     }
-    
+
     /// Test `TwoFactor`.
     func testCheckpoint() {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
@@ -85,7 +85,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         checkpoint.send(code: "123456")
         wait(for: [expectation], timeout: 10)
     }
-    
+
     /// Test `WebViewAuthenticator` login flow.
     func testWebViewAuthenticator() {
         if #available(macOS 10.13, iOS 11, *) {
@@ -107,7 +107,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
             wait(for: [expectation], timeout: 10)
         }
     }
-    
+
     static var allTests = [
         ("Signing", testSigning),
         ("BasicAuthenticator", testBasicAuthenticator),

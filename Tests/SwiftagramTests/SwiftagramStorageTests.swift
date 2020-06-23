@@ -16,7 +16,7 @@ final class SwiftagramStorageTests: XCTestCase {
                                                             .path: "test",
                                                             .value: "test",
                                                             .domain: "test"])!])!
-    
+
     /// Test `TransientStorage` flow.
     func testTransientStorage() {
         let storage = TransientStorage()
@@ -93,7 +93,7 @@ final class SwiftagramStorageTests: XCTestCase {
             XCTFail(error.localizedDescription)
         }
     }
-    
+
     static var allTests = [
         ("TransientStorage", testTransientStorage),
         ("UserDefaultsStorage", testUserDefaultsStorage),
