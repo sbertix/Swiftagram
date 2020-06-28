@@ -2,9 +2,14 @@ name:                    Lint
 
 on:
   push:
+    branches:
+      - master
     paths:
       - '**/*.swift'
   pull_request:
+    branches:
+      - master
+      - development
     paths:
       - '**/*.swift'
     repository_dispatch:

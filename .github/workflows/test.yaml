@@ -2,10 +2,15 @@ name:                    Test
 
 on:
   push:
+    branches:
+      - master
     paths:
       - '**/*.swift'
       - '**/*.yaml'
   pull_request:
+    branches:
+      - master
+      - development
     paths:
       - '**/*.swift'
       - '**/*.yaml'
