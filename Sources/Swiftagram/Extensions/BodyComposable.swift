@@ -8,7 +8,7 @@
 import Foundation
 
 import ComposableRequest
-import SwCrypt
+import CryptoSwift
 
 /// An `enum` representing  signing-related `Error`s.
 public enum SigningError: Error {
@@ -25,15 +25,17 @@ internal extension BodyComposable where Self: BodyParsable {
     /// - returns: An updated copy of `self`.
     func signing(body parameters: [String: Any]) -> Self {
         do {
-            guard CC.hmacAvailable() else { throw SigningError.cryptographyUnavailable }
             // Encode parameters.
-            guard let description = try Response.description(for: parameters),
-                let encoded = description.data(using: .utf8, allowLossyConversion: true) else {
-                    throw SigningError.invalidRepresentation
+            guard let encoded = try? JSONSerialization.data(withJSONObject: parameters,
+                                                            options: []),
+                let description = String(data: encoded, encoding: .utf8) else {
+                throw SigningError.invalidRepresentation
             }
             // Compute hash.
-            let hash = CC.HMAC(encoded, alg: .sha256, key: Constants.signatureKey.dataFromHexadecimalString()!)
-                .hexadecimalString()
+            let hash = try HMAC(key: Constants.signatureKey.bytes,
+                            variant: .sha256)
+                .authenticate(description.bytes)
+                .toHexString()
             // Sign body.
             return try appending(body: [
                 "signed_body": [hash, description].joined(separator: "."),
