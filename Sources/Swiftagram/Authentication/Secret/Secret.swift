@@ -9,7 +9,7 @@ import Foundation
 
 import ComposableRequest
 
-public struct Secret: CookieKey {
+public struct Secret: HeaderKey {
     /// All cookies.
     public private(set) var cookies: [CodableHTTPCookie]
 
@@ -20,8 +20,11 @@ public struct Secret: CookieKey {
 
     /// All header fields.
     public var header: [String: String] {
-        let required = ["ds_user_id", "sessionid", "csrftoken"]
-        return HTTPCookie.requestHeaderFields(with: cookies.filter { required.contains($0.name) })
+        let headers = HTTPCookie.requestHeaderFields(with: cookies.filter { $0.name != "urlgen" })
+        guard let mid = cookies.first(where: { $0.name == "mid" }) else {
+            return headers
+        }
+        return headers.merging(["X-MID": mid.value], uniquingKeysWith: { _, rhs in rhs })
     }
 
     /// An `HTTPCookie` holding reference to the cross site request forgery token.
