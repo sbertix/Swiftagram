@@ -15,11 +15,9 @@ public struct Constants {
     /// The app version code.
     public static let appVersionCode = "185203708"
     /// The signature key.
-    public static let signatureKey = ["9193488027538fd3450b83b7d05286d",
-                                      "4ca9599a0f7eeed90d8c85925698a05dc"]
-        .joined()
+    public static let signatureKey = "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc"
     /// The signature version.
-    public static let signatureVersion = "4"
+    public static let signatureVersion = "5"
     /// The breadcrumb key.
     public static let breadcrumbKey = "iN4$aGr0m"
     /// The expriments.
