@@ -137,5 +137,5 @@ public extension Device {
                                     modelBoot: "nikel",
                                     cpu: "mt6797",
                                     dpi: 480,
-                                    resolution: .init(width: 1400, height: 3040))
+                                    resolution: .init(width: 1080, height: 1920))
 }

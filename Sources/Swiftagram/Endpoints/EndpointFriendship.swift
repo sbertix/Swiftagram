@@ -54,6 +54,7 @@ public extension Endpoint {
         private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> ResponseDisposable {
             return base[keyPath: keyPath]
                 .appending(path: identifier)
+                .appending(path: "/")
                 .prepare()
                 .locking(Secret.self) {
                     $0.appending(header: $1.header)
