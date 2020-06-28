@@ -22,7 +22,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {
         XCTAssert(Endpoint.Archive
-            .stories
+            .stories()
             .unlocking(with: secret)
             .request
             .request()?
@@ -33,7 +33,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Test `Endpoint.Direct`.
     func testEndpointDirect() {
         XCTAssert(Endpoint.Direct
-            .threads
+            .threads()
             .unlocking(with: secret)
             .request
             .request()?
@@ -65,14 +65,14 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/reels_tray")
         XCTAssert(Endpoint.Feed
-            .liked
+            .liked()
             .unlocking(with: secret)
             .request
             .request()?
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/feed/liked")
         XCTAssert(Endpoint.Feed
-            .timeline
+            .timeline()
             .unlocking(with: secret)
             .request
             .request()?
@@ -139,7 +139,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             .url?
             .absoluteString == "https://i.instagram.com/api/v1/friendships/show/id")
         XCTAssert(Endpoint.Friendship
-            .pendingRequests
+            .pendingRequests()
             .unlocking(with: secret)
             .request
             .request()?
@@ -230,7 +230,7 @@ final class SwiftagramEndpointTests: XCTestCase {
 
     func testEndpointDiscover() {
         XCTAssert(Endpoint.Discover
-            .explore
+            .explore()
             .unlocking(with: secret)
             .request
             .request()?

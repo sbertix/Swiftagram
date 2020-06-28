@@ -26,9 +26,11 @@ public extension Endpoint {
         }
 
         /// All user matching `query`.
-        /// - parameter query: A `String` holding reference to a valid user query.
-        public static func all(matching query: String) -> ResponsePaginated {
-            return base.search.appending(query: "q", with: query).paginating().locking(Secret.self)
+        /// - parameters:
+        ///     - query: A `String` holding reference to a valid user query.
+        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        public static func all(matching query: String, startingAt page: String? = nil) -> ResponsePaginated {
+            return base.search.appending(query: "q", with: query).paginating(value: page).locking(Secret.self)
         }
 
         // MARK: Actions

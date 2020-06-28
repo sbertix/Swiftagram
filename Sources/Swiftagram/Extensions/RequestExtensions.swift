@@ -14,10 +14,12 @@ public extension Requestable where Self: QueryComposable & QueryParsable {
     /// Returns a `Fetcher`.
     /// - returns: A `Fetcher` wrapping `self`.
     func paginating(key: String = "max_id",
-                    keyPath: KeyPath<Response, Response> = \.nextMaxId) -> Fetcher<Self, Response>.Paginated {
-        return self.prepare { request, response in
-            guard let response = response else { return request }
-            return try? response.get()[keyPath: keyPath].string().flatMap { request.appending(query: key, with: $0) }
+                    keyPath: KeyPath<Response, Response> = \.nextMaxId,
+                    value: String? = nil) -> Fetcher<Self, Response>.Paginated {
+        return self.appending(query: key, with: value)
+            .prepare { request, response in
+                guard let response = response else { return request }
+                return try? response.get()[keyPath: keyPath].string().flatMap { request.appending(query: key, with: $0) }
         }
     }
 }

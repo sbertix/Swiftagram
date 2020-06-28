@@ -16,14 +16,23 @@ public extension Endpoint {
         private static let base = Endpoint.version1.direct_v2.appendingDefaultHeader()
 
         /// All threads.
-        public static let threads: ResponsePaginated = base.inbox.paginating(key: "cursor", keyPath: \.oldestCursor).locking(Secret.self)
+        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        public static func threads(startingAt page: String? = nil) -> ResponsePaginated {
+            return base.inbox.paginating(key: "cursor", keyPath: \.oldestCursor, value: page).locking(Secret.self)
+        }
+
         /// Top ranked recipients.
         public static let rankedRecipients: ResponseDisposable = base.ranked_recipients.prepare().locking(Secret.self)
 
         /// A thread matching `identifier`.
-        /// - parameter identifier: A `String` holding reference to a valid thread identifier.
-        public static func thread(matching identifier: String) -> ResponsePaginated {
-            return base.threads.appending(path: identifier).paginating(key: "cursor", keyPath: \.thread.oldestCursor).locking(Secret.self)
+        /// - parameters:
+        ///     - identifier: A `String` holding reference to a valid thread identifier.
+        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        public static func thread(matching identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+            return base.threads
+                .appending(path: identifier)
+                .paginating(key: "cursor", keyPath: \.thread.oldestCursor, value: page)
+                .locking(Secret.self)
         }
     }
 }
