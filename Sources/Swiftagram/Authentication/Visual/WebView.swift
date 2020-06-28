@@ -20,6 +20,14 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
     /// A method called everytime a new page has finished loading.
     internal func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         switch webView.url?.absoluteString {
+        case "https://www.instagram.com/accounts/login/"?:
+            webView.evaluateJavaScript("""
+            const googlePlay = document.getElementsByClassName('MFkQJ ABLKx VhasA _1-msldsad')[0]
+                || document.getElementsByClassName('MFkQJ ABLKx VhasA _1-msl')[0];
+            if (googlePlay) googlePlay.remove();
+            const cookies = document.getElementsByClassName('lOPC8 DPEif')[0];
+            if (cookies) cookies.remove();
+            """, completionHandler: { _, _ in })
         case "https://www.instagram.com/"?:
             // Check the `WKWebView`.
             webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [self] in // keep alive.
