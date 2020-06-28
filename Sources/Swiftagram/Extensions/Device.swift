@@ -20,6 +20,8 @@ public struct Device: Equatable, Codable {
     public let model: String
     /// The device model boot.
     public let modelBoot: String
+    /// The CPU identifier.
+    public let cpu: String
 
     /// The device GUID.
     public let deviceGUID: UUID
@@ -51,10 +53,10 @@ public struct Device: Equatable, Codable {
             "\(Int(resolution.width))x\(Int(resolution.height));",
             brand+";",
             model+";",
-            model+";",
             modelBoot+";",
-            Locale.current.identifier,
-            code
+            cpu+";",
+            "en_US;",
+            code+")"
         ].joined(separator: " ")
     }
     /// The browser user agent.
@@ -78,6 +80,7 @@ public struct Device: Equatable, Codable {
     ///     - brand: A valid `String`.
     ///     - model: A valid `String`.
     ///     - modelBoot: A valid `String`.
+    ///     - cpu: A valid `String`.
     ///     - dpi: A valid `Int`.
     ///     - resolution: A valid `CGSize`.
     ///     - api: A valid `String`. Defaults to `Constants.api`.
@@ -90,6 +93,7 @@ public struct Device: Equatable, Codable {
                 brand: String,
                 model: String,
                 modelBoot: String,
+                cpu: String,
                 dpi: Int,
                 resolution: CGSize,
                 api: String = Constants.appVersion,
@@ -109,6 +113,7 @@ public struct Device: Equatable, Codable {
         self.brand = brand
         self.model = model
         self.modelBoot = modelBoot
+        self.cpu = cpu
         self.dpi = dpi
         self.resolution = resolution
         self.api = api
@@ -123,13 +128,14 @@ public struct Device: Equatable, Codable {
 
 /// Default `Device`s.
 public extension Device {
-    /// The current `Device`. Defaults to `.galaxyS10`.
-    static var `default` = Device.galaxyS10
+    /// The current `Device`. Defaults to `.note4X`.
+    static var `default` = Device.redmiNote4X
 
-    /// A European **Samsung Galaxy S10**.
-    static let galaxyS10 = Device(brand: "samsung",
-                                  model: "SM-G973F",
-                                  modelBoot: "qcom",
-                                  dpi: 411,
-                                  resolution: .init(width: 1400, height: 3040))
+    /// A European **Xiamoi Redmi Note 4x**.
+    static let redmiNote4X = Device(brand: "Xiaomi",
+                                    model: "Redmi Note 4X",
+                                    modelBoot: "nikel",
+                                    cpu: "mt6797",
+                                    dpi: 480,
+                                    resolution: .init(width: 1400, height: 3040))
 }
