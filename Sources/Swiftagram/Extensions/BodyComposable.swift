@@ -33,7 +33,7 @@ internal extension BodyComposable where Self: BodyParsable {
             }
             // Compute hash.
             let hash = try HMAC(key: Constants.signatureKey.bytes,
-                            variant: .sha256)
+                                variant: .sha256)
                 .authenticate(description.bytes)
                 .toHexString()
             // Sign body.
