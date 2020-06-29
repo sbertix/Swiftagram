@@ -412,8 +412,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sbertix/Swiftagram.git";
 			requirement = {
-				branch = development;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.0;
 			};
 		};
 		E06D4F6F244C7EA500C9AD05 /* XCRemoteSwiftPackageReference "FetchImage" */ = {
