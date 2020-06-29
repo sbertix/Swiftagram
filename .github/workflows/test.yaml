@@ -9,7 +9,6 @@ on:
       - '**/*.swift'
       - '**/*.yaml'
   pull_request:
-    branches:
       - master
       - development
     paths:
