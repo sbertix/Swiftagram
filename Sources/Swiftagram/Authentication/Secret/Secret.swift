@@ -27,7 +27,7 @@ public struct Secret: HeaderKey {
                 uniquingKeysWith: { _, rhs in rhs }
         )
     }
-    
+
     /// A `String` representing the logged in user identifier.
     public var identifier: String! {
         return cookies.first(where: { $0.name == "ds_user_id" })?.value

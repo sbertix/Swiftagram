@@ -10,7 +10,7 @@ import Foundation
 /// An `enum` describing `Authentictor` specific `Error`s.
 public enum AuthenticatorError: Error {
     /// Checkpoint encountered.
-    case checkpoint(Checkpoint?)
+    // case checkpoint(Checkpoint?)
     /// Cryptography functions unavailable.
     case cryptographyUnavailable
     /// Invalid code.
@@ -28,5 +28,5 @@ public enum AuthenticatorError: Error {
     /// Try again immediately.
     case retry
     /// Two factor challenge encountered
-    case twoFactor(TwoFactor?)
+    // case twoFactor(TwoFactor?)
 }
