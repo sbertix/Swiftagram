@@ -18,10 +18,9 @@ public extension Requestable where Self: QueryComposable & QueryParsable {
                     value: String? = nil) -> Fetcher<Self, Response>.Paginated {
         return self.appending(query: key, with: value)
             .prepare { request, response in
-guard let response = try? response?.get() else { return request }
- return (response[keyPath: keyPath].string() 
-    ?? response[keyPath: keyPath].int().flatMap(String.init))
-        .flatMap { request.appending(query: key, with: $0) }
+                guard let response = try? response?.get() else { return request }
+                return (response[keyPath: keyPath].string() ?? response[keyPath: keyPath].int().flatMap(String.init))
+                    .flatMap { request.appending(query: key, with: $0) }
         }
     }
 }
