@@ -19,16 +19,10 @@ public extension Requestable where Self: QueryComposable & QueryParsable {
         return self.appending(query: key, with: value)
             .prepare { request, response in
                 guard let response = response else { return request }
-                
-                let nextMaxId = try? response.get()[keyPath: keyPath]
-                
-                if let nextMaxId = nextMaxId?.string() {
-                  return request.appending(query: key, with: nextMaxId)
-                } else if let nextMaxId = nextMaxId?.int() {
-                  return request.appending(query: key, with: "\(nextMaxId)")
-                }
-                
-                return nil
+guard let response = try? response?.get() else { return request }
+ return (response[keyPath: keyPath].string() 
+    ?? response[keyPath: keyPath].int().flatMap(String.init))
+        .flatMap { request.appending(query: key, with: $0) }
         }
     }
 }
