@@ -23,7 +23,7 @@ public struct Secret: HeaderKey {
                 ["X-IG-Device-ID": device.deviceGUID.uuidString,
                  "X-IG-Android-ID": Device.default.deviceIdentifier.lowercased(),
                  "X-MID": cookies.first(where: { $0.name == "mid"})?.value,
-                 "User-Agent": device.api].compactMapValues { $0 },
+                 "User-Agent": device.apiUserAgent].compactMapValues { $0 },
                 uniquingKeysWith: { _, rhs in rhs }
         )
     }
