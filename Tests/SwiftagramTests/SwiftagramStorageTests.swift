@@ -79,7 +79,8 @@ final class SwiftagramStorageTests: XCTestCase {
             secret.header
                 .sorted(by: { $0.key < $1.key })
                 .map { $0.key+$0.value }
-                .joined() == "Cookieds_user_id=A; csrftoken=B; sessionid=C"
+                .joined()
+                .contains("Cookieds_user_id=A; csrftoken=B; sessionid=C")
         )
         XCTAssert(secret.identifier == "A")
         secret.store(in: TransientStorage())

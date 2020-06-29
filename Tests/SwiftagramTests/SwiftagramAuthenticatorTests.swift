@@ -51,7 +51,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     }
 
     /// Test `TwoFactor`.
-    func testTwoFactor() {
+    /*func testTwoFactor() {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
         TwoFactor(storage: TransientStorage(),
@@ -84,7 +84,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         checkpoint.requestCode(to: verification)
         checkpoint.send(code: "123456")
         wait(for: [expectation], timeout: 10)
-    }
+    }*/
 
     /// Test `WebViewAuthenticator` login flow.
     func testWebViewAuthenticator() {

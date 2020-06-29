@@ -16,6 +16,9 @@ public extension Endpoint {
         private static let base = Endpoint.version1.discover.appendingDefaultHeader()
 
         /// The explore feed.
-        public static let explore: ResponsePaginated = base.explore.paginating().locking(Secret.self)
+        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        public static func explore(startingAt page: String? = nil) -> ResponsePaginated {
+            return base.explore.paginating(value: page).locking(Secret.self)
+        }
     }
 }
