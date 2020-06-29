@@ -2,6 +2,8 @@ name:                          releases
 
 on:
   push:
+    branches:
+      - master
     tags:
       - '*'
 
