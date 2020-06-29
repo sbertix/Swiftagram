@@ -7,14 +7,8 @@ on:
       - development
     paths:
       - '**/*.swift'
-  pull_request:
-    branches:
-      - master
-      - development
-    paths:
-      - '**/*.swift'
-    repository_dispatch:
-      types:             [lint-command, test-command]
+  repository_dispatch:
+    types:             [lint-command, build-command]
 
 jobs:
   lint:

@@ -8,15 +8,8 @@ on:
     paths:
       - '**/*.swift'
       - '**/*.yaml'
-  pull_request:
-    branches:
-      - master
-      - development
-    paths:
-      - '**/*.swift'
-      - '**/*.yaml'
   repository_dispatch:
-    types:               [test-command]
+    types:               [test-command, build-command]
 
 jobs:
   build:
