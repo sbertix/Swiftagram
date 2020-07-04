@@ -94,7 +94,7 @@ public extension Endpoint {
         public static func stories(by identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
             return base.user.appending(path: identifier).reel_media.paginating(value: page).locking(Secret.self)
         }
-        
+
         /// All posts a user matching `identifier` is tagged in.
         /// - parameters
         ///     - identifier: A `String` holding reference to a valid user identifier.

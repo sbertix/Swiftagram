@@ -13,7 +13,7 @@ import Swiftagram
 public extension Endpoint.Feed {
     /// The base endpoint.
     private static let base = Endpoint.version1.feed.appendingDefaultHeader()
-    
+
     /// All available stories for user matching `identifiers`.
     /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
     static func stories<C: Collection>(by identifiers: C) -> Endpoint.ResponseDisposable where C.Element == String {
