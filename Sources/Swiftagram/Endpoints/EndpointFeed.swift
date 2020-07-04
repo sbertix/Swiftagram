@@ -94,24 +94,7 @@ public extension Endpoint {
         public static func stories(by identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
             return base.user.appending(path: identifier).reel_media.paginating(value: page).locking(Secret.self)
         }
-
-        /// All available stories for user matching `identifiers`.
-        /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
-        public static func stories<C: Collection>(by identifiers: C) -> ResponseDisposable where C.Element == String {
-            return Endpoint.version1.feed.reels_media
-                .appendingDefaultHeader()
-                .prepare()
-                .locking(Secret.self) {
-                    $0.appending(header: $1.header)
-                        .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
-                                        "user_ids": Array(identifiers),
-                                        "_uid": $1.identifier ?? "",
-                                        "_uuid": Device.default.deviceGUID.uuidString,
-                                        "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
-                                        "source": "feed_timeline"])
-            }
-        }
-
+        
         /// All posts a user matching `identifier` is tagged in.
         /// - parameters
         ///     - identifier: A `String` holding reference to a valid user identifier.

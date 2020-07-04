@@ -1,5 +1,5 @@
 @testable import Swiftagram
-@testable import SwiftagramKeychain
+@testable import SwiftagramCrypto
 import XCTest
 
 final class SwiftagramStorageTests: XCTestCase {

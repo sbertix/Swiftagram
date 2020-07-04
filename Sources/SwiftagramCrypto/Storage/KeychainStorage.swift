@@ -1,6 +1,6 @@
 //
 //  KeychainStorage.swift
-//  Swiftagram
+//  SwiftagramCrypto
 //
 //  Created by Stefano Bertagno on 07/03/2020.
 //

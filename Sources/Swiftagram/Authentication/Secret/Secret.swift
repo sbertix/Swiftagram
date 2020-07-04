@@ -34,12 +34,12 @@ public struct Secret: HeaderKey {
     }
 
     /// An `HTTPCookie` holding reference to the cross site request forgery token.
-    internal var crossSiteRequestForgery: HTTPCookie! {
+    public var crossSiteRequestForgery: HTTPCookie! {
         return cookies.first(where: { $0.name == "csrftoken" })
     }
 
     /// An `HTTPCookie` holding reference to the session identifier.
-    internal var session: HTTPCookie! {
+    public var session: HTTPCookie! {
         return cookies.first(where: { $0.name == "sessionid" })
     }
 

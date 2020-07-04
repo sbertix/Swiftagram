@@ -10,8 +10,8 @@ let package = Package(
             targets: ["Swiftagram"]
         ),
         .library(
-            name: "SwiftagramKeychain",
-            targets: ["SwiftagramKeychain"]
+            name: "SwiftagramCrypto",
+            targets: ["SwiftagramCrypto"]
         )
     ],
     dependencies: [
@@ -22,15 +22,15 @@ let package = Package(
     targets: [
         .target(
             name: "Swiftagram",
-            dependencies: ["ComposableRequest", "CryptoSwift"]
+            dependencies: ["ComposableRequest"]
         ),
         .target(
-            name: "SwiftagramKeychain",
-            dependencies: ["Swiftagram", "KeychainSwift"]
+            name: "SwiftagramCrypto",
+            dependencies: ["Swiftagram", "CryptoSwift", "KeychainSwift"]
         ),
         .testTarget(
             name: "SwiftagramTests",
-            dependencies: ["Swiftagram", "SwiftagramKeychain"]
+            dependencies: ["Swiftagram", "SwiftagramCrypto"]
         )
     ]
 )

@@ -1,6 +1,7 @@
 import ComposableRequest
 import Foundation
 @testable import Swiftagram
+@testable import SwiftagramCrypto
 import XCTest
 
 extension HTTPCookie {
