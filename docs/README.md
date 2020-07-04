@@ -1,7 +1,6 @@
 # Swiftagram
-[![GitHub](https://img.shields.io/github/license/sbertix/Swiftagram)](LICENSE)
-[![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/master/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Swift](https://img.shields.io/badge/Swift-5.1-%23DE5C43?style=flat&logo=swift)](https://swift.org)
+[![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/master/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
 
 **Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.
@@ -22,6 +21,28 @@ Unofficial APIs, though, are not authorized by Instagram for external use: use t
 > Where can I use this?
 
 **Swiftagram** supports **iOS**, **macOS**, **watchOS**, **tvOS** and **Linux**.
+
+> What's **SwiftagramCrypto**?
+
+Apps using encryption require specific disclosure before submission to the App Store.\
+Although **Swiftagram** cannot be considered App Store safe, we still think it's wise to separate everything requiring cryptography into their own target library, named **SwiftagramCrypto**.\
+Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoint`s are **SwiftagramCrypto** only.
+
+<details><summary><strong>SwiftagramCrypto</strong>-specific endpoints</summary>
+    <p>
+        
+- `Endoint.Feed`
+    - `.stories(by:)`
+- `Endpoint.Friendship`
+    - `.follow(_:)`
+    - `.unfollow(_:)`
+    - `.remove(follower:)`
+    - `.acceptRequest(from:)`
+    - `.rejectRequest(from:)`
+    - `.block(_:)`
+    - `.unblock(_:)`
+    </p>
+</details>
 
 ## Status
 ![Status](https://github.com/sbertix/Swiftagram/workflows/master/badge.svg)
