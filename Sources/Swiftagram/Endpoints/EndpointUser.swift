@@ -32,13 +32,13 @@ public extension Endpoint {
         public static func all(matching query: String, startingAt page: String? = nil) -> ResponsePaginated {
             return base.search.appending(query: "q", with: query).paginating(value: page).locking(Secret.self)
         }
-        
+
         /// All former usernames for a given user.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func usernames(usedBy identifier: String) -> ResponseDisposable {
             return base.appending(path: identifier).former_usernames.prepare().locking(Secret.self)
         }
-        
+
         // MARK: Actions
         /// Report the user matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
