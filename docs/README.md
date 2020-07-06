@@ -41,6 +41,9 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.rejectRequest(from:)`
     - `.block(_:)`
     - `.unblock(_:)`
+- `Endpoint.Media`
+    - `.like(_:)`
+    - `.unlike(_:)`
     </p>
 </details>
 
