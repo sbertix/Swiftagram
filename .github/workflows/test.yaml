@@ -20,6 +20,13 @@ jobs:
     - name:              Build
       run:               swift build -v
     - name:              Test
+      env:
+        DS_USER_ID:      ${{ secrets.DS_USER_ID }}
+        RUR:             ${{ secrets.RUR }}
+        MID:             ${{ secrets.MID }}
+        SESSIONID:       ${{ secrets.SESSIONID }}
+        CSRFTOKEN:       ${{ secrets.CSRFTOKEN }}
+        IG_DID:          ${{ secrets.IG_DID }}
       run:               swift test -v --enable-test-discovery --enable-code-coverage
     - name:              Coverage (1)
       run:               xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
