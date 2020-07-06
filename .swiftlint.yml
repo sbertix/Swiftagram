@@ -68,8 +68,8 @@ type_body_length:
     error: 1000
 
 function_body_length:
-    warning: 95
-    error: 100
+    warning: 115
+    error: 120
 
 line_length:
     warning: 150

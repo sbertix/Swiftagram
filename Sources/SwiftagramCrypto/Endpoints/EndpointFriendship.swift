@@ -30,8 +30,8 @@ public extension Endpoint.Friendship {
                                     "user_id": identifier,
                                     "radio_type": "wifi-none",
                                     "_uid": $1.identifier ?? "",
-                                    "device_id": Device.default.deviceIdentifier,
-                                    "_uuid": Device.default.deviceGUID.uuidString])
+                                    "device_id": $1.device.deviceIdentifier,
+                                    "_uuid": $1.device.deviceGUID.uuidString])
         }
     }
 

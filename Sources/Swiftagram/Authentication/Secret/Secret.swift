@@ -21,7 +21,7 @@ public struct Secret: HeaderKey {
         return HTTPCookie.requestHeaderFields(with: cookies.filter { $0.name != "urlgen" })
             .merging(
                 ["X-IG-Device-ID": device.deviceGUID.uuidString,
-                 "X-IG-Android-ID": Device.default.deviceIdentifier.lowercased(),
+                 "X-IG-Android-ID": device.deviceIdentifier.lowercased(),
                  "X-MID": cookies.first(where: { $0.name == "mid"})?.value,
                  "User-Agent": device.apiUserAgent].compactMapValues { $0 },
                 uniquingKeysWith: { _, rhs in rhs }

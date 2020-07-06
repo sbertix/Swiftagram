@@ -24,8 +24,9 @@ public extension Endpoint.Feed {
                 $0.appending(header: $1.header)
                     .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
                                     "user_ids": Array(identifiers),
+                                    "device_id": $1.device.deviceIdentifier,
                                     "_uid": $1.identifier ?? "",
-                                    "_uuid": Device.default.deviceGUID.uuidString,
+                                    "_uuid": $1.device.deviceGUID.uuidString,
                                     "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
                                     "source": "feed_timeline"])
         }

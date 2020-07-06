@@ -43,58 +43,5 @@ public extension Endpoint {
         public static func permalink(for identifier: String) -> ResponseDisposable {
             return base.appending(path: identifier).permalink.prepare().locking(Secret.self)
         }
-
-        // MARK: Actions
-        /// Like the media matching `identifier`.
-        /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func like(_ identifier: String) -> ResponseDisposable {
-            return base.appending(path: identifier).like
-                .prepare()
-                .locking(Secret.self) {
-                    $0.appending(header: $1.header)
-                        .replacing(body: [
-                            "_csrftoken": $1.crossSiteRequestForgery?.value,
-                            "_uuid": Device.default.deviceGUID.uuidString,
-                            "_uid": $1.identifier,
-                            "media_id": identifier
-                        ])
-                }
-        }
-
-        /// Unlike the media matching `identifier`.
-        /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func unlike(_ identifier: String) -> ResponseDisposable {
-            return base.appending(path: identifier).unlike
-                .prepare()
-                .locking(Secret.self) {
-                    $0.appending(header: $1.header)
-                        .replacing(body: [
-                            "_csrftoken": $1.crossSiteRequestForgery?.value,
-                            "_uuid": Device.default.deviceGUID.uuidString,
-                            "_uid": $1.identifier,
-                            "media_id": identifier
-                        ])
-                }
-        }
-
-        /// Report a comment matching `identifier` in media matching `mediaIdentifier`.
-        /// - parameters:
-        ///     - identifier: A `String` holding reference to a valid comment identifier.
-        ///     - mediaIdentifier: A `String` holding reference to a valid media identifier.
-        public static func reportComment(_ identifier: String, in mediaIdentifier: String) -> ResponseDisposable {
-            return base.appending(path: mediaIdentifier).comment.appending(path: identifier).flag
-                .prepare()
-                .locking(Secret.self) {
-                    $0.appending(header: $1.header)
-                        .replacing(body: [
-                            "_csrftoken": $1.crossSiteRequestForgery?.value,
-                            "_uuid": Device.default.deviceGUID.uuidString,
-                            "_uid": $1.identifier,
-                            "media_id": mediaIdentifier,
-                            "comment_id": identifier,
-                            "reason": "1"
-                        ])
-                }
-        }
     }
 }

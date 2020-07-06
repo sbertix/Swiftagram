@@ -29,7 +29,7 @@ public extension Endpoint {
                         "battery_level": "72",
                         "is_charging": "0",
                         "will_sound_on": "0"
-                    ])
+                    ]).appending(header: $1.header)
             }
         }
     }

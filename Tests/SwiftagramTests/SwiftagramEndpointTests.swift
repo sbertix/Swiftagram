@@ -6,9 +6,9 @@ import XCTest
 
 extension HTTPCookie {
     /// Test.
-    convenience init(text: String) {
-        self.init(properties: [.name: text,
-                               .value: text,
+    convenience init(name: String, value: String?) {
+        self.init(properties: [.name: name,
+                               .value: value ?? name,
                                .path: "",
                                .domain: ""])!
     }
@@ -16,279 +16,684 @@ extension HTTPCookie {
 
 final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
-    let secret = Secret(cookies: [HTTPCookie(text: "ds_user_id"),
-                                  HTTPCookie(text: "sessionid"),
-                                  HTTPCookie(text: "csrftoken")])!
+    lazy var secret: Secret! = {
+        return Secret(cookies: [
+            HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
+            HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
+            HTTPCookie(name: "mid", value: ProcessInfo.processInfo.environment["MID"]!),
+            HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
+            HTTPCookie(name: "ig_did", value: ProcessInfo.processInfo.environment["IG_DID"]!),
+            HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
+        ])
+    }()
 
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {
-        XCTAssert(Endpoint.Archive
-            .stories()
+        let completion = XCTestExpectation()
+        let value = XCTestExpectation()
+        // fetch.
+        Endpoint.Archive.stories()
             .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/archive/reel/day_shells")
+            .task(
+                maxLength: 1,
+                onComplete: {
+                    XCTAssert($0 == 1)
+                    completion.fulfill()
+                },
+                  onChange: {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                }
+            )
+            .resume()
+        // wait for expectations.
+        wait(for: [completion, value], timeout: 15)
     }
 
     /// Test `Endpoint.Direct`.
     func testEndpointDirect() {
-        XCTAssert(Endpoint.Direct
-            .threads()
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/inbox")
-        XCTAssert(Endpoint.Direct
-            .thread(matching: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/threads/id")
-        XCTAssert(Endpoint.Direct
-            .rankedRecipients
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/direct_v2/ranked_recipients")
+        // Test threads.
+        func testThreads() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Direct.threads()
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test ranked recipients.
+        func testRankedRecipients() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Direct.rankedRecipients
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test thread.
+        func testThread() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Direct.thread(matching: "340282366841710300949128142255881512905")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+
+        testThreads()
+        testRankedRecipients()
+        testThread()
+    }
+
+    /// Test `Endpoint.Discover`.
+    func testEndpointDiscover() {
+        // Test users.
+        func testUsers() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Discover.users(like: "25025320")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test explore.
+        func testExplore() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Discover.explore()
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test thread.
+        func testTopics() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Discover.topics()
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+
+        testUsers()
+        testExplore()
+        testTopics()
     }
 
     /// Test `Endpoint.Feed`.
     func testEndpointFeed() {
-        XCTAssert(Endpoint.Feed
-            .followedStories
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/feed/reels_tray")
-        XCTAssert(Endpoint.Feed
-            .liked()
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/feed/liked")
-        XCTAssert(Endpoint.Feed
-            .timeline()
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/feed/timeline")
-        XCTAssert(Endpoint.Feed
-            .posts(by: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/feed/user/id")
-        XCTAssert(Endpoint.Feed
-            .stories(by: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/feed/user/id/reel_media")
-        XCTAssert(Endpoint.Feed
-            .stories(by: ["id"])
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/feed/reels_media")
-        XCTAssert(Endpoint.Feed
-            .posts(including: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/usertags/id/feed")
-        XCTAssert(Endpoint.Feed
-            .tagged(with: "tag")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/feed/tag/tag")
+        // Test followed stories.
+        func testFollowedStories() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Feed.followedStories
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test liked.
+        func testLiked() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Feed.liked()
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test saved.
+        func testSaved() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Feed.saved()
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test posts.
+        func testPosts() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Feed.posts(by: "25025320")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test stories.
+        func testStories() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Feed.stories(by: "25025320")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test user tags.
+        func testUsertags() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Feed.posts(including: "25025320")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test tag.
+        func testTag() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Feed.tagged(with: "instagram")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+
+        testFollowedStories()
+        testLiked()
+        testSaved()
+        testPosts()
+        testStories()
+        testUsertags()
+        testTag()
     }
 
     /// Test `Endpoint.Friendship`.
     func testEndpointFriendship() {
-        XCTAssert(Endpoint.Friendship
-            .followed(by: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/id/following")
-        XCTAssert(Endpoint.Friendship
-            .following("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/id/followers")
-        XCTAssert(Endpoint.Friendship
-            .friendship(with: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/show/id")
-        XCTAssert(Endpoint.Friendship
-            .pendingRequests()
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/pending")
-        XCTAssert(Endpoint.Friendship
-            .follow("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/create/id/")
-        XCTAssert(Endpoint.Friendship
-            .unfollow("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/destroy/id/")
-        XCTAssert(Endpoint.Friendship
-            .remove(follower: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/remove_follower/id/")
-        XCTAssert(Endpoint.Friendship
-            .acceptRequest(from: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/approve/id/")
-        XCTAssert(Endpoint.Friendship
-            .rejectRequest(from: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/reject/id/")
-        XCTAssert(Endpoint.Friendship
-            .block("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/block/id/")
-        XCTAssert(Endpoint.Friendship
-            .unblock("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/friendships/unblock/id/")
+        // Test followed.
+        func testFollowed() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.followed(by: secret.identifier)
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test following.
+        func testFollowing() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.following(secret.identifier)
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test friendship.
+        func testFriendship() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.friendship(with: "25025320")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test pending requests.
+        func testPendingRequests() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.pendingRequests()
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test follow.
+        func testFollow() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.follow("25025320")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test unfollow.
+        func testUnfollow() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.unfollow("25025320")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+
+        testFollowed()
+        testFollowing()
+        testFriendship()
+        testPendingRequests()
+        testFollow()
+        testUnfollow()
+    }
+
+    /// Test `Endpoint.Highlights`.
+    func testEndpointHighlights() {
+        // Test highlights.
+        func testHighlights() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Highlights.highlights(for: secret.identifier)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+
+        testHighlights()
+    }
+
+    /// Test `Endpoint.Media`.
+    func testEndpointMedia() {
+        // Test summary.
+        func testSummary() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.summary(for: "2345240077849019656")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test likers.
+        func testLikers() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.likers(for: "2345240077849019656")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test comments.
+        func testComments() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.comments(for: "2345240077849019656")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test permalink.
+        func testPermalink() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.permalink(for: "2345240077849019656")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test crypto like.
+        func testCryptoLike() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.like("2345240077849019656")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test crypto unlike.
+        func testCryptoUnlike() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.unlike("2345240077849019656")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+
+        testSummary()
+        testLikers()
+        testComments()
+        testPermalink()
+        testCryptoLike()
+        testCryptoUnlike()
+    }
+
+    /// Test `Endpoint.News`.
+    func testEndpointNews() {
+        // Test inbox.
+        func testInbox() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.News.inbox
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+
+        testInbox()
     }
 
     /// Test `Endpoint.User`.
     func testEndpointUser() {
-        XCTAssert(Endpoint.User
-            .summary(for: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/users/id/info")
-        XCTAssert(Endpoint.User
-            .blocked
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/users/blocked_list")
-        XCTAssert(Endpoint.User
-            .all(matching: "query")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/users/search?q=query")
-        XCTAssert(Endpoint.User
-            .report("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/users/id/flag_user")
-    }
+        // Test blocked.
+        func testBlocked() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.User.blocked
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test summary.
+        func testSummary() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.User.summary(for: secret.identifier)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
+        // Test all.
+        func testAll() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.User.all(matching: "instagram")
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                      onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 15)
+        }
 
-    func testEndpointDiscover() {
-        XCTAssert(Endpoint.Discover
-            .explore()
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/discover/explore")
-    }
-
-    func testEndpointMedia() {
-        XCTAssert(Endpoint.Media
-            .summary(for: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/media/id/info")
-        XCTAssert(Endpoint.Media
-            .likers(for: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/media/id/likers")
-        XCTAssert(Endpoint.Media
-            .comments(for: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/media/id/comments")
-        XCTAssert(Endpoint.Media
-            .permalink(for: "id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/media/id/permalink")
-        XCTAssert(Endpoint.Media
-            .like("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/media/id/like")
-        XCTAssert(Endpoint.Media
-            .unlike("id")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/media/id/unlike")
-        XCTAssert(Endpoint.Media
-            .reportComment("id", in: "mediaId")
-            .unlocking(with: secret)
-            .request
-            .request()?
-            .url?
-            .absoluteString == "https://i.instagram.com/api/v1/media/mediaId/comment/id/flag")
+        testBlocked()
+        testSummary()
+        testAll()
     }
 
     static var allTests = [
@@ -297,7 +702,9 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Discover", testEndpointDiscover),
         ("Endpoint.Feed", testEndpointFeed),
         ("Endpoint.Friendship", testEndpointFriendship),
+        ("Endpoint.Highlights", testEndpointHighlights),
         ("Endpoint.Media", testEndpointMedia),
+        ("Endpoint.News", testEndpointNews),
         ("Endpoint.User", testEndpointUser)
     ]
 }

@@ -40,7 +40,7 @@ public extension Endpoint {
                         "timezone_offset": "43200",
                         "session_id": $1.session.value,
                         "include_fixed_destinations": "false"
-                    ])
+                    ]).appending(header: $1.header)
                 }
         }
     }
