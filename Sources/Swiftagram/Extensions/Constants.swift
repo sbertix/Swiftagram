@@ -931,9 +931,9 @@ public struct Constants {
 }
 
 /// A `struct` holding reference to the API supported capabilities.
-internal struct SupportedCapabilities {
+public struct SupportedCapabilities {
     /// A shared `Dictionary` of `String`s.
-    internal static let `default` = [
+    public static let `default` = [
         "SUPPORTED_SDK_VERSIONS": ["13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0",
                                    "20.0", "21.0", "22.0", "23.0", "24.0", "25.0", "26.0",
                                    "27.0", "28.0", "29.0", "30.0", "31.0", "32.0", "33.0",

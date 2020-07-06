@@ -1,6 +1,6 @@
 //
 //  Crypto.swift
-//  Swiftagram
+//  SwiftagramCrypto
 //
 //  Created by Stefano Bertagno on 16/04/2020.
 //
@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableRequest
 import CryptoSwift
+import Swiftagram
 
 /// An `enum` representing  signing-related `Error`s.
 public enum SigningError: Error {

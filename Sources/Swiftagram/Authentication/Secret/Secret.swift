@@ -21,7 +21,7 @@ public struct Secret: HeaderKey {
         return HTTPCookie.requestHeaderFields(with: cookies.filter { $0.name != "urlgen" })
             .merging(
                 ["X-IG-Device-ID": device.deviceGUID.uuidString,
-                 "X-IG-Android-ID": Device.default.deviceIdentifier.lowercased(),
+                 "X-IG-Android-ID": device.deviceIdentifier.lowercased(),
                  "X-MID": cookies.first(where: { $0.name == "mid"})?.value,
                  "User-Agent": device.apiUserAgent].compactMapValues { $0 },
                 uniquingKeysWith: { _, rhs in rhs }
@@ -34,12 +34,12 @@ public struct Secret: HeaderKey {
     }
 
     /// An `HTTPCookie` holding reference to the cross site request forgery token.
-    internal var crossSiteRequestForgery: HTTPCookie! {
+    public var crossSiteRequestForgery: HTTPCookie! {
         return cookies.first(where: { $0.name == "csrftoken" })
     }
 
     /// An `HTTPCookie` holding reference to the session identifier.
-    internal var session: HTTPCookie! {
+    public var session: HTTPCookie! {
         return cookies.first(where: { $0.name == "sessionid" })
     }
 

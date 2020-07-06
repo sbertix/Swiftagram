@@ -13,4 +13,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
           reaction-token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-          commands: test, lint
+          commands: lint, test, build

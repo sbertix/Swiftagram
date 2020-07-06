@@ -32,25 +32,5 @@ public extension Endpoint {
         public static func all(matching query: String, startingAt page: String? = nil) -> ResponsePaginated {
             return base.search.appending(query: "q", with: query).paginating(value: page).locking(Secret.self)
         }
-
-        // MARK: Actions
-        /// Report the user matching `identifier`.
-        /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func report(_ identifier: String) -> ResponseDisposable {
-            return base.appending(path: identifier).flag_user
-                .prepare()
-                .locking(Secret.self) {
-                    $0.appending(header: $1.header)
-                        .replacing(body: [
-                            "_csrftoken": $1.crossSiteRequestForgery.value,
-                            "_uuid": Device.default.deviceGUID.uuidString,
-                            "_uid": $1.identifier,
-                            "user_id": identifier,
-                            "source_name": "profile",
-                            "is_spam": "true",
-                            "reason_id": "1"
-                        ])
-                    }
-        }
     }
 }
