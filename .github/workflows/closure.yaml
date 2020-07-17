@@ -1,0 +1,17 @@
+name: closure
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  comments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Comment on closed issue
+        uses: ben-z/actions-comment-on-issue@1.0.2
+        with:
+          message: '_If you found this useful, please consider starring :star: this repo, or even [sponsoring it](https://paypal.me/sbertix) :dollar:.<br />Even just $1 can help me maintain this._<br />_Thank you for using **Swiftagram**._'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
