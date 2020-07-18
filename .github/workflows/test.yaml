@@ -1,4 +1,4 @@
-name:                    Test
+name:                    test
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
       - development
     paths:
       - '**/*.swift'
-      - '**/*.yaml'
+      - '**/lint.yaml'
+      - '**/test.yaml'
   repository_dispatch:
     types:               [test-command, build-command]
 
