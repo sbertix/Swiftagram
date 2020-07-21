@@ -10,6 +10,12 @@ jobs:
     runs-on:                   ubuntu-latest
     steps:
     - uses:                    actions/checkout@master
+    - name:                    Fetch commits
+      run:                     |
+        git fetch --prune --unshallow --tags
+    - name:                    Create changelogs
+      id:                      changelogs
+      uses:                    heineiuo/create-changelogs@master
     - name:                    Get tag
       id:                      tag
       uses:                    dawidd6/action-get-tag@v1
@@ -19,7 +25,9 @@ jobs:
         to:                    ${{ secrets.TELEGRAM_TO }}
         token:                 ${{ secrets.TELEGRAM_TOKEN }}
         format:                markdown
-        args:                  Version [${{ steps.tag.outputs.tag }}](https://gitub.com/sbertix/Swiftagram) was just released. Please consider updating your code.
+        args:                  |+
+          Version [${{ steps.tag.outputs.tag }}](https://gitub.com/sbertix/Swiftagram) was just released. Please consider updating your code.
+          ${{ steps.changelogs.outputs.changelogs }}
   documentation:
     runs-on:                   macos-latest
     steps:
