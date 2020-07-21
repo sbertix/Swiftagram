@@ -27,7 +27,7 @@ public extension Endpoint {
         public static func permalink(for identifier: String) -> ResponseDisposable {
             return base.appending(path: identifier).permalink.prepare().locking(Secret.self)
         }
-        
+
         /// A list of all users liking the media matching `identifier`.
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid post media identifier.
@@ -36,7 +36,7 @@ public extension Endpoint {
         public static func likers(for identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
             return Posts.likers(for: identifier, startingAt: page)
         }
-        
+
         /// A list of all comments the media matching `identifier`.
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid post media identifier.
@@ -64,7 +64,7 @@ public extension Endpoint {
                 return base.appending(path: identifier).comments.paginating(value: page).locking(Secret.self)
             }
         }
-        
+
         /// A `struct` holding reference to `media` `Endpoint`s reguarding stories. Requires authentication.
         public struct Stories {
             /// A list of all viewers for the story matching `identifier`.
