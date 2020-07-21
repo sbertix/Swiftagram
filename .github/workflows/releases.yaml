@@ -25,9 +25,7 @@ jobs:
         to:                    ${{ secrets.TELEGRAM_TO }}
         token:                 ${{ secrets.TELEGRAM_TOKEN }}
         format:                markdown
-        args:                  |+
-          Version [${{ steps.tag.outputs.tag }}](https://gitub.com/sbertix/Swiftagram) was just released. Please consider updating your code.
-          ${{ steps.changelogs.outputs.changelogs }}
+        message:               Version [${{ steps.tag.outputs.tag }}](https://gitub.com/sbertix/Swiftagram) was just released. Please consider updating your code. ```${{ steps.changelogs.outputs.changelogs }}``
   documentation:
     runs-on:                   macos-latest
     steps:
