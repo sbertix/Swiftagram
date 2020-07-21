@@ -51,6 +51,9 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
 ![Status](https://github.com/sbertix/Swiftagram/workflows/master/badge.svg)
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)](https://github.com/sbertix/Swiftagram/wiki)
 
+You can find all changelogs on [our Telegram channel](https://t.me/swiftagram).\
+Don't forget to subscribe to get all news and updates as soon as they're out.
+
 > What's next?
 
 Check out our [milestones](https://github.com/sbertix/Swiftagram/milestones), [issues](https://github.com/sbertix/Swiftagram/issues) and the "WIP" [dashboard](https://github.com/sbertix/Swiftagram/projects/1).
