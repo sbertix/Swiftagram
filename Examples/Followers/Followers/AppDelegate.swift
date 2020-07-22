@@ -9,7 +9,7 @@
 import UIKit
 
 import ComposableRequest
-import SwiftagramKeychain
+import SwiftagramCrypto
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

@@ -10,7 +10,7 @@ import UIKit
 import WebKit
 
 import Swiftagram
-import SwiftagramKeychain
+import SwiftagramCrypto
 
 class LoginViewController: UIViewController {
     /// The completion handler.

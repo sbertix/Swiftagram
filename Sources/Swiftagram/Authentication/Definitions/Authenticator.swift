@@ -13,6 +13,8 @@ import ComposableRequest
 public protocol Authenticator {
     /// A `Storage` concrete type in which `Secret` are stored.
     associatedtype Storage: Swiftagram.Storage
+    /// An `Error` concrete type.
+    associatedtype Error: Swift.Error
 
     /// A `Storage` instance used to store `Secret`s.
     var storage: Storage { get }

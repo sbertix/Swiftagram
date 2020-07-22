@@ -82,7 +82,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
     // MARK: Authenticator
     /// Return a `Secret` and store it in `storage`.
     /// - parameter onChange: A block providing a `Secret`.
-    public func authenticate(_ onChange: @escaping (Result<Secret, Error>) -> Void) {
+    public func authenticate(_ onChange: @escaping (Result<Secret, WebViewAuthenticatorError>) -> Void) {
         // Delete all cookies.
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
         WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
@@ -99,7 +99,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
                                                     DispatchQueue.main.async {
                                                         self.webView(webView)
                                                         guard let url = URL(string: "https://www.instagram.com/accounts/login/") else {
-                                                            return onChange(.failure(AuthenticatorError.invalidURL))
+                                                            return onChange(.failure(WebViewAuthenticatorError.invalidURL))
                                                         }
                                                         webView.load(URLRequest(url: url))
                                                     }

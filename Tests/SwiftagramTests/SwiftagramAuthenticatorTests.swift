@@ -36,56 +36,33 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
         // removed implementation.
-        /*let invalidUsername = XCTestExpectation()
-         XCTAssert(Verification(response: ["label": "Email", "value": "1"])?.label == "Email")
-         // Authenticate and checkpoint.
-         let authenticator = BasicAuthenticator(username: "········",
-         password: "········")
-         authenticator.authenticate {
-         switch $0 {
-         case .failure(let error): print(error)
-         default: XCTFail("It should not succeed")
-         }
-         invalidUsername.fulfill()
-         }
-         wait(for: [invalidUsername], timeout: 60)*/
+        let invalidUsername = XCTestExpectation()
+        // Authenticate and checkpoint.
+        let authenticator = BasicAuthenticator(username: "·····",
+                                               password: "·····")
+        authenticator.authenticate {
+            switch $0 {
+            case .failure(let error): print(error)
+            default: XCTFail("It should not succeed")
+            }
+            invalidUsername.fulfill()
+        }
+        wait(for: [invalidUsername], timeout: 60)
     }
 
     /// Test `TwoFactor`.
-    /*func testTwoFactor() {
+    func testTwoFactor() {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
         TwoFactor(storage: TransientStorage(),
                   username: "A",
                   identifier: "A",
-                  userAgent: "A",
-                  crossSiteRequestForgery: .init()) {
+                  crossSiteRequestForgery: .init(name: "_csrftoken", value: "A")) {
                     XCTAssert((try? $0.get()) == nil)
                     expectation.fulfill()
         }.send(code: "123456")
         wait(for: [expectation], timeout: 3)
     }
-
-    /// Test `TwoFactor`.
-    func testCheckpoint() {
-        HTTPCookieStorage.shared.removeCookies(since: .distantPast)
-        let expectation = XCTestExpectation()
-        let verification = Verification(response: ["label": "email", "value": "1"])!
-        let checkpoint = Checkpoint(storage: TransientStorage(),
-                                    url: URL(string: "/")!,
-                                    userAgent: "A",
-                                    crossSiteRequestForgery: .init(),
-                                    availableVerification: [verification]) {
-                                        switch $0 {
-                                        case .success: XCTFail("It should not work.")
-                                        default: break
-                                        }
-                                        expectation.fulfill()
-        }
-        checkpoint.requestCode(to: verification)
-        checkpoint.send(code: "123456")
-        wait(for: [expectation], timeout: 10)
-    }*/
 
     /// Test `WebViewAuthenticator` login flow.
     func testWebViewAuthenticator() {
@@ -112,6 +89,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     static var allTests = [
         ("Signing", testSigning),
         ("BasicAuthenticator", testBasicAuthenticator),
+        ("TestTwoFactor", testTwoFactor),
         ("WebViewAuthenticator", testWebViewAuthenticator)
     ]
 }
