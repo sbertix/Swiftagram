@@ -8,7 +8,7 @@
 import Foundation
 
 import ComposableRequest
-import CryptoSwift
+import SwCrypt
 import Swiftagram
 
 /// An `enum` representing  signing-related `Error`s.
@@ -33,10 +33,10 @@ internal extension BodyComposable where Self: BodyParsable {
                 throw SigningError.invalidRepresentation
             }
             // Compute hash.
-            let hash = try HMAC(key: Constants.signatureKey.bytes,
-                                variant: .sha256)
-                .authenticate(description.bytes)
-                .toHexString()
+            let hash = CC.HMAC(description.data(using: .utf8)!,
+                               alg: .sha256,
+                               key: Constants.signatureKey.dataFromHexadecimalString()!)
+                .base64EncodedString()
             // Sign body.
             return try appending(body: [
                 "signed_body": [hash, description].joined(separator: "."),

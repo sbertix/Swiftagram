@@ -15,7 +15,7 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
     /// Any `Storage`.
     internal var storage: Storage!
     /// A block providing a `Secret`.
-    internal var onChange: ((Result<Secret, Swift.Error>) -> Void)?
+    internal var onChange: ((Result<Secret, WebViewAuthenticatorError>) -> Void)?
 
     /// A method called everytime a new page has finished loading.
     internal func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -35,10 +35,10 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
                 let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                 // Prepare `Secret`.
                 guard cookies.count >= 3 else {
-                    self.onChange?(.failure(AuthenticatorError.invalidCookies))
+                    self.onChange?(.failure(.invalidCookies))
                     return
                 }
-                self.onChange?(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) } ?? .failure(Secret.Error.invalidCookie))
+                self.onChange?(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) } ?? .failure(.invalidCookies))
             }
             // No need to check anymore.
             webView.navigationDelegate = nil
@@ -49,7 +49,7 @@ internal final class WebView: WKWebView, WKNavigationDelegate {
                 // Prepare `Secret` or do nothing.
                 guard Secret.hasValidCookies(cookies) else { return }
                 webView.navigationDelegate = nil
-                self.onChange?(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) } ?? .failure(Secret.Error.invalidCookie))
+                self.onChange?(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) } ?? .failure(.invalidCookies))
                 // Do not notify again.
                 self.onChange = nil
             }
