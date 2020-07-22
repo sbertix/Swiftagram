@@ -10,7 +10,7 @@ import Combine
 import Foundation
 
 import Swiftagram
-import SwiftagramKeychain
+import SwiftagramCrypto
 
 /// An `ObservableObject` dealing with requests.
 final class FollowersModel: ObservableObject {
