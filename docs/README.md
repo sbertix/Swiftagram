@@ -77,7 +77,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 - **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**., and it's the core library.\
 It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s out of the box.
 
-- **SwiftagramCrypto**, depending on [**CryptoSwift**](https://github.com/krzyzanowskim/CryptoSwift) and [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift), can be added to **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
+- **SwiftagramCrypto**, depending on [**SwCrypt**](https://github.com/sbertix/SwCrypt) and [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift), can be added to **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
     </p>
 </details>
 
@@ -88,7 +88,7 @@ Check out our [Examples](Examples) or visit the (_auto-generated_) [Documentatio
 Authentication is provided through conformance to the `Authenticator` protocol, which, on success, returns a `Secret` containing all the cookies needed to sign an `Endpoint`'s request.
 
 The library comes with two concrete implementations.
-- ~[`BasicAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/BasicAuthenticator.html) requires _username_ and _password_, and includes support for checkpoints and two factor authentication.~.
+- [`BasicAuthenticator`](https://sbertix.github.io/SwiftagramCrypto/Classes/BasicAuthenticator.html) is code based and only requires _username_ and _password_, while supporting two factor authentication (requires **SwiftagramCrypto**).
 - [`WebViewAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/WebViewAuthenticator.html), available for **iOS 11**+ and **macOS 10.13**+, relying on a `WKWebView` for fetching cookies.
 
 ### Caching

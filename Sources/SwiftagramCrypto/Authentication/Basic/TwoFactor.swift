@@ -1,4 +1,3 @@
-
 //
 //  TwoFactor.swift
 //  Swiftagram
@@ -73,8 +72,7 @@ public final class TwoFactor {
                     // Otherwise check for error.
                     else if let error = value.errorType.string() {
                         self.onChange(.failure(BasicAuthenticatorError.custom(error)))
-                    }
-                    else { self.onChange(.failure(BasicAuthenticatorError.invalidCookies)) }
+                    } else { self.onChange(.failure(BasicAuthenticatorError.invalidCookies)) }
                 }
             }
             .resume()

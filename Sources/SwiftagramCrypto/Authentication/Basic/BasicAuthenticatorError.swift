@@ -19,7 +19,7 @@ public enum BasicAuthenticatorError: Swift.Error {
     case invalidResponse
     /// Custom error.
     case custom(String)
-    
+
     /// Two factor required.
     case twoFactor(TwoFactor)
     /// Invalid two factor code.

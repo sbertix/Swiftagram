@@ -41,7 +41,7 @@ import Swiftagram
  */
 public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticator {
     public typealias Error = Swift.Error
-    
+
     /// A `Storage` instance used to store `Secret`s.
     public internal(set) var storage: Storage
     /// A `String` holding a valid username.
@@ -256,8 +256,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
             else { onChange(.failure(BasicAuthenticatorError.invalidResponse)) }
         }
     }
-    
-    
+
     /*private func process(result: Result<Response, Error>,
                          crossSiteRequestForgery: HTTPCookie,
                          onChange: @escaping (Result<Secret, Error>) -> Void) {
