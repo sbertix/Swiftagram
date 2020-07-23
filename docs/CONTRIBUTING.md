@@ -10,11 +10,11 @@ That said, we require some guidelines to be followed, in order for PRs to be mer
 - If you are planning **bigger changes**, always open an `enhancement` **issue** before spending a lot of time writing code.
 - All changes are made by submitting a pull request.
 - Ask for a review as soon as you are done with your changes.
-- PRs merged into `development` will be then considered for the next release, and merged into `master` with a new PR.
+- PRs merged into `development` will be then considered for the next release, and merged into `main` with a new PR.
 
 ## Pull Requests
 
-- PR should always be compared against the `development` branch. All PRs intending to merge directly into `master`, excluding the ones involving releases, will be closed.
+- PR should always be compared against the `development` branch. All PRs intending to merge directly into `main`, excluding the ones involving releases, will be closed.
 - Create a `draft` PR as early as possible, in order to avoid duplicated work, and seek collaborators.
 - PR should only "solve" one problem. Always stick to the minimal set of changes.
 - Describe what you want to accomplish in the PR: **do not leave the comment section empty**.
