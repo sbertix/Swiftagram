@@ -30,7 +30,7 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
 
 <details><summary><strong>SwiftagramCrypto</strong>-specific endpoints</summary>
     <p>
-        
+
 - `Endoint.Feed`
     - `.stories(by:)`
 - `Endpoint.Friendship`
@@ -76,7 +76,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 
 <details><summary><strong>Targets</strong></summary>
     <p>
-        
+
 - **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**., and it's the core library.\
 It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s out of the box.
 
@@ -163,5 +163,15 @@ task?.cancel()
 
 >  What about loading the next page?
 
-Just `resume` it once more. 
+Just `resume` it once more.
 If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
+
+## Backers
+Thank your for financially supporting this project.
+
+<a href="https://github.com/sbertix">
+    <img src="https://github.com/sbertix.png?size=60&s=60" width="30" height="30" style="border-radius:50%;" />
+</a>
+<a href="https://github.com/jerry317">
+    <img src="https://github.com/jerry317.png?size=60&s=60" width="30" height="30" style="border-radius:50%;" />
+</a>
