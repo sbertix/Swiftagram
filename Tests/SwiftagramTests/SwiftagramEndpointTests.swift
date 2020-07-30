@@ -46,7 +46,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             )
             .resume()
         // wait for expectations.
-        wait(for: [completion, value], timeout: 30)
+        wait(for: [completion, value], timeout: 60)
     }
 
     /// Test `Endpoint.Direct`.
@@ -71,7 +71,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test ranked recipients.
         func testRankedRecipients() {
@@ -87,7 +87,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test thread.
         func testThread() {
@@ -109,7 +109,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testThreads()
@@ -133,7 +133,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test explore.
         func testExplore() {
@@ -155,7 +155,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test thread.
         func testTopics() {
@@ -177,7 +177,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testUsers()
@@ -201,7 +201,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test liked.
         func testLiked() {
@@ -223,7 +223,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test saved.
         func testSaved() {
@@ -245,7 +245,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test posts.
         func testPosts() {
@@ -267,7 +267,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test stories.
         func testStories() {
@@ -289,7 +289,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test user tags.
         func testUsertags() {
@@ -311,7 +311,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test tag.
         func testTag() {
@@ -333,7 +333,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testFollowedStories()
@@ -367,7 +367,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test following.
         func testFollowing() {
@@ -389,7 +389,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test friendship.
         func testFriendship() {
@@ -405,7 +405,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test pending requests.
         func testPendingRequests() {
@@ -427,7 +427,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test follow.
         func testFollow() {
@@ -443,7 +443,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test unfollow.
         func testUnfollow() {
@@ -459,7 +459,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testFollowed()
@@ -486,7 +486,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testHighlights()
@@ -508,7 +508,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test likers.
         func testLikers() {
@@ -530,7 +530,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test comments.
         func testComments() {
@@ -552,7 +552,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test permalink.
         func testPermalink() {
@@ -568,7 +568,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test crypto like.
         func testCryptoLike() {
@@ -584,7 +584,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test crypto unlike.
         func testCryptoUnlike() {
@@ -600,7 +600,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testSummary()
@@ -627,7 +627,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testInbox()
@@ -649,7 +649,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test summary.
         func testSummary() {
@@ -665,7 +665,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test all.
         func testAll() {
@@ -687,7 +687,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testBlocked()
@@ -705,14 +705,13 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Location.around(coordinates: .init(latitude: 45.434272, longitude: 12.338509))
                 .unlocking(with: secret)
                 .task {
-                    print($0)
                     XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testSearch()

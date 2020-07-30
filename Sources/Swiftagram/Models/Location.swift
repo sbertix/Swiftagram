@@ -7,17 +7,43 @@
 
 import Foundation
 
+#if canImport(CoreGraphics)
+import CoreGraphics
+#else
+public typealias CGFloat = Double
+#endif
+
 import ComposableRequest
 
 /// A `class` representing a `Location`
 public struct Location: ResponseMappable, Codable, CustomDebugStringConvertible {
+    /// A `struct` holding reference to longitude and latitude.
+    public struct Coordinates: Equatable {
+        /// The longitude.
+        public var longitude: CGFloat
+        /// The latitude.
+        public var latitude: CGFloat
+
+        /// Init.
+        /// - parameters:
+        ///     - latitude: A `CGFloat` repreenting the latitude.
+        ///     - longitude: A `CGFloat` repreenting the longitude.
+        public init(latitude: CGFloat, longitude: CGFloat) {
+            self.latitude = latitude
+            self.longitude = longitude
+        }
+    }
+
     /// The underlying `Response`.
     public var response: Response
 
     /// The latitude.
-    public var latitude: CGFloat! { self["lat"].double().flatMap(CGFloat.init) }
-    /// The longitude.
-    public var longitude: CGFloat! { self["lng"].double().flatMap(CGFloat.init) }
+    public var coordinates: Coordinates! {
+        guard let latitude = self["lat"].double().flatMap(CGFloat.init),
+              let longitude = self["lng"].double().flatMap(CGFloat.init) else { return nil }
+        return .init(latitude: latitude, longitude: longitude)
+
+    }
     /// The name.
     public var name: String? { self["name"].string() }
     /// The address.
@@ -38,8 +64,7 @@ public struct Location: ResponseMappable, Codable, CustomDebugStringConvertible 
     /// The debug description.
     public var debugDescription: String {
         ["Location(",
-         ["latitude": latitude as Any,
-          "longitude": longitude as Any,
+         ["coordinates": coordinates as Any,
           "name": name as Any,
           "address": address as Any,
           "identifier": identifier as Any]
