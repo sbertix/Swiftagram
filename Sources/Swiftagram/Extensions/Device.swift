@@ -71,6 +71,13 @@ public struct Device: Equatable, Codable {
     public var deviceIdentifier: String {
         return ["android-", deviceGUID.uuidString.replacingOccurrences(of: "-", with: "").prefix(16)].joined()
     }
+    /// The device payload.
+    public var payload: [String: String] {
+        return ["android_version": version,
+                "android_release": release,
+                "model": model,
+                "manufacturer": brand]
+    }
 
     /// Init.
     /// - parameters:

@@ -22,8 +22,10 @@ public struct Endpoint {
     public typealias ResponseDisposable = Locker<Fetcher<Request, Response>.Disposable, Secret>
 
     // MARK: Composition
+    /// An `Endpoint` pointing to `i.instagram.com`.
+    public static let api: Request = .init("https://i.instagram.com")
     /// An `Endpoint` pointing to `api/v1`.
-    public static let version1: Request = .init("https://i.instagram.com/api/v1")
+    public static let version1: Request = api.appending(path: "/api/v1")
     /// An `Endpoint` pointing to the Instagram homepage.
     public static var generic: Request = .init("https://www.instagram.com")
 }

@@ -22,7 +22,6 @@ final class SwiftagramEndpointTests: XCTestCase {
             HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
             HTTPCookie(name: "mid", value: ProcessInfo.processInfo.environment["MID"]!),
             HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
-            HTTPCookie(name: "ig_did", value: ProcessInfo.processInfo.environment["IG_DID"]!),
             HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
         ])
     }()
