@@ -39,7 +39,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                     XCTAssert($0 == 1)
                     completion.fulfill()
                 },
-                  onChange: {
+                onChange: {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                 }
@@ -64,7 +64,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -102,7 +102,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -148,7 +148,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -170,7 +170,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -216,7 +216,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -238,7 +238,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -260,7 +260,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -282,7 +282,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -304,7 +304,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -326,7 +326,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -360,7 +360,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -382,7 +382,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -420,7 +420,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -523,7 +523,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -545,7 +545,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -680,7 +680,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -695,6 +695,29 @@ final class SwiftagramEndpointTests: XCTestCase {
         testAll()
     }
 
+    /// Test location endpoints.
+    func testEndpointLocation() {
+        // Test search.
+        func testSearch() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Location.around(coordinates: .init(latitude: 45.434272, longitude: 12.338509))
+                .unlocking(with: secret)
+                .task {
+                    print($0)
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 30)
+        }
+
+        testSearch()
+    }
+
     static var allTests = [
         ("Endpoint.Archive", testEndpointArchive),
         ("Endpoint.Direct", testEndpointDirect),
@@ -704,6 +727,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Highlights", testEndpointHighlights),
         ("Endpoint.Media", testEndpointMedia),
         ("Endpoint.News", testEndpointNews),
-        ("Endpoint.User", testEndpointUser)
+        ("Endpoint.User", testEndpointUser),
+        ("Endpoint.Location", testEndpointLocation)
     ]
 }
