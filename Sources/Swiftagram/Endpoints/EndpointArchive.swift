@@ -16,7 +16,7 @@ public extension Endpoint {
         private static let base = Endpoint.version1.archive.appendingDefaultHeader()
         /// Archived stories.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func stories(startingAt page: String? = nil) -> ResponsePaginated {
+        public static func stories(startingAt page: String? = nil) -> PaginatedResponse {
             return base.reel.day_shells.paginating(value: page).locking(Secret.self)
         }
     }

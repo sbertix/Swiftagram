@@ -19,7 +19,7 @@ public extension Endpoint.Friendship {
     /// - parameters:
     ///     - transformation: A `KeyPath` defining the endpoint path.
     ///     - identifier: A `String` holding reference to a valid user identifier.
-    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.ResponseDisposable {
+    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.DisposableResponse {
         return base[keyPath: keyPath]
             .appending(path: identifier)
             .appending(path: "/")
@@ -37,43 +37,43 @@ public extension Endpoint.Friendship {
 
     /// Follow (or send a follow request) the user matching `identifier`.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
-    static func follow(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func follow(_ identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.create, identifier)
     }
 
     /// Unfollow the user matching `identifier`.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
-    static func unfollow(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func unfollow(_ identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.destroy, identifier)
     }
 
     /// Remove a user following you, matching the `identifier`. Said user will stop following you.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
-    static func remove(follower identifier: String) -> Endpoint.ResponseDisposable {
+    static func remove(follower identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.remove_follower, identifier)
     }
 
     /// Accept a follow request from the user matching `identifier`.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
-    static func acceptRequest(from identifier: String) -> Endpoint.ResponseDisposable {
+    static func acceptRequest(from identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.approve, identifier)
     }
 
     /// Reject a follow request from the user matching `identifier`.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
-    static func rejectRequest(from identifier: String) -> Endpoint.ResponseDisposable {
+    static func rejectRequest(from identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.reject, identifier)
     }
 
     /// Block the user matching `identifier`.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
-    static func block(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func block(_ identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.block, identifier)
     }
 
     /// Unblock the user matching `identifier`.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
-    static func unblock(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func unblock(_ identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.unblock, identifier)
     }
 }

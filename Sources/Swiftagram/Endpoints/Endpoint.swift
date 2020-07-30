@@ -13,13 +13,15 @@ public struct Endpoint {
     // MARK: Aliases
     /// An `Endpoint` allowing for pagination.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias ResponsePaginated = Locker<Fetcher<Request, Response>.Paginated, Secret>
+    public typealias PaginatedResponse = Locker<Fetcher<Request, Response>.Paginated, Secret>
+
+    /// An `Endpoint` allowing for a single request.
+    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
+    public typealias DisposableResponse = Locker<Fetcher<Request, Response>.Disposable, Secret>
+
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
     public typealias Disposable<Response> = Locker<Fetcher<Request, Response>.Disposable, Secret>
-    /// An `Endpoint` allowing for a single request.
-    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias ResponseDisposable = Locker<Fetcher<Request, Response>.Disposable, Secret>
 
     // MARK: Composition
     /// An `Endpoint` pointing to `i.instagram.com`.
@@ -28,4 +30,15 @@ public struct Endpoint {
     public static let version1: Request = api.appending(path: "/api/v1")
     /// An `Endpoint` pointing to the Instagram homepage.
     public static var generic: Request = .init("https://www.instagram.com")
+
+    // MARK: Deprecations
+    /// An `Endpoint` allowing for pagination.
+    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
+    @available(*, deprecated, renamed: "PaginatedResponse", message: "It will be removed on the next major version.")
+    public typealias ResponsePaginated = PaginatedResponse
+
+    /// An `Endpoint` allowing for a single request.
+    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
+    @available(*, deprecated, renamed: "DisposableResponse", message: "it will be removed on the next major version.")
+    public typealias ResponseDisposable = DisposableResponse
 }

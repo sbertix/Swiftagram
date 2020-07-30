@@ -16,6 +16,6 @@ public extension Endpoint {
         private static let base = Endpoint.version1.news.appendingDefaultHeader()
 
         /// The current inbox.
-        public static var inbox: ResponseDisposable = base.inbox.prepare().locking(Secret.self)
+        public static var inbox: DisposableResponse = base.inbox.prepare().locking(Secret.self)
     }
 }

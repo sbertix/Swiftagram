@@ -21,14 +21,14 @@ public extension Endpoint.Media {
     /// Like the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
     @available(*, deprecated, message: "use `Endpoint.Media.Posts.like(_:)`")
-    static func like(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func like(_ identifier: String) -> Endpoint.DisposableResponse {
         return Posts.like(identifier)
     }
 
     /// Unlike the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
     @available(*, deprecated, message: "use `Endpoint.Media.Posts.unlike(_:)`")
-    static func unlike(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func unlike(_ identifier: String) -> Endpoint.DisposableResponse {
         return Posts.unlike(identifier)
     }
 }
@@ -42,7 +42,7 @@ public extension Endpoint.Media.Posts {
     /// - parameters:
     ///     - transformation: A `KeyPath` defining the endpoint path.
     ///     - identifier: A `String` holding reference to a valid user identifier.
-    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.ResponseDisposable {
+    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.DisposableResponse {
         return base
             .appending(path: identifier)[keyPath: keyPath]
             .appending(path: "/")
@@ -60,13 +60,13 @@ public extension Endpoint.Media.Posts {
 
     /// Like the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
-    static func like(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func like(_ identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.like, identifier)
     }
 
     /// Unlike the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
-    static func unlike(_ identifier: String) -> Endpoint.ResponseDisposable {
+    static func unlike(_ identifier: String) -> Endpoint.DisposableResponse {
         return edit(\.unlike, identifier)
     }
 
@@ -75,7 +75,7 @@ public extension Endpoint.Media.Posts {
     /// - parameters:
     ///     - image: A `UIImage` representation of an image.
     ///     - caption: An optional `String` holding the post's caption.
-    static func upload(image: UIImage, caption: String?) -> Endpoint.ResponseDisposable {
+    static func upload(image: UIImage, caption: String?) -> Endpoint.DisposableResponse {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, size: image.size, caption: caption)
     }
@@ -85,7 +85,7 @@ public extension Endpoint.Media.Posts {
     /// - parameters:
     ///     - image: A `NSImage` representation of an image.
     ///     - caption: An optional `String` holding the post's caption.
-    static func upload(image: NSImage, caption: String?) -> Endpoint.ResponseDisposable {
+    static func upload(image: NSImage, caption: String?) -> Endpoint.DisposableResponse {
         guard let data = image.tiffRepresentation else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, size: image.size, caption: caption)
     }
@@ -98,7 +98,7 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String` holding the post's caption.
     static func upload(image data: Data,
                        size: CGSize,
-                       caption: String?) -> Endpoint.ResponseDisposable {
+                       caption: String?) -> Endpoint.DisposableResponse {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = String(Int(now.timeIntervalSince1970*1_000))

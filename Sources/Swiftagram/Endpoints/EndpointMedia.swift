@@ -18,13 +18,13 @@ public extension Endpoint {
         // MARK: Info
         /// A media matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func summary(for identifier: String) -> ResponseDisposable {
+        public static func summary(for identifier: String) -> DisposableResponse {
             return base.appending(path: identifier).info.prepare().locking(Secret.self)
         }
 
         /// The permalinkg for the media matching `identifier`.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func permalink(for identifier: String) -> ResponseDisposable {
+        public static func permalink(for identifier: String) -> DisposableResponse {
             return base.appending(path: identifier).permalink.prepare().locking(Secret.self)
         }
 
@@ -33,7 +33,7 @@ public extension Endpoint {
         ///     - identifier: A `String` holding reference to a valid post media identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         @available(*, deprecated, message: "use `Endpoint.Media.Posts.likers(for:startingAt:)`")
-        public static func likers(for identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+        public static func likers(for identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
             return Posts.likers(for: identifier, startingAt: page)
         }
 
@@ -42,7 +42,7 @@ public extension Endpoint {
         ///     - identifier: A `String` holding reference to a valid post media identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         @available(*, deprecated, message: "use `Endpoint.Media.Posts.comments(for:startingAt:)`")
-        public static func comments(for identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+        public static func comments(for identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
             return Posts.comments(for: identifier, startingAt: page)
         }
 
@@ -52,7 +52,7 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func likers(for identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+            public static func likers(for identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
                 return base.appending(path: identifier).likers.paginating(value: page).locking(Secret.self)
             }
 
@@ -60,7 +60,7 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func comments(for identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+            public static func comments(for identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
                 return base.appending(path: identifier).comments.paginating(value: page).locking(Secret.self)
             }
         }
@@ -71,7 +71,7 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func viewers(for identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+            public static func viewers(for identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
                 return base.appending(path: identifier)
                     .appending(path: "list_reel_media_viewer")
                     .paginating(value: page)

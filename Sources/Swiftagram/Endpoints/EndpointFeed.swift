@@ -16,17 +16,17 @@ public extension Endpoint {
         private static let base = Endpoint.version1.feed.appendingDefaultHeader()
 
         /// Stories tray.
-        public static let followedStories: ResponseDisposable = base.reels_tray.prepare().locking(Secret.self)
+        public static let followedStories: DisposableResponse = base.reels_tray.prepare().locking(Secret.self)
 
         /// Liked media.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func liked(startingAt page: String? = nil) -> ResponsePaginated {
+        public static func liked(startingAt page: String? = nil) -> PaginatedResponse {
             return base.liked.paginating(value: page).locking(Secret.self)
         }
 
         /// All saved media.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func saved(startingAt page: String? = nil) -> ResponsePaginated {
+        public static func saved(startingAt page: String? = nil) -> PaginatedResponse {
             return base.saved
                 .appending(header: "include_igtv_preview", with: "false")
                 .paginating(value: page)
@@ -36,7 +36,7 @@ public extension Endpoint {
         @available(*, unavailable, message: "we are working on adding this back. Do not file an issue.")
         /// Timeline.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func timeline(startingAt page: String? = nil) -> ResponsePaginated {
+        public static func timeline(startingAt page: String? = nil) -> PaginatedResponse {
             fatalError("Removed.")
         }
 
@@ -44,7 +44,7 @@ public extension Endpoint {
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func posts(by identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+        public static func posts(by identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
             return base.user.appending(path: identifier).paginating(value: page).locking(Secret.self)
         }
 
@@ -52,7 +52,7 @@ public extension Endpoint {
         /// - parameters
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.`
-        public static func stories(by identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+        public static func stories(by identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
             return base.user.appending(path: identifier).reel_media.paginating(value: page).locking(Secret.self)
         }
 
@@ -60,7 +60,7 @@ public extension Endpoint {
         /// - parameters
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func posts(including identifier: String, startingAt page: String? = nil) -> ResponsePaginated {
+        public static func posts(including identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
             return Endpoint.version1.usertags
                 .appending(path: identifier)
                 .feed
@@ -73,7 +73,7 @@ public extension Endpoint {
         /// - parameters:
         ///     - tag: A `String` holding reference to a valid _#tag_.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func tagged(with tag: String, startingAt page: String? = nil) -> ResponsePaginated {
+        public static func tagged(with tag: String, startingAt page: String? = nil) -> PaginatedResponse {
             return base.tag.appending(path: tag).paginating(value: page).locking(Secret.self)
         }
     }

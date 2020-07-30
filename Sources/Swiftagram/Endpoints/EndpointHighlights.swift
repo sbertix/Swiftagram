@@ -17,7 +17,7 @@ public extension Endpoint {
 
         /// Return the highlights tray for a specific user.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func highlights(for identifier: String) -> ResponseDisposable {
+        public static func highlights(for identifier: String) -> DisposableResponse {
             return base.appending(path: identifier).highlights_tray
                 .prepare()
                 .locking(Secret.self) {
