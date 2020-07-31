@@ -22,7 +22,6 @@ final class SwiftagramEndpointTests: XCTestCase {
             HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
             HTTPCookie(name: "mid", value: ProcessInfo.processInfo.environment["MID"]!),
             HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
-            HTTPCookie(name: "ig_did", value: ProcessInfo.processInfo.environment["IG_DID"]!),
             HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
         ])
     }()
@@ -36,11 +35,12 @@ final class SwiftagramEndpointTests: XCTestCase {
             .unlocking(with: secret)
             .task(
                 maxLength: 1,
+                by: .instagram,
                 onComplete: {
                     XCTAssert($0 == 1)
                     completion.fulfill()
                 },
-                  onChange: {
+                onChange: {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                 }
@@ -61,11 +61,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -81,7 +82,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Direct.rankedRecipients
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -99,11 +100,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -127,7 +129,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Discover.users(like: "25025320")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -145,11 +147,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -167,11 +170,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -195,7 +199,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Feed.followedStories
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -213,11 +217,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -235,11 +240,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -257,11 +263,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -279,11 +286,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -301,11 +309,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -323,11 +332,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -357,11 +367,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -379,11 +390,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -399,7 +411,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Friendship.friendship(with: "25025320")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -417,11 +429,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -437,7 +450,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Friendship.follow("25025320")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
@@ -453,7 +466,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Friendship.unfollow("25025320")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
@@ -480,7 +493,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Highlights.highlights(for: secret.identifier)
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -502,7 +515,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.summary(for: "2345240077849019656")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -520,11 +533,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -542,11 +556,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
@@ -562,7 +577,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.permalink(for: "2345240077849019656")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -578,7 +593,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.like("2345240077849019656")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
@@ -594,7 +609,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.unlike("2345240077849019656")
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
@@ -621,7 +636,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.News.inbox
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -643,7 +658,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.User.blocked
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -659,7 +674,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.User.summary(for: secret.identifier)
                 .unlocking(with: secret)
-                .task {
+                .task(by: .instagram) {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -677,11 +692,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
+                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
                     },
-                      onChange: {
+                    onChange: {
                         XCTAssert((try? $0.get().status.string()) == "ok")
                         value.fulfill()
                     }
