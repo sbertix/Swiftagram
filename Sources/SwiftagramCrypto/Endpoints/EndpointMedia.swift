@@ -70,6 +70,35 @@ public extension Endpoint.Media.Posts {
         return edit(\.unlike, identifier)
     }
 
+    /// Comment on the media matching `identifier`.
+    /// - parameters:
+    ///     - text: A `String` holding the content of the comment.
+    ///     - identifier: A valid media identifier.
+    ///     - parentCommentIdentifier: An optional `String` representing the identifier for the comment you are replying to. Defaults to `nil`.
+    static func comment(_ text: String,
+                        on identifier: String,
+                        replyingTo parentCommentIdentifier: String? = nil) -> Endpoint.Disposable<Status> {
+        return base
+            .appending(path: identifier)
+            .appending(path: "comment/")
+            .prepare(process: Status.self)
+            .locking(Secret.self) {
+                $0.appending(header: $1.header)
+                    .signing(body: ([
+                        "user_breadcrumb": text.count.breadcrumb,
+                        "_csrftoken": $1.crossSiteRequestForgery.value,
+                        "radio_type": "wifi-none",
+                        "_uid": $1.identifier ?? "",
+                        "device_id": $1.device.deviceIdentifier,
+                        "_uuid": $1.device.deviceGUID.uuidString,
+                        "media_id": identifier,
+                        "comment_text": text,
+                        "containermodule": "self_comments_v2",
+                        "replied_to_comment_id": parentCommentIdentifier
+                    ] as [String: String?]).compactMapValues { $0 })
+            }
+    }
+
     /// Delete the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
     static func delete(matching identifier: String) -> Endpoint.Disposable<Status> {

@@ -19,6 +19,23 @@ public enum SigningError: Error {
     case invalidRepresentation
 }
 
+/// An `internal` extension to computer the breadcrumb.
+internal extension Int {
+    /// Breadcrumb.
+    var breadcrumb: String {
+        let term = Int.random(in: 2...3)*1000+self+Int.random(in: 15...20)*1000
+        var textChangeEventCount = round(Double(self)/Double.random(in: 2...3))
+        if textChangeEventCount == 0 { textChangeEventCount = 1 }
+        let data = "\(self) \(term) \(textChangeEventCount) \(Int(Date().timeIntervalSince1970*1000))"
+        let hash = CC.HMAC(data.data(using: .utf8)!,
+                           alg: .sha256,
+                           key: Constants.breadcrumbKey.data(using: .utf8)!)
+            .base64EncodedString()
+        let body = data.data(using: .utf8)!.base64EncodedString()
+        return "\(hash)\n\(body)\n"
+    }
+}
+
 /// An `internal` extension for `Request` to deal with signed bodies.
 internal extension BodyComposable where Self: BodyParsable {
     /// Replace body parameters with a signed version of `parameters`.
