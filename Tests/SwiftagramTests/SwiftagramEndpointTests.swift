@@ -73,12 +73,50 @@ final class SwiftagramEndpointTests: XCTestCase {
             // wait for expectations.
             wait(for: [completion, value], timeout: 60)
         }
+        // Test pending inbox.
+        func testPendingThreads() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Direct.pendingThreads()
+                .unlocking(with: secret)
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                    onChange: {
+                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test presence.
+        func testPresence() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Direct.presence
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
         // Test ranked recipients.
         func testRankedRecipients() {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Direct.rankedRecipients
+            Endpoint.Direct.recipients()
                 .unlocking(with: secret)
                 .task {
                     XCTAssert((try? $0.get().status.string()) == "ok")
@@ -113,6 +151,8 @@ final class SwiftagramEndpointTests: XCTestCase {
         }
 
         testThreads()
+        testPendingThreads()
+        testPresence()
         testRankedRecipients()
         testThread()
     }
