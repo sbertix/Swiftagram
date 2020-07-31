@@ -16,7 +16,7 @@ public typealias CGFloat = Double
 import ComposableRequest
 
 /// A `class` representing a `Location`
-public struct Location: ResponseMappable, Codable, CustomDebugStringConvertible {
+public struct Location: ResponseMappable, CustomDebugStringConvertible {
     /// A `struct` holding reference to longitude and latitude.
     public struct Coordinates: Equatable {
         /// The longitude.
@@ -35,7 +35,7 @@ public struct Location: ResponseMappable, Codable, CustomDebugStringConvertible 
     }
 
     /// The underlying `Response`.
-    public var response: Response
+    public var response: () throws -> Response
 
     /// The latitude.
     public var coordinates: Coordinates! {
@@ -59,7 +59,9 @@ public struct Location: ResponseMappable, Codable, CustomDebugStringConvertible 
 
     /// Init.
     /// - parameter response: A valid `Response`.
-    public init(response: Response) { self.response = response }
+    public init(response: @autoclosure @escaping () throws -> Response) {
+        self.response = response
+    }
 
     /// The debug description.
     public var debugDescription: String {
@@ -76,18 +78,20 @@ public struct Location: ResponseMappable, Codable, CustomDebugStringConvertible 
 }
 
 /// A `struct` representing a `Location` collection.
-public struct LocationCollection: ResponseMappable, Codable, CustomDebugStringConvertible {
+public struct LocationCollection: ResponseMappable, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: Response
+    public var response: () throws -> Response
 
     /// The venues.
-    public var venues: [Location]! { self["venues"].array()?.map(Location.init) }
+    public var venues: [Location]! { self["venues"].array()?.map { Location(response: $0) }}
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
     /// - parameter response: A valid `Response`.
-    public init(response: Response) { self.response = response }
+    public init(response: @autoclosure @escaping () throws -> Response) {
+        self.response = response
+    }
 
     /// The debug description.
     public var debugDescription: String {

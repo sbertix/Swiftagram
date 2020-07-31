@@ -13,11 +13,15 @@ public struct Endpoint {
     // MARK: Aliases
     /// An `Endpoint` allowing for pagination.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias PaginatedResponse = Locker<Fetcher<Request, Response>.Paginated, Secret>
+    public typealias PaginatedResponse = Paginated<Response>
+
+    /// An `Endpoint` allowing for a paginated request with a custom `Response` value.
+    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
+    public typealias Paginated<Response> = Locker<Fetcher<Request, Response>.Paginated, Secret>
 
     /// An `Endpoint` allowing for a single request.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias DisposableResponse = Locker<Fetcher<Request, Response>.Disposable, Secret>
+    public typealias DisposableResponse = Disposable<Response>
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.

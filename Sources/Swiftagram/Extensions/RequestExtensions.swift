@@ -21,7 +21,21 @@ public extension Requestable where Self: QueryComposable & QueryParsable {
                 guard let response = try? response?.get() else { return request }
                 return (response[keyPath: keyPath].string() ?? response[keyPath: keyPath].int().flatMap(String.init))
                     .flatMap { request.appending(query: key, with: $0) }
-        }
+            }
+    }
+
+    /// Returns a `Fetcher`.
+    /// - returns: A `Fetcher` wrapping `self`.
+    func paginating<Mapped: ResponseMappable>(process: Mapped.Type,
+                                              key: String = "max_id",
+                                              keyPath: KeyPath<Response, Response> = \.nextMaxId,
+                                              value: String? = nil) -> Fetcher<Self, Mapped>.Paginated {
+        return self.appending(query: key, with: value)
+            .prepare(process: Mapped.self) { request, response in
+                guard let response = try? response?.get().response() else { return request }
+                return (response[keyPath: keyPath].string() ?? response[keyPath: keyPath].int().flatMap(String.init))
+                    .flatMap { request.appending(query: key, with: $0) }
+            }
     }
 }
 
