@@ -70,6 +70,40 @@ public extension Endpoint.Media.Posts {
         return edit(\.unlike, identifier)
     }
 
+    /// Delete the media matching `identifier`.
+    /// - parameter identifier: A valid media identifier.
+    static func delete(matching identifier: String) -> Endpoint.Disposable<Status> {
+        return base
+            .appending(path: identifier)
+            .info
+            .prepare(process: Status.self)
+            .switch {
+                guard let type = (try? $0.get())?["items"][0].mediaType.int(), [1, 2, 8].contains(type) else { return nil }
+                return base.appending(path: identifier)
+                    .appending(path: "delete/")
+                    .appending(query: "media_type",
+                               with: type == 1
+                               ? "PHOTO"
+                               : type == 2 ? "VIDEO" : "CAROUSEL")
+            }
+            .locking(Secret.self) {
+                // Unlock when dealing with the first call.
+                guard $0.request()?.url?.absoluteString.contains("delete") ?? false else {
+                    return $0.appending(header: $1.header)
+                }
+
+                // Sign the body.
+                return $0.appending(header: $1.header)
+                    .signing(body: Response([
+                    "igtv_feed_preview": false,
+                    "media_id": identifier,
+                    "_csrftoken": $1.crossSiteRequestForgery.value,
+                    "_uid": $1.identifier ?? "",
+                    "_uuid": $1.device.deviceGUID.uuidString
+                ]))
+            }
+    }
+
     #if canImport(UIKit)
     /// Upload `image` to Instagram.
     /// - parameters:

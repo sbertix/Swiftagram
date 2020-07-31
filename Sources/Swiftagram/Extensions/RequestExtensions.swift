@@ -43,7 +43,7 @@ public extension Requestable where Self: QueryComposable & QueryParsable {
 public extension Requester {
     /// The `URLSessionConfiguration` used for `.instagram`.
     private static let instagramSessionConfiguration: URLSessionConfiguration = {
-        let sessionConfiguration = URLSessionConfiguration()
+        let sessionConfiguration = URLSessionConfiguration.default
         sessionConfiguration.httpMaximumConnectionsPerHost = 2
         return sessionConfiguration
     }()
