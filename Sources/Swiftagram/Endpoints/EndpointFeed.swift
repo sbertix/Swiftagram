@@ -33,11 +33,48 @@ public extension Endpoint {
                 .locking(Secret.self)
         }
 
-        @available(*, unavailable, message: "we are working on adding this back. Do not file an issue.")
         /// Timeline.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         public static func timeline(startingAt page: String? = nil) -> PaginatedResponse {
-            fatalError("Removed.")
+            return base.appending(path: "timeline/")
+                .prepare { request, response in
+                    guard let nextMaxId = try? response?.get().nextMaxId.string() else {
+                        return (try? request.appending(body: ["reason": "cold_start_fetch", "is_pull_to_refresh": "0"])) ?? request
+                    }
+                    return request.appending(query: ["max_id": nextMaxId, "reason": "pagination"])
+                }
+                .locking(Secret.self) {
+                    do {
+                        return try $0.appending(header: $1.header)
+                        .appending(header: [
+                            "X-Ads-Opt-Out": "0",
+                            "X-Google-AD-ID": $1.device.googleAdId.uuidString,
+                            "X-DEVICE-ID": $1.device.deviceGUID.uuidString,
+                            "X-FB": "1"
+                        ])
+                        .appending(body: [
+                            "is_prefetch": "0",
+                            "feed_view_info": "",
+                            "seen_posts": "",
+                            "phone_id": $1.device.phoneGUID.uuidString,
+                            "is_pull_to_refresh": "0",
+                            "battery_level": "72",
+                            "timezone_offset": "43200",
+                            "_csrftoken": $1.crossSiteRequestForgery.value,
+                            "client_session_id": $1.session.value,
+                            "device_id": $1.device.deviceGUID.uuidString,
+                            "_uuid": $1.device.deviceGUID.uuidString,
+                            "is_charging": "0",
+                            "is_async_ads_in_headload_enabled": "0",
+                            "rti_delivery_backend": "0",
+                            "is_async_ads_double_request": "0",
+                            "will_sound_on": "0",
+                            "is_async_ads_rti": "0"
+                        ])
+                    } catch {
+                        fatalError(error.localizedDescription)
+                    }
+                }
         }
 
         /// All posts for user matching `identifier`.
