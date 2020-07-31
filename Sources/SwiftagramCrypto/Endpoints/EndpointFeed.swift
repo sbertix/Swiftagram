@@ -17,7 +17,8 @@ public extension Endpoint.Feed {
     /// All available stories for user matching `identifiers`.
     /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
     static func stories<C: Collection>(by identifiers: C) -> Endpoint.ResponseDisposable where C.Element == String {
-        return Endpoint.version1.feed.reels_media
+        return Endpoint.version1.feed
+            .appending(path: "reels_media/")
             .appendingDefaultHeader()
             .prepare()
             .locking(Secret.self) {
