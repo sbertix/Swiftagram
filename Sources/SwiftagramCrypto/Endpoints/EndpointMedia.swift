@@ -78,12 +78,27 @@ public extension Endpoint.Media.Posts {
     static func comment(_ text: String,
                         on identifier: String,
                         replyingTo parentCommentIdentifier: String? = nil) -> Endpoint.Disposable<Status> {
-        return base
-            .appending(path: identifier)
-            .appending(path: "comment/")
+        return base.comment.appending(path: "check_offensive_comment/")
             .prepare(process: Status.self)
+            .switch {
+                guard (try? $0.get().response().isOffensive.bool()) == false else { return nil }
+                return base.appending(path: identifier)
+                    .appending(path: "comment/")
+            }
             .locking(Secret.self) {
-                $0.appending(header: $1.header)
+                // Check whether you are posting orjust checking for offensive comments.
+                guard !$0.url.absoluteString.contains("check_offensive_comment") else {
+                    return $0.appending(header: $1.header)
+                        .signing(body: [
+                            "_csrftoken": $1.crossSiteRequestForgery.value,
+                            "_uid": $1.id,
+                            "_uuid": $1.device.deviceGUID.uuidString,
+                            "media_id": identifier,
+                            "comment_text": text
+                        ])
+                }
+                // Post the actual comment.
+                return $0.appending(header: $1.header)
                     .signing(body: ([
                         "user_breadcrumb": text.count.breadcrumb,
                         "_csrftoken": $1.crossSiteRequestForgery.value,
