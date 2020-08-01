@@ -120,7 +120,7 @@ public struct User: ResponseMappable, Codable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a `User` single response.
-public struct UserSingle: ResponseMappable, CustomDebugStringConvertible {
+public struct UserUnit: ResponseMappable, CustomDebugStringConvertible {
     /// The underlying `Response`.
     public var response: () throws -> Response
 
@@ -137,7 +137,7 @@ public struct UserSingle: ResponseMappable, CustomDebugStringConvertible {
 
     /// The debug description.
     public var debugDescription: String {
-        ["UserSingle(",
+        ["UserUnit(",
          ["user": user as Any,
           "status": status as Any]
             .mapValues { String(describing: $0 )}

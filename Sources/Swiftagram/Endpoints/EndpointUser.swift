@@ -24,8 +24,8 @@ public extension Endpoint {
 
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Disposable<UserSingle> {
-            return base.appending(path: identifier).info.prepare(process: UserSingle.self).locking(Secret.self)
+        public static func summary(for identifier: String) -> Disposable<UserUnit> {
+            return base.appending(path: identifier).info.prepare(process: UserUnit.self).locking(Secret.self)
         }
 
         /// All user matching `query`.

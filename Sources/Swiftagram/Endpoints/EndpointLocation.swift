@@ -48,5 +48,16 @@ public extension Endpoint {
                 .prepare(process: LocationUnit.self)
                 .locking(Secret.self)
         }
+
+        /// Fetch stories currently available at the location matching `identifier`.
+        /// - parameter identifier: A valid location identifier.
+        public static func stories(at identifier: String) -> Disposable<Response> {
+            return Endpoint.version1
+                .locations
+                .appending(path: identifier)
+                .appending(path: "story/")
+                .prepare()
+                .locking(Secret.self)
+        }
     }
 }
