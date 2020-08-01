@@ -37,5 +37,16 @@ public extension Endpoint {
                         ])
                 }
         }
+
+        /// Get the summary for the location matching `identifier`.
+        /// - parameter identifier: A valid location identifier.
+        public static func summary(for identifier: String) -> Disposable<LocationUnit> {
+            return Endpoint.version1
+                .locations
+                .appending(path: identifier)
+                .appending(path: "info/")
+                .prepare(process: LocationUnit.self)
+                .locking(Secret.self)
+        }
     }
 }

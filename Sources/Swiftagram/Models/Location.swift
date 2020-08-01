@@ -46,15 +46,22 @@ public struct Location: ResponseMappable, CustomDebugStringConvertible {
     }
     /// The name.
     public var name: String? { self["name"].string() }
+    /// The short name. Only populated for `summary`.
+    public var shortName: String? { self["shortName"].string() }
     /// The address.
     public var address: String? { self["address"].string() }
+    /// The city. Only populated for `summary`.
+    public var city: String? { self["city"].string() }
     /// The external id (`value`), paired with its source (`key`).
     public var identifier: [String: Int]? {
-        guard let source = self["externalIdSource"].string(),
-              let identifier = self["externalId"].int() else {
+        if let source = self["externalIdSource"].string(),
+            let identifier = self["externalId"].int() {
+            return [source: identifier]
+        } else if let source = self["externalSource"].string() {
+            return [source: self[source.camelCased+"Id"].int()].compactMapValues { $0 }
+        } else {
             return nil
         }
-        return [source: identifier]
     }
 
     /// Init.
@@ -68,8 +75,38 @@ public struct Location: ResponseMappable, CustomDebugStringConvertible {
         ["Location(",
          ["coordinates": coordinates as Any,
           "name": name as Any,
+          "shortName": shortName as Any,
           "address": address as Any,
+          "city": city as Any,
           "identifier": identifier as Any]
+            .mapValues { String(describing: $0 )}
+            .map { "\($0): \($1)" }
+            .joined(separator: ", "),
+         ")"].joined()
+    }
+}
+
+/// A `struct` representing a single `Location` response.
+public struct LocationUnit: ResponseMappable, CustomDebugStringConvertible {
+    /// The underlying `Response`.
+    public var response: () throws -> Response
+
+    /// The location.
+    public var location: Location! { Location(response: self["location"]) }
+    /// The status.
+    public var status: String! { self["status"].string() }
+
+    /// Init.
+    /// - parameter response: A valid `Response`.
+    public init(response: @autoclosure @escaping () throws -> Response) {
+        self.response = response
+    }
+
+    /// The debug description.
+    public var debugDescription: String {
+        ["LocationUnit(",
+         ["location": location as Any,
+          "status": status as Any]
             .mapValues { String(describing: $0 )}
             .map { "\($0): \($1)" }
             .joined(separator: ", "),
