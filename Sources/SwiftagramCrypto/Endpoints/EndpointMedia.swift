@@ -126,6 +126,27 @@ public extension Endpoint.Media.Posts {
             }
     }
 
+    /// Delete all matching comments in media matching `identifier`.
+    /// - parameters:
+    ///     - commentIdentifiers: A collection of `String` representing comment identifiers.
+    ///     - identifier: A valid media identifier.
+    static func delete<C: Collection>(comments commentIdentifiers: C,
+                                      on identifier: String) -> Endpoint.Disposable<Status> where C.Element == String {
+        return base
+            .appending(path: identifier)
+            .appending(path: "comment/bulk_delete/")
+            .prepare(process: Status.self)
+            .locking(Secret.self) {
+                $0.appending(header: $1.header)
+                    .signing(body: [
+                        "comment_ids_to_delete": commentIdentifiers.joined(separator: ","),
+                        "_csrftoken": $1.crossSiteRequestForgery.value,
+                        "_uid": $1.id,
+                        "_uuid": $1.device.deviceGUID.uuidString
+                    ])
+            }
+    }
+
     /// Delete the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
     static func delete(matching identifier: String) -> Endpoint.Disposable<Status> {
