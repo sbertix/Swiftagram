@@ -674,11 +674,45 @@ final class SwiftagramEndpointTests: XCTestCase {
             // wait for expectations.
             wait(for: [completion, value], timeout: 60)
         }
+        // Test save.
+        func testSave() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.save("2363340238886161192_25025320")
+                .unlocking(with: secret)
+                .task(by: .instagram) {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test unsave.
+        func testUnsave() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.unsave("2363340238886161192_25025320")
+                .unlocking(with: secret)
+                .task(by: .instagram) {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
 
         testSummary()
         testLikers()
         testComments()
         testPermalink()
+        testSave()
+        testUnsave()
         testCryptoLike()
         testCryptoUnlike()
         testCryptoArchive()
