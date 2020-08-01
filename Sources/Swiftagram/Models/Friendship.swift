@@ -48,3 +48,31 @@ public struct Friendship: ResponseMappable, CustomDebugStringConvertible {
          ")"].joined()
     }
 }
+
+/// A `struct` representing a `Friendship` collection.
+public struct FriendshipCollection: ResponseMappable, CustomDebugStringConvertible {
+    /// The underlying `Response`.
+    public var response: () throws -> Response
+
+    /// The friendships.
+    public var friendships: [String: Friendship]! { self["friendshipStatuses"].dictionary()?.mapValues { Friendship(response: $0) }}
+    /// The status.
+    public var status: String! { self["status"].string() }
+
+    /// Init.
+    /// - parameter response: A valid `Response`.
+    public init(response: @autoclosure @escaping () throws -> Response) {
+        self.response = response
+    }
+
+    /// The debug description.
+    public var debugDescription: String {
+        ["FriendshipCollection(",
+         ["friendships": friendships as Any,
+          "status": status as Any]
+            .mapValues { String(describing: $0 )}
+            .map { "\($0): \($1)" }
+            .joined(separator: ", "),
+         ")"].joined()
+    }
+}

@@ -447,6 +447,22 @@ final class SwiftagramEndpointTests: XCTestCase {
             // wait for expectations.
             wait(for: [completion, value], timeout: 60)
         }
+        // Test friendships.
+        func testFriendships() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.summary(for: ["25025320"])
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
         // Test pending requests.
         func testPendingRequests() {
             let completion = XCTestExpectation()
@@ -505,6 +521,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         testFollowed()
         testFollowing()
         testFriendship()
+        testFriendships()
         testPendingRequests()
         //testFollow()
         //testUnfollow()

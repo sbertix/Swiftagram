@@ -50,6 +50,21 @@ public extension Endpoint {
                 .locking(Secret.self)
         }
 
+        /// The current friendship status between the authenticated user and all users matching `identifiers`.
+        /// - parameter identifiers: A collection of `String`s hoding reference to valid user identifiers.
+        public static func summary<C: Collection>(for identifiers: C) -> Disposable<FriendshipCollection> where C.Element == String {
+            return base.appending(path: "show_many/")
+                .prepare(process: FriendshipCollection.self)
+                .locking(Secret.self) {
+                    $0.appending(header: $1.header)
+                        .replacing(body: [
+                            "user_ids": identifiers.joined(separator: ","),
+                            "_csrftoken": $1.crossSiteRequestForgery.value,
+                            "_uuid": $1.device.deviceGUID.uuidString
+                        ])
+                }
+        }
+
         /// A list of users who requested to follow you, without having been processed yet.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         public static func pendingRequests(startingAt page: String? = nil) -> Paginated<UserCollection> {
