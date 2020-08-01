@@ -17,7 +17,7 @@ public extension Endpoint {
 
         /// Return the highlights tray for a specific user.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func highlights(for identifier: String) -> DisposableResponse {
+        public static func tray(for identifier: String) -> DisposableResponse {
             return base.appending(path: identifier).highlights_tray
                 .prepare()
                 .locking(Secret.self) {
@@ -31,6 +31,14 @@ public extension Endpoint {
                         "will_sound_on": "0"
                     ]).appending(header: $1.header)
             }
+        }
+
+        // MARK: Deprecated
+        /// Return the highlights tray for a specific user.
+        /// - parameter identifier: A `String` holding reference to a valid user identifier.
+        @available(*, deprecated, renamed: "tray")
+        public static func highlights(for identifier: String) -> DisposableResponse {
+            return tray(for: identifier)
         }
     }
 }
