@@ -392,7 +392,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Friendship.followed(by: secret.identifier)
+            Endpoint.Friendship.followed(by: secret.id)
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
@@ -414,7 +414,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Friendship.following(secret.identifier)
+            Endpoint.Friendship.following(secret.id)
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
@@ -517,7 +517,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Highlights.highlights(for: secret.identifier)
+            Endpoint.Highlights.highlights(for: secret.id)
                 .unlocking(with: secret)
                 .task {
                     XCTAssert((try? $0.get().status.string()) == "ok")
@@ -696,7 +696,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.User.summary(for: secret.identifier)
+            Endpoint.User.summary(for: secret.id)
                 .unlocking(with: secret)
                 .task {
                     XCTAssert((try? $0.get().status) == "ok")

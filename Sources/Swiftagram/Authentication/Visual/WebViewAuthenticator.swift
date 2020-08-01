@@ -43,7 +43,7 @@ import ComposableRequest
    ```
 */
 @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
-public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authenticator {
+public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Authenticator where Storage.Key == Secret {
     /// A `Storage` instance used to store `Secret`s.
     public internal(set) var storage: Storage
     /// A `UserAgent`.
@@ -90,7 +90,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
                                                     // Update the process pool.
                                                     let configuration = WKWebViewConfiguration()
                                                     configuration.processPool = WKProcessPool()
-                                                    let webView = WebView(frame: .zero, configuration: configuration)
+                                                    let webView = WebView<Storage>(frame: .zero, configuration: configuration)
                                                     webView.navigationDelegate = webView
                                                     webView.customUserAgent = self.userAgent.string
                                                     webView.storage = self.storage
@@ -109,7 +109,7 @@ public final class WebViewAuthenticator<Storage: Swiftagram.Storage>: Authentica
 
 /// Extend for `TransientStorage`.
 @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
-public extension WebViewAuthenticator where Storage == TransientStorage {
+public extension WebViewAuthenticator where Storage == ComposableRequest.TransientStorage<Secret> {
     // MARK: Lifecycle
     /// Init.
     /// - parameter webView: A block outputing a configured `WKWebView`.

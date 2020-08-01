@@ -32,7 +32,7 @@ public extension Endpoint {
                     $0.appending(header: $1.header)
                         .appending(query: [
                             "_csrftoken": $1.crossSiteRequestForgery.value,
-                            "_uid": $1.identifier ?? "",
+                            "_uid": $1.id,
                             "_uuid": $1.device.deviceGUID.uuidString
                         ])
                 }

@@ -51,7 +51,7 @@ public extension Endpoint.Media.Posts {
                 $0.appending(header: $1.header)
                     .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
                                     "radio_type": "wifi-none",
-                                    "_uid": $1.identifier ?? "",
+                                    "_uid": $1.id,
                                     "device_id": $1.device.deviceIdentifier,
                                     "_uuid": $1.device.deviceGUID.uuidString,
                                     "media_id": identifier])
@@ -88,7 +88,7 @@ public extension Endpoint.Media.Posts {
                         "user_breadcrumb": text.count.breadcrumb,
                         "_csrftoken": $1.crossSiteRequestForgery.value,
                         "radio_type": "wifi-none",
-                        "_uid": $1.identifier ?? "",
+                        "_uid": $1.id,
                         "device_id": $1.device.deviceIdentifier,
                         "_uuid": $1.device.deviceGUID.uuidString,
                         "media_id": identifier,
@@ -127,7 +127,7 @@ public extension Endpoint.Media.Posts {
                     "igtv_feed_preview": false,
                     "media_id": identifier,
                     "_csrftoken": $1.crossSiteRequestForgery.value,
-                    "_uid": $1.identifier ?? "",
+                    "_uid": $1.id,
                     "_uuid": $1.device.deviceGUID.uuidString
                 ]))
             }
@@ -205,7 +205,7 @@ public extension Endpoint.Media.Posts {
                 // Unlock when dealing with the first call.
                 guard $0.request()?.url?.absoluteString.contains("configure") ?? false else {
                     return $0.appending(header: $1.header)
-                        .appending(header: "IG-U-DS-User-ID", with: $1.identifier)
+                        .appending(header: "IG-U-DS-User-ID", with: $1.id)
                 }
 
                 // Prepare the configuration request.
@@ -240,10 +240,10 @@ public extension Endpoint.Media.Posts {
                     "creation_logger_session_id": $1.session.value,
                     "software": "1",
                     "camera_make": $1.device.brand,
-                    "device": try? Response.description(for: $1.device.payload) as Any,
+                    "device": (try? Response.description(for: $1.device.payload)) as Any,
                     "_csrftoken": $1.crossSiteRequestForgery.value,
                     "user_id": identifier,
-                    "_uid": $1.identifier ?? "",
+                    "_uid": $1.id,
                     "device_id": $1.device.deviceIdentifier,
                     "_uuid": $1.device.deviceGUID.uuidString
                 ].compactMapValues { $0 }

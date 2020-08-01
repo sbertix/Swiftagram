@@ -29,8 +29,8 @@ public struct Secret: HeaderKey {
     }
 
     /// A `String` representing the logged in user identifier.
-    public var identifier: String! {
-        return cookies.first(where: { $0.name == "ds_user_id" })?.value
+    public var id: String {
+        return cookies.first(where: { $0.name == "ds_user_id" })!.value
     }
 
     /// An `HTTPCookie` holding reference to the cross site request forgery token.
@@ -62,20 +62,8 @@ public struct Secret: HeaderKey {
         self.device = device
     }
 
-    /// Init from `Storage`.
-    /// - parameters:
-    ///     - identifier: The `ds_user_id` cookie value.
-    ///     - storage: A concrete-typed value conforming to the `Storage` protocol.
-    public static func stored<S: Storage>(with identifier: String, in storage: S) -> Secret? {
-        return storage.find(matching: identifier)
-    }
-
-    // MARK: Locker
-    /// Store in `storage`.
-    /// - parameter storage: A value conforming to the `Storage` protocol.
-    @discardableResult
-    public func store(in storage: Storage) -> Secret {
-        storage.store(self)
-        return self
-    }
+    // MARK: Deprecated
+    /// A `String` representing the logged in user identifier.
+    @available(*, deprecated, renamed: "id")
+    public var identifier: String { id }
 }

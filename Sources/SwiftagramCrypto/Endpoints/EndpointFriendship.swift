@@ -29,7 +29,7 @@ public extension Endpoint.Friendship {
                     .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
                                     "user_id": identifier,
                                     "radio_type": "wifi-none",
-                                    "_uid": $1.identifier ?? "",
+                                    "_uid": $1.id,
                                     "device_id": $1.device.deviceIdentifier,
                                     "_uuid": $1.device.deviceGUID.uuidString])
         }
