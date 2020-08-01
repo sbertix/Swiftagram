@@ -85,6 +85,28 @@ public extension Endpoint {
                     .prepare(process: Status.self)
                     .locking(Secret.self)
             }
+
+            /// Like the comment matching `identifier`.
+            /// - parameter identifier: A `String` holding reference to a valid comment identfiier.
+            public static func like(comment identifier: String) -> Disposable<Status> {
+                return base
+                    .appending(path: identifier)
+                    .appending(path: "comment_like/")
+                    .replacing(method: .post)
+                    .prepare(process: Status.self)
+                    .locking(Secret.self)
+            }
+
+            /// Unlike the comment matching `identifier`.
+            /// - parameter identifier: A `String` holding reference to a valid comment identfiier.
+            public static func unlike(comment identifier: String) -> Disposable<Status> {
+                return base
+                    .appending(path: identifier)
+                    .appending(path: "comment_unlike/")
+                    .replacing(method: .post)
+                    .prepare(process: Status.self)
+                    .locking(Secret.self)
+            }
         }
 
         /// A `struct` holding reference to `media` `Endpoint`s reguarding stories. Requires authentication.

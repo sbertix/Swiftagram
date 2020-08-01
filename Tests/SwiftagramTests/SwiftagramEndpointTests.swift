@@ -4,6 +4,7 @@ import Foundation
 @testable import SwiftagramCrypto
 import XCTest
 
+// swiftlint:disable type_body_length
 extension HTTPCookie {
     /// Test.
     convenience init(name: String, value: String?) {
@@ -723,6 +724,38 @@ final class SwiftagramEndpointTests: XCTestCase {
             // wait for expectations.
             wait(for: [completion, value], timeout: 60)
         }
+        // Test like comment
+        func testLikeComment() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.like(comment: "17885013160654942")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test unlike comment.
+        func testUnlikeComment() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.unlike(comment: "17885013160654942")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
 
         testSummary()
         testLikers()
@@ -734,6 +767,8 @@ final class SwiftagramEndpointTests: XCTestCase {
         testCryptoUnlike()
         testCryptoArchive()
         testCryptoUnarchive()
+        testLikeComment()
+        testUnlikeComment()
     }
 
     /// Test `Endpoint.News`.
@@ -862,7 +897,6 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Location.stories(at: "189075947904164")
                 .unlocking(with: secret)
                 .task {
-                    print($0)
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -890,3 +924,4 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Location", testEndpointLocation)
     ]
 }
+// swiftlint:enable type_body_length

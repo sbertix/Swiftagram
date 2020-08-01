@@ -245,7 +245,6 @@ public extension Endpoint.Media.Posts {
             .switch {
                 // Configure the picture you've just updated.
                 guard let response = try? $0.get(), response.status.string() == "ok" else { return nil }
-                print(response)
                 // The actual configuration will be performed by the preprocessor on `unlocking`.
                 return base.appending(path: "configure/")
             }
