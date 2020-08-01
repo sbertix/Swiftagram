@@ -186,9 +186,14 @@ public extension Endpoint.Media.Posts {
     /// - parameters:
     ///     - image: A `UIImage` representation of an image.
     ///     - caption: An optional `String` holding the post's caption.
-    static func upload(image: UIImage, caption: String?) -> Endpoint.DisposableResponse {
+    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload<U: Collection>(image: UIImage,
+                                      captioned caption: String?,
+                                      tagging users: U? = nil,
+                                      at location: Location? = nil) -> Endpoint.DisposableResponse where U.Element == UserTag {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
-        return upload(image: data, size: image.size, caption: caption)
+        return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
     #endif
     #if canImport(AppKit)
@@ -196,9 +201,14 @@ public extension Endpoint.Media.Posts {
     /// - parameters:
     ///     - image: A `NSImage` representation of an image.
     ///     - caption: An optional `String` holding the post's caption.
-    static func upload(image: NSImage, caption: String?) -> Endpoint.DisposableResponse {
+    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload<U: Collection>(image: NSImage,
+                                      captioned caption: String?,
+                                      tagging users: U? = nil,
+                                      at location: Location? = nil) -> Endpoint.DisposableResponse where U.Element == UserTag {
         guard let data = image.tiffRepresentation else { fatalError("Invalid `UIImage`.") }
-        return upload(image: data, size: image.size, caption: caption)
+        return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
     #endif
 
@@ -207,9 +217,13 @@ public extension Endpoint.Media.Posts {
     ///     - image: A `Data` representation of an image.
     ///     - size: A `CGSize` holding `width` and `height` of the original image.
     ///     - caption: An optional `String` holding the post's caption.
-    static func upload(image data: Data,
-                       size: CGSize,
-                       caption: String?) -> Endpoint.DisposableResponse {
+    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload<U: Collection>(image data: Data,
+                                      with size: CGSize,
+                                      captioned caption: String?,
+                                      tagging users: U? = nil,
+                                      at location: Location? = nil) -> Endpoint.DisposableResponse where U.Element == UserTag {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = String(Int(now.timeIntervalSince1970*1_000))
@@ -270,7 +284,7 @@ public extension Endpoint.Media.Posts {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy:MM:dd' 'HH:mm:ss"
                 let formattedNow = formatter.string(from: now)
-                let body: [String: Any] = [
+                var body: [String: Any] = [
                     "upload_id": identifier,
                     "width": Int(size.width),
                     "height": Int(size.height),
@@ -284,7 +298,7 @@ public extension Endpoint.Media.Posts {
                     "extra": extras,
                     "camera_model": $1.device.model,
                     "scene_capture_type": "standard",
-                    "creation_logger_session_id": $1.session.value,
+                    "creation_logger_session_id": $1.session!.value,
                     "software": "1",
                     "camera_make": $1.device.brand,
                     "device": (try? Response.description(for: $1.device.payload)) as Any,
@@ -294,6 +308,17 @@ public extension Endpoint.Media.Posts {
                     "device_id": $1.device.deviceIdentifier,
                     "_uuid": $1.device.deviceGUID.uuidString
                 ].compactMapValues { $0 }
+                // Add tagged users.
+                if let users = users?.compactMap({ try? $0.response().value }),
+                   !users.isEmpty,
+                   let description = try? Response.description(for: ["in": users]) {
+                    body["usertags"] = description
+                }
+                // Add location.
+                if let location = location.flatMap({ try? $0.response().value }),
+                   let description = try? Response.description(for: location) {
+                    body["location"] = description
+                }
                 // Configure.
                 return $0.appending(header: $1.header)
                     .signing(body: Response(body))

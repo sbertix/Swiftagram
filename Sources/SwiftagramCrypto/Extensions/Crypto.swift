@@ -59,7 +59,7 @@ internal extension BodyComposable where Self: BodyParsable {
                 "ig_sig_key_version": Constants.signatureVersion
             ])
         } catch {
-            fatalError(["Exception raised when signing.",
+            fatalError(["Exception raised when signing. \(error.localizedDescription).",
                         error.localizedDescription,
                         "Please open an issue at `https://github.com/sbertix/Swiftagram/issues`."].joined(separator: " "))
         }

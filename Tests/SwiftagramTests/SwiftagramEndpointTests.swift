@@ -4,6 +4,10 @@ import Foundation
 @testable import SwiftagramCrypto
 import XCTest
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 // swiftlint:disable type_body_length
 extension HTTPCookie {
     /// Test.
