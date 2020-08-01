@@ -21,14 +21,14 @@ public extension Endpoint.Media {
     /// Like the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
     @available(*, deprecated, message: "use `Endpoint.Media.Posts.like(_:)`")
-    static func like(_ identifier: String) -> Endpoint.DisposableResponse {
+    static func like(_ identifier: String) -> Endpoint.Disposable<Status> {
         return Posts.like(identifier)
     }
 
     /// Unlike the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
     @available(*, deprecated, message: "use `Endpoint.Media.Posts.unlike(_:)`")
-    static func unlike(_ identifier: String) -> Endpoint.DisposableResponse {
+    static func unlike(_ identifier: String) -> Endpoint.Disposable<Status> {
         return Posts.unlike(identifier)
     }
 }
@@ -42,11 +42,11 @@ public extension Endpoint.Media.Posts {
     /// - parameters:
     ///     - transformation: A `KeyPath` defining the endpoint path.
     ///     - identifier: A `String` holding reference to a valid user identifier.
-    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.DisposableResponse {
+    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status> {
         return base
             .appending(path: identifier)[keyPath: keyPath]
             .appending(path: "/")
-            .prepare()
+            .prepare(process: Status.self)
             .locking(Secret.self) {
                 $0.appending(header: $1.header)
                     .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
@@ -60,14 +60,26 @@ public extension Endpoint.Media.Posts {
 
     /// Like the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
-    static func like(_ identifier: String) -> Endpoint.DisposableResponse {
+    static func like(_ identifier: String) -> Endpoint.Disposable<Status> {
         return edit(\.like, identifier)
     }
 
     /// Unlike the media matching `identifier`.
     /// - parameter identifier: A valid media identifier.
-    static func unlike(_ identifier: String) -> Endpoint.DisposableResponse {
+    static func unlike(_ identifier: String) -> Endpoint.Disposable<Status> {
         return edit(\.unlike, identifier)
+    }
+
+    /// Archive the media matching `identifier`.
+    /// - parameter identifier: A valid media identifier.
+    static func archive(_ identifier: String) -> Endpoint.Disposable<Status> {
+        return edit(\.only_me, identifier)
+    }
+
+    /// Unarchive the media matching `identifier`.
+    /// - parameter identifier: A valid media identifier.
+    static func unarchive(_ identifier: String) -> Endpoint.Disposable<Status> {
+        return edit(\.undo_only_me, identifier)
     }
 
     /// Comment on the media matching `identifier`.

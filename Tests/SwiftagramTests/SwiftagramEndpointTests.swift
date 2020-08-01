@@ -618,7 +618,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Media.like("2345240077849019656")
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
@@ -634,7 +634,39 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Media.unlike("2345240077849019656")
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test crypto archive.
+        func testCryptoArchive() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.archive("2365553117501809247_7271269732")
+                .unlocking(with: secret)
+                .task(by: .instagram) {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test crypto unarchive.
+        func testCryptoUnarchive() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.unarchive("2365553117501809247_7271269732")
+                .unlocking(with: secret)
+                .task(by: .instagram) {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
@@ -649,6 +681,8 @@ final class SwiftagramEndpointTests: XCTestCase {
         testPermalink()
         testCryptoLike()
         testCryptoUnlike()
+        testCryptoArchive()
+        testCryptoUnarchive()
     }
 
     /// Test `Endpoint.News`.
