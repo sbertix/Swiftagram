@@ -121,6 +121,18 @@ public extension Endpoint {
                     .paginating(value: page)
                     .locking(Secret.self)
             }
+
+            /// Archived stories.
+            /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+            public static func archived(startingAt page: String? = nil) -> Paginated<TrayItemCollection> {
+                return Endpoint.version1
+                    .archive
+                    .reel
+                    .day_shells
+                    .appendingDefaultHeader()
+                    .paginating(process: TrayItemCollection.self, value: page)
+                    .locking(Secret.self)
+            }
         }
     }
 }

@@ -42,7 +42,7 @@ public struct User: ResponseMappable, Codable, CustomDebugStringConvertible {
     public var response: () throws -> Response
 
     /// The identifier.
-    public var identifier: Int! { self["pk"].int() ?? self["pk"].string().flatMap(Int.init) }
+    public var identifier: String! { self["pk"].string() ?? self["pk"].int().flatMap(String.init) }
     /// The username.
     public var username: String! { self["username"].string() }
     /// The name.
@@ -90,8 +90,8 @@ public struct User: ResponseMappable, Codable, CustomDebugStringConvertible {
 
     /// The friendship status with the logged in user.
     public var friendship: Friendship? {
-        guard self["friendship"].dictionary()?.isEmpty == false else { return nil }
-        return .init(response: self["friendship"])
+        (self["friendship"].dictionary() ?? self["friendshipStatus"].dictionary())
+            .flatMap { Friendship(response: Response($0)) }
     }
 
     /// Init.
@@ -152,7 +152,7 @@ public struct UserCollection: ResponseMappable, CustomDebugStringConvertible {
     /// The underlying `Response`.
     public var response: () throws -> Response
 
-    /// The venues.
+    /// The users.
     public var users: [User]! { self["users"].array()?.map { User(response: $0) }}
     /// The status.
     public var status: String! { self["status"].string() }

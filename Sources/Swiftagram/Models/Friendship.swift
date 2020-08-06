@@ -27,6 +27,11 @@ public struct Friendship: ResponseMappable, CustomDebugStringConvertible {
     /// Whether the logged in user have requested to follow them or not.
     public var didRequestToFollow: Bool? { self["outgoingRequest"].bool() }
 
+    /// Whether the logged in user is muting their stories.
+    public var isMutingStories: Bool? { self["isMutingReel"].bool() }
+    /// Whether the logged in user is muting their posts.
+    public var isMutingPosts: Bool? { self["muting"].bool() }
+
     /// Init.
     /// - parameter response: A valid `Response`.
     public init(response: @autoclosure @escaping () throws -> Response) {
@@ -41,7 +46,9 @@ public struct Friendship: ResponseMappable, CustomDebugStringConvertible {
           "isBlockedByYou": isBlockedByYou as Any,
           "isCloseFriend": isCloseFriend as Any,
           "didRequestToFollowYou": didRequestToFollowYou as Any,
-          "didRequestToFollow": didRequestToFollow as Any]
+          "didRequestToFollow": didRequestToFollow as Any,
+          "isMutingStories": isMutingStories as Any,
+          "isMutingPosts": isMutingPosts as Any]
             .mapValues { String(describing: $0 )}
             .map { "\($0): \($1)" }
             .joined(separator: ", "),

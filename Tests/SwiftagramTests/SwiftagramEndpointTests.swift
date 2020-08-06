@@ -45,7 +45,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                     completion.fulfill()
                 },
                 onChange: {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                 }
             )
@@ -240,7 +240,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Feed.followedStories
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
@@ -321,17 +321,11 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Feed.stories(by: "25025320")
                 .unlocking(with: secret)
-                .task(
-                    maxLength: 1,
-                    onComplete: {
-                        XCTAssert($0 == 1)
-                        completion.fulfill()
-                    },
-                    onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
-                        value.fulfill()
-                    }
-                )
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
                 .resume()
             // wait for expectations.
             wait(for: [completion, value], timeout: 60)
@@ -542,7 +536,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Highlights.highlights(for: secret.id)
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }

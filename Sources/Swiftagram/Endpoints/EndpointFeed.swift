@@ -16,7 +16,10 @@ public extension Endpoint {
         private static let base = Endpoint.version1.feed.appendingDefaultHeader()
 
         /// Stories tray.
-        public static let followedStories: DisposableResponse = base.reels_tray.prepare().locking(Secret.self)
+        public static let followedStories: Disposable<TrayItemCollection> = base
+            .reels_tray
+            .prepare(process: TrayItemCollection.self)
+            .locking(Secret.self)
 
         /// Liked media.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
@@ -88,9 +91,11 @@ public extension Endpoint {
         /// All available stories for user matching `identifier`.
         /// - parameters
         ///     - identifier: A `String` holding reference to a valid user identifier.
-        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.`
-        public static func stories(by identifier: String, startingAt page: String? = nil) -> PaginatedResponse {
-            return base.user.appending(path: identifier).reel_media.paginating(value: page).locking(Secret.self)
+        public static func stories(by identifier: String) -> Disposable<TrayItemUnit> {
+            return base.user.appending(path: identifier)
+                .reel_media
+                .prepare(process: TrayItemUnit.self)
+                .locking(Secret.self)
         }
 
         /// All posts a user matching `identifier` is tagged in.

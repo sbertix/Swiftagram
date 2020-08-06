@@ -94,11 +94,10 @@ public extension Endpoint.Media.Posts {
             .prepare(process: Status.self)
             .switch {
                 guard (try? $0.get().response().isOffensive.bool()) == false else { return nil }
-                return base.appending(path: identifier)
-                    .appending(path: "comment/")
+                return base.appending(path: identifier).appending(path: "comment/")
             }
             .locking(Secret.self) {
-                // Check whether you are posting orjust checking for offensive comments.
+                // Figure out whether you are posting or just checking for offensive comments.
                 guard !$0.url.absoluteString.contains("check_offensive_comment") else {
                     return $0.appending(header: $1.header)
                         .signing(body: [

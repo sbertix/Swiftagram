@@ -17,9 +17,9 @@ public extension Endpoint {
 
         /// Return the highlights tray for a specific user.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func tray(for identifier: String) -> DisposableResponse {
+        public static func tray(for identifier: String) -> Disposable<TrayItemCollection> {
             return base.appending(path: identifier).highlights_tray
-                .prepare()
+                .prepare(process: TrayItemCollection.self)
                 .locking(Secret.self) {
                     $0.appending(query: [
                         "supported_capabilities_new": try? Response.description(for:
@@ -37,7 +37,7 @@ public extension Endpoint {
         /// Return the highlights tray for a specific user.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         @available(*, deprecated, renamed: "tray")
-        public static func highlights(for identifier: String) -> DisposableResponse {
+        public static func highlights(for identifier: String) -> Disposable<TrayItemCollection> {
             return tray(for: identifier)
         }
     }
