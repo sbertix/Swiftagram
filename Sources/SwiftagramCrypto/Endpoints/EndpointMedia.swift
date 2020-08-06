@@ -195,7 +195,7 @@ public extension Endpoint.Media.Posts {
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
     #endif
-    #if canImport(AppKit)
+    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
     /// Upload `image` to Instagram.
     /// - parameters:
     ///     - image: A `NSImage` representation of an image.
