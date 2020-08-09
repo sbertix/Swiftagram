@@ -169,9 +169,12 @@ If it's still fetching, nothing's gonna happen. But if it's not and there are st
 ## Backers
 Thank your for financially supporting this project.
 
+<a href="https://github.com/anonrig">
+    <img src="https://github.com/anonrig.png?size=60" alt="anonrig" width="36" height="36" />
+</a>
 <a href="https://github.com/sbertix">
-    <img src="https://github.com/sbertix.png?size=60&s=60" width="30" height="30" style="border-radius:50%;" />
+    <img src="https://github.com/sbertix.png?size=60" alt="sbertix" width="36" height="36" />
 </a>
 <a href="https://github.com/jerry317">
-    <img src="https://github.com/jerry317.png?size=60&s=60" width="30" height="30" style="border-radius:50%;" />
+    <img src="https://github.com/jerry317.png?size=60" alt="jerry317" width="36" height="36" />
 </a>
