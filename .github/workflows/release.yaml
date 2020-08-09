@@ -6,9 +6,10 @@ on:
       - '*'
 
 jobs:
-  notify:
-    name:                        Create Release
+  release:
+    name:                        release
     runs-on:                     ubuntu-latest
+
     steps:
       - name:                    Checkout code
         uses:                    actions/checkout@v2
@@ -36,10 +37,11 @@ jobs:
           args:                  |
             A [new version](${{ steps.create_release.outputs.html_url }}) of **Swiftagram** was just released.
             Please consider updating your code.
+            
   documentation:
-    name:                        Create Documentation
     runs-on:                     macos-latest
-    needs:                       notify
+    needs:                       release
+
     steps:
       - uses:                    actions/checkout@v1
       - uses:                    steven0351/publish-jazzy-docs@v1
