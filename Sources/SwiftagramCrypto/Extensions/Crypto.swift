@@ -39,9 +39,9 @@ internal extension Int {
 /// An `internal` extension for `Request` to deal with signed bodies.
 internal extension BodyComposable where Self: BodyParsable {
     /// Replace body parameters with a signed version of `parameters`.
-    /// - parameter parameters: A valid `Dictionary` of `String`s.
+    /// - parameter body: A valid `Wrapper`.
     /// - returns: An updated copy of `self`.
-    func signing(body: Response) -> Self {
+    func signing(body: Wrapper) -> Self {
         do {
             // Encode parameters.
             guard let encoded = try? body.encode(),

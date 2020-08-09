@@ -24,7 +24,6 @@ jobs:
       env:
         DS_USER_ID:      ${{ secrets.DS_USER_ID }}
         RUR:             ${{ secrets.RUR }}
-        MID:             ${{ secrets.MID }}
         SESSIONID:       ${{ secrets.SESSIONID }}
         CSRFTOKEN:       ${{ secrets.CSRFTOKEN }}
       run:               swift test -v --enable-test-discovery --enable-code-coverage

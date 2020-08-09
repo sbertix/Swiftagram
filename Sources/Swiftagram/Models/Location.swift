@@ -16,7 +16,7 @@ public typealias CGFloat = Double
 import ComposableRequest
 
 /// A `class` representing a `Location`
-public struct Location: ResponseMappable, CustomDebugStringConvertible {
+public struct Location: Wrapped, CustomDebugStringConvertible {
     /// A `struct` holding reference to longitude and latitude.
     public struct Coordinates: Equatable {
         /// The longitude.
@@ -35,7 +35,7 @@ public struct Location: ResponseMappable, CustomDebugStringConvertible {
     }
 
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The latitude.
     public var coordinates: Coordinates! {
@@ -65,9 +65,9 @@ public struct Location: ResponseMappable, CustomDebugStringConvertible {
     }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.
@@ -87,19 +87,19 @@ public struct Location: ResponseMappable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a single `Location` response.
-public struct LocationUnit: ResponseMappable, CustomDebugStringConvertible {
+public struct LocationUnit: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The location.
-    public var location: Location! { Location(response: self["location"]) }
+    public var location: Location? { self["location"].optional().flatMap(Location.init) }
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.
@@ -115,19 +115,19 @@ public struct LocationUnit: ResponseMappable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a `Location` collection.
-public struct LocationCollection: ResponseMappable, CustomDebugStringConvertible {
+public struct LocationCollection: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The venues.
-    public var venues: [Location]! { self["venues"].array()?.map { Location(response: $0) }}
+    public var venues: [Location]? { self["venues"].array()?.map(Location.init) }
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.

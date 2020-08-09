@@ -221,7 +221,7 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     /// Handle `ds_user_id` and `sessionid` response.
-    private func process(result: Requester.Task.Response<Response>,
+    private func process(result: Requester.Task.Response<Wrapper>,
                          crossSiteRequestForgery: HTTPCookie,
                          onChange: @escaping (Result<Secret, Error>) -> Void) {
         switch result.value {

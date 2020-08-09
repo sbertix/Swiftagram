@@ -10,7 +10,7 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `User`.
-public struct User: ResponseMappable, Codable, CustomDebugStringConvertible {
+public struct User: Wrapped, Codable, CustomDebugStringConvertible {
     /// An `enum` representing an access status.
     public enum Access: Int, Hashable, Codable {
         /// Default.
@@ -39,7 +39,7 @@ public struct User: ResponseMappable, Codable, CustomDebugStringConvertible {
     }
 
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The identifier.
     public var identifier: String! { self["pk"].string() ?? self["pk"].int().flatMap(String.init) }
@@ -90,14 +90,14 @@ public struct User: ResponseMappable, Codable, CustomDebugStringConvertible {
 
     /// The friendship status with the logged in user.
     public var friendship: Friendship? {
-        (self["friendship"].dictionary() ?? self["friendshipStatus"].dictionary())
-            .flatMap { Friendship(response: Response($0)) }
+        (self["friendship"].optional() ?? self["friendshipStatus"].optional())
+            .flatMap { Friendship(wrapper: $0) }
     }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.
@@ -120,19 +120,19 @@ public struct User: ResponseMappable, Codable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a `User` single response.
-public struct UserUnit: ResponseMappable, CustomDebugStringConvertible {
+public struct UserUnit: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The venues.
-    public var user: User! { User(response: self["user"]) }
+    public var user: User? { self["user"].optional().flatMap(User.init) }
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.
@@ -148,19 +148,19 @@ public struct UserUnit: ResponseMappable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a `User` collection.
-public struct UserCollection: ResponseMappable, CustomDebugStringConvertible {
+public struct UserCollection: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The users.
-    public var users: [User]! { self["users"].array()?.map { User(response: $0) }}
+    public var users: [User]? { self["users"].array()?.map(User.init) }
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.

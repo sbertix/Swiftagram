@@ -10,17 +10,17 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `Status`.
-public struct Status: ResponseMappable, CustomDebugStringConvertible {
+public struct Status: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.

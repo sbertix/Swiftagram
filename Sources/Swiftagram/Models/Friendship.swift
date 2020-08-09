@@ -10,9 +10,9 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `Friendship`.
-public struct Friendship: ResponseMappable, CustomDebugStringConvertible {
+public struct Friendship: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// Whether they're followed by the logged in user or not.
     public var isFollowedByYou: Bool? { self["following"].bool() }
@@ -33,9 +33,9 @@ public struct Friendship: ResponseMappable, CustomDebugStringConvertible {
     public var isMutingPosts: Bool? { self["muting"].bool() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.
@@ -57,19 +57,19 @@ public struct Friendship: ResponseMappable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a `Friendship` collection.
-public struct FriendshipCollection: ResponseMappable, CustomDebugStringConvertible {
+public struct FriendshipCollection: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The friendships.
-    public var friendships: [String: Friendship]! { self["friendshipStatuses"].dictionary()?.mapValues { Friendship(response: $0) }}
+    public var friendships: [String: Friendship]! { self["friendshipStatuses"].dictionary()?.mapValues { Friendship(wrapper: $0) }}
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.

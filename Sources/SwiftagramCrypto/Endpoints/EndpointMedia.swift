@@ -93,7 +93,7 @@ public extension Endpoint.Media.Posts {
         return base.comment.appending(path: "check_offensive_comment/")
             .prepare(process: Status.self)
             .switch {
-                guard (try? $0.get().response().isOffensive.bool()) == false else { return nil }
+                guard (try? $0.get().wrapper().isOffensive.bool()) == false else { return nil }
                 return base.appending(path: identifier).appending(path: "comment/")
             }
             .locking(Secret.self) {
@@ -170,13 +170,13 @@ public extension Endpoint.Media.Posts {
 
                 // Sign the body.
                 return $0.appending(header: $1.header)
-                    .signing(body: Response([
-                    "igtv_feed_preview": false,
-                    "media_id": identifier,
-                    "_csrftoken": $1.crossSiteRequestForgery.value,
-                    "_uid": $1.id,
-                    "_uuid": $1.device.deviceGUID.uuidString
-                ]))
+                    .signing(body: [
+                        "igtv_feed_preview": Wrapper(booleanLiteral: false),
+                        "media_id": Wrapper(stringLiteral: identifier),
+                        "_csrftoken": Wrapper(stringLiteral: $1.crossSiteRequestForgery.value),
+                        "_uid": Wrapper(stringLiteral: $1.id),
+                        "_uuid": Wrapper(stringLiteral: $1.device.deviceGUID.uuidString)
+                    ] as Wrapper)
             }
     }
 
@@ -240,7 +240,7 @@ public extension Endpoint.Media.Posts {
             "X_FB_PHOTO_WATERFALL_ID": UUID().uuidString,
             "X-Entity-Type": "image/jpeg",
             "Offset": "0",
-            "X-Instagram-Rupload-Params": try? Response.description(for: rupload),
+            "X-Instagram-Rupload-Params": try? Wrapper.stringify(rupload),
             "X-Entity-Name": name,
             "X-Entity-Length": length,
             "Content-Type": "application/octet-stream",
@@ -270,57 +270,57 @@ public extension Endpoint.Media.Posts {
 
                 // Prepare the configuration request.
                 // Prepare edits and extras.
-                let edits: [String: Any] = [
-                    "crop_original_size": [Int(size.width), Int(size.height)],
-                    "crop_center": [0.0, -0.0],
-                    "crop_zoom": 1.0
+                let edits: [String: Wrapper] = [
+                    "crop_original_size": [Int(size.width), Int(size.height)].wrapped,
+                    "crop_center": [0.0, -0.0].wrapped,
+                    "crop_zoom": 1.0.wrapped
                 ]
-                let extras: [String: Any] = [
-                    "source_width": Int(size.width),
-                    "source_height": Int(size.height)
+                let extras: [String: Wrapper] = [
+                    "source_width": Int(size.width).wrapped,
+                    "source_height": Int(size.height).wrapped
                 ]
                 // Prepare the body.
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy:MM:dd' 'HH:mm:ss"
                 let formattedNow = formatter.string(from: now)
-                var body: [String: Any] = [
-                    "upload_id": identifier,
-                    "width": Int(size.width),
-                    "height": Int(size.height),
-                    "caption": caption ?? "",
-                    "timezone_offset": "43200",
-                    "date_time_original": formattedNow,
-                    "date_time_digitalized": formattedNow,
-                    "source_type": "4",
-                    "media_folder": "Instagram",
-                    "edits": edits,
-                    "extra": extras,
-                    "camera_model": $1.device.model,
-                    "scene_capture_type": "standard",
-                    "creation_logger_session_id": $1.session!.value,
-                    "software": "1",
-                    "camera_make": $1.device.brand,
-                    "device": (try? Response.description(for: $1.device.payload)) as Any,
-                    "_csrftoken": $1.crossSiteRequestForgery.value,
-                    "user_id": identifier,
-                    "_uid": $1.id,
-                    "device_id": $1.device.deviceIdentifier,
-                    "_uuid": $1.device.deviceGUID.uuidString
-                ].compactMapValues { $0 }
+                var body: [String: Wrapper] = [
+                    "upload_id": identifier.wrapped,
+                    "width": Int(size.width).wrapped,
+                    "height": Int(size.height).wrapped,
+                    "caption": (caption ?? "").wrapped,
+                    "timezone_offset": "43200".wrapped,
+                    "date_time_original": formattedNow.wrapped,
+                    "date_time_digitalized": formattedNow.wrapped,
+                    "source_type": "4".wrapped,
+                    "media_folder": "Instagram".wrapped,
+                    "edits": edits.wrapped,
+                    "extra": extras.wrapped,
+                    "camera_model": $1.device.model.wrapped,
+                    "scene_capture_type": "standard".wrapped,
+                    "creation_logger_session_id": $1.session!.value.wrapped,
+                    "software": "1".wrapped,
+                    "camera_make": $1.device.brand.wrapped,
+                    "device": (try? Wrapper.stringify($1.device.payload)).wrapped,
+                    "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                    "user_id": identifier.wrapped,
+                    "_uid": $1.id.wrapped,
+                    "device_id": $1.device.deviceIdentifier.wrapped,
+                    "_uuid": $1.device.deviceGUID.uuidString.wrapped
+                ]
                 // Add tagged users.
-                if let users = users?.compactMap({ try? $0.response().value }),
+                if let users = users?.compactMap({ $0.wrapper() }),
                    !users.isEmpty,
-                   let description = try? Response.description(for: ["in": users]) {
-                    body["usertags"] = description
+                   let description = try? users.wrapped.stringified() {
+                    body["usertags"] = description.wrapped
                 }
                 // Add location.
-                if let location = location.flatMap({ try? $0.response().value }),
-                   let description = try? Response.description(for: location) {
-                    body["location"] = description
+                if let location = location.flatMap({ $0.wrapper() }),
+                   let description = try? location.stringified() {
+                    body["location"] = description.wrapped
                 }
                 // Configure.
                 return $0.appending(header: $1.header)
-                    .signing(body: Response(body))
+                    .signing(body: body.wrapped)
             }
     }
 }

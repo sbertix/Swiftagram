@@ -25,7 +25,6 @@ final class SwiftagramEndpointTests: XCTestCase {
         return Secret(cookies: [
             HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
             HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
-            HTTPCookie(name: "mid", value: ProcessInfo.processInfo.environment["MID"]!),
             HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
             HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
         ])

@@ -10,9 +10,9 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `TrayItem`.
-public struct TrayItem: ResponseMappable, CustomDebugStringConvertible {
+public struct TrayItem: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The identifier.
     public var identifier: String! { self["id"].string() ?? self["id"].int().flatMap(String.init) }
@@ -36,9 +36,9 @@ public struct TrayItem: ResponseMappable, CustomDebugStringConvertible {
     /// The last media primary key.
     public var latestMediaPrimaryKey: Int? { self["latestReelMedia"].int() }
     /// The cover media.
-    public var cover: Response { self["coverMedia"] }
+    public var cover: Wrapper? { self["coverMedia"].optional() }
     /// The actual content.
-    public var items: [Response]? { self["items"].array() }
+    public var items: [Wrapper]? { self["items"].array() }
 
     /// The expiration date of the tray item.
     public var expiringAt: Date? {
@@ -50,15 +50,15 @@ public struct TrayItem: ResponseMappable, CustomDebugStringConvertible {
     }
 
     /// The user.
-    public var user: User? { self["user"].dictionary().flatMap { User(response: Response($0)) }}
+    public var user: User? { self["user"].optional().flatMap { User(wrapper: $0) }}
 
     /// Whether the tray has content the logged in user can see being a close friend.
     public var containsCloseFriendsExclusives: Bool? { self["hasBestiesMedia"].bool() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.
@@ -83,19 +83,19 @@ public struct TrayItem: ResponseMappable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a `TrayItem` single response.
-public struct TrayItemUnit: ResponseMappable, CustomDebugStringConvertible {
+public struct TrayItemUnit: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The tray item.
-    public var item: TrayItem! { (try? response()).flatMap { TrayItem(response: $0) }}
+    public var item: TrayItem? { wrapper().optional().flatMap(TrayItem.init)  }
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.
@@ -111,21 +111,21 @@ public struct TrayItemUnit: ResponseMappable, CustomDebugStringConvertible {
 }
 
 /// A `struct` representing a `TrayItem` collection.
-public struct TrayItemCollection: ResponseMappable, CustomDebugStringConvertible {
+public struct TrayItemCollection: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
-    public var response: () throws -> Response
+    public var wrapper: () -> Wrapper
 
     /// The items.
-    public var items: [TrayItem]! {
-        (self["tray"].array() ?? self["items"].array())?.map { TrayItem(response: $0) }
+    public var items: [TrayItem]? {
+        (self["tray"].array() ?? self["items"].array())?.map(TrayItem.init)
     }
     /// The status.
     public var status: String! { self["status"].string() }
 
     /// Init.
-    /// - parameter response: A valid `Response`.
-    public init(response: @autoclosure @escaping () throws -> Response) {
-        self.response = response
+    /// - parameter wrapper: A valid `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self.wrapper = wrapper
     }
 
     /// The debug description.

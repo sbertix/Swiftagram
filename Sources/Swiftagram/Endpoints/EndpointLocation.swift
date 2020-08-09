@@ -51,7 +51,7 @@ public extension Endpoint {
 
         /// Fetch stories currently available at the location matching `identifier`.
         /// - parameter identifier: A valid location identifier.
-        public static func stories(at identifier: String) -> Disposable<Response> {
+        public static func stories(at identifier: String) -> Disposable<Wrapper> {
             return Endpoint.version1
                 .locations
                 .appending(path: identifier)
