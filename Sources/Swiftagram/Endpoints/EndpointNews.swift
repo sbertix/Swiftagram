@@ -15,7 +15,11 @@ public extension Endpoint {
         /// The base endpoint.
         private static let base = Endpoint.version1.news.appendingDefaultHeader()
 
-        /// The current inbox.
-        public static var inbox: DisposableResponse = base.inbox.prepare().locking(Secret.self)
+        /// Latest news.
+        public static var recent: DisposableResponse = base.inbox.prepare().locking(Secret.self)
+
+        /// Latest news.
+        @available(*, deprecated, renamed: "recent")
+        public static var inbox: DisposableResponse { recent }
     }
 }

@@ -43,7 +43,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         authenticator.authenticate {
             switch $0 {
             case .failure(let error): print(error)
-            default: XCTFail("It should not succeed")
+            case .success(let secret): print(secret); XCTFail("It should not succeed")
             }
             invalidUsername.fulfill()
         }

@@ -270,12 +270,12 @@ public extension Endpoint.Media.Posts {
 
                 // Prepare the configuration request.
                 // Prepare edits and extras.
-                let edits: [String: Wrapper] = [
+                let edits: Wrapper = [
                     "crop_original_size": [Int(size.width), Int(size.height)].wrapped,
-                    "crop_center": [0.0, -0.0].wrapped,
-                    "crop_zoom": 1.0.wrapped
+                    "crop_center": [0.0, -0.0],
+                    "crop_zoom": 1.0
                 ]
-                let extras: [String: Wrapper] = [
+                let extras: Wrapper = [
                     "source_width": Int(size.width).wrapped,
                     "source_height": Int(size.height).wrapped
                 ]
@@ -283,22 +283,22 @@ public extension Endpoint.Media.Posts {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy:MM:dd' 'HH:mm:ss"
                 let formattedNow = formatter.string(from: now)
-                var body: [String: Wrapper] = [
+                var body: Wrapper = [
                     "upload_id": identifier.wrapped,
                     "width": Int(size.width).wrapped,
                     "height": Int(size.height).wrapped,
                     "caption": (caption ?? "").wrapped,
-                    "timezone_offset": "43200".wrapped,
+                    "timezone_offset": "43200",
                     "date_time_original": formattedNow.wrapped,
                     "date_time_digitalized": formattedNow.wrapped,
-                    "source_type": "4".wrapped,
-                    "media_folder": "Instagram".wrapped,
-                    "edits": edits.wrapped,
-                    "extra": extras.wrapped,
+                    "source_type": "4",
+                    "media_folder": "Instagram",
+                    "edits": edits,
+                    "extra": extras,
                     "camera_model": $1.device.model.wrapped,
-                    "scene_capture_type": "standard".wrapped,
+                    "scene_capture_type": "standard",
                     "creation_logger_session_id": $1.session!.value.wrapped,
-                    "software": "1".wrapped,
+                    "software": "1",
                     "camera_make": $1.device.brand.wrapped,
                     "device": (try? Wrapper.stringify($1.device.payload)).wrapped,
                     "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,

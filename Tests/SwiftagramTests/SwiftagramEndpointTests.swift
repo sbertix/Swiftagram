@@ -22,11 +22,15 @@ extension HTTPCookie {
 final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
     lazy var secret: Secret! = {
+        // Update the default `Requester`.
+        Requester.default = .instagram
+        // Return the actual `Secret`.
         return Secret(cookies: [
             HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
             HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
             HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
-            HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
+            HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!),
+            HTTPCookie(name: "mid", value: ProcessInfo.processInfo.environment["MID"]!)
         ])
     }()
 
@@ -69,7 +73,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -91,7 +95,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -123,7 +127,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Direct.recipients()
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
@@ -145,7 +149,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -664,7 +668,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.Posts.archive("2365553117501809247_7271269732")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
+                .task {
                     XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
@@ -680,7 +684,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.Posts.unarchive("2365553117501809247_7271269732")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
+                .task {
                     XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
@@ -696,7 +700,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.Posts.save("2363340238886161192_25025320")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
+                .task {
                     XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
@@ -712,7 +716,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.Posts.unsave("2363340238886161192_25025320")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
+                .task {
                     XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
