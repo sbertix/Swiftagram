@@ -12,5 +12,5 @@ jobs:
       - uses:           actions/checkout@v1
       - uses:           ben-z/actions-comment-on-issue@1.0.2
         with:
-          message: '_If you found this useful, please consider starring :star: this repo, [sponsoring the maintainer](https://github.com/sponsors/sbertix) or even just [donating once](https://paypal.me/sbertix) :dollar:.<br />Tiers start from as low as $2, and even just a $5 tip helps maintain this._<br />_Thank you for using **Swiftagram**._'
+          message: '_If you found this useful, please consider starring :star: this repo, [sponsoring the maintainer](https://github.com/sponsors/sbertix), tiers start from as low as $5, or even just [tip once](https://paypal.me/sbertix) :dollar:._<br />_Thank you for using **Swiftagram**._'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

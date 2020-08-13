@@ -170,7 +170,7 @@ If it's still fetching, nothing's gonna happen. But if it's not and there are st
 Thank your for financially supporting this project.
 
 <a href="https://github.com/anonrig">
-    <img src="https://github.com/anonrig.png?size=60" alt="anonrig" width="36" height="36" />
+    <img src="https://github.com/anonrig.png?size=128" alt="anonrig" width="64" height="64" />
 </a>
 <a href="https://github.com/sbertix">
     <img src="https://github.com/sbertix.png?size=60" alt="sbertix" width="36" height="36" />
