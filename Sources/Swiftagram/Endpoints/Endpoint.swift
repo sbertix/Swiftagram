@@ -11,17 +11,9 @@ import Foundation
 /// A `struct` defining all possible `Endpoint`s.
 public struct Endpoint {
     // MARK: Aliases
-    /// An `Endpoint` allowing for pagination.
-    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias PaginatedResponse = Paginated<Wrapper>
-
     /// An `Endpoint` allowing for a paginated request with a custom `Response` value.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
     public typealias Paginated<Response> = Locker<Fetcher<Request, Response>.Paginated, Secret>
-
-    /// An `Endpoint` allowing for a single request.
-    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias DisposableResponse = Disposable<Wrapper>
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
@@ -34,15 +26,4 @@ public struct Endpoint {
     public static let version1: Request = api.appending(path: "/api/v1")
     /// An `Endpoint` pointing to the Instagram homepage.
     public static var generic: Request = .init("https://www.instagram.com")
-
-    // MARK: Deprecations
-    /// An `Endpoint` allowing for pagination.
-    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    @available(*, deprecated, renamed: "PaginatedResponse", message: "It will be removed on the next major version.")
-    public typealias ResponsePaginated = PaginatedResponse
-
-    /// An `Endpoint` allowing for a single request.
-    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    @available(*, deprecated, renamed: "DisposableResponse", message: "it will be removed on the next major version.")
-    public typealias ResponseDisposable = DisposableResponse
 }

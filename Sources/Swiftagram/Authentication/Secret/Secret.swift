@@ -61,9 +61,4 @@ public struct Secret: HeaderKey {
         self.cookies = cookies.compactMap(CodableHTTPCookie.init)
         self.device = device
     }
-
-    // MARK: Deprecated
-    /// A `String` representing the logged in user identifier.
-    @available(*, deprecated, renamed: "id")
-    public var identifier: String { id }
 }

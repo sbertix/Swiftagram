@@ -17,22 +17,6 @@ import AppKit
 import ComposableRequest
 import Swiftagram
 
-public extension Endpoint.Media {
-    /// Like the media matching `identifier`.
-    /// - parameter identifier: A valid media identifier.
-    @available(*, deprecated, message: "use `Endpoint.Media.Posts.like(_:)`")
-    static func like(_ identifier: String) -> Endpoint.Disposable<Status> {
-        return Posts.like(identifier)
-    }
-
-    /// Unlike the media matching `identifier`.
-    /// - parameter identifier: A valid media identifier.
-    @available(*, deprecated, message: "use `Endpoint.Media.Posts.unlike(_:)`")
-    static func unlike(_ identifier: String) -> Endpoint.Disposable<Status> {
-        return Posts.unlike(identifier)
-    }
-}
-
 public extension Endpoint.Media.Posts {
     /// The base endpoint.
     private static let base = Endpoint.version1.media.appendingDefaultHeader()
@@ -190,7 +174,7 @@ public extension Endpoint.Media.Posts {
     static func upload<U: Collection>(image: UIImage,
                                       captioned caption: String?,
                                       tagging users: U? = nil,
-                                      at location: Location? = nil) -> Endpoint.DisposableResponse where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -205,7 +189,7 @@ public extension Endpoint.Media.Posts {
     static func upload<U: Collection>(image: NSImage,
                                       captioned caption: String?,
                                       tagging users: U? = nil,
-                                      at location: Location? = nil) -> Endpoint.DisposableResponse where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
         guard let data = image.tiffRepresentation else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -222,7 +206,7 @@ public extension Endpoint.Media.Posts {
                                       with size: CGSize,
                                       captioned caption: String?,
                                       tagging users: U? = nil,
-                                      at location: Location? = nil) -> Endpoint.DisposableResponse where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = String(Int(now.timeIntervalSince1970*1_000))

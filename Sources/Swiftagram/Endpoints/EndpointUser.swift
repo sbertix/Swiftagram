@@ -17,7 +17,7 @@ public extension Endpoint {
 
         // MARK: Info
         /// A list of all profiles blocked by the user.
-        public static let blocked: DisposableResponse = base
+        public static let blocked: Disposable<Wrapper> = base
             .blocked_list
             .prepare()
             .locking(Secret.self)

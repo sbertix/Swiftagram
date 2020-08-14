@@ -29,8 +29,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
             HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
             HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
-            HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!),
-            HTTPCookie(name: "mid", value: ProcessInfo.processInfo.environment["MID"]!)
+            HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
         ])
     }()
 
@@ -175,7 +174,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Discover.users(like: "25025320")
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }

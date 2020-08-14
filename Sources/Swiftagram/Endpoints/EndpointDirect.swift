@@ -68,11 +68,6 @@ public extension Endpoint {
         }
 
         /// Get user presence.
-        public static let presence = base.appending(path: "get_presence/").prepare().locking(Secret.self)
-
-        // MARK: Deprecated
-        /// Top ranked recipients.
-        @available(*, deprecated, renamed: "recipients()")
-        public static let rankedRecipients: DisposableResponse = base.ranked_recipients.prepare().locking(Secret.self)
+        public static let presence: Disposable<Wrapper> = base.appending(path: "get_presence/").prepare().locking(Secret.self)
     }
 }

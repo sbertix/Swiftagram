@@ -32,13 +32,5 @@ public extension Endpoint {
                     ]).appending(header: $1.header)
             }
         }
-
-        // MARK: Deprecated
-        /// Return the highlights tray for a specific user.
-        /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        @available(*, deprecated, renamed: "tray")
-        public static func highlights(for identifier: String) -> Disposable<TrayItemCollection> {
-            return tray(for: identifier)
-        }
     }
 }

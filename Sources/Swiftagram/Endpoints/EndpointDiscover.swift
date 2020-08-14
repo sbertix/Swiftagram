@@ -17,19 +17,19 @@ public extension Endpoint {
 
         /// Suggested users.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func users(like identifier: String) -> DisposableResponse {
-            return base.chaining.appending(query: "target_id", with: identifier).prepare().locking(Secret.self)
+        public static func users(like identifier: String) -> Disposable<UserCollection> {
+            return base.chaining.appending(query: "target_id", with: identifier).prepare(process: UserCollection.self).locking(Secret.self)
         }
 
         /// The explore feed.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func explore(startingAt page: String? = nil) -> PaginatedResponse {
+        public static func explore(startingAt page: String? = nil) -> Paginated<Wrapper> {
             return base.explore.paginating(value: page).locking(Secret.self)
         }
 
         /// The topical explore feed.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func topics(startingAt page: String? = nil) -> PaginatedResponse {
+        public static func topics(startingAt page: String? = nil) -> Paginated<Wrapper> {
             return base.topical_explore
                 .paginating()
                 .locking(Secret.self) {
