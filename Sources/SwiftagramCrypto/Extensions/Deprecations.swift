@@ -10,8 +10,21 @@
 
 import Foundation
 
+import ComposableRequest
 import ComposableRequestCrypto
 import Swiftagram
+
+public extension Endpoint {
+    struct Feed {
+        /// All available stories for user matching `identifiers`.
+        /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(*, deprecated, message: "use `Endpoint.Media.Stories.by(_:)`; it will be removed in `4.1.0`.")
+        static func stories<C: Collection>(by identifiers: C) -> Endpoint.Disposable<Wrapper> where C.Element == String {
+            Endpoint.Media.Stories.by(identifiers)
+        }
+    }
+}
 
 public extension Endpoint.Media {
     /// Like the media matching `identifier`.

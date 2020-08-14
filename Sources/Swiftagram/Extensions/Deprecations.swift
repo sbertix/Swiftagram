@@ -57,6 +57,113 @@ public extension Endpoint.Direct {
     }
 }
 
+public extension Endpoint {
+    /// A `struct` holding reference to `feed` and `usertags` `Endpoint`s. Requires authentication.
+    struct Feed {
+        /// Stories tray.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Stories.followed` instead; this will be removed in `4.1.0`"
+        )
+        public static var followedStories: Disposable<TrayItemCollection> {
+            Endpoint.Media.Stories.followed
+        }
+
+        /// Liked media.
+        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Posts.liked(startingAt:)` instead; this will be removed in `4.1.0`"
+        )
+        public static func liked(startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            Endpoint.Media.Posts.liked(startingAt: page)
+        }
+
+        /// All saved media.
+        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Posts.saved(startingAt:)` instead; this will be removed in `4.1.0`"
+        )
+        public static func saved(startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            Endpoint.Media.Posts.saved(startingAt: page)
+        }
+
+        /// Timeline.
+        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Posts.timeline(startingAt:)` instead; this will be removed in `4.1.0`"
+        )
+        public static func timeline(startingAt page: String? = nil) -> Paginated<Wrapper> {
+            Endpoint.Media.Posts.timeline(startingAt: page)
+        }
+
+        /// All posts for user matching `identifier`.
+        /// - parameters:
+        ///     - identifier: A `String` holding reference to a valid user identifier.
+        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Posts.by(_:,startingAt:)` instead; this will be removed in `4.1.0`"
+        )
+        public static func posts(by identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            Endpoint.Media.Posts.by(identifier, startingAt: page)
+        }
+
+        /// All available stories for user matching `identifier`.
+        /// - parameters
+        ///     - identifier: A `String` holding reference to a valid user identifier.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Stories.by(_:)` instead; this will be removed in `4.1.0`"
+        )
+        public static func stories(by identifier: String) -> Disposable<TrayItemUnit> {
+            Endpoint.Media.Stories.by(identifier)
+        }
+
+        /// All posts a user matching `identifier` is tagged in.
+        /// - parameters
+        ///     - identifier: A `String` holding reference to a valid user identifier.
+        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Posts.including(_:,startingAt:)` instead; this will be removed in `4.1.0`"
+        )
+        public static func posts(including identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            Endpoint.Media.Posts.including(identifier, startingAt: page)
+        }
+
+        /// All media matching `tag`.
+        /// - parameters:
+        ///     - tag: A `String` holding reference to a valid _#tag_.
+        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        /// - warning: This will be removed in version `4.1.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Posts.tagged(with:,startingAt:)` instead; this will be removed in `4.1.0`"
+        )
+        public static func tagged(with tag: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            Endpoint.Media.Posts.tagged(with: tag, startingAt: page)
+        }
+    }
+}
+
 public extension Endpoint.Highlights {
     /// Return the highlights tray for a specific user.
     /// - parameter identifier: A `String` holding reference to a valid user identifier.

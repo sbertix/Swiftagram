@@ -173,10 +173,21 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload<U: Collection>(image: UIImage,
                                       captioned caption: String?,
-                                      tagging users: U? = nil,
+                                      tagging users: U?,
                                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
+    }
+    
+    /// Upload `image` to Instagram.
+    /// - parameters:
+    ///     - image: A `UIImage` representation of an image.
+    ///     - caption: An optional `String` holding the post's caption.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload(image: UIImage,
+                       captioned caption: String?,
+                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> {
+        return upload(image: image, captioned: caption, tagging: [], at: location)
     }
     #endif
     #if canImport(AppKit) && !targetEnvironment(macCatalyst)
@@ -188,10 +199,21 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload<U: Collection>(image: NSImage,
                                       captioned caption: String?,
-                                      tagging users: U? = nil,
+                                      tagging users: U?,
                                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
         guard let data = image.tiffRepresentation else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
+    }
+    
+    /// Upload `image` to Instagram.
+    /// - parameters:
+    ///     - image: A `NSImage` representation of an image.
+    ///     - caption: An optional `String` holding the post's caption.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload(image: NSImage,
+                       captioned caption: String?,
+                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> {
+        return upload(image: image, captioned: caption, tagging: [], at: location)
     }
     #endif
 
@@ -205,7 +227,7 @@ public extension Endpoint.Media.Posts {
     static func upload<U: Collection>(image data: Data,
                                       with size: CGSize,
                                       captioned caption: String?,
-                                      tagging users: U? = nil,
+                                      tagging users: U?,
                                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
         /// Prepare upload parameters.
         let now = Date()
@@ -306,5 +328,39 @@ public extension Endpoint.Media.Posts {
                 return $0.appending(header: $1.header)
                     .signing(body: body.wrapped)
             }
+    }
+    
+    /// Upload `image` to Instagram.
+    /// - parameters:
+    ///     - image: A `Data` representation of an image.
+    ///     - size: A `CGSize` holding `width` and `height` of the original image.
+    ///     - caption: An optional `String` holding the post's caption.
+    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload(image data: Data,
+                       with size: CGSize,
+                       captioned caption: String?,
+                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> {
+        return upload(image: data, with: size, captioned: caption, tagging: [], at: location)
+    }
+}
+
+public extension Endpoint.Media.Stories {
+    /// All available stories for user matching `identifiers`.
+    /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
+    static func by<C: Collection>(_ identifiers: C) -> Endpoint.Disposable<Wrapper> where C.Element == String {
+        return Endpoint.version1.feed.reels_media
+            .appendingDefaultHeader()
+            .prepare()
+            .locking(Secret.self) {
+                $0.appending(header: $1.header)
+                    .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
+                                    "user_ids": Array(identifiers),
+                                    "device_id": $1.device.deviceIdentifier,
+                                    "_uid": $1.id,
+                                    "_uuid": $1.device.deviceGUID.uuidString,
+                                    "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
+                                    "source": "feed_timeline"])
+        }
     }
 }
