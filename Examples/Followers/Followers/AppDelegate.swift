@@ -9,6 +9,8 @@
 import UIKit
 
 import ComposableRequest
+import ComposableRequestCrypto
+import Swiftagram
 import SwiftagramCrypto
 
 @UIApplicationMain
@@ -17,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Delete keychain when reinstalling the app.
         if !UserDefaults.standard.bool(forKey: "launched.before") {
-            KeychainStorage().removeAll()
+            ComposableRequestCrypto.KeychainStorage<Secret>().removeAll()
             UserDefaults.standard.set(true, forKey: "launched.before")
             UserDefaults.standard.synchronize()
         }

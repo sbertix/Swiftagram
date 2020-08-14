@@ -9,6 +9,7 @@
 import SwiftUI
 
 import FetchImage
+import Swiftagram
 
 /// A `struct` displaying a remote image.
 struct RemoteImage: View {
@@ -46,8 +47,8 @@ struct UserCell: View {
     var body: some View {
         HStack {
             // The image or a placeholder.
-            if user.avatar != nil {
-                user.avatar.flatMap {
+            if user.thumbnail != nil {
+                user.thumbnail.flatMap {
                     RemoteImage(url: $0, placeholder: UIImage(named: "placeholder") ?? .init())
                         .frame(width: 44, height: 44)
                         .mask(Circle())
@@ -62,9 +63,7 @@ struct UserCell: View {
             // The username and name.
             VStack(alignment: .leading) {
                 Text(user.username).font(.headline)
-                if user.name != nil {
-                    user.name.flatMap(Text.init)?.font(.footnote).foregroundColor(.secondary)
-                }
+                if user.name != nil { user.name.flatMap(Text.init)?.font(.footnote).foregroundColor(.secondary) }
             }
         }
         .padding(.vertical, 8)

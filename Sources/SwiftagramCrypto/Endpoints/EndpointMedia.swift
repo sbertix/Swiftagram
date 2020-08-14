@@ -178,7 +178,7 @@ public extension Endpoint.Media.Posts {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
-    
+
     /// Upload `image` to Instagram.
     /// - parameters:
     ///     - image: A `UIImage` representation of an image.
@@ -204,7 +204,7 @@ public extension Endpoint.Media.Posts {
         guard let data = image.tiffRepresentation else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
-    
+
     /// Upload `image` to Instagram.
     /// - parameters:
     ///     - image: A `NSImage` representation of an image.
@@ -329,7 +329,7 @@ public extension Endpoint.Media.Posts {
                     .signing(body: body.wrapped)
             }
     }
-    
+
     /// Upload `image` to Instagram.
     /// - parameters:
     ///     - image: A `Data` representation of an image.
