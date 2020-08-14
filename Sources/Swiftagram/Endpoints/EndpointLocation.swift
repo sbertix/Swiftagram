@@ -51,12 +51,12 @@ public extension Endpoint {
 
         /// Fetch stories currently available at the location matching `identifier`.
         /// - parameter identifier: A valid location identifier.
-        public static func stories(at identifier: String) -> Disposable<Wrapper> {
+        public static func stories(at identifier: String) -> Disposable<TrayItemUnit> {
             return Endpoint.version1
                 .locations
                 .appending(path: identifier)
                 .appending(path: "story/")
-                .prepare()
+                .prepare(process: TrayItemUnit.self)
                 .locking(Secret.self)
         }
     }

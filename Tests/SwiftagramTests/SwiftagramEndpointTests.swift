@@ -264,7 +264,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -286,7 +286,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -308,7 +308,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -346,7 +346,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -368,7 +368,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -494,7 +494,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Friendship.follow("25025320")
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
@@ -510,7 +510,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Friendship.unfollow("25025320")
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
@@ -560,7 +560,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Media.summary(for: "2345240077849019656")
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
@@ -582,7 +582,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -604,7 +604,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
@@ -897,7 +897,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             Endpoint.Location.stories(at: "189075947904164")
                 .unlocking(with: secret)
                 .task {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }

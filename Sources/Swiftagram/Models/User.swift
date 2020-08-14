@@ -124,7 +124,7 @@ public struct UserUnit: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
-    /// The venues.
+    /// The user.
     public var user: User? { self["user"].optional().flatMap(User.init) }
     /// The status.
     public var status: String! { self["status"].string() }

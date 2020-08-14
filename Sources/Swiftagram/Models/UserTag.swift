@@ -5,15 +5,10 @@
 //  Created by Stefano Bertagno on 01/08/20.
 //
 
+import CoreGraphics
 import Foundation
 
 import ComposableRequest
-
-#if canImport(CoreGraphics)
-import CoreGraphics
-#else
-public typealias CGFloat = Double
-#endif
 
 /// A `struct` representing a `UserTag`.
 public struct UserTag: Wrapped, CustomDebugStringConvertible {

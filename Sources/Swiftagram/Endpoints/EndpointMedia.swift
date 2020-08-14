@@ -18,8 +18,8 @@ public extension Endpoint {
         // MARK: Info
         /// A media matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func summary(for identifier: String) -> Disposable<Wrapper> {
-            return base.appending(path: identifier).info.prepare().locking(Secret.self)
+        public static func summary(for identifier: String) -> Disposable<MediaCollection> {
+            return base.appending(path: identifier).info.prepare(process: MediaCollection.self).locking(Secret.self)
         }
 
         /// The permalinkg for the media matching `identifier`.
@@ -34,16 +34,22 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func likers(for identifier: String, startingAt page: String? = nil) -> Paginated<Wrapper> {
-                return base.appending(path: identifier).likers.paginating(value: page).locking(Secret.self)
+            public static func likers(for identifier: String, startingAt page: String? = nil) -> Paginated<UserCollection> {
+                return base.appending(path: identifier)
+                    .likers
+                    .paginating(process: UserCollection.self, value: page)
+                    .locking(Secret.self)
             }
 
             /// A list of all comments the media matching `identifier`.
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func comments(for identifier: String, startingAt page: String? = nil) -> Paginated<Wrapper> {
-                return base.appending(path: identifier).comments.paginating(value: page).locking(Secret.self)
+            public static func comments(for identifier: String, startingAt page: String? = nil) -> Paginated<CommentCollection> {
+                return base.appending(path: identifier)
+                    .comments
+                    .paginating(process: CommentCollection.self, value: page)
+                    .locking(Secret.self)
             }
 
             /// Save the media metching `identifier`.
@@ -97,10 +103,10 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func viewers(for identifier: String, startingAt page: String? = nil) -> Paginated<Wrapper> {
+            public static func viewers(for identifier: String, startingAt page: String? = nil) -> Paginated<UserCollection> {
                 return base.appending(path: identifier)
                     .appending(path: "list_reel_media_viewer")
-                    .paginating(value: page)
+                    .paginating(process: UserCollection.self, value: page)
                     .locking(Secret.self)
             }
 

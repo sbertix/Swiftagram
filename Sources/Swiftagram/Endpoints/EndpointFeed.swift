@@ -23,16 +23,16 @@ public extension Endpoint {
 
         /// Liked media.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func liked(startingAt page: String? = nil) -> Paginated<Wrapper> {
-            return base.liked.paginating(value: page).locking(Secret.self)
+        public static func liked(startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            return base.liked.paginating(process: MediaCollection.self, value: page).locking(Secret.self)
         }
 
         /// All saved media.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func saved(startingAt page: String? = nil) -> Paginated<Wrapper> {
+        public static func saved(startingAt page: String? = nil) -> Paginated<MediaCollection> {
             return base.saved
                 .appending(header: "include_igtv_preview", with: "false")
-                .paginating(value: page)
+                .paginating(process: MediaCollection.self, value: page)
                 .locking(Secret.self)
         }
 
@@ -84,8 +84,8 @@ public extension Endpoint {
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func posts(by identifier: String, startingAt page: String? = nil) -> Paginated<Wrapper> {
-            return base.user.appending(path: identifier).paginating(value: page).locking(Secret.self)
+        public static func posts(by identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            return base.user.appending(path: identifier).paginating(process: MediaCollection.self, value: page).locking(Secret.self)
         }
 
         /// All available stories for user matching `identifier`.
@@ -102,12 +102,12 @@ public extension Endpoint {
         /// - parameters
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func posts(including identifier: String, startingAt page: String? = nil) -> Paginated<Wrapper> {
+        public static func posts(including identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
             return Endpoint.version1.usertags
                 .appending(path: identifier)
                 .feed
                 .appendingDefaultHeader()
-                .paginating(value: page)
+                .paginating(process: MediaCollection.self, value: page)
                 .locking(Secret.self)
         }
 
@@ -115,8 +115,8 @@ public extension Endpoint {
         /// - parameters:
         ///     - tag: A `String` holding reference to a valid _#tag_.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func tagged(with tag: String, startingAt page: String? = nil) -> Paginated<Wrapper> {
-            return base.tag.appending(path: tag).paginating(value: page).locking(Secret.self)
+        public static func tagged(with tag: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            return base.tag.appending(path: tag).paginating(process: MediaCollection.self, value: page).locking(Secret.self)
         }
     }
 }

@@ -5,13 +5,8 @@
 //  Created by Stefano Bertagno on 30/07/20.
 //
 
-import Foundation
-
-#if canImport(CoreGraphics)
 import CoreGraphics
-#else
-public typealias CGFloat = Double
-#endif
+import Foundation
 
 import ComposableRequest
 

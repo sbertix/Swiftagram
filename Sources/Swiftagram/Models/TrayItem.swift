@@ -38,7 +38,7 @@ public struct TrayItem: Wrapped, CustomDebugStringConvertible {
     /// The cover media.
     public var cover: Wrapper? { self["coverMedia"].optional() }
     /// The actual content.
-    public var items: [Wrapper]? { self["items"].array() }
+    public var items: [Media]? { self["items"].array()?.map(Media.init) }
 
     /// The expiration date of the tray item.
     public var expiringAt: Date? {
@@ -88,7 +88,12 @@ public struct TrayItemUnit: Wrapped, CustomDebugStringConvertible {
     public var wrapper: () -> Wrapper
 
     /// The tray item.
-    public var item: TrayItem? { wrapper().optional().flatMap(TrayItem.init)  }
+    public var item: TrayItem? {
+        (wrapper()["story"].optional()
+            ?? wrapper()["item"].optional()
+            ?? wrapper().optional())
+            .flatMap(TrayItem.init)
+    }
     /// The status.
     public var status: String! { self["status"].string() }
 

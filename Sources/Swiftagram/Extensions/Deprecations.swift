@@ -74,7 +74,7 @@ public extension Endpoint.Media {
     ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
     /// - warning: This will be removed in version `4.1.0`.
     @available(*, deprecated, message: "use `Endpoint.Media.Posts.likers(for:startingAt:)`; it will be removed in `4.1.0`.")
-    static func likers(for identifier: String, startingAt page: String? = nil) -> Endpoint.Paginated<Wrapper> {
+    static func likers(for identifier: String, startingAt page: String? = nil) -> Endpoint.Paginated<UserCollection> {
         return Posts.likers(for: identifier, startingAt: page)
     }
 
@@ -84,7 +84,7 @@ public extension Endpoint.Media {
     ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
     /// - warning: This will be removed in version `4.1.0`.
     @available(*, deprecated, message: "use `Endpoint.Media.Posts.comments(for:startingAt:)`; it will be removed in `4.1.0`.")
-    static func comments(for identifier: String, startingAt page: String? = nil) -> Endpoint.Paginated<Wrapper> {
+    static func comments(for identifier: String, startingAt page: String? = nil) -> Endpoint.Paginated<CommentCollection> {
         return Posts.comments(for: identifier, startingAt: page)
     }
 }
