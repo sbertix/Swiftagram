@@ -416,8 +416,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:sbertix/Swiftagram.git";
 			requirement = {
-				branch = development;
-				kind = branch;
+				kind = upToNextMinorVersion;
+				minimumVersion = 4.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

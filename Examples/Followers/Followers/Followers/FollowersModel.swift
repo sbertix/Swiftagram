@@ -44,6 +44,8 @@ final class FollowersModel: ObservableObject {
             self.current = UserDefaults.standard
                 .data(forKey: secret.id)
                 .flatMap { try? JSONDecoder().decode(User.self, from: $0) }
+            // Fetch the data.
+            self.fetch(secret: secret)
         }
         // Keep `UserDefaults` in sync.
         // This will only persist new `User`s, not delete old ones: this is just an example.

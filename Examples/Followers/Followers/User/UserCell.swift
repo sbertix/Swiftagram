@@ -63,7 +63,11 @@ struct UserCell: View {
             // The username and name.
             VStack(alignment: .leading) {
                 Text(user.username).font(.headline)
-                if user.name != nil { user.name.flatMap(Text.init)?.font(.footnote).foregroundColor(.secondary) }
+                user.name
+                    .flatMap { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .flatMap(Text.init)?
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
             }
         }
         .padding(.vertical, 8)

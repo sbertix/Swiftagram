@@ -323,9 +323,19 @@ public extension Endpoint.Media.Posts {
                     body["usertags"] = description.wrapped
                 }
                 // Add location.
-                if let location = location.flatMap({ $0.wrapper() }),
-                   let description = try? location.jsonRepresentation() {
-                    body["location"] = description.wrapped
+                if let location = location {
+                    body["location"] = ["name": location.name.wrapped,
+                                        "lat": Double(location.coordinates.latitude).wrapped,
+                                        "lng": Double(location.coordinates.longitude).wrapped,
+                                        "address": location.address.wrapped,
+                                        "external_source": location.identifier.flatMap(\.keys.first).wrapped,
+                                        "external_id": location.identifier.flatMap(\.values.first).wrapped,
+                                        (location.identifier.flatMap(\.keys.first) ?? "")+"_id": location.identifier.flatMap(\.values.first).wrapped]
+                    body["geotag_enabled"] = 1
+                    body["media_latitude"] = String(Double(location.coordinates.latitude)).wrapped
+                    body["media_longitude"] = String(Double(location.coordinates.longitude)).wrapped
+                    body["posting_latitude"] = body["media_latitude"]
+                    body["posting_longitude"] = body["media_longitude"]
                 }
                 // Configure.
                 return $0.appending(header: $1.header)
