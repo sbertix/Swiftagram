@@ -70,12 +70,5 @@ public extension Endpoint {
         public static func pendingRequests(startingAt page: String? = nil) -> Paginated<UserCollection> {
             return base.pending.paginating(process: UserCollection.self).locking(Secret.self)
         }
-
-        // MARK: Deprecated
-        /// The current friendship status between the authenticated user and the one matching `identifier`.
-        /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func friendship(with identifier: String) -> Disposable<Swiftagram.Friendship> {
-            return summary(for: identifier)
-        }
     }
 }

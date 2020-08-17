@@ -119,7 +119,7 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid user identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func by(_ identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            public static func owned(by identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
                 return Endpoint.version1.feed.appendingDefaultHeader()
                     .user
                     .appending(path: identifier)
@@ -232,8 +232,8 @@ public extension Endpoint {
 
             /// All available stories for user matching `identifier`.
             /// - parameter identifier: A `String` holding reference to a valid user identifier.
-            public static func by(_ identifier: String) -> Disposable<TrayItemUnit> {
-                return Endpoint.version1.feed.appendingDefaultHeader()
+            public static func owned(by identifier: String) -> Disposable<TrayItemUnit> {
+                Endpoint.version1.feed.appendingDefaultHeader()
                     .user
                     .appending(path: identifier)
                     .reel_media

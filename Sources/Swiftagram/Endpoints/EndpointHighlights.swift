@@ -17,6 +17,12 @@ public extension Endpoint {
 
         /// Return the highlights tray for a specific user.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
+        /// - warning: This method will be removed in `4.2.0`.
+        @available(
+            *,
+            deprecated,
+            message: "use `Endpoint.Media.Stories.highlights(for:)` instead"
+        )
         public static func tray(for identifier: String) -> Disposable<TrayItemCollection> {
             return base.appending(path: identifier).highlights_tray
                 .prepare(process: TrayItemCollection.self)
