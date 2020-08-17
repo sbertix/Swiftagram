@@ -15,7 +15,7 @@ public struct TrayItem: Wrapped, CustomDebugStringConvertible {
     public var wrapper: () -> Wrapper
 
     /// The identifier.
-    public var identifier: String! { self["id"].string() ?? self["id"].int().flatMap(String.init) }
+    public var identifier: String! { self["id"].string(converting: true) }
 
     /// The ranked position.
     public var position: Int? { self["rankedPosition"].int() }
@@ -29,14 +29,13 @@ public struct TrayItem: Wrapped, CustomDebugStringConvertible {
     /// The title, main timestamp of the tray item or author username.
     public var title: String? {
         self["title"].string()
-            ?? self["timestamp"].int().flatMap(String.init)
-            ?? self["timestamp"].string()
+            ?? self["timestamp"].string(converting: true)
             ?? user?.username
     }
     /// The last media primary key.
     public var latestMediaPrimaryKey: Int? { self["latestReelMedia"].int() }
     /// The cover media.
-    public var cover: Wrapper? { self["coverMedia"].optional() }
+    public var cover: Media? { self["coverMedia"].optional().flatMap(Media.init) }
     /// The actual content.
     public var items: [Media]? { self["items"].array()?.map(Media.init) }
 

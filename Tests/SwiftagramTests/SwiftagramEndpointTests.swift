@@ -7,8 +7,14 @@ import XCTest
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(AppKit)
+import AppKit
+#endif
 
+// swiftlint:disable superfluous_disable_command
+// swiftlint:disable function_body_length
 // swiftlint:disable type_body_length
+// swiftlint:disable file_length
 extension HTTPCookie {
     /// Test.
     convenience init(name: String, value: String?) {
@@ -22,16 +28,19 @@ extension HTTPCookie {
 final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
     lazy var secret: Secret! = {
-        // Update the default `Requester`.
-        Requester.default = .instagram
-        // Return the actual `Secret`.
-        return Secret(cookies: [
+        Secret(cookies: [
             HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
             HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
             HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
             HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
         ])
     }()
+
+    /// Set up.
+    override func setUp() {
+        // Update the default `Requester`.
+        Requester.default = .instagram
+    }
 
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {
@@ -756,8 +765,53 @@ final class SwiftagramEndpointTests: XCTestCase {
             // wait for expectations.
             wait(for: [completion, value], timeout: 60)
         }
+        // Test post and delete image.
+        func testPostThenDeleteImage() {
+            let post = XCTestExpectation()
+            let delete = XCTestExpectation()
+            // upload.
+            var optionalIdentifier: NSString?
+            #if canImport(AppKit)
+            Endpoint.Media.Posts.upload(image: NSColor.blue.image(sized: .init(width: 640, height: 640)), captioned: nil)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    optionalIdentifier = (try? $0.get().media?.identifier).flatMap { $0 as NSString }
+                    post.fulfill()
+                }
+                .logging(level: .full)
+                .resume()
+            #elseif canImport(UIKit)
+            guard let image = UIImage(color: .red, size: .init(width: 640, height: 640)) else {
+                return XCTFail("Unable to generate `UIImage` from `UIColor`.")
+            }
+            Endpoint.Media.Posts.upload(image: image, captioned: nil)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    optionalIdentifier = (try? $0.get().media?.identifier).flatMap { $0 as NSString }
+                    post.fulfill()
+                }
+                .resume()
+            #endif
+            // wait for expectations.
+            wait(for: [post], timeout: 60)
+            // delete.
+            guard let identifier = optionalIdentifier else {
+                return XCTFail("Cannot delete a picture without a valid identifier.")
+            }
+            Endpoint.Media.Posts.delete(matching: identifier as String)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    delete.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [delete], timeout: 60)
+        }
 
-        testSummary()
+        /*testSummary()
         testLikers()
         testComments()
         testPermalink()
@@ -768,7 +822,8 @@ final class SwiftagramEndpointTests: XCTestCase {
         testCryptoArchive()
         testCryptoUnarchive()
         testLikeComment()
-        testUnlikeComment()
+        testUnlikeComment()*/
+        testPostThenDeleteImage()
     }
 
     /// Test `Endpoint.News`.
@@ -924,4 +979,35 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Location", testEndpointLocation)
     ]
 }
+// swiftlint:enable function_body_length
 // swiftlint:enable type_body_length
+// swiftlint:enable file_lengths
+// swiftlint:enable superfluous_disable_command
+
+#if canImport(UIKit)
+// An extension generating a `UIImage` from a `UIColor`.
+extension UIImage {
+    convenience init?(color: UIColor, size: CGSize = .init(width: 1, height: 1)) {
+        let rect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
+        color.setFill()
+        UIRectFill(rect)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        guard let cgImage = image?.cgImage else { return nil }
+        self.init(cgImage: cgImage)
+    }
+}
+#elseif canImport(AppKit)
+// An extension generating a `NSImage` from a `NSColor`.
+extension NSColor {
+    func image(sized size: CGSize) -> NSImage {
+        let image = NSImage(size: size)
+        image.lockFocus()
+        drawSwatch(in: .init(origin: .zero, size: size))
+        image.unlockFocus()
+        return image
+    }
+}
+#endif

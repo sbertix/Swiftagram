@@ -22,9 +22,11 @@ public extension Endpoint {
                 .prepare(process: TrayItemCollection.self)
                 .locking(Secret.self) {
                     $0.appending(query: [
-                        "supported_capabilities_new": try? Wrapper.stringify(
-                            SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] }
-                        ),
+                        "supported_capabilities_new": try? SupportedCapabilities
+                            .default
+                            .map { ["name": $0.key, "value": $0.value] }
+                            .wrapped
+                            .jsonRepresentation(),
                         "phone_id": $1.device.phoneGUID.uuidString,
                         "battery_level": "72",
                         "is_charging": "0",

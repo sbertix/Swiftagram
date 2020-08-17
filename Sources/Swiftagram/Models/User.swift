@@ -42,7 +42,7 @@ public struct User: Wrapped, Codable, CustomDebugStringConvertible {
     public var wrapper: () -> Wrapper
 
     /// The identifier.
-    public var identifier: String! { self["pk"].string() ?? self["pk"].int().flatMap(String.init) }
+    public var identifier: String! { self["pk"].string(converting: true) }
     /// The username.
     public var username: String! { self["username"].string() }
     /// The name.
@@ -90,8 +90,9 @@ public struct User: Wrapped, Codable, CustomDebugStringConvertible {
 
     /// The friendship status with the logged in user.
     public var friendship: Friendship? {
-        (self["friendship"].optional() ?? self["friendshipStatus"].optional())
-            .flatMap { Friendship(wrapper: $0) }
+        (self["friendship"].optional()
+            ?? self["friendshipStatus"].optional())
+            .flatMap(Friendship.init)
     }
 
     /// Init.

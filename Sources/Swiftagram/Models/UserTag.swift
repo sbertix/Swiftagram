@@ -16,7 +16,7 @@ public struct UserTag: Wrapped, CustomDebugStringConvertible {
     public var wrapper: () -> Wrapper
 
     /// The  user identifier.
-    public var identifier: String! { self["user_id"].string() ?? self["user_id"].int().flatMap(String.init) }
+    public var identifier: String! { self["user_id"].string(converting: true) }
     /// The x relative position inside the canvas.
     public var x: CGFloat! { self["position"][0].double().flatMap(CGFloat.init) }
     /// The y relative position inside the canvas.

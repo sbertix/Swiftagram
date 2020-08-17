@@ -166,7 +166,7 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
     public var wrapper: () -> Wrapper
 
     /// The identifier.
-    public var identifier: String! { self["mediaId"].string(converting: true) }
+    public var identifier: String! { (self["id"].optional() ?? self["mediaId"].optional())?.string(converting: true) }
     /// The primary key.
     public var primaryKey: Int! { self["pk"].int() }
 

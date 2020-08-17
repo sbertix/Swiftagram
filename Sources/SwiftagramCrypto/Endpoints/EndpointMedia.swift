@@ -174,7 +174,7 @@ public extension Endpoint.Media.Posts {
     static func upload<U: Collection>(image: UIImage,
                                       captioned caption: String?,
                                       tagging users: U?,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<MediaUnit> where U.Element == UserTag {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -186,7 +186,7 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload(image: UIImage,
                        captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> {
+                       at location: Location? = nil) -> Endpoint.Disposable<MediaUnit> {
         return upload(image: image, captioned: caption, tagging: [], at: location)
     }
     #endif
@@ -200,8 +200,11 @@ public extension Endpoint.Media.Posts {
     static func upload<U: Collection>(image: NSImage,
                                       captioned caption: String?,
                                       tagging users: U?,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
-        guard let data = image.tiffRepresentation else { fatalError("Invalid `UIImage`.") }
+                                      at location: Location? = nil) -> Endpoint.Disposable<MediaUnit> where U.Element == UserTag {
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
+            let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
+                fatalError("Invalid `UIImage`.")
+        }
         return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
     }
 
@@ -212,11 +215,11 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload(image: NSImage,
                        captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> {
+                       at location: Location? = nil) -> Endpoint.Disposable<MediaUnit> {
         return upload(image: image, captioned: caption, tagging: [], at: location)
     }
-    #endif
 
+    #endif
     /// Upload `image` to Instagram.
     /// - parameters:
     ///     - image: A `Data` representation of an image.
@@ -228,7 +231,7 @@ public extension Endpoint.Media.Posts {
                                       with size: CGSize,
                                       captioned caption: String?,
                                       tagging users: U?,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Wrapper> where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<MediaUnit> where U.Element == UserTag {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = String(Int(now.timeIntervalSince1970*1_000))
@@ -246,7 +249,7 @@ public extension Endpoint.Media.Posts {
             "X_FB_PHOTO_WATERFALL_ID": UUID().uuidString,
             "X-Entity-Type": "image/jpeg",
             "Offset": "0",
-            "X-Instagram-Rupload-Params": try? Wrapper.stringify(rupload),
+            "X-Instagram-Rupload-Params": try? rupload.wrapped.jsonRepresentation(),
             "X-Entity-Name": name,
             "X-Entity-Length": length,
             "Content-Type": "application/octet-stream",
@@ -260,10 +263,10 @@ public extension Endpoint.Media.Posts {
             .appendingDefaultHeader()
             .appending(header: header)
             .replacing(body: data)
-            .prepare()
+            .prepare(process: MediaUnit.self)
             .switch {
                 // Configure the picture you've just updated.
-                guard let response = try? $0.get(), response.status.string() == "ok" else { return nil }
+                guard let response = try? $0.get(), response.status == "ok" else { return nil }
                 // The actual configuration will be performed by the preprocessor on `unlocking`.
                 return base.appending(path: "configure/")
             }
@@ -306,7 +309,7 @@ public extension Endpoint.Media.Posts {
                     "creation_logger_session_id": $1.session!.value.wrapped,
                     "software": "1",
                     "camera_make": $1.device.brand.wrapped,
-                    "device": (try? Wrapper.stringify($1.device.payload)).wrapped,
+                    "device": (try? $1.device.payload.wrapped.jsonRepresentation()).wrapped,
                     "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                     "user_id": identifier.wrapped,
                     "_uid": $1.id.wrapped,
@@ -316,12 +319,12 @@ public extension Endpoint.Media.Posts {
                 // Add tagged users.
                 if let users = users?.compactMap({ $0.wrapper() }),
                    !users.isEmpty,
-                   let description = try? users.wrapped.stringified() {
+                   let description = try? users.wrapped.jsonRepresentation() {
                     body["usertags"] = description.wrapped
                 }
                 // Add location.
                 if let location = location.flatMap({ $0.wrapper() }),
-                   let description = try? location.stringified() {
+                   let description = try? location.jsonRepresentation() {
                     body["location"] = description.wrapped
                 }
                 // Configure.
@@ -340,7 +343,7 @@ public extension Endpoint.Media.Posts {
     static func upload(image data: Data,
                        with size: CGSize,
                        captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Wrapper> {
+                       at location: Location? = nil) -> Endpoint.Disposable<MediaUnit> {
         return upload(image: data, with: size, captioned: caption, tagging: [], at: location)
     }
 }
@@ -361,6 +364,6 @@ public extension Endpoint.Media.Stories {
                                     "_uuid": $1.device.deviceGUID.uuidString,
                                     "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
                                     "source": "feed_timeline"])
-        }
+            }
     }
 }

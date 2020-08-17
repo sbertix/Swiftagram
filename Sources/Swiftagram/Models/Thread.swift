@@ -15,7 +15,7 @@ public struct Thread: Wrapped, CustomDebugStringConvertible {
     public var wrapper: () -> Wrapper
 
     /// The identifier.
-    public var identifier: String! { self["threadId"].string() }
+    public var identifier: String! { self["threadId"].string(converting: true) }
     /// The title.
     public var title: String! { self["threadTitle"].string() }
     /// Last update.
