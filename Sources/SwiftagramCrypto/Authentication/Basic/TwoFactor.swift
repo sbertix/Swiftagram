@@ -11,8 +11,6 @@ import Swiftagram
 
 /// A `class` holding reference to a `TwoFactor`.
 public final class TwoFactor {
-    /// Any `Storage`.
-    internal let storage: Storage
     /// A `String` representing a user's username.
     internal let username: String
     /// A `String` representing the 2FA identifier.
@@ -24,12 +22,10 @@ public final class TwoFactor {
 
     // MARK: Lifecycle
     /// Init.
-    public init<Storage: Swiftagram.Storage>(storage: Storage,
-                                             username: String,
-                                             identifier: String,
-                                             crossSiteRequestForgery: HTTPCookie,
-                                             onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
-        self.storage = storage
+    public init(username: String,
+                identifier: String,
+                crossSiteRequestForgery: HTTPCookie,
+                onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         self.username = username
         self.identifier = identifier
         self.crossSiteRequestForgery = crossSiteRequestForgery

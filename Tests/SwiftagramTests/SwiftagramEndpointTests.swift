@@ -4,6 +4,17 @@ import Foundation
 @testable import SwiftagramCrypto
 import XCTest
 
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
+
+// swiftlint:disable superfluous_disable_command
+// swiftlint:disable function_body_length
+// swiftlint:disable type_body_length
+// swiftlint:disable file_length
 extension HTTPCookie {
     /// Test.
     convenience init(name: String, value: String?) {
@@ -17,14 +28,19 @@ extension HTTPCookie {
 final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
     lazy var secret: Secret! = {
-        return Secret(cookies: [
+        Secret(cookies: [
             HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
             HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
-            HTTPCookie(name: "mid", value: ProcessInfo.processInfo.environment["MID"]!),
             HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
             HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
         ])
     }()
+
+    /// Set up.
+    override func setUp() {
+        // Update the default `Requester`.
+        Requester.default = .instagram
+    }
 
     /// Test `Endpoint.Archive`.
     func testEndpointArchive() {
@@ -41,13 +57,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                     completion.fulfill()
                 },
                 onChange: {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                 }
             )
             .resume()
         // wait for expectations.
-        wait(for: [completion, value], timeout: 30)
+        wait(for: [completion, value], timeout: 60)
     }
 
     /// Test `Endpoint.Direct`.
@@ -67,29 +83,67 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
-        // Test ranked recipients.
-        func testRankedRecipients() {
+        // Test pending inbox.
+        func testPendingThreads() {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Direct.rankedRecipients
+            Endpoint.Direct.pendingThreads()
                 .unlocking(with: secret)
-                .task(by: .instagram) {
+                .task(
+                    maxLength: 1,
+                    onComplete: {
+                        XCTAssert($0 == 1)
+                        completion.fulfill()
+                    },
+                    onChange: {
+                        XCTAssert((try? $0.get().status) == "ok")
+                        value.fulfill()
+                    }
+                )
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test presence.
+        func testPresence() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Direct.presence
+                .unlocking(with: secret)
+                .task {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test ranked recipients.
+        func testRankedRecipients() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Direct.recipients()
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
         }
         // Test thread.
         func testThread() {
@@ -106,16 +160,18 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testThreads()
+        testPendingThreads()
+        testPresence()
         testRankedRecipients()
         testThread()
     }
@@ -129,14 +185,14 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Discover.users(like: "25025320")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test explore.
         func testExplore() {
@@ -159,7 +215,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test thread.
         func testTopics() {
@@ -182,7 +238,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testUsers()
@@ -199,14 +255,14 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Feed.followedStories
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test liked.
         func testLiked() {
@@ -223,13 +279,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test saved.
         func testSaved() {
@@ -246,13 +302,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test posts.
         func testPosts() {
@@ -269,13 +325,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test stories.
         func testStories() {
@@ -284,21 +340,14 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Feed.stories(by: "25025320")
                 .unlocking(with: secret)
-                .task(
-                    maxLength: 1,
-                    by: .instagram,
-                    onComplete: {
-                        XCTAssert($0 == 1)
-                        completion.fulfill()
-                    },
-                    onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
-                        value.fulfill()
-                    }
-                )
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test user tags.
         func testUsertags() {
@@ -315,13 +364,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test tag.
         func testTag() {
@@ -338,13 +387,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testFollowedStories()
@@ -363,7 +412,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Friendship.followed(by: secret.identifier)
+            Endpoint.Friendship.followed(by: secret.id)
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
@@ -373,20 +422,20 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test following.
         func testFollowing() {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Friendship.following(secret.identifier)
+            Endpoint.Friendship.following(secret.id)
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
@@ -396,13 +445,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test friendship.
         func testFriendship() {
@@ -411,14 +460,30 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Friendship.friendship(with: "25025320")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test friendships.
+        func testFriendships() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Friendship.summary(for: ["25025320"])
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
         }
         // Test pending requests.
         func testPendingRequests() {
@@ -435,13 +500,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test follow.
         func testFollow() {
@@ -450,14 +515,14 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Friendship.follow("25025320")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test unfollow.
         func testUnfollow() {
@@ -466,22 +531,23 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Friendship.unfollow("25025320")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testFollowed()
         testFollowing()
         testFriendship()
+        testFriendships()
         testPendingRequests()
-        testFollow()
-        testUnfollow()
+        //testFollow()
+        //testUnfollow()
     }
 
     /// Test `Endpoint.Highlights`.
@@ -491,16 +557,16 @@ final class SwiftagramEndpointTests: XCTestCase {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.Highlights.highlights(for: secret.identifier)
+            Endpoint.Highlights.highlights(for: secret.id)
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testHighlights()
@@ -515,14 +581,14 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.summary(for: "2345240077849019656")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test likers.
         func testLikers() {
@@ -539,13 +605,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test comments.
         func testComments() {
@@ -562,13 +628,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test permalink.
         func testPermalink() {
@@ -584,7 +650,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test crypto like.
         func testCryptoLike() {
@@ -593,14 +659,14 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.like("2345240077849019656")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test crypto unlike.
         func testCryptoUnlike() {
@@ -609,22 +675,172 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.Media.unlike("2345240077849019656")
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok" || (try? $0.get().spam.bool()) == true)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test crypto archive.
+        func testCryptoArchive() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.archive("2365553117501809247_7271269732")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test crypto unarchive.
+        func testCryptoUnarchive() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.unarchive("2365553117501809247_7271269732")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test save.
+        func testSave() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.save("2363340238886161192_25025320")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test unsave.
+        func testUnsave() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.unsave("2363340238886161192_25025320")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test like comment
+        func testLikeComment() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.like(comment: "17885013160654942")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test unlike comment.
+        func testUnlikeComment() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Media.Posts.unlike(comment: "17885013160654942")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test post and delete image.
+        func testPostThenDeleteImage() {
+            let post = XCTestExpectation()
+            let delete = XCTestExpectation()
+            // upload.
+            var optionalIdentifier: NSString?
+            #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+            Endpoint.Media.Posts.upload(image: NSColor.blue.image(sized: .init(width: 640, height: 640)), captioned: nil)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    optionalIdentifier = (try? $0.get().media?.identifier).flatMap { $0 as NSString }
+                    post.fulfill()
+                }
+                .logging(level: .full)
+                .resume()
+            #elseif canImport(UIKit)
+            guard let image = UIImage(color: .red, size: .init(width: 640, height: 640)) else {
+                return XCTFail("Unable to generate `UIImage` from `UIColor`.")
+            }
+            Endpoint.Media.Posts.upload(image: image, captioned: nil)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    optionalIdentifier = (try? $0.get().media?.identifier).flatMap { $0 as NSString }
+                    post.fulfill()
+                }
+                .resume()
+            #else
+            post.fulfill()
+            #endif
+            // wait for expectations.
+            wait(for: [post], timeout: 60)
+            // delete.
+            guard let identifier = optionalIdentifier else {
+                return XCTFail("Cannot delete a picture without a valid identifier.")
+            }
+            Endpoint.Media.Posts.delete(matching: identifier as String)
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
+                    delete.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [delete], timeout: 60)
         }
 
-        testSummary()
+        /*testSummary()
         testLikers()
         testComments()
         testPermalink()
+        testSave()
+        testUnsave()
         testCryptoLike()
         testCryptoUnlike()
+        testCryptoArchive()
+        testCryptoUnarchive()
+        testLikeComment()
+        testUnlikeComment()*/
+        testPostThenDeleteImage()
     }
 
     /// Test `Endpoint.News`.
@@ -643,7 +859,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testInbox()
@@ -665,23 +881,23 @@ final class SwiftagramEndpointTests: XCTestCase {
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test summary.
         func testSummary() {
             let completion = XCTestExpectation()
             let value = XCTestExpectation()
             // fetch.
-            Endpoint.User.summary(for: secret.identifier)
+            Endpoint.User.summary(for: secret.id)
                 .unlocking(with: secret)
-                .task(by: .instagram) {
-                    XCTAssert((try? $0.get().status.string()) == "ok")
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
                     value.fulfill()
                     completion.fulfill()
                 }
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
         // Test all.
         func testAll() {
@@ -698,18 +914,74 @@ final class SwiftagramEndpointTests: XCTestCase {
                         completion.fulfill()
                     },
                     onChange: {
-                        XCTAssert((try? $0.get().status.string()) == "ok")
+                        XCTAssert((try? $0.get().status) == "ok")
                         value.fulfill()
                     }
                 )
                 .resume()
             // wait for expectations.
-            wait(for: [completion, value], timeout: 30)
+            wait(for: [completion, value], timeout: 60)
         }
 
         testBlocked()
         testSummary()
         testAll()
+    }
+
+    /// Test location endpoints.
+    func testEndpointLocation() {
+        // Test search.
+        func testSearch() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Location.around(coordinates: .init(latitude: 45.434272, longitude: 12.338509))
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test summary.
+        func testSummary() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Location.summary(for: "189075947904164")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+        // Test story.
+        func testStory() {
+            let completion = XCTestExpectation()
+            let value = XCTestExpectation()
+            // fetch.
+            Endpoint.Location.stories(at: "189075947904164")
+                .unlocking(with: secret)
+                .task {
+                    XCTAssert((try? $0.get().status) == "ok")
+                    value.fulfill()
+                    completion.fulfill()
+                }
+                .resume()
+            // wait for expectations.
+            wait(for: [completion, value], timeout: 60)
+        }
+
+        testSearch()
+        testSummary()
+        testStory()
     }
 
     static var allTests = [
@@ -721,6 +993,39 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Highlights", testEndpointHighlights),
         ("Endpoint.Media", testEndpointMedia),
         ("Endpoint.News", testEndpointNews),
-        ("Endpoint.User", testEndpointUser)
+        ("Endpoint.User", testEndpointUser),
+        ("Endpoint.Location", testEndpointLocation)
     ]
 }
+// swiftlint:enable function_body_length
+// swiftlint:enable type_body_length
+// swiftlint:enable file_lengths
+// swiftlint:enable superfluous_disable_command
+
+#if canImport(UIKit)
+// An extension generating a `UIImage` from a `UIColor`.
+extension UIImage {
+    convenience init?(color: UIColor, size: CGSize = .init(width: 1, height: 1)) {
+        let rect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
+        color.setFill()
+        UIRectFill(rect)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        guard let cgImage = image?.cgImage else { return nil }
+        self.init(cgImage: cgImage)
+    }
+}
+#elseif canImport(AppKit)
+// An extension generating a `NSImage` from a `NSColor`.
+extension NSColor {
+    func image(sized size: CGSize) -> NSImage {
+        let image = NSImage(size: size)
+        image.lockFocus()
+        drawSwatch(in: .init(origin: .zero, size: size))
+        image.unlockFocus()
+        return image
+    }
+}
+#endif

@@ -17,14 +17,16 @@ public extension Endpoint {
 
         /// Return the highlights tray for a specific user.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func highlights(for identifier: String) -> ResponseDisposable {
+        public static func tray(for identifier: String) -> Disposable<TrayItemCollection> {
             return base.appending(path: identifier).highlights_tray
-                .prepare()
+                .prepare(process: TrayItemCollection.self)
                 .locking(Secret.self) {
                     $0.appending(query: [
-                        "supported_capabilities_new": try? Response.description(for:
-                            SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value]
-                        }),
+                        "supported_capabilities_new": try? SupportedCapabilities
+                            .default
+                            .map { ["name": $0.key, "value": $0.value] }
+                            .wrapped
+                            .jsonRepresentation(),
                         "phone_id": $1.device.phoneGUID.uuidString,
                         "battery_level": "72",
                         "is_charging": "0",

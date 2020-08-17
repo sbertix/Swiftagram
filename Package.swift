@@ -15,8 +15,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/evgenyneu/keychain-swift.git", .upToNextMinor(from: "19.0.0")),
-        .package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "4.0.0")),
+        .package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "4.1.0")),
         .package(url: "https://github.com/sbertix/SwCrypt", .upToNextMinor(from: "5.1.0"))
     ],
     targets: [
@@ -26,7 +25,7 @@ let package = Package(
         ),
         .target(
             name: "SwiftagramCrypto",
-            dependencies: ["Swiftagram", "SwCrypt", "KeychainSwift"]
+            dependencies: ["Swiftagram", "ComposableRequestCrypto", "SwCrypt"]
         ),
         .testTarget(
             name: "SwiftagramTests",

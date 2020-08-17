@@ -39,7 +39,7 @@ import Swiftagram
       }
     ```
  */
-public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticator {
+public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authenticator where Storage.Key == Secret {
     public typealias Error = Swift.Error
 
     /// A `Storage` instance used to store `Secret`s.
@@ -221,7 +221,7 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
     }
 
     /// Handle `ds_user_id` and `sessionid` response.
-    private func process(result: Requester.Task.Response<Response>,
+    private func process(result: Requester.Task.Response<Wrapper>,
                          crossSiteRequestForgery: HTTPCookie,
                          onChange: @escaping (Result<Secret, Error>) -> Void) {
         switch result.value {
@@ -229,11 +229,17 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
         case .success(let value):
             // Wait for two factor authentication.
             if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
-                onChange(.failure(BasicAuthenticatorError.twoFactor(.init(storage: storage,
-                                                                          username: username,
+                onChange(.failure(BasicAuthenticatorError.twoFactor(.init(username: username,
                                                                           identifier: twoFactorIdentifier,
                                                                           crossSiteRequestForgery: crossSiteRequestForgery,
-                                                                          onChange: onChange))))
+                                                                          onChange: { [storage] in
+                                                                            switch $0 {
+                                                                            case .success(let secret):
+                                                                                onChange(.success(secret.store(in: storage)))
+                                                                            default:
+                                                                                onChange($0)
+                                                                            }
+                                                                          }))))
             }
             // Check for errors.
             else if let error = value.errorType.string() {
@@ -249,109 +255,17 @@ public final class BasicAuthenticator<Storage: Swiftagram.Storage>: Authenticato
                 let secret = Secret(cookies: HTTPCookie.cookies(
                     withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
                     for: url
-                ), device: .default) {
+                ), device: .default)?.store(in: storage) {
                 onChange(.success(secret))
             }
             // Return a generic error.
             else { onChange(.failure(BasicAuthenticatorError.invalidResponse)) }
         }
     }
-
-    /*private func process(result: Result<Response, Error>,
-                         crossSiteRequestForgery: HTTPCookie,
-                         onChange: @escaping (Result<Secret, Error>) -> Void) {
-        switch result {
-        case .failure(let error): onChange(.failure(error))
-        case .success(let value):
-            // Check for authentication.
-            if let checkpoint = value.checkpointUrl.string() {
-                // Handle the checkpoint.
-                handleCheckpoint(checkpoint: checkpoint,
-                                 crossSiteRequestForgery: crossSiteRequestForgery,
-                                 onChange: onChange)
-            } else if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
-                // Handle 2FA.
-                onChange(.failure(BasicAuthenticatorError.twoFactor(.init(storage: storage,
-                                                                     username: username,
-                                                                     identifier: twoFactorIdentifier,
-                                                                     userAgent: Device.default.browserUserAgent,
-                                                                     crossSiteRequestForgery: crossSiteRequestForgery,
-                                                                     onChange: onChange))))
-            } else if value.user.bool().flatMap({ !$0 }) ?? false {
-                // User not found.
-                onChange(.failure(BasicAuthenticatorError.invalidUsername))
-            } else if value.authenticated.bool() ?? false {
-                // User authenticated successfuly.
-                let instagramCookies = HTTPCookieStorage.shared.cookies?
-                    .filter { $0.domain.contains(".instagram.com") }
-                    .sorted { $0.name < $1.name } ?? []
-                guard instagramCookies.count >= 2 else {
-                    return onChange(.failure(BasicAuthenticatorError.invalidCookies))
-                }
-                // Complete.
-                let cookies = Secret.hasValidCookies(instagramCookies)
-                    ? instagramCookies
-                    : instagramCookies+[crossSiteRequestForgery]
-                onChange(Secret(cookies: cookies).flatMap { .success($0.store(in: self.storage)) }
-                    ?? .failure(Secret.Error.invalidCookie))
-            } else if value.authenticated.bool().flatMap({ !$0 }) ?? false {
-                // User not authenticated.
-                onChange(.failure(BasicAuthenticatorError.invalidPassword))
-            } else {
-                onChange(.failure(BasicAuthenticatorError.invalidResponse))
-            }
-        }
-    }
-
-    // MARK: Checkpoint flow
-    /// Handle checkpoint.
-    internal func handleCheckpoint(checkpoint: String,
-                                   crossSiteRequestForgery: HTTPCookie,
-                                   onChange: @escaping (Result<Secret, Error>) -> Void) {
-        // Get checkpoint info.
-        Endpoint.generic.appending(path: checkpoint)
-            .replacing(header: ["User-Agent": userAgent])
-            .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
-            .debugTask(by: .authentication) { [self] in
-                // Check for errors.
-                switch $0.value {
-                case .failure(let error): onChange(.failure(error))
-                case .success(let value):
-                    // Notify checkpoint was reached.
-                    guard let url = $0.response?.url,
-                        value.contains("window._sharedData = ") else {
-                            return onChange(.failure(BasicAuthenticatorError.checkpoint(nil)))
-                    }
-                    guard let data = value
-                        .components(separatedBy: "window._sharedData = ")[1]
-                        .components(separatedBy: ";</script>")[0]
-                        .data(using: .utf8),
-                        let response = try? JSONDecoder().decode(Response.self, from: data) else {
-                            return onChange(.failure(BasicAuthenticatorError.checkpoint(nil)))
-                    }
-                    // Obtain available verification.
-                    guard let verification = response
-                        .entryData.challenge.array()?.first?
-                        .extraData.content.array()?.last?
-                        .fields.array()?.first?
-                        .values.array()?
-                        .compactMap(Verification.init) else {
-                            return onChange(.failure(BasicAuthenticatorError.checkpoint(nil)))
-                    }
-                    onChange(.failure(BasicAuthenticatorError.checkpoint(Checkpoint(storage: self.storage,
-                                                                               url: url,
-                                                                               userAgent: Device.default.browserUserAgent,
-                                                                               crossSiteRequestForgery: crossSiteRequestForgery,
-                                                                               availableVerification: Set(verification),
-                                                                               onChange: onChange))))
-                }
-            }
-            .resume()
-    }*/
 }
 
 /// Extend for `TransientStorage`.
-public extension BasicAuthenticator where Storage == TransientStorage {
+public extension BasicAuthenticator where Storage == ComposableRequest.TransientStorage<Secret> {
     // MARK: Lifecycle
     /// Init.
     /// - parameters:

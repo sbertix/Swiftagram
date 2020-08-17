@@ -9,9 +9,11 @@
 import Foundation
 import WebKit
 
+import ComposableRequest
+
 /// A `class` describing a self-navigating `WKWebView`.
 @available(iOS 11, macOS 10.13, macCatalyst 13, *)
-internal final class WebView: WKWebView, WKNavigationDelegate {
+internal final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKNavigationDelegate where Storage.Key == Secret {
     /// Any `Storage`.
     internal var storage: Storage!
     /// A block providing a `Secret`.

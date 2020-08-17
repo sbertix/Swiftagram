@@ -41,9 +41,18 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.rejectRequest(from:)`
     - `.block(_:)`
     - `.unblock(_:)`
-- `Endpoint.Media`
+- `Endpoint.Media.Posts`
     - `.like(_:)`
     - `.unlike(_:)`
+    - `.archive(_:)`
+    - `.unarchive(_:)`
+    - `.comment(_:, on:, replyingTo:)`
+    - `.delete(comments:, on:)`
+    - `.delete(matching:)`
+    - `.upload(image:, captioned:, tagging:, at:)`
+    - `.upload(image:, size:, captioned:, tagging:, at:)`
+- `Endpoint.Media.Stories`
+    - `.by(_:)`
     </p>
 </details>
 

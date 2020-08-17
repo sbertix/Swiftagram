@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 import WebKit
 
+import ComposableRequestCrypto
 import Swiftagram
 import SwiftagramCrypto
 
@@ -27,15 +28,16 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Authenticate.
-        WebViewAuthenticator(storage: KeychainStorage()) { self.webView = $0 }
-            .authenticate { [weak self] in
-                switch $0 {
-                case .failure(let error): print(error.localizedDescription)
-                case .success(let secret):
-                    self?.completion?(secret)
-                    self?.dismiss(animated: true, completion: nil)
-                }
+        WebViewAuthenticator(storage: ComposableRequestCrypto.KeychainStorage<Secret>()) {
+            self.webView = $0
+        }.authenticate { [weak self] in
+            switch $0 {
+            case .failure(let error): print(error.localizedDescription)
+            case .success(let secret):
+                self?.completion?(secret)
+                self?.dismiss(animated: true, completion: nil)
             }
+        }
     }
 }
 

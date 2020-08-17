@@ -43,7 +43,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         authenticator.authenticate {
             switch $0 {
             case .failure(let error): print(error)
-            default: XCTFail("It should not succeed")
+            case .success(let secret): print(secret); XCTFail("It should not succeed")
             }
             invalidUsername.fulfill()
         }
@@ -54,8 +54,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
     func testTwoFactor() {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
-        TwoFactor(storage: TransientStorage(),
-                  username: "A",
+        TwoFactor(username: "A",
                   identifier: "A",
                   crossSiteRequestForgery: .init(name: "_csrftoken", value: "A")) {
                     XCTAssert((try? $0.get()) == nil)
