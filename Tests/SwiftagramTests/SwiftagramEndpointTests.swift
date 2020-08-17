@@ -51,7 +51,6 @@ final class SwiftagramEndpointTests: XCTestCase {
             .unlocking(with: secret)
             .task(
                 maxLength: 1,
-                by: .instagram,
                 onComplete: {
                     XCTAssert($0 == 1)
                     completion.fulfill()
@@ -77,7 +76,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -154,7 +152,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -203,7 +200,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -226,7 +222,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -273,7 +268,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -296,7 +290,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -319,7 +312,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -358,7 +350,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -381,7 +372,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -416,7 +406,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -439,7 +428,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -494,7 +482,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -546,8 +533,8 @@ final class SwiftagramEndpointTests: XCTestCase {
         testFriendship()
         testFriendships()
         testPendingRequests()
-        //testFollow()
-        //testUnfollow()
+        /*testFollow()
+        testUnfollow()*/
     }
 
     /// Test `Endpoint.Highlights`.
@@ -599,7 +586,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -622,7 +608,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
@@ -794,7 +779,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                     optionalIdentifier = (try? $0.get().media?.identifier).flatMap { $0 as NSString }
                     post.fulfill()
                 }
-                .logging(level: .full)
                 .resume()
             #elseif canImport(UIKit)
             guard let image = UIImage(color: .red, size: .init(width: 640, height: 640)) else {
@@ -828,7 +812,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             wait(for: [delete], timeout: 60)
         }
 
-        /*testSummary()
+        testSummary()
         testLikers()
         testComments()
         testPermalink()
@@ -839,7 +823,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         testCryptoArchive()
         testCryptoUnarchive()
         testLikeComment()
-        testUnlikeComment()*/
+        testUnlikeComment()
         testPostThenDeleteImage()
     }
 
@@ -852,7 +836,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.News.inbox
                 .unlocking(with: secret)
-                .task(by: .instagram) {
+                .task {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -874,7 +858,7 @@ final class SwiftagramEndpointTests: XCTestCase {
             // fetch.
             Endpoint.User.blocked
                 .unlocking(with: secret)
-                .task(by: .instagram) {
+                .task {
                     XCTAssert((try? $0.get().status.string()) == "ok")
                     value.fulfill()
                     completion.fulfill()
@@ -908,7 +892,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                 .unlocking(with: secret)
                 .task(
                     maxLength: 1,
-                    by: .instagram,
                     onComplete: {
                         XCTAssert($0 == 1)
                         completion.fulfill()
