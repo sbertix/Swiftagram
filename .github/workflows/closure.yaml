@@ -7,9 +7,10 @@ on:
 jobs:
   comments:
     runs-on:            ubuntu-latest
+    
     steps:
       - uses:           actions/checkout@v1
       - uses:           ben-z/actions-comment-on-issue@1.0.2
         with:
-          message: '_If you found this useful, please consider starring :star: this repo, or even [sponsoring it](https://paypal.me/sbertix) :dollar:.<br />Even just $5 can help me maintain this._<br />_Thank you for using **Swiftagram**._'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+          message: '_If you found this useful, please consider starring :star: this repo, [sponsoring the maintainer](https://github.com/sponsors/sbertix), tiers start from as low as $5, or even just [tip once](https://paypal.me/sbertix) :dollar:._<br />_Thank you for using **Swiftagram**._'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

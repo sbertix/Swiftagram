@@ -7,14 +7,15 @@ on:
 jobs:
   stale:
     runs-on:                 ubuntu-latest
+    
     steps:
     - uses:                  actions/stale@v3
       with:
-        repo-token:          ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-        stale-issue-message: '_This issue has been automatically marked as `stale`, as no activity was detected in the past 14 days_.<br />_Please remove the label or comment below, or the issue will be closed in 7 days._'
+        repo-token:          ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: "_This issue has been automatically marked as `stale`, as no activity was detected in the past 14 days_.\n_Please remove the label or comment below, or the issue will be closed in 7 days._"
         stale-issue-label:   'inactive'
         exempt-issue-labels: 'pinned'
-        stale-pr-message:    '_This PR has been automatically marked as `stale`, as no activity was detected in the past 14 days_.<br />_If you were instructed with changes during a review, please consider applything them or the PR will not be merged, and it will be eventually closed in 7 days._'
+        stale-pr-message:    "_This PR has been automatically marked as `stale`, as no activity was detected in the past 14 days_.\n_If you were instructed with changes during a review, please consider applything them or the PR will not be merged, and it will be eventually closed in 7 days._"
         stale-pr-label:      'inactive'
         exempt-pr-labels:    'pinned'
         days-before-stale:   14

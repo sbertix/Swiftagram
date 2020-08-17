@@ -1,15 +1,19 @@
-name: comments
+name:                 comments
 
 on:
   issue_comment:
-    types: [created]
+    types:            [created]
 
 jobs:
   comments:
-    runs-on: ubuntu-latest
+    runs-on:          ubuntu-latest
+    
     steps:
-      - uses: peter-evans/slash-command-dispatch@v1
+      - uses:         peter-evans/slash-command-dispatch@v2
         with:
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-          reaction-token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-          commands: lint, test, build
+          token:      ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+          issue-type: pull-request
+          commands:   |
+            lint
+            test
+            build
