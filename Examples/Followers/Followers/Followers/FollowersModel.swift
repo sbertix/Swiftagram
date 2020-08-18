@@ -39,7 +39,7 @@ final class FollowersModel: ObservableObject {
     /// Init.
     init() {
         // Fetch the current `Secret`.
-        if let secret = ComposableRequestCrypto.KeychainStorage<Secret>().all().first {
+        if let secret = KeychainStorage<Secret>().all().first {
             self.secret = secret
             self.current = UserDefaults.standard
                 .data(forKey: secret.id)
