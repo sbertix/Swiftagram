@@ -235,7 +235,7 @@ public extension Endpoint.Media.Posts {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = String(Int(now.timeIntervalSince1970*1_000))
-        let name = identifier+"_0_\(Int.random(in: 1_000_000_000...9_999_999_999))"
+        let name = identifier+"_0_\(Int64.random(in: 1_000_000_000...9_999_999_999))"
         let length = "\(data.count)"
         /// Prepare the header.
         let rupload = [
