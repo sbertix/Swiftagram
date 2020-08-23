@@ -49,7 +49,11 @@ public struct CommentCollection: Wrapped, CustomDebugStringConvertible {
     public var wrapper: () -> Wrapper
 
     /// The comments.
-    public var comments: [Comment]? { self["previewComments"].array()?.map(Comment.init) }
+    public var comments: [Comment]? {
+        (self["comments"].optional() ?? self["previewComments"].optional())?
+            .array()?
+            .map(Comment.init)
+    }
     /// The status.
     public var status: String! { self["status"].string() }
 
