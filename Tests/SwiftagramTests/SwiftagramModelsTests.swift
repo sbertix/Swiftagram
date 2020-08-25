@@ -142,6 +142,7 @@ final class SwiftagramModelsTest: XCTestCase {
         // Component.
         let dictionary: [String: Wrapper] = ["id": "123_123",
                                              "pk": 1,
+                                             "code": "code",
                                              "expiringAt": 0,
                                              "takenAt": 0,
                                              "originalWidth": 1,
@@ -149,12 +150,14 @@ final class SwiftagramModelsTest: XCTestCase {
                                              "caption": ["text": "Text"],
                                              "commentCount": 2,
                                              "likeCount": 3,
+                                             "hasLiked": 1,
                                              "user": ["pk": 123],
                                              "location": ["name": "Location"]]
         XCTAssert(compare(dictionary, to: Media.self) {
             switch $0 {
             case "id": return $1.identifier.wrapped
             case "pk": return $1.primaryKey.wrapped
+            case "code": return $1.code.wrapped
             case "expiringAt": return ($1.expiringAt?.timeIntervalSince1970).wrapped
             case "takenAt": return ($1.takenAt?.timeIntervalSince1970).wrapped
             case "originalWidth": return Double($1.size?.width ?? 0).wrapped
@@ -162,6 +165,7 @@ final class SwiftagramModelsTest: XCTestCase {
             case "caption": return ($1.caption?.wrapper()).wrapped
             case "commentCount": return $1.comments.wrapped
             case "likeCount": return $1.likes.wrapped
+            case "hasLiked": return $1.wasLikedByYou.wrapped
             case "user": return ($1.user?.wrapper()).wrapped
             case "location": return ($1.location?.wrapper()).wrapped
             default: return .empty

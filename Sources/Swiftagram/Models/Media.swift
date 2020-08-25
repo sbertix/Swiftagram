@@ -217,6 +217,8 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
     public var debugDescription: String {
         ["Media(",
          ["identifier": identifier as Any,
+          "primaryKey": primaryKey as Any,
+          "code": code as Any,
           "expiringAt": expiringAt as Any,
           "takenAt": takenAt as Any,
           "size": size as Any,
@@ -225,6 +227,7 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
           "caption": caption as Any,
           "comments": comments as Any,
           "likes": likes as Any,
+          "wasLikedByYou": wasLikedByYou as Any,
           "content": content as Any,
           "user": user as Any,
           "location": location as Any]

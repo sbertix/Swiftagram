@@ -794,7 +794,6 @@ final class SwiftagramEndpointTests: XCTestCase {
                     optionalIdentifier = (try? $0.get().media?.identifier).flatMap { $0 as NSString }
                     post.fulfill()
                 }
-                .logging(level: .full)
                 .resume()
             #elseif canImport(UIKit)
             guard let image = UIImage(color: .red, size: .init(width: 640, height: 640)) else {
