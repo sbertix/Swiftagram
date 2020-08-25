@@ -1,5 +1,5 @@
 //
-//  Thread.swift
+//  Conversation.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 10/08/20.
@@ -9,8 +9,8 @@ import Foundation
 
 import ComposableRequest
 
-/// A `struct` representing a `Thread`.
-public struct Thread: Wrapped, CustomDebugStringConvertible {
+/// A `struct` representing a `Conversation`.
+public struct Conversation: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -42,7 +42,7 @@ public struct Thread: Wrapped, CustomDebugStringConvertible {
 
     /// The debug description.
     public var debugDescription: String {
-        ["Thread(",
+        ["Conversation(",
          ["identifier": identifier as Any,
           "title": title as Any,
           "updatedAt": updatedAt as Any,
@@ -57,13 +57,13 @@ public struct Thread: Wrapped, CustomDebugStringConvertible {
     }
 }
 
-/// A `struct` representing a `Thread` single response.
-public struct ThreadUnit: Wrapped, CustomDebugStringConvertible {
+/// A `struct` representing a `Conversation` single response.
+public struct ConversationUnit: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
     /// The thread.
-    public var thread: Thread? { self["thread"].optional().flatMap(Thread.init) }
+    public var thread: Conversation? { self["thread"].optional().flatMap(Conversation.init) }
     /// The status.
     public var status: String! { self["status"].string() }
 
@@ -75,7 +75,7 @@ public struct ThreadUnit: Wrapped, CustomDebugStringConvertible {
 
     /// The debug description.
     public var debugDescription: String {
-        ["ThreadUnit(",
+        ["ConversationUnit(",
          ["thread": thread as Any,
           "status": status as Any]
             .mapValues { String(describing: $0 )}
@@ -85,13 +85,13 @@ public struct ThreadUnit: Wrapped, CustomDebugStringConvertible {
     }
 }
 
-/// A `struct` representing a `Thread` collection.
-public struct ThreadCollection: Wrapped, CustomDebugStringConvertible {
+/// A `struct` representing a `Conversation` collection.
+public struct ConversationCollection: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
     /// The threads.
-    public var threads: [Thread]? { self["inbox"].threads.array()?.map(Thread.init) }
+    public var threads: [Conversation]? { self["inbox"].threads.array()?.map(Conversation.init) }
     /// The logged in user.
     public var viewer: User? { self["viewer"].optional().flatMap(User.init) }
     /// The status.
@@ -105,7 +105,7 @@ public struct ThreadCollection: Wrapped, CustomDebugStringConvertible {
 
     /// The debug description.
     public var debugDescription: String {
-        ["ThreadCollection(",
+        ["ConversationCollection(",
          ["threads": threads as Any,
           "viewer": viewer as Any,
           "status": status as Any]

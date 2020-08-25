@@ -7,6 +7,21 @@
 
 import Foundation
 
+@available(*, deprecated, renamed: "Conversation")
+public typealias Thread = Conversation
+
+@available(*, deprecated, renamed: "ConversationUnit")
+public typealias ThreadUnit = ConversationUnit
+
+@available(*, deprecated, renamed: "ConversationCollection")
+public typealias ThreadCollection = ConversationCollection
+
+@available(*, deprecated, renamed: "Recipient")
+public typealias ThreadRecipient = Recipient
+
+@available(*, deprecated, renamed: "RecipientCollection")
+public typealias ThreadRecipientCollection = RecipientCollection
+
 public extension Endpoint.Media.Posts {
     /// All posts for user matching `identifier`.
     /// - parameters:

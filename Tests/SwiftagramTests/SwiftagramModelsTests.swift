@@ -201,7 +201,7 @@ final class SwiftagramModelsTest: XCTestCase {
         })
     }
 
-    /// Test `Thread`.
+    /// Test `Conversation`.
     func testThread() {
         // Component.
         let dictionary: [String: Wrapper] = ["threadId": "123_123",
@@ -212,7 +212,7 @@ final class SwiftagramModelsTest: XCTestCase {
                                              "vcMuted": 1,
                                              "users": [],
                                              "items": []]
-        XCTAssert(compare(dictionary, to: Thread.self) {
+        XCTAssert(compare(dictionary, to: Conversation.self) {
             switch $0 {
             case "threadId": return $1.identifier.wrapped
             case "threadTitle": return $1.title.wrapped
@@ -228,7 +228,7 @@ final class SwiftagramModelsTest: XCTestCase {
         // Unit.
         let unit: [String: Wrapper] = ["thread": dictionary.wrapped,
                                        "status": "ok"]
-        XCTAssert(compare(unit, to: ThreadUnit.self) {
+        XCTAssert(compare(unit, to: ConversationUnit.self) {
             switch $0 {
             case "thread": return ($1.thread?.wrapper()).wrapped
             case "status": return $1.status.wrapped
@@ -238,7 +238,7 @@ final class SwiftagramModelsTest: XCTestCase {
         // Collection.
         let collection: [String: Wrapper] = ["inbox": ["threads": [dictionary.wrapped].wrapped],
                                              "status": "ok"]
-        XCTAssert(compare(collection, to: ThreadCollection.self) {
+        XCTAssert(compare(collection, to: ConversationCollection.self) {
             switch $0 {
             case "inbox": return ["threads": ($1.threads?.map { $0.wrapper() }).wrapped]
             case "status": return $1.status.wrapped
@@ -247,13 +247,13 @@ final class SwiftagramModelsTest: XCTestCase {
         })
     }
 
-    /// Test `ThreadRecipient`.
+    /// Test `Recipient`.
     func testThreadRecipient() {
         // Collection.
         let collection: [String: Wrapper] = ["rankedRecipients": [["user": ["pk": 123]],
                                                                   ["thread": ["threadId": "123"]]],
                                              "status": "ok"]
-        XCTAssert(compare(collection, to: ThreadRecipientCollection.self) {
+        XCTAssert(compare(collection, to: RecipientCollection.self) {
             switch $0 {
             case "rankedRecipients":
                 let recipients = $1.recipients ?? []
@@ -406,8 +406,8 @@ final class SwiftagramModelsTest: XCTestCase {
         ("Location", testLocation),
         ("Media", testMedia),
         ("Status", testStatus),
-        ("Thread", testThread),
-        ("ThreadRecipient", testThreadRecipient),
+        ("Conversation", testThread),
+        ("Recipient", testThreadRecipient),
         ("TrayItem", testTrayItem),
         ("User", testUser),
         ("UserTag", testUserTag)

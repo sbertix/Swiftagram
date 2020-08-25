@@ -1,5 +1,5 @@
 //
-//  ThreadRecipient.swift
+//  Recipient.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 10/08/20.
@@ -9,12 +9,12 @@ import Foundation
 
 import ComposableRequest
 
-/// An `enum` holding reference to either a `User` or a `Thread` instance.
-public enum ThreadRecipient: Wrapped {
+/// An `enum` holding reference to either a `User` or a `Conversation` instance.
+public enum Recipient: Wrapped {
     /// A valid `User`.
     case user(User)
     /// A valid `Thread`.
-    case thread(Thread)
+    case thread(Conversation)
     /// Neither, meaning something went wrong.
     case error(Wrapper)
 
@@ -39,13 +39,13 @@ public enum ThreadRecipient: Wrapped {
     }
 }
 
-/// A `struct` representing a `ThreadRecipient` collection.
-public struct ThreadRecipientCollection: Wrapped, CustomDebugStringConvertible {
+/// A `struct` representing a `Recipient` collection.
+public struct RecipientCollection: Wrapped, CustomDebugStringConvertible {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
     /// The recipients.
-    public var recipients: [ThreadRecipient]? { self["rankedRecipients"].array()?.map(ThreadRecipient.init) }
+    public var recipients: [Recipient]? { self["rankedRecipients"].array()?.map(Recipient.init) }
     /// The status.
     public var status: String! { self["status"].string() }
 
@@ -57,7 +57,7 @@ public struct ThreadRecipientCollection: Wrapped, CustomDebugStringConvertible {
 
     /// The debug description.
     public var debugDescription: String {
-        ["ThreadRecipientCollection(",
+        ["RecipientCollection(",
          ["recipients": recipients as Any,
           "status": status as Any]
             .mapValues { String(describing: $0 )}
