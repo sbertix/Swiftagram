@@ -169,7 +169,7 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
     public var identifier: String! { (self["id"].optional() ?? self["mediaId"].optional())?.string(converting: true) }
     /// The primary key.
     public var primaryKey: Int! { self["pk"].int() }
-    /// The code (for media URL)
+    /// The code (for media URL).
     public var code: String? { self["code"].string() }
 
     /// The expiration date (if it exists).
