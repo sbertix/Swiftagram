@@ -787,20 +787,23 @@ final class SwiftagramEndpointTests: XCTestCase {
             // upload.
             var optionalIdentifier: NSString?
             #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-            Endpoint.Media.Posts.upload(image: NSColor.blue.image(sized: .init(width: 640, height: 640)), captioned: nil)
+            Endpoint.Media.Posts.upload(image: NSColor.blue.image(sized: .init(width: 640, height: 640)),
+                                        captioned: nil,
+                                        tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])
                 .unlocking(with: secret)
                 .task {
                     XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)
                     optionalIdentifier = (try? $0.get().media?.identifier).flatMap { $0 as NSString }
                     post.fulfill()
                 }
-                .logging(level: .full)
                 .resume()
             #elseif canImport(UIKit)
             guard let image = UIImage(color: .red, size: .init(width: 640, height: 640)) else {
                 return XCTFail("Unable to generate `UIImage` from `UIColor`.")
             }
-            Endpoint.Media.Posts.upload(image: image, captioned: nil)
+            Endpoint.Media.Posts.upload(image: image,
+                                        captioned: nil,
+                                        tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])
                 .unlocking(with: secret)
                 .task {
                     XCTAssert((try? $0.get().status) == "ok" || (try? $0.get().spam.bool()) == true)

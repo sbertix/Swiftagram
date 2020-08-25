@@ -318,8 +318,8 @@ public extension Endpoint.Media.Posts {
                 ]
                 // Add tagged users.
                 if let users = users?.compactMap({ $0.wrapper() }),
-                   !users.isEmpty,
-                   let description = try? users.wrapped.jsonRepresentation() {
+                    !users.isEmpty,
+                    let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
                     body["usertags"] = description.wrapped
                 }
                 // Add location.
