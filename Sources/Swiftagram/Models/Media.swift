@@ -193,7 +193,7 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
     public var comments: Int? { self["commentCount"].int() }
     /// The amount of likes.
     public var likes: Int? { self["likeCount"].int() }
-    /// If the current user has liked the media
+    /// Whether the current user has liked the media or not.
     public var hasLiked: Bool? { self["hasLiked"].bool() }
 
     /// The actual content.
