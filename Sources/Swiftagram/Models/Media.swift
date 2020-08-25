@@ -194,7 +194,7 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
     /// The amount of likes.
     public var likes: Int? { self["likeCount"].int() }
     /// Whether the current user has liked the media or not.
-    public var hasLiked: Bool? { self["hasLiked"].bool() }
+    public var wasLikedByYou: Bool? { self["hasLiked"].bool() }
 
     /// The actual content.
     public var content: Content { .init(wrapper: self.wrapper) }
