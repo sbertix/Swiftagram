@@ -17,6 +17,43 @@ import AppKit
 import ComposableRequest
 import Swiftagram
 
+public extension Endpoint.Media {
+    /// The base endpoint.
+    private static let base = Endpoint.version1.media.appendingDefaultHeader()
+
+    /// Delete the media matching `identifier`.
+    /// - parameter identifier: A valid media identifier.
+    static func delete(matching identifier: String) -> Endpoint.Disposable<Status> {
+        return base
+            .appending(path: identifier)
+            .info
+            .prepare(process: Status.self)
+            .switch {
+                guard let type = (try? $0.get())?["items"][0].mediaType.int(), [1, 2, 8].contains(type) else { return nil }
+                return base.appending(path: identifier)
+                    .appending(path: "delete/")
+                    .appending(query: "media_type",
+                               with: type == 2 ? "VIDEO" : "PHOTO")
+            }
+            .locking(Secret.self) {
+                // Unlock when dealing with the first call.
+                guard $0.request()?.url?.absoluteString.contains("delete") ?? false else {
+                    return $0.appending(header: $1.header)
+                }
+
+                // Sign the body.
+                return $0.appending(header: $1.header)
+                    .signing(body: [
+                        "igtv_feed_preview": Wrapper(booleanLiteral: false),
+                        "media_id": Wrapper(stringLiteral: identifier),
+                        "_csrftoken": Wrapper(stringLiteral: $1.crossSiteRequestForgery.value),
+                        "_uid": Wrapper(stringLiteral: $1.id),
+                        "_uuid": Wrapper(stringLiteral: $1.device.deviceGUID.uuidString)
+                    ] as Wrapper)
+            }
+    }
+}
+
 public extension Endpoint.Media.Posts {
     /// The base endpoint.
     private static let base = Endpoint.version1.media.appendingDefaultHeader()
@@ -130,40 +167,6 @@ public extension Endpoint.Media.Posts {
             }
     }
 
-    /// Delete the media matching `identifier`.
-    /// - parameter identifier: A valid media identifier.
-    static func delete(matching identifier: String) -> Endpoint.Disposable<Status> {
-        return base
-            .appending(path: identifier)
-            .info
-            .prepare(process: Status.self)
-            .switch {
-                guard let type = (try? $0.get())?["items"][0].mediaType.int(), [1, 2, 8].contains(type) else { return nil }
-                return base.appending(path: identifier)
-                    .appending(path: "delete/")
-                    .appending(query: "media_type",
-                               with: type == 1
-                               ? "PHOTO"
-                               : type == 2 ? "VIDEO" : "CAROUSEL")
-            }
-            .locking(Secret.self) {
-                // Unlock when dealing with the first call.
-                guard $0.request()?.url?.absoluteString.contains("delete") ?? false else {
-                    return $0.appending(header: $1.header)
-                }
-
-                // Sign the body.
-                return $0.appending(header: $1.header)
-                    .signing(body: [
-                        "igtv_feed_preview": Wrapper(booleanLiteral: false),
-                        "media_id": Wrapper(stringLiteral: identifier),
-                        "_csrftoken": Wrapper(stringLiteral: $1.crossSiteRequestForgery.value),
-                        "_uid": Wrapper(stringLiteral: $1.id),
-                        "_uuid": Wrapper(stringLiteral: $1.device.deviceGUID.uuidString)
-                    ] as Wrapper)
-            }
-    }
-
     #if canImport(UIKit)
     /// Upload `image` to Instagram.
     /// - parameters:
@@ -176,7 +179,7 @@ public extension Endpoint.Media.Posts {
                                       tagging users: U?,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
-        return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
+        return upload(image: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
 
     /// Upload `image` to Instagram.
@@ -205,7 +208,7 @@ public extension Endpoint.Media.Posts {
             let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
                 fatalError("Invalid `UIImage`.")
         }
-        return upload(image: data, with: image.size, captioned: caption, tagging: users, at: location)
+        return upload(image: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
 
     /// Upload `image` to Instagram.
@@ -218,8 +221,8 @@ public extension Endpoint.Media.Posts {
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
         return upload(image: image, captioned: caption, tagging: [], at: location)
     }
-
     #endif
+
     /// Upload `image` to Instagram.
     /// - parameters:
     ///     - image: A `Data` representation of an image.
@@ -228,7 +231,7 @@ public extension Endpoint.Media.Posts {
     ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload<U: Collection>(image data: Data,
-                                      with size: CGSize,
+                                      size: CGSize,
                                       captioned caption: String?,
                                       tagging users: U?,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
@@ -350,14 +353,17 @@ public extension Endpoint.Media.Posts {
     ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload(image data: Data,
-                       with size: CGSize,
+                       size: CGSize,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: data, with: size, captioned: caption, tagging: [], at: location)
+        return upload(image: data, size: size, captioned: caption, tagging: [], at: location)
     }
 }
 
 public extension Endpoint.Media.Stories {
+    /// The base endpoint.
+    private static let base = Endpoint.version1.media.appendingDefaultHeader()
+
     /// All available stories for user matching `identifiers`.
     /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
     static func by<C: Collection>(_ identifiers: C) -> Endpoint.Disposable<Wrapper> where C.Element == String {
@@ -374,5 +380,156 @@ public extension Endpoint.Media.Stories {
                                     "supported_capabilities_new": SupportedCapabilities.default.map { ["name": $0.key, "value": $0.value] },
                                     "source": "feed_timeline"])
             }
+    }
+
+    #if canImport(UIKit)
+    /// Upload `image` to Instagram as a story.
+    /// - parameters:
+    ///     - image: A `UIImage` representation of an image.
+    ///     - stickers: A sequence of `Stickers`.
+    internal static func upload<S: Sequence>(image: UIImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+        guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
+        return upload(image: data, size: image.size, stickers: stickers)
+    }
+
+    /// Upload `image` to Instagram as a story.
+    /// - parameter image: A `UIImage` representation of an image.
+    static func upload(image: UIImage) -> Endpoint.Disposable<Media.Unit> {
+        guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
+        return upload(image: data, size: image.size)
+    }
+    #endif
+
+    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+    /// Upload `image` to Instagram as a story.
+    /// - parameters:
+    ///     - image: A `NSImage` representation of an image.
+    ///     - stickers: A sequence of `Stickers`.
+    internal static func upload<S: Sequence>(image: NSImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
+            let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
+                fatalError("Invalid `UIImage`.")
+        }
+        return upload(image: data, size: image.size, stickers: stickers)
+    }
+
+    /// Upload `image` to Instagram as a story.
+    /// - parameter image: A `NSImage` representation of an image.
+    static func upload(image: NSImage) -> Endpoint.Disposable<Media.Unit> {
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
+            let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
+                fatalError("Invalid `UIImage`.")
+        }
+        return upload(image: data, size: image.size)
+    }
+    #endif
+
+    /// Upload `image` to Instagram as a story.
+    /// - parameters:
+    ///     - image: A `Data` representation of an image.
+    ///     - size: A `CGSize` holding `width` and `height` of the original image.
+    ///     - stickers: A sequence of `Stickers`.
+    internal static func upload<S: Sequence>(image data: Data,
+                                             size: CGSize,
+                                             stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+        /// Prepare upload parameters.
+        let now = Date()
+        let identifier = String(Int(now.timeIntervalSince1970*1_000))
+        let name = identifier+"_0_\(Int64.random(in: 1_000_000_000...9_999_999_999))"
+        let length = "\(data.count)"
+        /// Prepare the header.
+        let rupload = [
+            "retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#,
+            "media_type": "1",
+            "upload_id": identifier,
+            "xsharing_user_ids": "[]",
+            "image_compression": #"{"lib_name":"moz","lib_version":"3.1.m","quality":"80"}"#
+        ]
+        let header = [
+            "X_FB_PHOTO_WATERFALL_ID": UUID().uuidString,
+            "X-Entity-Type": "image/jpeg",
+            "Offset": "0",
+            "X-Instagram-Rupload-Params": try? rupload.wrapped.jsonRepresentation(),
+            "X-Entity-Name": name,
+            "X-Entity-Length": length,
+            "Content-Type": "application/octet-stream",
+            "Content-Length": length,
+            "Accept-Encoding": "gzip"
+        ]
+        /// Return the first endpoint.
+        return Endpoint.api
+            .appending(path: "rupload_igphoto")
+            .appending(path: name)
+            .appendingDefaultHeader()
+            .appending(header: header)
+            .replacing(body: data)
+            .prepare(process: Media.Unit.self)
+            .switch {
+                // Configure the picture you've just updated.
+                guard let response = try? $0.get(), response.error == nil else { return nil }
+                // The actual configuration will be performed by the preprocessor on `unlocking`.
+                return base.appending(path: "configure_to_story/")
+            }
+            .locking(Secret.self) {
+                // Unlock when dealing with the first call.
+                guard $0.request()?.url?.absoluteString.contains("configure") ?? false else {
+                    return $0.appending(header: $1.header)
+                        .appending(header: "IG-U-DS-User-ID", with: $1.id)
+                }
+
+                // Prepare the configuration request.
+                // Prepare edits and extras.
+                let edits: Wrapper = [
+                    "crop_original_size": [Int(size.width), Int(size.height)].wrapped,
+                    "crop_center": [0.0, -0.0],
+                    "crop_zoom": 1.0
+                ]
+                let extras: Wrapper = [
+                    "source_width": Int(size.width).wrapped,
+                    "source_height": Int(size.height).wrapped
+                ]
+                // Prepare the body.
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy:MM:dd' 'HH:mm:ss"
+                let formattedNow = formatter.string(from: now)
+                var body: [String: Wrapper] = [
+                    "upload_id": identifier.wrapped,
+                    "width": Int(size.width).wrapped,
+                    "height": Int(size.height).wrapped,
+                    "timezone_offset": "43200",
+                    "date_time_original": formattedNow.wrapped,
+                    "date_time_digitalized": formattedNow.wrapped,
+                    "source_type": "3",
+                    "configure_mode": "1",
+                    "media_folder": "Instagram",
+                    "edits": edits,
+                    "extra": extras,
+                    "camera_model": $1.device.model.wrapped,
+                    "scene_capture_type": "standard",
+                    "creation_logger_session_id": $1.session!.value.wrapped,
+                    "software": "1",
+                    "camera_make": $1.device.brand.wrapped,
+                    "device": (try? $1.device.payload.wrapped.jsonRepresentation()).wrapped,
+                    "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                    "user_id": identifier.wrapped,
+                    "_uid": $1.id.wrapped,
+                    "device_id": $1.device.deviceIdentifier.wrapped,
+                    "_uuid": $1.device.deviceGUID.uuidString.wrapped
+                ]
+                /*if let stickersDictionary = [Sticker].request(Array(stickers))?.dictionary(), !stickersDictionary.isEmpty {
+                    body.merge(stickersDictionary) { lhs, _ in lhs }
+                }*/
+                // Configure.
+                return $0.appending(header: $1.header)
+                    .signing(body: body.wrapped)
+            }
+    }
+
+    /// Upload `image` to Instagram as a story.
+    /// - parameters:
+    ///     - image: A `Data` representation of an image.
+    ///     - size: A `CGSize` holding `width` and `height` of the original image.
+    static func upload(image data: Data, size: CGSize) -> Endpoint.Disposable<Media.Unit> {
+        return upload(image: data, size: size, stickers: [])
     }
 }

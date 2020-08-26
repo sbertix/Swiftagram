@@ -268,6 +268,10 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Stories.followed)
         performTest(on: Endpoint.Media.Stories.archived())
         performTest(on: Endpoint.Media.Stories.by("25025320"))
+        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)))),
+           let identifier = wrapper.media.id.string() {
+            performTest(on: Endpoint.Media.delete(matching: identifier))
+        }
     }
 
     /// Test `Endpoint.News`.
