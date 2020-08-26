@@ -11,9 +11,17 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `Media`.
-public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
+public struct Media: ReflectedType {
     /// A `struct` representing some content `Version`.
-    public struct Version: Wrapped, Codable, CustomDebugStringConvertible {
+    public struct Version: ReflectedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "Media." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["url": \Self.url,
+                                                                        "size": \Self.size,
+                                                                        "aspectRatio": \Self.aspectRatio,
+                                                                        "resolution": \Self.resolution]
+
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -22,7 +30,7 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
         /// The `size` value.
         public var size: CGSize? {
             guard let width = self["width"].double().flatMap(CGFloat.init),
-                let height = self["height"].double().flatMap(CGFloat.init) else { return nil }
+                  let height = self["height"].double().flatMap(CGFloat.init) else { return nil }
             return .init(width: width, height: height)
         }
 
@@ -36,23 +44,15 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
         public init(wrapper: @escaping () -> Wrapper) {
             self.wrapper = wrapper
         }
-
-        /// The debug description.
-        public var debugDescription: String {
-            ["Media.Version(",
-             ["url": url as Any,
-              "size": size as Any,
-              "aspectRatio": aspectRatio as Any,
-              "resolution": resolution as Any]
-                .mapValues { String(describing: $0 )}
-                .map { "\($0): \($1)" }
-                .joined(separator: ", "),
-             ")"].joined()
-        }
     }
 
     /// A `struct` representing a `Picture`.
-    public struct Picture: Wrapped, Codable, CustomDebugStringConvertible {
+    public struct Picture: ReflectedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "Media." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["images": \Self.images]
+
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -69,20 +69,17 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
         public init(wrapper: @escaping () -> Wrapper) {
             self.wrapper = wrapper
         }
-
-        /// The debug description.
-        public var debugDescription: String {
-            ["Media.Picture(",
-             ["images": images as Any]
-                .mapValues { String(describing: $0 )}
-                .map { "\($0): \($1)" }
-                .joined(separator: ", "),
-             ")"].joined()
-        }
     }
 
     /// A `struct` representing a `Video`.
-    public struct Video: Wrapped, Codable, CustomDebugStringConvertible {
+    public struct Video: ReflectedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "Media." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["duration": \Self.duration,
+                                                                        "images": \Self.images,
+                                                                        "clips": \Self.clips]
+
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -108,18 +105,6 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
         /// - parameter wrapper: A valid `Wrapper`.
         public init(wrapper: @escaping () -> Wrapper) {
             self.wrapper = wrapper
-        }
-
-        /// The debug description.
-        public var debugDescription: String {
-            ["Media.Video(",
-             ["images": images as Any,
-              "videos": clips as Any,
-              "duration": duration as Any]
-                .mapValues { String(describing: $0 )}
-                .map { "\($0): \($1)" }
-                .joined(separator: ", "),
-             ")"].joined()
         }
     }
 
@@ -162,6 +147,23 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
         }
     }
 
+    /// The debug description prefix.
+    public static let debugDescriptionPrefix: String = ""
+    /// A list of to-be-reflected properties.
+    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
+                                                                    "primaryKey": \Self.primaryKey,
+                                                                    "expiringAt": \Self.expiringAt,
+                                                                    "takenAt": \Self.takenAt,
+                                                                    "size": \Self.size,
+                                                                    "aspectRatio": \Self.aspectRatio,
+                                                                    "resolution": \Self.resolution,
+                                                                    "caption": \Self.caption,
+                                                                    "comments": \Self.comments,
+                                                                    "likes": \Self.likes,
+                                                                    "content": \Self.content,
+                                                                    "user": \Self.user,
+                                                                    "location": \Self.location]
+
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -177,7 +179,7 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
     /// The original size.
     public var size: CGSize? {
         guard let width = self["originalWidth"].double(),
-            let height = self["originalHeight"].double() else { return nil }
+              let height = self["originalHeight"].double() else { return nil }
         return .init(width: width, height: height)
     }
     /// The `aspectRatio` value, or `1`.
@@ -208,83 +210,50 @@ public struct Media: Wrapped, Codable, CustomDebugStringConvertible {
     public init(wrapper: @escaping () -> Wrapper) {
         self.wrapper = wrapper
     }
-
-    /// The debug description.
-    public var debugDescription: String {
-        ["Media(",
-         ["identifier": identifier as Any,
-          "expiringAt": expiringAt as Any,
-          "takenAt": takenAt as Any,
-          "size": size as Any,
-          "aspectRatio": aspectRatio as Any,
-          "resolution": resolution as Any,
-          "caption": caption as Any,
-          "comments": comments as Any,
-          "likes": likes as Any,
-          "content": content as Any,
-          "user": user as Any,
-          "location": location as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
-    }
 }
 
-/// A `struct` representing a `Media` single response.
-public struct MediaUnit: Wrapped, CustomDebugStringConvertible {
-    /// The underlying `Response`.
-    public var wrapper: () -> Wrapper
+public extension Media {
+    /// A `struct` representing a `Media` single response.
+    struct Unit: ResponseType, ReflectedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "Media." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["media": \Self.media,
+                                                                        "error": \Self.error]
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
 
-    /// The media.
-    public var media: Media? {
-        (self["media"].optional() ?? self["item"].optional()).flatMap(Media.init)
-    }
-    /// The status.
-    public var status: String! { self["status"].string() }
+        /// The media.
+        public var media: Media? {
+            (self["media"].optional() ?? self["item"].optional()).flatMap(Media.init)
+        }
 
-    /// Init.
-    /// - parameter wrapper: A valid `Wrapper`.
-    public init(wrapper: @escaping () -> Wrapper) {
-        self.wrapper = wrapper
-    }
-
-    /// The debug description.
-    public var debugDescription: String {
-        ["MediaUnit(",
-         ["media": media as Any,
-          "status": status as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
-    }
-}
-
-/// A `struct` representing a `Media` collection.
-public struct MediaCollection: Wrapped, CustomDebugStringConvertible {
-    /// The underlying `Response`.
-    public var wrapper: () -> Wrapper
-
-    /// The media.
-    public var media: [Media]? { self["items"].array()?.map(Media.init) }
-    /// The status.
-    public var status: String! { self["status"].string() }
-
-    /// Init.
-    /// - parameter wrapper: A valid `Wrapper`.
-    public init(wrapper: @escaping () -> Wrapper) {
-        self.wrapper = wrapper
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
     }
 
-    /// The debug description.
-    public var debugDescription: String {
-        ["MediaCollection(",
-         ["media": media as Any,
-          "status": status as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
+    /// A `struct` representing a `Media` collection.
+    struct Collection: ResponseType, ReflectedType, PaginatedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "Media." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["media": \Self.media,
+                                                                        "pagination": \Self.pagination,
+                                                                        "error": \Self.error]
+
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
+
+        /// The media.
+        public var media: [Media]? { self["items"].array()?.map(Media.init) }
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
     }
 }

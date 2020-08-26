@@ -11,12 +11,19 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `UserTag`.
-public struct UserTag: Wrapped, CustomDebugStringConvertible {
+public struct UserTag: ReflectedType {
+    /// The debug description prefix.
+    public static let debugDescriptionPrefix: String = ""
+    /// A list of to-be-reflected properties.
+    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
+                                                                    "x": \Self.x,
+                                                                    "y": \Self.y]
+
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
     /// The  user identifier.
-    public var identifier: String! { self["user_id"].string(converting: true) }
+    public var identifier: String! { self["userId"].string(converting: true) }
     /// The x relative position inside the canvas.
     public var x: CGFloat! { self["position"][0].double().flatMap(CGFloat.init) }
     /// The y relative position inside the canvas.
@@ -37,20 +44,8 @@ public struct UserTag: Wrapped, CustomDebugStringConvertible {
         let response: Wrapper = [
             "position": [Wrapper(floatLiteral: max(0.001, min(Double(x), 0.999))),
                          Wrapper(floatLiteral: max(0.001, min(Double(y), 0.999)))],
-            "user_id": Wrapper(stringLiteral: identifier)
+            "userId": Wrapper(stringLiteral: identifier)
         ]
         self.init(wrapper: response)
-    }
-
-    /// The debug description.
-    public var debugDescription: String {
-        ["UserTag(",
-         ["identifier": identifier as Any,
-          "x": x as Any,
-          "y": y as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
     }
 }

@@ -16,7 +16,8 @@ public extension Endpoint {
         /// - parameters:
         ///     - coordinates: A `CGPoint` with latitude and longitude.
         ///     - query: An optional `String` narrowing down the list. Defaults to `nil`.
-        public static func around(coordinates: Swiftagram.Location.Coordinates, matching query: String? = nil) -> Disposable<LocationCollection> {
+        public static func around(coordinates: Swiftagram.Location.Coordinates,
+                                  matching query: String? = nil) -> Disposable<Swiftagram.Location.Collection> {
             return Endpoint.version1
                 .appendingDefaultHeader()
                 .appending(path: "location_search/")
@@ -27,7 +28,7 @@ public extension Endpoint {
                     "timestamp": query == nil ? "\(Int(Date().timeIntervalSince1970*1_000))" : nil,
                     "search_query": query
                 ])
-                .prepare(process: LocationCollection.self)
+                .prepare(process: Swiftagram.Location.Collection.self)
                 .locking(Secret.self) {
                     $0.appending(header: $1.header)
                         .appending(query: [
@@ -40,23 +41,23 @@ public extension Endpoint {
 
         /// Get the summary for the location matching `identifier`.
         /// - parameter identifier: A valid location identifier.
-        public static func summary(for identifier: String) -> Disposable<LocationUnit> {
+        public static func summary(for identifier: String) -> Disposable<Swiftagram.Location.Unit> {
             return Endpoint.version1
                 .locations
                 .appending(path: identifier)
                 .appending(path: "info/")
-                .prepare(process: LocationUnit.self)
+                .prepare(process: Swiftagram.Location.Unit.self)
                 .locking(Secret.self)
         }
 
         /// Fetch stories currently available at the location matching `identifier`.
         /// - parameter identifier: A valid location identifier.
-        public static func stories(at identifier: String) -> Disposable<TrayItemUnit> {
+        public static func stories(at identifier: String) -> Disposable<TrayItem.Unit> {
             return Endpoint.version1
                 .locations
                 .appending(path: identifier)
                 .appending(path: "story/")
-                .prepare(process: TrayItemUnit.self)
+                .prepare(process: TrayItem.Unit.self)
                 .locking(Secret.self)
         }
     }

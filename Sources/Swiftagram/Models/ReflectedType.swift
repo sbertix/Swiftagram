@@ -11,22 +11,15 @@ import ComposableRequest
 
 /// A `protocol` returning all underlying properties.
 public protocol ReflectedType: Wrapped, CustomDebugStringConvertible {
-    /// An optional prefix. Defaults to empty.
+    /// An optional prefix.
     static var debugDescriptionPrefix: String { get }
 
-    /// A list of all properties. Defaults to empty.
+    /// A list of all properties.
     /// - note: This does not use `Mirror` reflection, to allow for computed properties and fine tuning.
     static var properties: [String: PartialKeyPath<Self>] { get }
 }
 
 public extension ReflectedType {
-    /// An optional prefix. Defaults to `nil`.
-    static var debugDescriptionPrefix: String { "" }
-
-    /// A list of all properties. Defaults to empty.
-    /// - note: This does not use `Mirror` reflection, to allow for computed properties and fine tuning.
-    static var properties: [String: PartialKeyPath<Self>] { [:] }
-
     /// A custom debug description.
     var debugDescription: String {
         let name = String(describing: Self.self)

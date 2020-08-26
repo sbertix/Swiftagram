@@ -23,9 +23,9 @@ public extension Endpoint {
             deprecated,
             message: "use `Endpoint.Media.Stories.highlights(for:)` instead"
         )
-        public static func tray(for identifier: String) -> Disposable<TrayItemCollection> {
+        public static func tray(for identifier: String) -> Disposable<TrayItem.Collection> {
             return base.appending(path: identifier).highlights_tray
-                .prepare(process: TrayItemCollection.self)
+                .prepare(process: TrayItem.Collection.self)
                 .locking(Secret.self) {
                     $0.appending(query: [
                         "supported_capabilities_new": try? SupportedCapabilities

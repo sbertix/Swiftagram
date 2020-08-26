@@ -39,30 +39,26 @@ public enum Recipient: Wrapped {
     }
 }
 
-/// A `struct` representing a `Recipient` collection.
-public struct RecipientCollection: Wrapped, CustomDebugStringConvertible {
-    /// The underlying `Response`.
-    public var wrapper: () -> Wrapper
+public extension Recipient {
+    /// A `struct` representing a `Recipient` collection.
+    struct Collection: ResponseType, PaginatedType, ReflectedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "Recipient." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["recipients": \Self.recipients,
+                                                                        "pagination": \Self.pagination,
+                                                                        "error": \Self.error]
 
-    /// The recipients.
-    public var recipients: [Recipient]? { self["rankedRecipients"].array()?.map(Recipient.init) }
-    /// The status.
-    public var status: String! { self["status"].string() }
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
 
-    /// Init.
-    /// - parameter wrapper: A valid `Wrapper`.
-    public init(wrapper: @escaping () -> Wrapper) {
-        self.wrapper = wrapper
-    }
+        /// The recipients.
+        public var recipients: [Recipient]? { self["rankedRecipients"].array()?.map(Recipient.init) }
 
-    /// The debug description.
-    public var debugDescription: String {
-        ["RecipientCollection(",
-         ["recipients": recipients as Any,
-          "status": status as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
     }
 }

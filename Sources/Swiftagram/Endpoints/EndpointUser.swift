@@ -24,18 +24,21 @@ public extension Endpoint {
 
         /// A user matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Disposable<UserUnit> {
-            return base.appending(path: identifier).info.prepare(process: UserUnit.self).locking(Secret.self)
+        public static func summary(for identifier: String) -> Disposable<Swiftagram.User.Unit> {
+            return base.appending(path: identifier)
+                .info
+                .prepare(process: Swiftagram.User.Unit.self)
+                .locking(Secret.self)
         }
 
         /// All user matching `query`.
         /// - parameters:
         ///     - query: A `String` holding reference to a valid user query.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func all(matching query: String, startingAt page: String? = nil) -> Paginated<UserCollection> {
+        public static func all(matching query: String, startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
             return base.search
                 .appending(query: "q", with: query)
-                .paginating(process: UserCollection.self, value: page)
+                .paginating(process: Swiftagram.User.Collection.self, value: page)
                 .locking(Secret.self)
         }
     }

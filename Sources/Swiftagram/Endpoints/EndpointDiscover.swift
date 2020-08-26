@@ -17,8 +17,11 @@ public extension Endpoint {
 
         /// Suggested users.
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func users(like identifier: String) -> Disposable<UserCollection> {
-            return base.chaining.appending(query: "target_id", with: identifier).prepare(process: UserCollection.self).locking(Secret.self)
+        public static func users(like identifier: String) -> Disposable<Swiftagram.User.Collection> {
+            return base.chaining
+                .appending(query: "target_id", with: identifier)
+                .prepare(process: Swiftagram.User.Collection.self)
+                .locking(Secret.self)
         }
 
         /// The explore feed.
