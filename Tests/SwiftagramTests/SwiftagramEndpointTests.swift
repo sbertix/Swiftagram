@@ -255,7 +255,9 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Posts.unsave("2366175454991362926_7271269732"))
         performTest(on: Endpoint.Media.Posts.like(comment: "17885013160654942"))
         performTest(on: Endpoint.Media.Posts.unlike(comment: "17885013160654942"))
-        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)), captioned: nil)),
+        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
+                                                                     captioned: nil,
+                                                                     tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
            let identifier = wrapper.media.id.string() {
             performTest(on: Endpoint.Media.Posts.delete(matching: identifier))
         }

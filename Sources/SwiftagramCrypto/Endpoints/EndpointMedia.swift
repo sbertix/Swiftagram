@@ -235,7 +235,7 @@ public extension Endpoint.Media.Posts {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = String(Int(now.timeIntervalSince1970*1_000))
-        let name = identifier+"_0_\(Int.random(in: 1_000_000_000...9_999_999_999))"
+        let name = identifier+"_0_\(Int64.random(in: 1_000_000_000...9_999_999_999))"
         let length = "\(data.count)"
         /// Prepare the header.
         let rupload = [
@@ -316,12 +316,9 @@ public extension Endpoint.Media.Posts {
                     "device_id": $1.device.deviceIdentifier.wrapped,
                     "_uuid": $1.device.deviceGUID.uuidString.wrapped
                 ]
-                // Add tagged users.
-                if let users = users?.compactMap({ $0.wrapper() }),
+                if let users = users?.compactMap({ UserTag.request($0) }),
                     !users.isEmpty,
-                    let description = try? ["in": users.map { ["user_id": $0.identifier, "position": $0["position"]] }.wrapped]
-                        .wrapped
-                        .jsonRepresentation() {
+                    let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
                     body["usertags"] = description.wrapped
                 }
                 // Add location.

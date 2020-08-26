@@ -152,6 +152,8 @@ public struct Media: ReflectedType {
     /// A list of to-be-reflected properties.
     public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
                                                                     "primaryKey": \Self.primaryKey,
+                                                                    "code": \Self.code,
+                                                                    "wasLikedByYou": \Self.wasLikedByYou,
                                                                     "expiringAt": \Self.expiringAt,
                                                                     "takenAt": \Self.takenAt,
                                                                     "size": \Self.size,
@@ -171,6 +173,8 @@ public struct Media: ReflectedType {
     public var identifier: String! { (self["id"].optional() ?? self["mediaId"].optional())?.string(converting: true) }
     /// The primary key.
     public var primaryKey: Int! { self["pk"].int() }
+    /// The code (for media URL).
+    public var code: String? { self["code"].string() }
 
     /// The expiration date (if it exists).
     public var expiringAt: Date? { self["expiringAt"].date() }
@@ -193,6 +197,8 @@ public struct Media: ReflectedType {
     public var comments: Int? { self["commentCount"].int() }
     /// The amount of likes.
     public var likes: Int? { self["likeCount"].int() }
+    /// Whether the current user has liked the media or not.
+    public var wasLikedByYou: Bool? { self["hasLiked"].bool() }
 
     /// The actual content.
     public var content: Content { .init(wrapper: self.wrapper) }
