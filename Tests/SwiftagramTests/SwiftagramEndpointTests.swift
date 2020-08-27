@@ -284,7 +284,8 @@ final class SwiftagramEndpointTests: XCTestCase {
                                                                                   Sticker.question("Test?")
                                                                                     .position(.init(x: 0.5, y: 0.6)),
                                                                                   Sticker.poll("Test?", tallies: ["A", "B"])
-                                                                                    .position(.init(x: 0.5, y: 0.8))])),
+                                                                                    .position(.init(x: 0.5, y: 0.8))],
+                                                                       isCloseFriendsOnly: true)),
            let identifier = wrapper.media.id.string() {
             performTest(on: Endpoint.Media.delete(matching: identifier))
         }

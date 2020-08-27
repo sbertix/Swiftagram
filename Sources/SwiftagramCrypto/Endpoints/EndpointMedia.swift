@@ -387,16 +387,21 @@ public extension Endpoint.Media.Stories {
     /// - parameters:
     ///     - image: A `UIImage` representation of an image.
     ///     - stickers: A sequence of `Stickers`.
-    static func upload<S: Sequence>(image: UIImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    static func upload<S: Sequence>(image: UIImage,
+                                    stickers: S,
+                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
-        return upload(image: data, size: image.size, stickers: stickers)
+        return upload(image: data, size: image.size, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     /// Upload `image` to Instagram as a story.
-    /// - parameter image: A `UIImage` representation of an image.
-    static func upload(image: UIImage) -> Endpoint.Disposable<Media.Unit> {
+    /// - parameters:
+    ///     - image: A `UIImage` representation of an image.
+    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    static func upload(image: UIImage, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
-        return upload(image: data, size: image.size)
+        return upload(image: data, size: image.size, isCloseFriendsOnly: isCloseFriendsOnly)
     }
     #endif
 
@@ -405,22 +410,27 @@ public extension Endpoint.Media.Stories {
     /// - parameters:
     ///     - image: A `NSImage` representation of an image.
     ///     - stickers: A sequence of `Stickers`.
-    static func upload<S: Sequence>(image: NSImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+    ///     - toCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    static func upload<S: Sequence>(image: NSImage,
+                                    stickers: S,
+                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
             let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
                 fatalError("Invalid `UIImage`.")
         }
-        return upload(image: data, size: image.size, stickers: stickers)
+        return upload(image: data, size: image.size, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     /// Upload `image` to Instagram as a story.
-    /// - parameter image: A `NSImage` representation of an image.
-    static func upload(image: NSImage) -> Endpoint.Disposable<Media.Unit> {
+    /// - parameters:
+    ///     - image: A `NSImage` representation of an image.
+    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    static func upload(image: NSImage, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
             let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
                 fatalError("Invalid `UIImage`.")
         }
-        return upload(image: data, size: image.size)
+        return upload(image: data, size: image.size, isCloseFriendsOnly: isCloseFriendsOnly)
     }
     #endif
 
@@ -429,9 +439,11 @@ public extension Endpoint.Media.Stories {
     ///     - image: A `Data` representation of an image.
     ///     - size: A `CGSize` holding `width` and `height` of the original image.
     ///     - stickers: A sequence of `Stickers`.
+    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     static func upload<S: Sequence>(image data: Data,
                                     size: CGSize,
-                                    stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+                                    stickers: S,
+                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         /// Prepare upload parameters.
         let now = Date()
         let seconds = Int(now.timeIntervalSince1970)
@@ -497,6 +509,7 @@ public extension Endpoint.Media.Stories {
                     "device_id": $1.device.deviceIdentifier.wrapped,
                     "_uuid": $1.device.deviceGUID.uuidString.wrapped
                 ]
+                if isCloseFriendsOnly { body["audience"] = "besties" }
                 // Update stickers.
                 body.merge(stickers.request()) { lhs, _ in lhs }
                 // Configure.
@@ -509,7 +522,10 @@ public extension Endpoint.Media.Stories {
     /// - parameters:
     ///     - image: A `Data` representation of an image.
     ///     - size: A `CGSize` holding `width` and `height` of the original image.
-    static func upload(image data: Data, size: CGSize) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: data, size: size, stickers: [])
+    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    static func upload(image data: Data,
+                       size: CGSize,
+                       isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+        return upload(image: data, size: size, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 }
