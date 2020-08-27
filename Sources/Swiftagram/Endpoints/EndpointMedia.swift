@@ -118,6 +118,15 @@ public extension Endpoint {
                     .locking(Secret.self)
             }
 
+            /// All archived media.
+            /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+            public static func archived(startingAt page: String? = nil) -> Paginated<Swiftagram.Media.Collection> {
+                return Endpoint.version1.feed.appending(path: "only_me_feed/")
+                    .appendingDefaultHeader()
+                    .paginating(process: Swiftagram.Media.Collection.self, value: page)
+                    .locking(Secret.self)
+            }
+
             /// All posts for user matching `identifier`.
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid user identifier.
