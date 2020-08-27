@@ -1,4 +1,5 @@
 import ComposableRequest
+import CoreGraphics
 import Foundation
 @testable import Swiftagram
 @testable import SwiftagramCrypto
@@ -268,7 +269,11 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Stories.followed)
         performTest(on: Endpoint.Media.Stories.archived())
         performTest(on: Endpoint.Media.Stories.by("25025320"))
-        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)))),
+        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
+                                                                       stickers: [.mention("25025320"),
+                                                                                  Sticker.tag("instagram").position(.init(x: 0.5, y: 0.75)),
+                                                                                  Sticker.location("189075947904164")
+                                                                                    .position(.init(x: 0.5, y: 0.25))])),
            let identifier = wrapper.media.id.string() {
             performTest(on: Endpoint.Media.delete(matching: identifier))
         }

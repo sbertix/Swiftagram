@@ -45,24 +45,4 @@ public struct UserTag: ReflectedType {
                                          max(0.001, min(Double(y), 0.999)).wrapped],
                             "userId": identifier.wrapped])
     }
-
-    /// Adjust the response to account for snake case.
-    public func request() -> Wrapper {
-        guard let identifier = identifier, let x = x.flatMap(Double.init), let y = y.flatMap(Double.init) else { return .empty }
-        return ["position": [x.wrapped, y.wrapped], "user_id": identifier.wrapped]
-    }
-}
-
-extension UserTag: RequestType {
-    /// Adjust `wrapped` to work in a request.
-    /// - parameter wrapped: A valid instance of `Self`.
-    /// - returns: An optional `Wrapper`.
-    public static func request(_ wrapped: UserTag) -> Wrapper? {
-        guard let identifier = wrapped.identifier,
-              let x = wrapped.x.flatMap(Double.init),
-              let y = wrapped.y.flatMap(Double.init) else {
-            return .none
-        }
-        return ["position": [x.wrapped, y.wrapped], "user_id": identifier.wrapped]
-    }
 }

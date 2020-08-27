@@ -319,7 +319,7 @@ public extension Endpoint.Media.Posts {
                     "device_id": $1.device.deviceIdentifier.wrapped,
                     "_uuid": $1.device.deviceGUID.uuidString.wrapped
                 ]
-                if let users = users?.compactMap({ UserTag.request($0) }),
+                if let users = users?.compactMap({ $0.wrapper().snakeCased().optional() }),
                     !users.isEmpty,
                     let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
                     body["usertags"] = description.wrapped
@@ -387,7 +387,7 @@ public extension Endpoint.Media.Stories {
     /// - parameters:
     ///     - image: A `UIImage` representation of an image.
     ///     - stickers: A sequence of `Stickers`.
-    internal static func upload<S: Sequence>(image: UIImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+    static func upload<S: Sequence>(image: UIImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
         return upload(image: data, size: image.size, stickers: stickers)
     }
@@ -405,7 +405,7 @@ public extension Endpoint.Media.Stories {
     /// - parameters:
     ///     - image: A `NSImage` representation of an image.
     ///     - stickers: A sequence of `Stickers`.
-    internal static func upload<S: Sequence>(image: NSImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+    static func upload<S: Sequence>(image: NSImage, stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
             let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
                 fatalError("Invalid `UIImage`.")
@@ -429,11 +429,12 @@ public extension Endpoint.Media.Stories {
     ///     - image: A `Data` representation of an image.
     ///     - size: A `CGSize` holding `width` and `height` of the original image.
     ///     - stickers: A sequence of `Stickers`.
-    internal static func upload<S: Sequence>(image data: Data,
-                                             size: CGSize,
-                                             stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+    static func upload<S: Sequence>(image data: Data,
+                                    size: CGSize,
+                                    stickers: S) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         /// Prepare upload parameters.
         let now = Date()
+        let seconds = Int(now.timeIntervalSince1970)
         let identifier = String(Int(now.timeIntervalSince1970*1_000))
         let name = identifier+"_0_\(Int64.random(in: 1_000_000_000...9_999_999_999))"
         let length = "\(data.count)"
@@ -473,52 +474,31 @@ public extension Endpoint.Media.Stories {
             .locking(Secret.self) {
                 // Unlock when dealing with the first call.
                 guard $0.request()?.url?.absoluteString.contains("configure") ?? false else {
-                    return $0.appending(header: $1.header)
-                        .appending(header: "IG-U-DS-User-ID", with: $1.id)
+                    return $0.appending(header: $1.header).appending(header: "IG-U-DS-User-ID", with: $1.id)
                 }
 
-                // Prepare the configuration request.
-                // Prepare edits and extras.
-                let edits: Wrapper = [
-                    "crop_original_size": [Int(size.width), Int(size.height)].wrapped,
-                    "crop_center": [0.0, -0.0],
-                    "crop_zoom": 1.0
-                ]
-                let extras: Wrapper = [
-                    "source_width": Int(size.width).wrapped,
-                    "source_height": Int(size.height).wrapped
-                ]
                 // Prepare the body.
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy:MM:dd' 'HH:mm:ss"
-                let formattedNow = formatter.string(from: now)
                 var body: [String: Wrapper] = [
+                    "source_type": "4",
                     "upload_id": identifier.wrapped,
-                    "width": Int(size.width).wrapped,
-                    "height": Int(size.height).wrapped,
-                    "timezone_offset": "43200",
-                    "date_time_original": formattedNow.wrapped,
-                    "date_time_digitalized": formattedNow.wrapped,
-                    "source_type": "3",
-                    "configure_mode": "1",
-                    "media_folder": "Instagram",
-                    "edits": edits,
-                    "extra": extras,
-                    "camera_model": $1.device.model.wrapped,
-                    "scene_capture_type": "standard",
-                    "creation_logger_session_id": $1.session!.value.wrapped,
-                    "software": "1",
-                    "camera_make": $1.device.brand.wrapped,
-                    "device": (try? $1.device.payload.wrapped.jsonRepresentation()).wrapped,
+                    "story_media_creation_date": String(seconds-Int.random(in: 11...20)).wrapped,
+                    "client_shared_at": String(seconds-Int.random(in: 3...10)).wrapped,
+                    "client_timestamp": String(seconds).wrapped,
+                    "configure_mode": 1,
+                    "device": $1.device.payload.wrapped,
+                    "edits": ["crop_original_size": [size.width.wrapped, size.height.wrapped],
+                              "crop_center": [-0.0, 0.0],
+                              "crop_zoom": 1.0],
+                    "extra": ["source_width": size.width.wrapped,
+                              "source_height": size.height.wrapped],
                     "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                     "user_id": identifier.wrapped,
                     "_uid": $1.id.wrapped,
                     "device_id": $1.device.deviceIdentifier.wrapped,
                     "_uuid": $1.device.deviceGUID.uuidString.wrapped
                 ]
-                /*if let stickersDictionary = [Sticker].request(Array(stickers))?.dictionary(), !stickersDictionary.isEmpty {
-                    body.merge(stickersDictionary) { lhs, _ in lhs }
-                }*/
+                // Update stickers.
+                body.merge(stickers.request()) { lhs, _ in lhs }
                 // Configure.
                 return $0.appending(header: $1.header)
                     .signing(body: body.wrapped)
