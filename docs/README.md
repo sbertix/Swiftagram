@@ -1,6 +1,6 @@
 # Swiftagram
 [![Swift](https://img.shields.io/badge/Swift-5.1-%23DE5C43?style=flat&logo=swift)](https://swift.org)
-[![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/master/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
+[![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
 
 **Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.
@@ -41,6 +41,8 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.rejectRequest(from:)`
     - `.block(_:)`
     - `.unblock(_:)`
+- `Endpoint.Media`
+    - `.delete(matching:)`
 - `Endpoint.Media.Posts`
     - `.like(_:)`
     - `.unlike(_:)`
@@ -48,11 +50,12 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.unarchive(_:)`
     - `.comment(_:, on:, replyingTo:)`
     - `.delete(comments:, on:)`
-    - `.delete(matching:)`
     - `.upload(image:, captioned:, tagging:, at:)`
     - `.upload(image:, size:, captioned:, tagging:, at:)`
 - `Endpoint.Media.Stories`
-    - `.by(_:)`
+    - `.owned(by:)`
+    - `.upload(image:, stickers:, isCloseFriendOnly:)`
+    - `.upload(image:, size:, stickers:, isCloseFriendOnly:)`
     </p>
 </details>
 
@@ -177,7 +180,7 @@ task?.cancel()
 Just `resume` it once more.
 If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
 
-## Backers
+## Special thanks
 Thank your for financially supporting this project.
 
 <a href="https://github.com/anonrig">
@@ -189,3 +192,7 @@ Thank your for financially supporting this project.
 <a href="https://github.com/jerry317">
     <img src="https://github.com/jerry317.png?size=60" alt="jerry317" width="36" height="36" />
 </a>
+<br/>
+<br/>
+
+> _Massive thanks to anyone contributing to [**TheM4hd1/SwiftyInsta**](https://github.com/TheM4hd1/SwiftyInsta), [**dilame/instagram-private-api**](https://github.com/dilame/instagram-private-api) and [**ping/instagram_private_api**](https://github.com/ping/instagram_private_api), for the inspiration and the invaluable service to the open source community, without which there would likely be no **Swiftagram** today._
