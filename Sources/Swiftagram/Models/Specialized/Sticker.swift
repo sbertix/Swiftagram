@@ -28,7 +28,7 @@ public struct Sticker: ReflectedType {
         return .init(x: x, y: y)
     }
     /// The zIndex.
-    public var level: Int? { self["zIndex"].int() }
+    public var level: Int? { self["z"].int() }
     /// The rotation in degrees.
     public var rotation: CGFloat? { self["rotation"].double().flatMap(CGFloat.init) }
 
@@ -89,6 +89,96 @@ public extension Sticker {
                           "height": 0.125])
             .initiate()
     }
+
+    /// Create a slider sticker.
+    /// - parameters:
+    ///     - question: A valid `String`.
+    ///     - emoji: A valid `String` containing a single emoji.
+    /// - returns: A valid `Sticker`.
+    /// - note: This does not edit the original image, unlike the Instagram client app: it only adds the interactive sticker.
+    /// - warning: You can only add one per story. The last one in the `Sequence` will be used.
+    static func slider(_ question: String, emoji: String) -> Sticker {
+        Sticker(identifier: "slider",
+                wrapper: ["question": question.wrapped,
+                          "emoji": emoji.wrapped,
+                          "viewerVote": 0,
+                          "viewerCanVote": false,
+                          "sliderVoteCount": 0,
+                          "sliderVoteAverage": 0,
+                          "backgroundColor": "#ffffff",
+                          "textColor": "#000000",
+                          "width": 0.64,
+                          "height": 0.125])
+            .initiate(isSticker: true)
+    }
+
+    /// Create a countdown sticker.
+    /// - parameters:
+    ///     - date: A valid `Date`.
+    ///     - event: A valid `String`
+    ///     - canBeFollowed: A valid `Bool`. Defaults to `true`.
+    /// - returns: A valid `Sticker`.
+    /// - note: This does not edit the original image, unlike the Instagram client app: it only adds the interactive sticker.
+    /// - warning: You can only add one per story. Tle last one in the `Sequence` will be used.
+    static func countdown(to date: Date, event: String, canBeFollowed: Bool = true) -> Sticker {
+        Sticker(identifier: "countdown",
+                wrapper: ["text": event.wrapped,
+                          "endTs": Int(date.timeIntervalSince1970).wrapped,
+                          "textColor": "#ffffff",
+                          "startBackgroundColor": "#ca2ee1",
+                          "endBackgroundColor": "#5eb1ff",
+                          "digitColor": "#ffffff",
+                          "digitalCardColor": "#1e272e",
+                          "followingEnabled": canBeFollowed.wrapped,
+                          "width": 0.64,
+                          "height": 0.125])
+            .initiate(isSticker: true)
+    }
+
+    /// Create a question sticker.
+    /// - parameter question: A valid `String`.
+    /// - returns: A valid `Sticker`.
+    /// - note: This does not edit the original image, unlike the Instagram client app: it only adds the interactive sticker.
+    /// - warning: You can only add one per story. Tle last one in the `Sequence` will be used.
+    static func question(_ question: String) -> Sticker {
+        Sticker(identifier: "question",
+                wrapper: ["question": question.wrapped,
+                          "backgroundColor": "#ffffff",
+                          "textColor": "#000000",
+                          "profilePicUrl": "",
+                          "questionType": "text",
+                          "viewerCanInteract": false,
+                          "width": 0.64,
+                          "height": 0.125])
+            .initiate(isSticker: true)
+    }
+
+    /// Create a poll sticker.
+    /// - parameters:
+    ///     - question: A valid `String`.
+    ///     - tallies: A sequence of `String`s. **Only the last two will be used.**
+    ///     - fontSize: A `CGFloat` between `17.5` and `35`. Defaults to `28`.
+    /// - returns: A valid `Sticker`.
+    /// - note: This does not edit the original image, unlike the Instagram client app: it only adds the interactive sticker.
+    /// - warning: You can only add one per story. Tle last one in the `Sequence` will be used.
+    static func poll<S: Sequence>(_ question: String,
+                                  tallies: S,
+                                  fontSize: CGFloat = 28) -> Sticker where S.Element == String {
+        Sticker(identifier: "poll",
+                wrapper: ["question": question.wrapped,
+                          "viewerVote": 0,
+                          "viewerCanVote": true,
+                          "tallies": tallies
+                            .suffix(2)
+                            .map {
+                                ["text": $0.wrapped,
+                                 "count": 0,
+                                 "font_size": fontSize.wrapped]
+                            }.wrapped,
+                          "width": 0.64,
+                          "height": 0.125])
+            .initiate(isSticker: true)
+    }
 }
 
 // MARK: Layout.
@@ -115,7 +205,7 @@ public extension Sticker {
     /// - returns: A valid `Sticker`.
     func zIndex(_ index: Int) -> Sticker {
         var copy = wrapper().dictionary()!
-        copy["zIndex"] = index.wrapped
+        copy["z"] = index.wrapped
         return .init(wrapper: copy.wrapped)
     }
 
@@ -160,6 +250,7 @@ public extension Sequence where Element == Sticker {
     /// Transform into a dictionary of `Wrapper`s.
     /// - returns: A valid `Dictionary`.
     func request() -> [String: Wrapper] {
+        var ids: [String] = []
         var response: [String: Wrapper] = [:]
         let split = Dictionary(grouping: self) { $0.identifier }
         // Check for mentions.
@@ -180,7 +271,29 @@ public extension Sequence where Element == Sticker {
             response["story_locations"] = (try? locations.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
             response["mas_opt_in"] = "NOT_PROMPTED"
         }
+        // Add only the last slider.
+        if let sliders = split["slider"]?.suffix(1), !sliders.isEmpty {
+            response["story_sliders"] = (try? sliders.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            ids += sliders.compactMap { $0["emoji"].string().flatMap { "emoji_slider_"+$0 }}
+        }
+        // Add only the last countdown.
+        if let countdowns = split["countdown"]?.suffix(1), !countdowns.isEmpty {
+            response["story_countdowns"] = (try? countdowns.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            ids.append("countdown_sticker_time")
+        }
+        // Add only the last question.
+        if let questions = split["question"]?.suffix(1), !questions.isEmpty {
+            response["story_questions"] = (try? questions.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            ids.append("question_sticker_ama")
+        }
+        // Add only the last poll.
+        if let polls = split["poll"]?.suffix(1), !polls.isEmpty {
+            response["story_polls"] = (try? polls.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            response["internal_features"] = "polling_sticker"
+            response["mas_opt_in"] = "NOT_PROMPTED"
+        }
         // Return response.
+        response["story_sticker_ids"] = ids.joined(separator: ",").wrapped
         return response
     }
 }

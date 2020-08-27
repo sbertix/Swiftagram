@@ -270,10 +270,21 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Stories.archived())
         performTest(on: Endpoint.Media.Stories.by("25025320"))
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
-                                                                       stickers: [.mention("25025320"),
-                                                                                  Sticker.tag("instagram").position(.init(x: 0.5, y: 0.75)),
+                                                                       stickers: [Sticker.mention("25025320")
+                                                                                    .position(.init(x: 0.0, y: 0.125)),
+                                                                                  Sticker.tag("instagram")
+                                                                                    .position(.init(x: 0.5, y: 0.125)),
                                                                                   Sticker.location("189075947904164")
-                                                                                    .position(.init(x: 0.5, y: 0.25))])),
+                                                                                    .position(.init(x: 1.0, y: 0.125)),
+                                                                                  Sticker.slider("Test?", emoji: "😀")
+                                                                                    .position(.init(x: 0.5, y: 0.2)),
+                                                                                  Sticker.countdown(to: Date().addingTimeInterval(60*60*24),
+                                                                                                    event: "Event")
+                                                                                    .position(.init(x: 0.5, y: 0.4)),
+                                                                                  Sticker.question("Test?")
+                                                                                    .position(.init(x: 0.5, y: 0.6)),
+                                                                                  Sticker.poll("Test?", tallies: ["A", "B"])
+                                                                                    .position(.init(x: 0.5, y: 0.8))])),
            let identifier = wrapper.media.id.string() {
             performTest(on: Endpoint.Media.delete(matching: identifier))
         }
