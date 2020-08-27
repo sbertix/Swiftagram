@@ -219,6 +219,18 @@ public extension Sticker {
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 
+    /// Set a relative position for `self`.
+    /// - parameters:
+    ///     - x: An optional `CGFloat`. Defaults to `nil`, meaning `x` is not changed.
+    ///     - y: An optional `CGFloat`. Defaults to `nil`, meaning `y` is not changed.
+    /// - returns: A valid `Sticker`.
+    func position(x: CGFloat? = nil, y: CGFloat? = nil) -> Sticker {
+        var copy = wrapper().dictionary()!
+        if let x = x { copy["x"] = x.wrapped }
+        if let y = y { copy["y"] = y.wrapped }
+        return .init(identifier: identifier, wrapper: copy.wrapped)
+    }
+
     /// Center `self` in the middle of the canvas.
     /// - returns: A valid `Sticker`.
     func center() -> Sticker {
@@ -238,10 +250,24 @@ public extension Sticker {
     }
 
     /// Scale `self` by `factor`.
+    /// - parameter factor: A valid `CGFloat`.
+    /// - returns: A valid `Sticker`.
     func scale(by factor: CGFloat) -> Sticker {
         var copy = wrapper().dictionary()!
         copy["width"] = (Double(factor)*(copy["width"]?.double() ?? 0.5)).wrapped
         copy["height"] = (Double(factor)*(copy["height"]?.double() ?? 0.5)).wrapped
+        return .init(identifier: identifier, wrapper: copy.wrapped)
+    }
+
+    /// Set relative size.
+    /// - parameters:
+    ///     - width: An optional `CGFloat`. Defaults to `nil`, meaning `width` is not changed.
+    ///     - height: An optional `CGFloat`. Defaults to `nil`, meaning `height` is not changed.
+    /// - returns: A valid `Sticker`.
+    func size(width: CGFloat? = nil, height: CGFloat? = nil) -> Sticker {
+        var copy = wrapper().dictionary()!
+        if let width = width { copy["width"] = width.wrapped }
+        if let height = height { copy["height"] = height.wrapped }
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 }
