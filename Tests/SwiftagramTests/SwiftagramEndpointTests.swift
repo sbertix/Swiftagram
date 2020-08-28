@@ -269,6 +269,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Stories.followed)
         performTest(on: Endpoint.Media.Stories.archived())
         performTest(on: Endpoint.Media.Stories.by("25025320"))
+        performTest(on: Endpoint.Media.Stories.by(["183250726"]))
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
                                                                        stickers: [Sticker.mention("25025320")
                                                                                     .position(.init(x: 0.0, y: 0.125)),
@@ -287,7 +288,7 @@ final class SwiftagramEndpointTests: XCTestCase {
                                                                                     .position(.init(x: 0.5, y: 0.8))],
                                                                        isCloseFriendsOnly: true)),
            let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.delete(matching: identifier))
+            performTest(on: Endpoint.Media.delete(identifier))
         }
     }
 

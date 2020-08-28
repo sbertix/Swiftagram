@@ -53,7 +53,7 @@ public struct Friendship: ReflectedType {
 
 public extension Friendship {
     /// A `struct` representing a `Friendship` collection.
-    struct Collection: ResponseType, ReflectedType {
+    struct Dictionary: ResponseType, ReflectedType {
         /// The prefix.
         public static var debugDescriptionPrefix: String { "Friendship." }
         /// A list of to-be-reflected properties.

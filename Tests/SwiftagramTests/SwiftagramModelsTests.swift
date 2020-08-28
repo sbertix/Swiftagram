@@ -86,7 +86,7 @@ final class SwiftagramModelsTest: XCTestCase {
                              "isMutingReel": "isMutingStories",
                              "muting": "isMutingPosts"])
         performTest(on: ["friendshipStatuses": ["1": dictionary.wrapped].wrapped],
-                    to: Friendship.Collection.self,
+                    to: Friendship.Dictionary.self,
                     mapper: ["friendshipStatuses": "friendships"])
     }
 
@@ -226,6 +226,9 @@ final class SwiftagramModelsTest: XCTestCase {
                              "seen": "lastSeenOn"])
         performTest(on: ["story": dictionary.wrapped], to: TrayItem.Unit.self, mapper: ["story": "item"])
         performTest(on: ["items": [dictionary.wrapped]], to: TrayItem.Collection.self)
+        performTest(on: ["reels": ["123_123": dictionary.wrapped]],
+                    to: TrayItem.Dictionary.self,
+                    mapper: ["reels": "items"])
     }
 
     /// Test `User`.

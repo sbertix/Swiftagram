@@ -52,9 +52,9 @@ public extension Endpoint {
 
         /// The current friendship status between the authenticated user and all users matching `identifiers`.
         /// - parameter identifiers: A collection of `String`s hoding reference to valid user identifiers.
-        public static func summary<C: Collection>(for identifiers: C) -> Disposable<Swiftagram.Friendship.Collection> where C.Element == String {
+        public static func summary<C: Collection>(for identifiers: C) -> Disposable<Swiftagram.Friendship.Dictionary> where C.Element == String {
             return base.appending(path: "show_many/")
-                .prepare(process: Swiftagram.Friendship.Collection.self)
+                .prepare(process: Swiftagram.Friendship.Dictionary.self)
                 .locking(Secret.self) {
                     $0.appending(header: $1.header)
                         .replacing(body: [

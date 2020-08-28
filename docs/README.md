@@ -42,7 +42,7 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.block(_:)`
     - `.unblock(_:)`
 - `Endpoint.Media`
-    - `.delete(matching:)`
+    - `.delete(_:)`
 - `Endpoint.Media.Posts`
     - `.like(_:)`
     - `.unlike(_:)`
@@ -53,7 +53,6 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.upload(image:, captioned:, tagging:, at:)`
     - `.upload(image:, size:, captioned:, tagging:, at:)`
 - `Endpoint.Media.Stories`
-    - `.owned(by:)`
     - `.upload(image:, stickers:, isCloseFriendOnly:)`
     - `.upload(image:, size:, stickers:, isCloseFriendOnly:)`
     </p>

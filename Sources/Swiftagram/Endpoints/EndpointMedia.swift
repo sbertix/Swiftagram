@@ -243,6 +243,16 @@ public extension Endpoint {
                     .prepare(process: TrayItem.Unit.self)
                     .locking(Secret.self)
             }
+
+            /// All available stories for user matching `identifiers`.
+            /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
+            public static func owned<C: Collection>(by identifiers: C) -> Endpoint.Disposable<TrayItem.Dictionary> where C.Element == String {
+                return Endpoint.version1.feed.appending(path: "reels_media/")
+                    .appendingDefaultHeader()
+                    .replacing(body: ["user_ids": try? Array(identifiers).wrapped.jsonRepresentation()])
+                    .prepare(process: TrayItem.Dictionary.self)
+                    .locking(Secret.self)
+            }
         }
     }
 }

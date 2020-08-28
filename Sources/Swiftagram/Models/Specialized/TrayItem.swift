@@ -125,4 +125,26 @@ public extension TrayItem {
             self.wrapper = wrapper
         }
     }
+
+    /// A `struct` representing a `TrayItem` dictionary.
+    struct Dictionary: ResponseType, ReflectedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "TrayItem." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["items": \Self.items,
+                                                                        "error": \Self.error]
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
+
+        /// The items.
+        public var items: [String: TrayItem]? {
+            self["reels"].dictionary()?.compactMapValues { $0.optional().flatMap(TrayItem.init) }
+        }
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
+    }
 }

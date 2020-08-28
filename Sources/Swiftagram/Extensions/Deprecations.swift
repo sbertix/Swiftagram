@@ -32,7 +32,7 @@ public typealias ConversationUnit = Conversation.Unit
 public typealias ConversationCollection = Conversation.Collection
 
 @available(*, deprecated, renamed: "Friendship.Collection")
-public typealias FriendshipCollection = Friendship.Collection
+public typealias FriendshipCollection = Friendship.Dictionary
 
 @available(*, deprecated, renamed: "Location.Unit")
 public typealias LocationUnit = Location.Unit
