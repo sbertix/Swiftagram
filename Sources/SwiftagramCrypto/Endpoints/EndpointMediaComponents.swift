@@ -25,7 +25,7 @@ extension Endpoint.Media {
     /// - parameters:
     ///     - data: Some `Data` representing a `jpeg` image.
     ///     - identifier: An optional `uploadId`. Defaults to `nil`.
-    ///     - waterfallIdentifier: An optional `waterfallIdentifier`.
+    ///     - waterfallIdentifier: An optional `waterfallIdentifier`. Defaults to `nil`
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
     /// - warning: Remember to set `Secret` specific headers in the request.
     static func upload(image data: Data,
@@ -76,14 +76,17 @@ extension Endpoint.Media {
     /// - parameters:
     ///     - url: Some `url` to an `.mp4` video.
     ///     - data: Some `Data` representing a `jpeg` preview of the video.
+    ///     - isForAlbum: A `Bool`.
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
     /// - warning: Remember to set `Secret` specific headers in the request.
-    static func upload(video url: URL, preview data: Data) -> (fetcher: Fetcher<Request, Media.Unit>.Disposable,
-                                                               identifier: String,
-                                                               name: String,
-                                                               date: Date,
-                                                               duration: TimeInterval,
-                                                               size: CGSize) {
+    static func upload(video url: URL,
+                       preview data: Data,
+                       isForAlbum: Bool = false) -> (fetcher: Fetcher<Request, Media.Unit>.Disposable,
+                                                     identifier: String,
+                                                     name: String,
+                                                     date: Date,
+                                                     duration: TimeInterval,
+                                                     size: CGSize) {
         /// Prepare upload parameters.
         let video = AVAsset(url: url)
         let now = Date()
@@ -93,7 +96,7 @@ extension Endpoint.Media {
         let track = video.tracks(withMediaType: .video).first
         let size = CGSize(width: track?.naturalSize.width ?? 0, height: track?.naturalSize.height ?? 0)
         /// Prepare the header.
-        let rupload = [
+        var rupload = [
             "retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#,
             "media_type": "2",
             "upload_id": identifier,
@@ -104,6 +107,7 @@ extension Endpoint.Media {
             "upload_media_width": track.flatMap { $0.naturalSize.width }.flatMap(String.init),
             "upload_media_height": track.flatMap { $0.naturalSize.height }.flatMap(String.init)
         ]
+        if isForAlbum { rupload["for_album"] = "1" }
         let header = [
             "X_FB_VIDEO_WATERFALL_ID": waterfallIdentifier,
             "X-Entity-Type": "video/mp4",
@@ -142,16 +146,15 @@ extension Endpoint.Media {
                                       identifier: identifier,
                                       waterfallIdentifier: waterfallIdentifier).fetcher.request
                     }
-                    /*.switch {
+                    .switch {
                         // Finish the upload.
                         guard let response = try? $0.get(), response.error == nil else { return nil }
                         // The actual configuration will be performed by the preprocessor on `unlocking`.
                         return base
                             .appending(path: "upload_finish/")
-                            .appending(header: header)
                             .appending(header: ["retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#])
                             .appending(query: ["video": "1"])
-                    }*/,
+                    },
                 identifier: identifier,
                 name: name,
                 date: now,

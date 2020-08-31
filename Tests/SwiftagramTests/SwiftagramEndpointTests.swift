@@ -246,7 +246,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointPosts() {
         performTest(on: Endpoint.Media.Posts.liked())
         performTest(on: Endpoint.Media.Posts.saved())
-        performTest(on: Endpoint.Media.Posts.by(secret.id), logging: .full)
+        performTest(on: Endpoint.Media.Posts.by(secret.id))
         performTest(on: Endpoint.Media.Posts.including("25025320"))
         performTest(on: Endpoint.Media.Posts.tagged(with: "instagram"))
         performTest(on: Endpoint.Media.Posts.likers(for: "2366175454991362926_7271269732"))
@@ -265,8 +265,8 @@ final class SwiftagramEndpointTests: XCTestCase {
            let identifier = wrapper.media.id.string() {
             performTest(on: Endpoint.Media.Posts.delete(matching: identifier))
         }
-        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4")!,
-                                                                     preview: Color.blue.image(sized: .init(width: 720, height: 720)),
+        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
+                                                                     preview: Color.blue.image(sized: .init(width: 640, height: 360)),
                                                                      captioned: nil,
                                                                      tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
            let identifier = wrapper.media.id.string() {
@@ -297,6 +297,12 @@ final class SwiftagramEndpointTests: XCTestCase {
                                                                                   Sticker.poll("Test?", tallies: ["A", "B"])
                                                                                     .position(.init(x: 0.5, y: 0.8))],
                                                                        isCloseFriendsOnly: true)),
+           let identifier = wrapper.media.id.string() {
+            performTest(on: Endpoint.Media.delete(identifier))
+        }
+        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
+                                                                       preview: Color.blue.image(sized: .init(width: 360, height: 640)),
+                                                                       stickers: [.mention("25025320")])),
            let identifier = wrapper.media.id.string() {
             performTest(on: Endpoint.Media.delete(identifier))
         }
