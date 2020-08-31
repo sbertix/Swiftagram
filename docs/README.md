@@ -31,8 +31,6 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
 <details><summary><strong>SwiftagramCrypto</strong>-specific endpoints</summary>
     <p>
 
-- `Endoint.Feed`
-    - `.stories(by:)`
 - `Endpoint.Friendship`
     - `.follow(_:)`
     - `.unfollow(_:)`
@@ -52,9 +50,11 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.delete(comments:, on:)`
     - `.upload(image:, captioned:, tagging:, at:)`
     - `.upload(image:, size:, captioned:, tagging:, at:)`
+    - `.upload(video:, preview:, captioned:, tagging: at:)`
 - `Endpoint.Media.Stories`
     - `.upload(image:, stickers:, isCloseFriendOnly:)`
     - `.upload(image:, size:, stickers:, isCloseFriendOnly:)`
+    - `.upload(video:, preview:, stickers:, isCloseFriendOnly:)`
     </p>
 </details>
 
@@ -194,4 +194,4 @@ Thank your for financially supporting this project.
 <br/>
 <br/>
 
-> _Massive thanks to anyone contributing to [**TheM4hd1/SwiftyInsta**](https://github.com/TheM4hd1/SwiftyInsta), [**dilame/instagram-private-api**](https://github.com/dilame/instagram-private-api) and [**ping/instagram_private_api**](https://github.com/ping/instagram_private_api), for the inspiration and the invaluable service to the open source community, without which there would likely be no **Swiftagram** today._
+> _Massive thanks to anyone contributing to [TheM4hd1/SwiftyInsta](https://github.com/TheM4hd1/SwiftyInsta), [dilame/instagram-private-api](https://github.com/dilame/instagram-private-api) and [ping/instagram_private_api](https://github.com/ping/instagram_private_api), for the inspiration and the invaluable service to the open source community, without which there would likely be no **Swiftagram** today._
