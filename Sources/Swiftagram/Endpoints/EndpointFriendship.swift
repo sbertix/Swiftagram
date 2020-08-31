@@ -21,10 +21,10 @@ public extension Endpoint {
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         /// - note: This is equal to the user's **following**.
-        public static func followed(by identifier: String, startingAt page: String? = nil) -> Paginated<UserCollection> {
+        public static func followed(by identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
             return base.appending(path: identifier)
                 .following
-                .paginating(process: UserCollection.self, value: page)
+                .paginating(process: Swiftagram.User.Collection.self, value: page)
                 .locking(Secret.self)
         }
 
@@ -33,10 +33,10 @@ public extension Endpoint {
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         /// - note: This is equal to the user's **followers**.
-        public static func following(_ identifier: String, startingAt page: String? = nil) -> Paginated<UserCollection> {
+        public static func following(_ identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
             return base.appending(path: identifier)
                 .followers
-                .paginating(process: UserCollection.self,
+                .paginating(process: Swiftagram.User.Collection.self,
                             value: page)
                 .locking(Secret.self)
         }
@@ -52,9 +52,9 @@ public extension Endpoint {
 
         /// The current friendship status between the authenticated user and all users matching `identifiers`.
         /// - parameter identifiers: A collection of `String`s hoding reference to valid user identifiers.
-        public static func summary<C: Collection>(for identifiers: C) -> Disposable<FriendshipCollection> where C.Element == String {
+        public static func summary<C: Collection>(for identifiers: C) -> Disposable<Swiftagram.Friendship.Dictionary> where C.Element == String {
             return base.appending(path: "show_many/")
-                .prepare(process: FriendshipCollection.self)
+                .prepare(process: Swiftagram.Friendship.Dictionary.self)
                 .locking(Secret.self) {
                     $0.appending(header: $1.header)
                         .replacing(body: [
@@ -67,15 +67,8 @@ public extension Endpoint {
 
         /// A list of users who requested to follow you, without having been processed yet.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func pendingRequests(startingAt page: String? = nil) -> Paginated<UserCollection> {
-            return base.pending.paginating(process: UserCollection.self).locking(Secret.self)
-        }
-
-        // MARK: Deprecated
-        /// The current friendship status between the authenticated user and the one matching `identifier`.
-        /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func friendship(with identifier: String) -> Disposable<Swiftagram.Friendship> {
-            return summary(for: identifier)
+        public static func pendingRequests(startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
+            return base.pending.paginating(process: Swiftagram.User.Collection.self).locking(Secret.self)
         }
     }
 }

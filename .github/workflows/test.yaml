@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses:              actions/checkout@v2
     - name:              Build
-      run:               swift build -v
+      run:               swift build
     - name:              Test
       env:
         DS_USER_ID:      ${{ secrets.DS_USER_ID }}
@@ -28,7 +28,7 @@ jobs:
         SESSIONID:       ${{ secrets.SESSIONID }}
         CSRFTOKEN:       ${{ secrets.CSRFTOKEN }}
         MID:             ${{ secrets.MID }}
-      run:               swift test -v --enable-test-discovery --enable-code-coverage
+      run:               swift test --parallel --enable-test-discovery --enable-code-coverage
     - name:              Coverage (1)
       run:               xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name:              Coverage (2)

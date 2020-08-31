@@ -10,19 +10,17 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `Status`.
-public struct Status: Wrapped, CustomDebugStringConvertible {
+public struct Status: ResponseType, ReflectedType {
+    /// The debug description prefix.
+    public static let debugDescriptionPrefix: String = ""
+    /// A list of to-be-reflected properties.
+    public static let properties: [String: PartialKeyPath<Self>] = ["error": \Self.error]
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
-
-    /// The status.
-    public var status: String! { self["status"].string() }
 
     /// Init.
     /// - parameter wrapper: A valid `Wrapper`.
     public init(wrapper: @escaping () -> Wrapper) {
         self.wrapper = wrapper
     }
-
-    /// The debug description.
-    public var debugDescription: String { "Status(status: \(status as Any)" }
 }

@@ -10,7 +10,7 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` representing a `User`.
-public struct User: Wrapped, Codable, CustomDebugStringConvertible {
+public struct User: ReflectedType {
     /// An `enum` representing an access status.
     public enum Access: Int, Hashable, Codable {
         /// Default.
@@ -37,6 +37,19 @@ public struct User: Wrapped, Codable, CustomDebugStringConvertible {
         /// IGTV.
         public var igtv: Int
     }
+
+    /// The debug description prefix.
+    public static let debugDescriptionPrefix: String = ""
+    /// A list of to-be-reflected properties.
+    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
+                                                                    "username": \Self.username,
+                                                                    "name": \Self.name,
+                                                                    "biography": \Self.biography,
+                                                                    "thumbnail": \Self.thumbnail,
+                                                                    "avatar": \Self.avatar,
+                                                                    "access": \Self.access,
+                                                                    "counter": \Self.counter,
+                                                                    "friendship": \Self.friendship]
 
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
@@ -100,78 +113,48 @@ public struct User: Wrapped, Codable, CustomDebugStringConvertible {
     public init(wrapper: @escaping () -> Wrapper) {
         self.wrapper = wrapper
     }
-
-    /// The debug description.
-    public var debugDescription: String {
-        ["User(",
-         ["identifier": identifier as Any,
-          "username": username as Any,
-          "name": name as Any,
-          "biography": biography as Any,
-          "thumbnail": thumbnail as Any,
-          "avatar": avatar as Any,
-          "access": access as Any,
-          "counter": counter as Any,
-          "friendship": friendship as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
-    }
 }
 
-/// A `struct` representing a `User` single response.
-public struct UserUnit: Wrapped, CustomDebugStringConvertible {
-    /// The underlying `Response`.
-    public var wrapper: () -> Wrapper
+public extension User {
+    /// A `struct` representing a `User` single response.
+    struct Unit: ResponseType, ReflectedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "Comment." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["user": \Self.user,
+                                                                        "error": \Self.error]
 
-    /// The user.
-    public var user: User? { self["user"].optional().flatMap(User.init) }
-    /// The status.
-    public var status: String! { self["status"].string() }
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
 
-    /// Init.
-    /// - parameter wrapper: A valid `Wrapper`.
-    public init(wrapper: @escaping () -> Wrapper) {
-        self.wrapper = wrapper
+        /// The user.
+        public var user: User? { self["user"].optional().flatMap(User.init) }
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
     }
 
-    /// The debug description.
-    public var debugDescription: String {
-        ["UserUnit(",
-         ["user": user as Any,
-          "status": status as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
-    }
-}
+    /// A `struct` representing a `User` collection.
+    struct Collection: ResponseType, ReflectedType, PaginatedType {
+        /// The prefix.
+        public static var debugDescriptionPrefix: String { "User." }
+        /// A list of to-be-reflected properties.
+        public static let properties: [String: PartialKeyPath<Self>] = ["users": \Self.users,
+                                                                        "pagination": \Self.pagination,
+                                                                        "error": \Self.error]
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
 
-/// A `struct` representing a `User` collection.
-public struct UserCollection: Wrapped, CustomDebugStringConvertible {
-    /// The underlying `Response`.
-    public var wrapper: () -> Wrapper
+        /// The users.
+        public var users: [User]? { self["users"].array()?.map(User.init) }
 
-    /// The users.
-    public var users: [User]? { self["users"].array()?.map(User.init) }
-    /// The status.
-    public var status: String! { self["status"].string() }
-
-    /// Init.
-    /// - parameter wrapper: A valid `Wrapper`.
-    public init(wrapper: @escaping () -> Wrapper) {
-        self.wrapper = wrapper
-    }
-
-    /// The debug description.
-    public var debugDescription: String {
-        ["UserCollection(",
-         ["users": users as Any,
-          "status": status as Any]
-            .mapValues { String(describing: $0 )}
-            .map { "\($0): \($1)" }
-            .joined(separator: ", "),
-         ")"].joined()
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
     }
 }

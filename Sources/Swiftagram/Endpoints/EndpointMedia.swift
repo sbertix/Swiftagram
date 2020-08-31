@@ -18,8 +18,11 @@ public extension Endpoint {
         // MARK: Info
         /// A media matching `identifier`'s info.
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func summary(for identifier: String) -> Disposable<MediaCollection> {
-            return base.appending(path: identifier).info.prepare(process: MediaCollection.self).locking(Secret.self)
+        public static func summary(for identifier: String) -> Disposable<Swiftagram.Media.Collection> {
+            return base.appending(path: identifier)
+                .info
+                .prepare(process: Swiftagram.Media.Collection.self)
+                .locking(Secret.self)
         }
 
         /// The permalinkg for the media matching `identifier`.
@@ -34,10 +37,10 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func likers(for identifier: String, startingAt page: String? = nil) -> Paginated<UserCollection> {
+            public static func likers(for identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
                 return base.appending(path: identifier)
                     .likers
-                    .paginating(process: UserCollection.self, value: page)
+                    .paginating(process: Swiftagram.User.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
@@ -45,10 +48,10 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func comments(for identifier: String, startingAt page: String? = nil) -> Paginated<CommentCollection> {
+            public static func comments(for identifier: String, startingAt page: String? = nil) -> Paginated<Comment.Collection> {
                 return base.appending(path: identifier)
                     .comments
-                    .paginating(process: CommentCollection.self, value: page)
+                    .paginating(process: Comment.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
@@ -98,20 +101,29 @@ public extension Endpoint {
 
             /// Liked media.
             /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func liked(startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            public static func liked(startingAt page: String? = nil) -> Paginated<Swiftagram.Media.Collection> {
                 return Endpoint.version1.feed.appendingDefaultHeader()
                     .liked
-                    .paginating(process: MediaCollection.self, value: page)
+                    .paginating(process: Swiftagram.Media.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
             /// All saved media.
             /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func saved(startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            public static func saved(startingAt page: String? = nil) -> Paginated<Swiftagram.Media.Collection> {
                 return Endpoint.version1.feed.appendingDefaultHeader()
                     .saved
                     .appending(header: "include_igtv_preview", with: "false")
-                    .paginating(process: MediaCollection.self, value: page)
+                    .paginating(process: Swiftagram.Media.Collection.self, value: page)
+                    .locking(Secret.self)
+            }
+
+            /// All archived media.
+            /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+            public static func archived(startingAt page: String? = nil) -> Paginated<Swiftagram.Media.Collection> {
+                return Endpoint.version1.feed.appending(path: "only_me_feed/")
+                    .appendingDefaultHeader()
+                    .paginating(process: Swiftagram.Media.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
@@ -119,11 +131,11 @@ public extension Endpoint {
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid user identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func by(_ identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            public static func owned(by identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.Media.Collection> {
                 return Endpoint.version1.feed.appendingDefaultHeader()
                     .user
                     .appending(path: identifier)
-                    .paginating(process: MediaCollection.self, value: page)
+                    .paginating(process: Swiftagram.Media.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
@@ -131,12 +143,12 @@ public extension Endpoint {
             /// - parameters
             ///     - identifier: A `String` holding reference to a valid user identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func including(_ identifier: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            public static func including(_ identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.Media.Collection> {
                 return Endpoint.version1.usertags
                     .appending(path: identifier)
                     .feed
                     .appendingDefaultHeader()
-                    .paginating(process: MediaCollection.self, value: page)
+                    .paginating(process: Swiftagram.Media.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
@@ -144,11 +156,11 @@ public extension Endpoint {
             /// - parameters:
             ///     - tag: A `String` holding reference to a valid _#tag_.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func tagged(with tag: String, startingAt page: String? = nil) -> Paginated<MediaCollection> {
+            public static func tagged(with tag: String, startingAt page: String? = nil) -> Paginated<Swiftagram.Media.Collection> {
                 return Endpoint.version1.feed.appendingDefaultHeader()
                     .tag
                     .appending(path: tag)
-                    .paginating(process: MediaCollection.self, value: page)
+                    .paginating(process: Swiftagram.Media.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
@@ -201,43 +213,53 @@ public extension Endpoint {
         /// A `struct` holding reference to `media` `Endpoint`s reguarding stories. Requires authentication.
         public struct Stories {
             /// Stories tray.
-            public static let followed: Disposable<TrayItemCollection> = Endpoint.version1.feed
+            public static let followed: Disposable<TrayItem.Collection> = Endpoint.version1.feed
                 .reels_tray
                 .appendingDefaultHeader()
-                .prepare(process: TrayItemCollection.self)
+                .prepare(process: TrayItem.Collection.self)
                 .locking(Secret.self)
 
             /// A list of all viewers for the story matching `identifier`.
             /// - parameters:
             ///     - identifier: A `String` holding reference to a valid post media identifier.
             ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func viewers(for identifier: String, startingAt page: String? = nil) -> Paginated<UserCollection> {
+            public static func viewers(for identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
                 return base.appending(path: identifier)
                     .appending(path: "list_reel_media_viewer")
-                    .paginating(process: UserCollection.self, value: page)
+                    .paginating(process: Swiftagram.User.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
             /// Archived stories.
             /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-            public static func archived(startingAt page: String? = nil) -> Paginated<TrayItemCollection> {
+            public static func archived(startingAt page: String? = nil) -> Paginated<TrayItem.Collection> {
                 return Endpoint.version1
                     .archive
                     .reel
                     .day_shells
                     .appendingDefaultHeader()
-                    .paginating(process: TrayItemCollection.self, value: page)
+                    .paginating(process: TrayItem.Collection.self, value: page)
                     .locking(Secret.self)
             }
 
             /// All available stories for user matching `identifier`.
             /// - parameter identifier: A `String` holding reference to a valid user identifier.
-            public static func by(_ identifier: String) -> Disposable<TrayItemUnit> {
-                return Endpoint.version1.feed.appendingDefaultHeader()
+            public static func owned(by identifier: String) -> Disposable<TrayItem.Unit> {
+                Endpoint.version1.feed.appendingDefaultHeader()
                     .user
                     .appending(path: identifier)
                     .reel_media
-                    .prepare(process: TrayItemUnit.self)
+                    .prepare(process: TrayItem.Unit.self)
+                    .locking(Secret.self)
+            }
+
+            /// All available stories for user matching `identifiers`.
+            /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
+            public static func owned<C: Collection>(by identifiers: C) -> Endpoint.Disposable<TrayItem.Dictionary> where C.Element == String {
+                return Endpoint.version1.feed.appending(path: "reels_media/")
+                    .appendingDefaultHeader()
+                    .replacing(body: ["user_ids": try? Array(identifiers).wrapped.jsonRepresentation()])
+                    .prepare(process: TrayItem.Dictionary.self)
                     .locking(Secret.self)
             }
         }
