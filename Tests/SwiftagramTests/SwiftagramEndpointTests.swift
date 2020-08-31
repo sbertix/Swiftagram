@@ -13,13 +13,14 @@ import AppKit
 #endif
 
 /// The default request timeout.
-let timeout: TimeInterval = 60
+let timeout: TimeInterval = 300
 
 /// A custom reference typed wrapper.
 class ReferenceType<T> {
     var value: T?
 }
 
+//swiftlint:disable line_length
 final class SwiftagramEndpointTests: XCTestCase {
     /// A temp `Secret`
     lazy var secret: Secret! = {
@@ -37,6 +38,8 @@ final class SwiftagramEndpointTests: XCTestCase {
         // Create a custom configuration.
         let sessionConfiguration = URLSessionConfiguration.default
         sessionConfiguration.httpMaximumConnectionsPerHost = 1
+        sessionConfiguration.timeoutIntervalForRequest = 300
+        sessionConfiguration.timeoutIntervalForResource = 600
         // Update requester.
         Requester.default = .init(configuration: .init(sessionConfiguration: sessionConfiguration,
                                                        dispatcher: .init(),
@@ -243,7 +246,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointPosts() {
         performTest(on: Endpoint.Media.Posts.liked())
         performTest(on: Endpoint.Media.Posts.saved())
-        performTest(on: Endpoint.Media.Posts.by(secret.id))
+        performTest(on: Endpoint.Media.Posts.by(secret.id), logging: .full)
         performTest(on: Endpoint.Media.Posts.including("25025320"))
         performTest(on: Endpoint.Media.Posts.tagged(with: "instagram"))
         performTest(on: Endpoint.Media.Posts.likers(for: "2366175454991362926_7271269732"))
@@ -257,6 +260,13 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Posts.like(comment: "17885013160654942"))
         performTest(on: Endpoint.Media.Posts.unlike(comment: "17885013160654942"))
         if let wrapper = performTest(on: Endpoint.Media.Posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
+                                                                     captioned: nil,
+                                                                     tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
+           let identifier = wrapper.media.id.string() {
+            performTest(on: Endpoint.Media.Posts.delete(matching: identifier))
+        }
+        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4")!,
+                                                                     preview: Color.blue.image(sized: .init(width: 720, height: 720)),
                                                                      captioned: nil,
                                                                      tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
            let identifier = wrapper.media.id.string() {
@@ -324,3 +334,4 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Location", testEndpointLocation)
     ]
 }
+//swiftlint enable:line_length
