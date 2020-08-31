@@ -340,7 +340,7 @@ public extension Endpoint.Media.Posts {
     ///     - image: Some `Data` holding a `.jpeg` preview image.
     ///     - caption: An optional `String` holding the post's caption.
     ///     - location: An optional `Location`. Defaults to `nil`.
-    static func upload(video: URL,
+    static func upload(video url: URL,
                        preview image: UIImage,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
@@ -617,7 +617,7 @@ public extension Endpoint.Media.Stories {
     // MARK: Video upload
     #if canImport(AVKit)
     #if canImport(UIKit)
-    /// Upload `image` to Instagram as a story.
+    /// Upload `video` to Instagram as a story.
     /// - parameters:
     ///     - url: A `URL` to the video.
     ///     - image: A `UIImage` representation of an image.
@@ -631,7 +631,7 @@ public extension Endpoint.Media.Stories {
         return upload(video: url, preview: data, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
-    /// Upload `image` to Instagram as a story.
+    /// Upload `video` to Instagram as a story.
     /// - parameters:
     ///     - url: A `URL` to the video.
     ///     - image: A `UIImage` representation of an image.
@@ -641,7 +641,7 @@ public extension Endpoint.Media.Stories {
     }
     #endif
     #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-    /// Upload `image` to Instagram as a story.
+    /// Upload `video` to Instagram as a story.
     /// - parameters:
     ///     - url: A `URL` to the video.
     ///     - image: A `NSImage` representation of an image.
@@ -658,7 +658,7 @@ public extension Endpoint.Media.Stories {
         return upload(video: url, preview: data, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
-    /// Upload `image` to Instagram as a story.
+    /// Upload `video` to Instagram as a story.
     /// - parameters:
     ///     - url: A `URL` to the video.
     ///     - image: A `NSImage` representation of an image.
@@ -668,7 +668,7 @@ public extension Endpoint.Media.Stories {
     }
     #endif
 
-    /// Upload `image` to Instagram as a story.
+    /// Upload `video` to Instagram as a story.
     /// - parameters:
     ///     - url: A `URL` to the video.
     ///     - image: A `Data` representation of an image.
@@ -753,7 +753,7 @@ public extension Endpoint.Media.Stories {
             }
     }
 
-    /// Upload `image` to Instagram as a story.
+    /// Upload `video` to Instagram as a story.
     /// - parameters:
     ///     - url: A `URL` to the video.
     ///     - image: A `Data` representation of an image.
