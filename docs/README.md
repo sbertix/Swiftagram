@@ -49,11 +49,9 @@ Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoin
     - `.comment(_:, on:, replyingTo:)`
     - `.delete(comments:, on:)`
     - `.upload(image:, captioned:, tagging:, at:)`
-    - `.upload(image:, size:, captioned:, tagging:, at:)`
     - `.upload(video:, preview:, captioned:, tagging: at:)`
 - `Endpoint.Media.Stories`
     - `.upload(image:, stickers:, isCloseFriendOnly:)`
-    - `.upload(image:, size:, stickers:, isCloseFriendOnly:)`
     - `.upload(video:, preview:, stickers:, isCloseFriendOnly:)`
     </p>
 </details>
