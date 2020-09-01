@@ -301,7 +301,6 @@ final class SwiftagramEndpointTests: XCTestCase {
             performTest(on: Endpoint.Media.delete(identifier))
         }
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
-                                                                       preview: Color.blue.image(sized: .init(width: 360, height: 640)),
                                                                        stickers: [.mention("25025320")])),
            let identifier = wrapper.media.id.string() {
             performTest(on: Endpoint.Media.delete(identifier))
