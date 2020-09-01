@@ -7,7 +7,7 @@ on:
 jobs:
   comments:
     runs-on:          ubuntu-latest
-    
+
     steps:
       - uses:         peter-evans/slash-command-dispatch@v2
         with:
@@ -17,3 +17,4 @@ jobs:
             lint
             test
             build
+            dependencies
