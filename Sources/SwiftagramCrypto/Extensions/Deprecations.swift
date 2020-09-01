@@ -41,7 +41,11 @@ public extension Endpoint.Media.Posts {
                                       captioned caption: String?,
                                       tagging users: U?,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
-        return upload(image: data, size: size, captioned: caption, tagging: users, at: location)
+        if let users = users {
+            return upload(image: data, size: size, captioned: caption, tagging: users, at: location)
+        } else {
+            return upload(image: data, size: size, captioned: caption, tagging: [], at: location)
+        }
     }
 
     /// Upload `image` to Instagram.

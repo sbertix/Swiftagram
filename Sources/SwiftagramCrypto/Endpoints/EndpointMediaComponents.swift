@@ -76,18 +76,20 @@ extension Endpoint.Media {
     /// - parameters:
     ///     - url: Some `url` to an `.mp4` video.
     ///     - data: Some `Data` representing a `jpeg` preview of the video.
+    ///     - previewSize: A `CGSize` holding reference to the preview size.
     ///     - isForAlbum: A `Bool`.
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
     /// - warning: Remember to set `Secret` specific headers in the request.
     static func upload(video url: URL,
-                       preview data: Data,
+                       preview data: Data?,
+                       previewSize: CGSize,
                        isForAlbum: Bool = false) -> (fetcher: Fetcher<Request, Media.Unit>.Disposable,
                                                      identifier: String,
                                                      name: String,
                                                      date: Date,
                                                      duration: TimeInterval,
                                                      size: CGSize) {
-        /// Prepare upload parameters.
+        // Prepare upload parameters.
         let video = AVAsset(url: url)
         let now = Date()
         let identifier = String(Int(now.timeIntervalSince1970*1_000))
@@ -95,7 +97,9 @@ extension Endpoint.Media {
         let name = identifier+"_0_\(Int64.random(in: 1_000_000_000...9_999_999_999))"
         let track = video.tracks(withMediaType: .video).first
         let size = CGSize(width: track?.naturalSize.width ?? 0, height: track?.naturalSize.height ?? 0)
-        /// Prepare the header.
+        guard let preview = data ?? Agnostic.Color.black.image(size: size).jpegRepresentation() else { fatalError("Invalid preview.") }
+        precondition(size == previewSize || data == nil, "Preview \(previewSize) and video \(size) must have the same width and height.")
+        // Prepare the header.
         var rupload = [
             "retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#,
             "media_type": "2",
@@ -142,7 +146,7 @@ extension Endpoint.Media {
                         // Upload the picture.
                         guard let response = try? $0.get(), response.error == nil else { return nil }
                         // The actual configuration will be performed by the preprocessor on `unlocking`.
-                        return upload(image: data,
+                        return upload(image: preview,
                                       identifier: identifier,
                                       waterfallIdentifier: waterfallIdentifier).fetcher.request
                     }

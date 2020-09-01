@@ -24,7 +24,7 @@ typealias Color = UIColor
 extension UIColor {
    func image(sized size: CGSize) -> UIImage {
        let rect = CGRect(origin: .zero, size: size)
-       UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 1.0)
        self.setFill()
        UIRectFill(rect)
        let image = UIGraphicsGetImageFromCurrentImageContext()

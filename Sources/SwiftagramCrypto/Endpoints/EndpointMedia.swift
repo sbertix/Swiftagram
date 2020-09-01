@@ -57,6 +57,7 @@ public extension Endpoint.Media {
     }
 }
 
+// MARK: - Posts
 public extension Endpoint.Media.Posts {
     /// The base endpoint.
     private static let base = Endpoint.version1.media.appendingDefaultHeader()
@@ -171,73 +172,44 @@ public extension Endpoint.Media.Posts {
     }
 
     // MARK: - Image upload
-    #if canImport(UIKit)
-    /// Upload `image` to Instagram.
+    #if canImport(UIKit) || (canImport(AppKit) && !targetEnvironment(macCatalyst))
+    /// Upload `image` to instagram.
     /// - parameters:
-    ///     - image: A `UIImage` representation of an image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
+    ///     - caption: An optional `String`.
+    ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
-    static func upload<U: Collection>(image: UIImage,
+    static func upload<U: Collection>(image: Agnostic.Image,
                                       captioned caption: String?,
-                                      tagging users: U?,
+                                      tagging users: U,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
-        guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
+        guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(image: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
 
-    /// Upload `image` to Instagram.
+    /// Upload `image` to instagram.
     /// - parameters:
-    ///     - image: A `UIImage` representation of an image.
-    ///     - caption: An optional `String` holding the post's caption.
+    ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
+    ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
-    static func upload(image: UIImage,
+    static func upload(image: Agnostic.Image,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
         return upload(image: image, captioned: caption, tagging: [], at: location)
     }
-    #endif
-    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-    /// Upload `image` to Instagram.
-    /// - parameters:
-    ///     - image: A `NSImage` representation of an image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
-    ///     - location: An optional `Location`. Defaults to `nil`.
-    static func upload<U: Collection>(image: NSImage,
-                                      captioned caption: String?,
-                                      tagging users: U?,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
-            let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
-                fatalError("Invalid `UIImage`.")
-        }
-        return upload(image: data, size: image.size, captioned: caption, tagging: users, at: location)
-    }
 
-    /// Upload `image` to Instagram.
+    /// Upload `image` to instagram.
     /// - parameters:
-    ///     - image: A `NSImage` representation of an image.
-    ///     - caption: An optional `String` holding the post's caption.
+    ///     - data: Some `Data` holding reference to a `jpeg` representation.
+    ///     - size: A valid `CGSize`.
+    ///     - caption: An optional `String`.
+    ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
-    static func upload(image: NSImage,
-                       captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: image, captioned: caption, tagging: [], at: location)
-    }
-    #endif
-
-    /// Upload `image` to Instagram.
-    /// - parameters:
-    ///     - image: A `Data` representation of an image.
-    ///     - size: A `CGSize` holding `width` and `height` of the original image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
-    ///     - location: An optional `Location`. Defaults to `nil`.
+    @available(*, deprecated, renamed: "upload(image:captioned:tagging:at:)", message: "this method will be made `internal` in `4.2.0`")
     static func upload<U: Collection>(image data: Data,
                                       size: CGSize,
                                       captioned caption: String?,
-                                      tagging users: U?,
+                                      tagging users: U,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
         // Prepare the uploader.
         let uploader = Endpoint.Media.upload(image: data)
@@ -274,9 +246,9 @@ public extension Endpoint.Media.Posts {
                     "_uuid": $1.device.deviceGUID.uuidString.wrapped
                 ]
                 // Add user tags.
-                if let users = users?.compactMap({ $0.wrapper().snakeCased().optional() }),
-                    !users.isEmpty,
-                    let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
+                let users = users.compactMap({ $0.wrapper().snakeCased().optional() })
+                if !users.isEmpty,
+                   let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
                     body["usertags"] = description.wrapped
                 }
                 // Add location.
@@ -301,99 +273,79 @@ public extension Endpoint.Media.Posts {
             }
     }
 
-    /// Upload `image` to Instagram.
+    /// Upload `image` to instagram.
     /// - parameters:
-    ///     - image: A `Data` representation of an image.
-    ///     - size: A `CGSize` holding `width` and `height` of the original image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - data: Some `Data` holding reference to an image.
+    ///     - caption: An optional `String`.
+    ///     - users: A collection of `UserTag`s.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload<U: Collection>(image data: Data,
+                                      captioned caption: String?,
+                                      tagging users: U,
+                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+        guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
+        return upload(image: image, captioned: caption, tagging: users, at: location)
+    }
+
+    /// Upload `image` to instagram.
+    /// - parameters:
+    ///     - data: Some `Data` holding reference to an image.
+    ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload(image data: Data,
-                       size: CGSize,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: data, size: size, captioned: caption, tagging: [], at: location)
+        return upload(image: data, captioned: caption, tagging: [], at: location)
     }
 
-    // MARK: - Video upload
     #if canImport(AVKit)
-    #if canImport(UIKit)
-    /// Upload `video` to Instagram.
+    // MARK: - Video upload
+    /// Upload `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` referencing an `.mp4` file.
-    ///     - image: Some `Data` holding a `.jpeg` preview image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`) used as preview image.
+    ///     - caption: An optional `String`.
+    ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload<U: Collection>(video url: URL,
-                                      preview image: UIImage,
+                                      preview image: Agnostic.Image,
                                       captioned caption: String?,
-                                      tagging users: U?,
+                                      tagging users: U,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
-        guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
-        return upload(video: url, preview: data, captioned: caption, tagging: users, at: location)
+        guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
+        return upload(video: url, preview: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
 
-    /// Upload `video` to Instagram.
+    /// Upload `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` referencing an `.mp4` file.
-    ///     - image: Some `Data` holding a `.jpeg` preview image.
-    ///     - caption: An optional `String` holding the post's caption.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`) used as preview image.
+    ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload(video url: URL,
-                       preview image: UIImage,
+                       preview image: Agnostic.Image,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
         return upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
     }
-    #endif
-    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-    /// Upload `video` to Instagram.
-    /// - parameters:
-    ///     - url: A `URL` referencing an `.mp4` file.
-    ///     - image: Some `Data` holding a `.jpeg` preview image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
-    ///     - location: An optional `Location`. Defaults to `nil`.
-    static func upload<U: Collection>(video url: URL,
-                                      preview image: NSImage,
-                                      captioned caption: String?,
-                                      tagging users: U?,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
-            let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
-                fatalError("Invalid `UIImage`.")
-        }
-        return upload(video: url, preview: data, captioned: caption, tagging: users, at: location)
-    }
 
-    /// Upload `image` to Instagram.
+    /// Upload `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` referencing an `.mp4` file.
-    ///     - image: Some `Data` holding a `.jpeg` preview image.
-    ///     - caption: An optional `String` holding the post's caption.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - data: Some `Data` holding reference to a `jpeg` representation, to be used as preview image.
+    ///     - size: A valid `CGSize`.
+    ///     - caption: An optional `String`.
+    ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
-    static func upload(video url: URL,
-                       preview image: NSImage,
-                       captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
-    }
-    #endif
-
-    /// Upload `video` at `url` to Instagram, adding `image` as preview.
-    /// - parameters:
-    ///     - url: A `URL` referencing an `.mp4` file.
-    ///     - image: Some `Data` holding a `.jpeg` preview image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
-    ///     - location: An optional `Location`. Defaults to `nil`.
+    @available(*, deprecated, renamed: "upload(video:preview:captioned:tagging:at:)", message: "this method will be made `internal` in `4.2.0`")
     static func upload<U: Collection>(video url: URL,
-                                      preview image: Data,
+                                      preview data: Data,
+                                      size: CGSize,
                                       captioned caption: String?,
-                                      tagging users: U?,
+                                      tagging users: U,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
-        let uploader = Endpoint.Media.upload(video: url, preview: image)
+        // Prepare the uploader.
+        let uploader = Endpoint.Media.upload(video: url, preview: data, previewSize: size)
         guard uploader.duration < 60 else { fatalError("The video must be less than 1 minute long.") }
         return uploader.fetcher
             .switch {
@@ -447,9 +399,9 @@ public extension Endpoint.Media.Posts {
                         "audio_muted": false
                     ]
                     // Add user tags.
-                    if let users = users?.compactMap({ $0.wrapper().snakeCased().optional() }),
-                        !users.isEmpty,
-                        let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
+                    let users = users.compactMap({ $0.wrapper().snakeCased().optional() })
+                    if !users.isEmpty,
+                       let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
                         body["usertags"] = description.wrapped
                     }
                     // Add location.
@@ -480,79 +432,72 @@ public extension Endpoint.Media.Posts {
             }
     }
 
-    /// Upload `image` to Instagram.
+    /// Upload `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` referencing an `.mp4` file.
-    ///     - image: Some `Data` holding a `.jpeg` preview image.
-    ///     - caption: An optional `String` holding the post's caption.
-    ///     - users: An optional collection of `UserTag`s. Defaults to `nil`.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - data: Some `Data` holding reference to an image to be used as preview image.
+    ///     - caption: An optional `String`.
+    ///     - users: A collection of `UserTag`s.
+    ///     - location: An optional `Location`. Defaults to `nil`.
+    static func upload<U: Collection>(video url: URL,
+                                      preview data: Data,
+                                      captioned caption: String?,
+                                      tagging users: U,
+                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+        guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
+        return upload(video: url, preview: image, captioned: caption, tagging: users, at: location)
+    }
+
+    /// Upload `video` to instagram.
+    /// - parameters:
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - data: Some `Data` holding reference to an image to be used as preview image.
+    ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     static func upload(video url: URL,
-                       preview image: Data,
+                       preview data: Data,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
+        return upload(video: url, preview: data, captioned: caption, tagging: [], at: location)
     }
+    #endif
     #endif
 }
 
+// MARK: - Stories
 public extension Endpoint.Media.Stories {
     /// The base endpoint.
     private static let base = Endpoint.version1.media.appendingDefaultHeader()
 
     // MARK: - Image upload
-    #if canImport(UIKit)
-    /// Upload `image` to Instagram as a story.
+    #if canImport(UIKit) || (canImport(AppKit) && !targetEnvironment(macCatalyst))
+    /// Upload story `image` to instagram.
     /// - parameters:
-    ///     - image: A `UIImage` representation of an image.
-    ///     - stickers: A sequence of `Stickers`.
+    ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
+    ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload<S: Sequence>(image: UIImage,
+    static func upload<S: Sequence>(image: Agnostic.Image,
                                     stickers: S,
                                     isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
-        guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
+        guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(image: data, size: image.size, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
-    /// Upload `image` to Instagram as a story.
+    /// Upload story `image` to instagram.
     /// - parameters:
-    ///     - image: A `UIImage` representation of an image.
+    ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload(image: UIImage, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+    static func upload(image: Agnostic.Image, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
         return upload(image: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
-    #endif
-    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-    /// Upload `image` to Instagram as a story.
-    /// - parameters:
-    ///     - image: A `NSImage` representation of an image.
-    ///     - stickers: A sequence of `Stickers`.
-    ///     - toCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload<S: Sequence>(image: NSImage,
-                                    stickers: S,
-                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
-            let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
-                fatalError("Invalid `NSImage`.")
-        }
-        return upload(image: data, size: image.size, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
-    }
 
-    /// Upload `image` to Instagram as a story.
+    /// Upload story `image` to instagram.
     /// - parameters:
-    ///     - image: A `NSImage` representation of an image.
+    ///     - data: Some `Data` holding reference to a `jpeg` representation.
+    ///     - size: A valid `CGSize`.
+    ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload(image: NSImage, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
-    }
-    #endif
-
-    /// Upload `image` to Instagram as a story.
-    /// - parameters:
-    ///     - image: A `Data` representation of an image.
-    ///     - size: A `CGSize` holding `width` and `height` of the original image.
-    ///     - stickers: A sequence of `Stickers`.
-    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    @available(*, deprecated, renamed: "upload(image:stickers:isCloseFriendOnly:)", message: "this method will be made `internal` in `4.2.0`")
     static func upload<S: Sequence>(image data: Data,
                                     size: CGSize,
                                     stickers: S,
@@ -603,84 +548,73 @@ public extension Endpoint.Media.Stories {
             }
     }
 
-    /// Upload `image` to Instagram as a story.
+    /// Upload story `image` to instagram.
     /// - parameters:
-    ///     - image: A `Data` representation of an image.
-    ///     - size: A `CGSize` holding `width` and `height` of the original image.
+    ///     - data: Some `Data` holding reference to an image.
+    ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload(image data: Data,
-                       size: CGSize,
-                       isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: data, size: size, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
+    static func upload<S: Collection>(image data: Data,
+                                      stickers: S,
+                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+        guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
+        return upload(image: image, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
-    // MARK: Video upload
+    /// Upload story `image` to instagram.
+    /// - parameters:
+    ///     - data: Some `Data` holding reference to an image.
+    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    static func upload(image data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+        return upload(image: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
+    }
+
     #if canImport(AVKit)
-    #if canImport(UIKit)
-    /// Upload `video` to Instagram as a story.
+    // MARK: - Video upload
+    /// Upload story `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` to the video.
-    ///     - image: A `UIImage` representation of an image.
-    ///     - stickers: A sequence of `Stickers`.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - image: An optional `Agnostic.Image` to be used as preview. Defaults to `nil`, meaning a full black preview will be used.
+    ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     static func upload<S: Sequence>(video url: URL,
-                                    preview image: UIImage,
+                                    preview image: Agnostic.Image? = nil,
                                     stickers: S,
                                     isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
-        guard let data = image.jpegData(compressionQuality: 1) else { fatalError("Invalid `UIImage`.") }
-        return upload(video: url, preview: data, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
+        return upload(video: url,
+                      preview: image?.jpegRepresentation(),
+                      size: image?.size ?? .zero,
+                      stickers: stickers,
+                      isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
-    /// Upload `video` to Instagram as a story.
+    /// Upload story `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` to the video.
-    ///     - image: A `UIImage` representation of an image.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - image: An `Agnostic.Image` to be used as preview. Defaults to `nil`, meaning a full black preview will be used.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload(video url: URL, preview image: UIImage, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+    static func upload(video url: URL, preview image: Agnostic.Image? = nil, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
         return upload(video: url, preview: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
-    #endif
-    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-    /// Upload `video` to Instagram as a story.
-    /// - parameters:
-    ///     - url: A `URL` to the video.
-    ///     - image: A `NSImage` representation of an image.
-    ///     - stickers: A sequence of `Stickers`.
-    ///     - toCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload<S: Sequence>(video url: URL,
-                                    preview image: NSImage,
-                                    stickers: S,
-                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
-            let data = NSBitmapImageRep(cgImage: cgImage).representation(using: .jpeg, properties: [:]) else {
-                fatalError("Invalid `NSImage`.")
-        }
-        return upload(video: url, preview: data, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
-    }
 
-    /// Upload `video` to Instagram as a story.
+    /// Upload story `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` to the video.
-    ///     - image: A `NSImage` representation of an image.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - data: Some `Data` holding reference to a `jpeg` representation to be used as preview. `nil` means a full black preview will be used.
+    ///     - size: A valid `CGSize`.
+    ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload(video url: URL, preview image: NSImage, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
-        return upload(video: url, preview: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
-    }
-    #endif
-
-    /// Upload `video` to Instagram as a story.
-    /// - parameters:
-    ///     - url: A `URL` to the video.
-    ///     - image: A `Data` representation of an image.
-    ///     - stickers: A sequence of `Stickers`.
-    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    @available(*, deprecated, renamed: "upload(image:stickers:isCloseFriendOnly:)", message: "this method will be made `internal` in `4.2.0`")
     static func upload<S: Sequence>(video url: URL,
-                                    preview data: Data,
+                                    preview data: Data?,
+                                    size: CGSize,
                                     stickers: S,
                                     isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         // Prepare the uploader.
-        let uploader = Endpoint.Media.upload(video: url, preview: data, isForAlbum: true)
-        guard uploader.duration < 60 else { fatalError("The video must be less than 15 seconds long.") }
+        let uploader = Endpoint.Media.upload(video: url,
+                                             preview: data,
+                                             previewSize: size,
+                                             isForAlbum: true)
+        guard uploader.duration < 15 else { fatalError("The video must be less than 15 seconds long.") }
         return uploader.fetcher
             .switch {
                 // Configure the picture you've just updated.
@@ -753,15 +687,27 @@ public extension Endpoint.Media.Stories {
             }
     }
 
-    /// Upload `video` to Instagram as a story.
+    /// Upload story `video` to instagram.
     /// - parameters:
-    ///     - url: A `URL` to the video.
-    ///     - image: A `Data` representation of an image.
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - data: Some `Data` holding reference to an image to be used as preview.
+    ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    static func upload(video url: URL,
-                       preview data: Data,
-                       isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+    static func upload<S: Collection>(video url: URL,
+                                      preview data: Data,
+                                      stickers: S,
+                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+        return upload(video: url, preview: Agnostic.Image(data: data), stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
+    }
+
+    /// Upload story `video` to instagram.
+    /// - parameters:
+    ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
+    ///     - data: Some `Data` holding reference to an image to be used as preview.
+    ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    static func upload(video url: URL, preview data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
         return upload(video: url, preview: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
+    #endif
     #endif
 }
