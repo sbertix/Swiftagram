@@ -15,7 +15,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "4.2.0")),
+        .package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "4.3.1")),
         .package(url: "https://github.com/sbertix/SwCrypt", .upToNextMinor(from: "5.1.0"))
     ],
     targets: [
