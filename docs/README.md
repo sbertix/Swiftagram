@@ -91,7 +91,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 - **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**., and it's the core library.\
 It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s out of the box.
 
-- **SwiftagramCrypto**, depending on [**SwCrypt**](https://github.com/sbertix/SwCrypt) and [**KeychainSwift**](https://github.com/evgenyneu/keychain-swift), can be added to **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
+- **SwiftagramCrypto**, depending on **ComposableRequestCrypto**, can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
     </p>
 </details>
 
@@ -178,18 +178,5 @@ Just `resume` it once more.
 If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
 
 ## Special thanks
-Thank your for financially supporting this project.
-
-<a href="https://github.com/anonrig">
-    <img src="https://github.com/anonrig.png?size=128" alt="anonrig" width="64" height="64" />
-</a>
-<a href="https://github.com/sbertix">
-    <img src="https://github.com/sbertix.png?size=60" alt="sbertix" width="36" height="36" />
-</a>
-<a href="https://github.com/jerry317">
-    <img src="https://github.com/jerry317.png?size=60" alt="jerry317" width="36" height="36" />
-</a>
-<br/>
-<br/>
 
 > _Massive thanks to anyone contributing to [TheM4hd1/SwiftyInsta](https://github.com/TheM4hd1/SwiftyInsta), [dilame/instagram-private-api](https://github.com/dilame/instagram-private-api) and [ping/instagram_private_api](https://github.com/ping/instagram_private_api), for the inspiration and the invaluable service to the open source community, without which there would likely be no **Swiftagram** today._
