@@ -4,6 +4,12 @@ import PackageDescription
 
 let package = Package(
     name: "Swiftagram",
+    platforms: [
+        .iOS(.v9),
+        .macOS(.v10_12),
+        .tvOS(.v11),
+        .watchOS(.v3)
+    ],
     products: [
         .library(
             name: "Swiftagram",
@@ -15,7 +21,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "4.3.1")),
+        .package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "4.3.2")),
         .package(url: "https://github.com/sbertix/SwCrypt", .upToNextMinor(from: "5.1.0"))
     ],
     targets: [
