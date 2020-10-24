@@ -1,20 +1,14 @@
-name:                 comments
+name:                                 comments
 
-on:
-  issue_comment:
-    types:            [created]
+on:                                   [issues, pull_request]
 
 jobs:
-  comments:
-    runs-on:          ubuntu-latest
+  autocomment:
+    runs-on:                          ubuntu-latest
 
     steps:
-      - uses:         peter-evans/slash-command-dispatch@v2
+      - uses:                         bubkoo/auto-comment@v1.0.4
         with:
-          token:      ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
-          issue-type: pull-request
-          commands:   |
-            lint
-            test
-            build
-            dependencies
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          issuesClosed: '_If you found this useful, please consider starring :star: this repo, [sponsoring the maintainer](https://github.com/sponsors/sbertix), tiers start from as low as $5, or even just [tip once](https://paypal.me/sbertix) :dollar:._<br />_Thank you for using **Swiftagram**._'
+          pullRequestOpenedReactions: 'hooray'
