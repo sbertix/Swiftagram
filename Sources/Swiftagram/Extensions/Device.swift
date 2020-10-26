@@ -11,6 +11,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwCrypt)
+import SwCrypt
+#endif
 
 /// A `struct` holding reference to a custom Android device to be used for requests.
 public struct Device: Equatable, Codable {
@@ -59,6 +62,7 @@ public struct Device: Equatable, Codable {
             code+")"
         ].joined(separator: " ")
     }
+
     /// The browser user agent.
     public var browserUserAgent: String {
         return [
@@ -67,10 +71,22 @@ public struct Device: Equatable, Codable {
             "Chrome/79.0.3945.93 Mobile Safari/537.36"
         ].joined(separator: " ")
     }
+
     /// The device identifier.
+    /// - note: Importing **SwiftagramCrypto** allows for actual `md5` computation, otherwise a dummy value is set instead.
     public var deviceIdentifier: String {
+        #if canImport(SwCrypt)
+        guard let data = deviceGUID.uuidString.data(using: .utf8, allowLossyConversion: true) else {
+            return ["android-", deviceGUID.uuidString.replacingOccurrences(of: "-", with: "").prefix(16)].joined()
+        }
+        // Prepare encoded value.
+        let encoded = CC.digest(data, alg: .md5).hexadecimalString().prefix(16)
+        return "android-"+encoded
+        #else
         return ["android-", deviceGUID.uuidString.replacingOccurrences(of: "-", with: "").prefix(16)].joined()
+        #endif
     }
+
     /// The device payload.
     public var payload: [String: String] {
         return ["android_version": version,
