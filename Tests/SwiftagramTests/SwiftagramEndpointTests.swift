@@ -35,19 +35,44 @@ final class SwiftagramEndpointTests: XCTestCase {
                                           waiting: 2...3))
     }()
 
+    /// A valid `NSLock`.
+    static let lock = NSLock()
+    /// A valid `Secret`.
+    static var secret: Secret!
     /// A temp `Secret`
-    let secret: Secret! = Secret(cookies: [
-        HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
-        HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
-        HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
-        HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
-    ])
+    var secret: Secret! { Self.secret }
+
+    // MARK: Lifecycle
+    /// Set up each and every test.
+    override func setUp() {
+        // Check for a valid secret.
+        defer { Self.lock.unlock() }
+        Self.lock.lock()
+        guard secret == nil else { return }
+        // Fetch a new one.
+        let reference = ReferenceType<Secret>()
+        let exp = expectation(description: "secret fetcher")
+        BasicAuthenticator(username: ProcessInfo.processInfo.environment["IG_USERNAME"]!,
+                           password: ProcessInfo.processInfo.environment["IG_PASSWORD"]!)
+            .authenticate {
+                switch $0 {
+                case .success(let secret): reference.value = secret
+                default: break
+                }
+                exp.fulfill()
+            }
+        // Wait for expectation.
+        waitForExpectations(timeout: timeout, handler: nil)
+        // Return secret.
+        guard let secret = reference.value else { fatalError("Invalid secret.") }
+        Self.secret = secret
+    }
 
     // MARK: Testers
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapper`.
     @discardableResult
     func performTest(on endpoint: Endpoint.Disposable<Wrapper>,
-                     logging level: Logger.Level? = [.url, .responseBody],
+                     logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -70,7 +95,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapped`.
     @discardableResult
     func performTest<T: Wrapped>(on endpoint: Endpoint.Disposable<T>,
-                                 logging level: Logger.Level? = [.url, .responseBody],
+                                 logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -93,7 +118,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform a test on `Endpoint` returning a `Disposable` `ResponseType`.
     @discardableResult
     func performTest<T: ResponseType>(on endpoint: Endpoint.Disposable<T>,
-                                      logging level: Logger.Level? = [.url, .responseBody],
+                                      logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -116,7 +141,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     // Perform test on `Endpoint` returning a `Paginated` `Wrapper`.
     @discardableResult
     func performTest(on endpoint: Endpoint.Paginated<Wrapper>,
-                     logging level: Logger.Level? = [.url, .responseBody],
+                     logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -146,7 +171,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform test on `Endpoint` returning a `Paginated` `Wrapped`.
     @discardableResult
     func performTest<T: Wrapped>(on endpoint: Endpoint.Paginated<T>,
-                                 logging level: Logger.Level? = [.url, .responseBody],
+                                 logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -176,7 +201,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform a test on `Endpoint` returning a `Paginated` `ResponseType`.
     @discardableResult
     func performTest<T: ResponseType>(on endpoint: Endpoint.Paginated<T>,
-                                      logging level: Logger.Level? = [.url, .responseBody],
+                                      logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
