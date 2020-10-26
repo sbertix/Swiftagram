@@ -17,7 +17,7 @@ public extension Endpoint {
 
         /// All threads.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func threads(startingAt page: String? = nil) -> Paginated<Conversation.Collection> {
+        public static func inbox(startingAt page: String? = nil) -> Paginated<Conversation.Collection> {
             return base.inbox
                 .appending(query: ["visual_message_return_type": "unseen",
                                    "direction": page.flatMap { _ in "older" },
@@ -30,7 +30,7 @@ public extension Endpoint {
 
         /// All pending threads.
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func pendingThreads(startingAt page: String? = nil) -> Paginated<Conversation.Collection> {
+        public static func pendingInbox(startingAt page: String? = nil) -> Paginated<Conversation.Collection> {
             return base.appending(path: "pending_inbox")
                 .appending(query: ["visual_message_return_type": "unseen",
                                    "direction": page.flatMap { _ in "older" },
@@ -56,8 +56,8 @@ public extension Endpoint {
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid thread identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func thread(matching identifier: String,
-                                  startingAt page: String? = nil) -> Paginated<Conversation.Unit> {
+        public static func conversation(matching identifier: String,
+                                        startingAt page: String? = nil) -> Paginated<Conversation.Unit> {
             return base.threads
                 .appending(path: identifier)
                 .appending(query: ["visual_message_return_type": "unseen",
