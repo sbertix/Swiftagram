@@ -22,40 +22,37 @@ class ReferenceType<T> {
 
 //swiftlint:disable line_length
 final class SwiftagramEndpointTests: XCTestCase {
-    /// A temp `Secret`
-    lazy var secret: Secret! = {
-        Secret(cookies: [
-            HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
-            HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
-            HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
-            HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
-        ])
-    }()
-
-    // MARK: Lifecycle
-    /// Set up.
-    override func setUp() {
+    /// The requester.
+    lazy var requester: Requester = {
         // Create a custom configuration.
         let sessionConfiguration = URLSessionConfiguration.default
         sessionConfiguration.httpMaximumConnectionsPerHost = 1
         sessionConfiguration.timeoutIntervalForRequest = 300
         sessionConfiguration.timeoutIntervalForResource = 600
         // Update requester.
-        Requester.default = .init(configuration: .init(sessionConfiguration: sessionConfiguration,
-                                                       dispatcher: .init(),
-                                                       waiting: 2...3))
-    }
+        return .init(configuration: .init(sessionConfiguration: sessionConfiguration,
+                                          dispatcher: .init(),
+                                          waiting: 2...3))
+    }()
+
+    /// A temp `Secret`
+    let secret: Secret! = Secret(cookies: [
+        HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
+        HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
+        HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
+        HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
+    ])
 
     // MARK: Testers
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapper`.
     @discardableResult
     func performTest(on endpoint: Endpoint.Disposable<Wrapper>,
-                     logging level: Logger.Level? = nil,
+                     logging level: Logger.Level? = [.url, .responseBody],
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task {
+        endpoint.unlocking(with: secret).task(requester: requester) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -73,12 +70,12 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapped`.
     @discardableResult
     func performTest<T: Wrapped>(on endpoint: Endpoint.Disposable<T>,
-                                 logging level: Logger.Level? = nil,
+                                 logging level: Logger.Level? = [.url, .responseBody],
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task {
+        endpoint.unlocking(with: secret).task(requester: requester) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -96,12 +93,12 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform a test on `Endpoint` returning a `Disposable` `ResponseType`.
     @discardableResult
     func performTest<T: ResponseType>(on endpoint: Endpoint.Disposable<T>,
-                                      logging level: Logger.Level? = nil,
+                                      logging level: Logger.Level? = [.url, .responseBody],
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task {
+        endpoint.unlocking(with: secret).task(requester: requester) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -119,7 +116,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     // Perform test on `Endpoint` returning a `Paginated` `Wrapper`.
     @discardableResult
     func performTest(on endpoint: Endpoint.Paginated<Wrapper>,
-                     logging level: Logger.Level? = nil,
+                     logging level: Logger.Level? = [.url, .responseBody],
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -127,6 +124,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
+                  by: requester,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -148,7 +146,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform test on `Endpoint` returning a `Paginated` `Wrapped`.
     @discardableResult
     func performTest<T: Wrapped>(on endpoint: Endpoint.Paginated<T>,
-                                 logging level: Logger.Level? = nil,
+                                 logging level: Logger.Level? = [.url, .responseBody],
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -156,6 +154,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
+                  by: requester,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -177,7 +176,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Perform a test on `Endpoint` returning a `Paginated` `ResponseType`.
     @discardableResult
     func performTest<T: ResponseType>(on endpoint: Endpoint.Paginated<T>,
-                                      logging level: Logger.Level? = nil,
+                                      logging level: Logger.Level? = [.url, .responseBody],
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
         let completion = XCTestExpectation()
@@ -185,6 +184,7 @@ final class SwiftagramEndpointTests: XCTestCase {
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
+                  by: requester,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -231,11 +231,6 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Friendship.unfollow("25025320"))
     }
 
-    /// Test `Endpoint.Highlights`.
-    func testEndpointHighlights() {
-        performTest(on: Endpoint.Media.Stories.highlights(for: secret.id))
-    }
-
     /// Test `Endpoint.Media`.
     func testEndpointMedia() {
         performTest(on: Endpoint.Media.summary(for: "2345240077849019656"))
@@ -278,6 +273,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointStories() {
         performTest(on: Endpoint.Media.Stories.followed)
         performTest(on: Endpoint.Media.Stories.archived())
+        performTest(on: Endpoint.Media.Stories.highlights(for: secret.id))
         performTest(on: Endpoint.Media.Stories.owned(by: "25025320"))
         performTest(on: Endpoint.Media.Stories.owned(by: ["183250726"]))
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
@@ -330,7 +326,6 @@ final class SwiftagramEndpointTests: XCTestCase {
         ("Endpoint.Direct", testEndpointDirect),
         ("Endpoint.Discover", testEndpointDiscover),
         ("Endpoint.Friendship", testEndpointFriendship),
-        ("Endpoint.Highlights", testEndpointHighlights),
         ("Endpoint.Media", testEndpointMedia),
         ("Endpoint.Media.Posts", testEndpointPosts),
         ("Endpoint.Media.Stories", testEndpointStories),
