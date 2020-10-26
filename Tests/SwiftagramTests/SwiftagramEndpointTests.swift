@@ -233,7 +233,7 @@ final class SwiftagramEndpointTests: XCTestCase {
 
     /// Test `Endpoint.Highlights`.
     func testEndpointHighlights() {
-        performTest(on: Endpoint.Highlights.tray(for: secret.id))
+        performTest(on: Endpoint.Media.Stories.highlights(for: secret.id))
     }
 
     /// Test `Endpoint.Media`.
@@ -246,7 +246,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointPosts() {
         performTest(on: Endpoint.Media.Posts.liked())
         performTest(on: Endpoint.Media.Posts.saved())
-        performTest(on: Endpoint.Media.Posts.by(secret.id))
+        performTest(on: Endpoint.Media.Posts.owned(by: secret.id))
         performTest(on: Endpoint.Media.Posts.including("25025320"))
         performTest(on: Endpoint.Media.Posts.tagged(with: "instagram"))
         performTest(on: Endpoint.Media.Posts.likers(for: "2366175454991362926_7271269732"))
@@ -263,14 +263,14 @@ final class SwiftagramEndpointTests: XCTestCase {
                                                                      captioned: nil,
                                                                      tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
            let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.Posts.delete(matching: identifier))
+            performTest(on: Endpoint.Media.delete(identifier))
         }
         if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
                                                                      preview: Color.blue.image(sized: .init(width: 640, height: 360)),
                                                                      captioned: nil,
                                                                      tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
            let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.Posts.delete(matching: identifier))
+            performTest(on: Endpoint.Media.delete(identifier))
         }
     }
 
@@ -278,8 +278,8 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointStories() {
         performTest(on: Endpoint.Media.Stories.followed)
         performTest(on: Endpoint.Media.Stories.archived())
-        performTest(on: Endpoint.Media.Stories.by("25025320"))
-        performTest(on: Endpoint.Media.Stories.by(["183250726"]))
+        performTest(on: Endpoint.Media.Stories.owned(by: "25025320"))
+        performTest(on: Endpoint.Media.Stories.owned(by: ["183250726"]))
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
                                                                        stickers: [Sticker.mention("25025320")
                                                                                     .position(.init(x: 0.0, y: 0.125)),
