@@ -80,7 +80,7 @@ public extension Endpoint.Media.Posts {
                                     "device_id": $1.device.deviceIdentifier,
                                     "_uuid": $1.device.deviceGUID.uuidString,
                                     "media_id": identifier])
-        }
+            }
     }
 
     /// Like the media matching `identifier`.
@@ -205,12 +205,11 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
-    @available(*, deprecated, renamed: "upload(image:captioned:tagging:at:)", message: "this method will be made `internal` in `4.2.0`")
-    static func upload<U: Collection>(image data: Data,
-                                      size: CGSize,
-                                      captioned caption: String?,
-                                      tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+    internal static func upload<U: Collection>(image data: Data,
+                                               size: CGSize,
+                                               captioned caption: String?,
+                                               tagging users: U,
+                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
         // Prepare the uploader.
         let uploader = Endpoint.Media.upload(image: data)
         return uploader.fetcher
@@ -337,13 +336,12 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
-    @available(*, deprecated, renamed: "upload(video:preview:captioned:tagging:at:)", message: "this method will be made `internal` in `4.2.0`")
-    static func upload<U: Collection>(video url: URL,
-                                      preview data: Data,
-                                      size: CGSize,
-                                      captioned caption: String?,
-                                      tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+    internal static func upload<U: Collection>(video url: URL,
+                                               preview data: Data,
+                                               size: CGSize,
+                                               captioned caption: String?,
+                                               tagging users: U,
+                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
         // Prepare the uploader.
         let uploader = Endpoint.Media.upload(video: url, preview: data, previewSize: size)
         guard uploader.duration < 60 else { fatalError("The video must be less than 1 minute long.") }
@@ -497,11 +495,10 @@ public extension Endpoint.Media.Stories {
     ///     - size: A valid `CGSize`.
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    @available(*, deprecated, renamed: "upload(image:stickers:isCloseFriendOnly:)", message: "this method will be made `internal` in `4.2.0`")
-    static func upload<S: Sequence>(image data: Data,
-                                    size: CGSize,
-                                    stickers: S,
-                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+    internal static func upload<S: Sequence>(image data: Data,
+                                             size: CGSize,
+                                             stickers: S,
+                                             isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         // Prepare the uploader.
         let uploader = Endpoint.Media.upload(image: data)
         return uploader.fetcher
@@ -603,12 +600,11 @@ public extension Endpoint.Media.Stories {
     ///     - size: A valid `CGSize`.
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
-    @available(*, deprecated, renamed: "upload(image:stickers:isCloseFriendOnly:)", message: "this method will be made `internal` in `4.2.0`")
-    static func upload<S: Sequence>(video url: URL,
-                                    preview data: Data?,
-                                    size: CGSize,
-                                    stickers: S,
-                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+    internal static func upload<S: Sequence>(video url: URL,
+                                             preview data: Data?,
+                                             size: CGSize,
+                                             stickers: S,
+                                             isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         // Prepare the uploader.
         let uploader = Endpoint.Media.upload(video: url,
                                              preview: data,
