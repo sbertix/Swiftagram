@@ -32,7 +32,7 @@ public enum UserAgent {
     /// - returns: A valid `String` representing a User Agent.
     internal var string: String {
         switch self {
-        case .default: return Device.default.browserUserAgent
+        case .default: return Client.default.browserDescription
         case .custom(let string): return string
         case .iOS(let version):
             return ["Mozilla/5.0 (iPhone; CPU iPhone OS",

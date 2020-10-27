@@ -33,7 +33,7 @@ public extension Endpoint {
                             .map { ["name": $0.key, "value": $0.value] }
                             .wrapped
                             .jsonRepresentation(),
-                        "phone_id": $1.device.phoneGUID.uuidString,
+                        "phone_id": $1.client.device.phoneIdentifier.uuidString,
                         "battery_level": "72",
                         "is_charging": "0",
                         "will_sound_on": "0"

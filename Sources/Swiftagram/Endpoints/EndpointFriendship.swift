@@ -60,7 +60,7 @@ public extension Endpoint {
                         .replacing(body: [
                             "user_ids": identifiers.joined(separator: ","),
                             "_csrftoken": $1.crossSiteRequestForgery.value,
-                            "_uuid": $1.device.deviceGUID.uuidString
+                            "_uuid": $1.client.device.identifier.uuidString
                         ])
                 }
         }

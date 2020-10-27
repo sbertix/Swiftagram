@@ -30,8 +30,8 @@ public extension Endpoint.Friendship {
                                     "user_id": identifier,
                                     "radio_type": "wifi-none",
                                     "_uid": $1.id,
-                                    "device_id": $1.device.deviceIdentifier,
-                                    "_uuid": $1.device.deviceGUID.uuidString])
+                                    "device_id": $1.client.device.instagramIdentifier,
+                                    "_uuid": $1.client.device.identifier.uuidString])
         }
     }
 

@@ -15,7 +15,7 @@ public extension HeaderComposable where Self: HeaderParsable {
     /// - returns: `self` with updated header fields.
     func appendingDefaultHeader() -> Self {
         return appending(header: [
-            "User-Agent": Device.default.apiUserAgent,
+            "User-Agent": Client.default.description,
             "X-Ads-Opt-Out": "0",
             "X-CM-Bandwidth-KBPS": "-1.000",
             "X-CM-Latency": "-1.000",
@@ -32,10 +32,10 @@ public extension HeaderComposable where Self: HeaderParsable {
             "X-IG-WWW-Claim": "0",
             "X-Bloks-Is-Layout-RTL": "false",
             "X-IG-Connection-Type": "WIFI",
-            "X-IG-Capabilities": "3brTvwE=",
+            "X-IG-Capabilities": "36r/Fx8=",
             "X-IG-App-ID": "567067343352427",
-            "X-IG-Device-ID": Device.default.deviceGUID.uuidString.lowercased(),
-            "X-IG-Android-ID": Device.default.deviceIdentifier.lowercased(),
+            "X-IG-Device-ID": Client.default.device.identifier.uuidString.lowercased(),
+            "X-IG-Android-ID": Client.default.device.instagramIdentifier,
             "Accept-Language": "en-US",
             "X-FB-HTTP-Engine": "Liger",
             "Host": "i.instagram.com",
