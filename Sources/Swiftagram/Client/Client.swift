@@ -74,13 +74,27 @@ public extension Client {
     #if canImport(UIKit)
     /// Return a custom iPhone device, computed from the current `UIDevice`.
     /// - note: If you're not on an iPhone, it returns `nil`.
-    static var current: Client {
+    static var current: Client? {
+        // Prepare identifier for current model.
+        let identifier: String
+        #if targetEnvironment(simulator)
+        identifier = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]!
+        #else
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        identifier = machineMirror.children.reduce(into: "") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return }
+            identifier += String(UnicodeScalar(UInt8(value)))
+        }
+        #endif
+        guard identifier.contains("iPhone") else { return nil }
         return .init(application: .iOS(),
-                     device: .iOS(UIDevice.current.systemVersion,
-                                  language: NSLocale.current.identifier,
-                                  model: UIDevice.current.model,
-                                  resolution: .init(width: Int(UIScreen.main.bounds.width),
-                                                    height: Int(UIScreen.main.bounds.height),
+                     device: .iOS("iOS "+UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_"),
+                                  language: NSLocale.current.languageCode ?? "en_US",
+                                  model: identifier,
+                                  resolution: .init(width: Int(UIScreen.main.nativeBounds.width),
+                                                    height: Int(UIScreen.main.nativeBounds.height),
                                                     scale: Int(UIScreen.main.scale),
                                                     dpi: 458)))
     }
