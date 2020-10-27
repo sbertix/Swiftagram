@@ -10,10 +10,6 @@ import Foundation
 //swiftlint:disable type_body_length
 /// A `struct` holding reference to API constants.
 public struct Constants {
-    /// The app version.
-    public static let appVersion = "121.0.0.29.119"
-    /// The app version code.
-    public static let appVersionCode = "185203708"
     /// The signature key.
     public static let signatureKey = "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc"
     /// The signature version.
@@ -927,7 +923,7 @@ public struct Constants {
                                           "ig_android_access_flow_prefil"]
         .joined()
     /// The Bloks version id.
-    public static let bloksVersionId = "1b030ce63a06c25f3e4de6aaaf6802fe1e76401bc5ab6e5fb85ed6c2d333e0c7"
+    public static let bloksVersionId = "7b2216598d8fcf84fbda65652788cb12be5aa024c4ea5e03deeb2b81a383c9e0"
 }
 
 /// A `struct` holding reference to the API supported capabilities.

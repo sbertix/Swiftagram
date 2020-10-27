@@ -51,7 +51,7 @@ public extension Endpoint.Media {
                         "media_id": Wrapper(stringLiteral: identifier),
                         "_csrftoken": Wrapper(stringLiteral: $1.crossSiteRequestForgery.value),
                         "_uid": Wrapper(stringLiteral: $1.id),
-                        "_uuid": Wrapper(stringLiteral: $1.device.deviceGUID.uuidString)
+                        "_uuid": Wrapper(stringLiteral: $1.client.device.identifier.uuidString)
                     ] as Wrapper)
             }
     }
@@ -77,8 +77,8 @@ public extension Endpoint.Media.Posts {
                     .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
                                     "radio_type": "wifi-none",
                                     "_uid": $1.id,
-                                    "device_id": $1.device.deviceIdentifier,
-                                    "_uuid": $1.device.deviceGUID.uuidString,
+                                    "device_id": $1.client.device.instagramIdentifier,
+                                    "_uuid": $1.client.device.identifier.uuidString,
                                     "media_id": identifier])
             }
     }
@@ -128,7 +128,7 @@ public extension Endpoint.Media.Posts {
                         .signing(body: [
                             "_csrftoken": $1.crossSiteRequestForgery.value,
                             "_uid": $1.id,
-                            "_uuid": $1.device.deviceGUID.uuidString,
+                            "_uuid": $1.client.device.identifier.uuidString,
                             "media_id": identifier,
                             "comment_text": text
                         ])
@@ -140,8 +140,8 @@ public extension Endpoint.Media.Posts {
                         "_csrftoken": $1.crossSiteRequestForgery.value,
                         "radio_type": "wifi-none",
                         "_uid": $1.id,
-                        "device_id": $1.device.deviceIdentifier,
-                        "_uuid": $1.device.deviceGUID.uuidString,
+                        "device_id": $1.client.device.instagramIdentifier,
+                        "_uuid": $1.client.device.identifier.uuidString,
                         "media_id": identifier,
                         "comment_text": text,
                         "containermodule": "self_comments_v2",
@@ -166,7 +166,7 @@ public extension Endpoint.Media.Posts {
                         "comment_ids_to_delete": commentIdentifiers.joined(separator: ","),
                         "_csrftoken": $1.crossSiteRequestForgery.value,
                         "_uid": $1.id,
-                        "_uuid": $1.device.deviceGUID.uuidString
+                        "_uuid": $1.client.device.identifier.uuidString
                     ])
             }
     }
@@ -232,7 +232,7 @@ public extension Endpoint.Media.Posts {
                     "media_folder": "Instagram",
                     "source_type": "4",
                     "upload_id": uploader.identifier.wrapped,
-                    "device": $1.device.payload.wrapped,
+                    //"device": $1.device.payload.wrapped,
                     "edits": ["crop_original_size": [size.width.wrapped, size.height.wrapped],
                               "crop_center": [-0.0, 0.0],
                               "crop_zoom": 1.0],
@@ -241,8 +241,8 @@ public extension Endpoint.Media.Posts {
                     "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                     "user_id": uploader.identifier.wrapped,
                     "_uid": $1.id.wrapped,
-                    "device_id": $1.device.deviceIdentifier.wrapped,
-                    "_uuid": $1.device.deviceGUID.uuidString.wrapped
+                    "device_id": $1.client.device.instagramIdentifier.wrapped,
+                    "_uuid": $1.client.device.identifier.uuidString.wrapped
                 ]
                 // Add user tags.
                 let users = users.compactMap({ $0.wrapper().snakeCased().optional() })
@@ -361,13 +361,13 @@ public extension Endpoint.Media.Posts {
                 if path.contains("upload_finish") {
                     return $0.appending(header: $1.header)
                         .appending(query: ["video": "1"])
-                        .signing(body: ["device": $1.device.payload.wrapped,
+                        .signing(body: [//"device": $1.device.payload.wrapped,
                                         "timezone_offset": "43200",
                                         "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                                         "user_id": uploader.identifier.wrapped,
                                         "_uid": $1.id.wrapped,
-                                        "device_id": $1.device.deviceIdentifier.wrapped,
-                                        "_uuid": $1.device.deviceGUID.uuidString.wrapped,
+                                        "device_id": $1.client.device.instagramIdentifier.wrapped,
+                                        "_uuid": $1.client.device.identifier.uuidString.wrapped,
                                         "upload_id": uploader.identifier.wrapped,
                                         "clips": [["length": uploader.duration.wrapped, "source_type": "3"]],
                                         "source_type": "4",
@@ -382,7 +382,7 @@ public extension Endpoint.Media.Posts {
                         "media_folder": "Instagram",
                         "source_type": "4",
                         "upload_id": uploader.identifier.wrapped,
-                        "device": $1.device.payload.wrapped,
+                        //"device": $1.device.payload.wrapped,
                         "length": uploader.duration.wrapped,
                         "width": uploader.size.width.wrapped,
                         "height": uploader.size.height.wrapped,
@@ -390,8 +390,8 @@ public extension Endpoint.Media.Posts {
                         "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                         "user_id": uploader.identifier.wrapped,
                         "_uid": $1.id.wrapped,
-                        "device_id": $1.device.deviceIdentifier.wrapped,
-                        "_uuid": $1.device.deviceGUID.uuidString.wrapped,
+                        "device_id": $1.client.device.instagramIdentifier.wrapped,
+                        "_uuid": $1.client.device.identifier.uuidString.wrapped,
                         "filter_type": "0",
                         "poster_frame_index": 0,
                         "audio_muted": false
@@ -524,7 +524,7 @@ public extension Endpoint.Media.Stories {
                     "client_shared_at": String(seconds-Int.random(in: 3...10)).wrapped,
                     "client_timestamp": String(seconds).wrapped,
                     "configure_mode": 1,
-                    "device": $1.device.payload.wrapped,
+                    //"device": $1.device.payload.wrapped,
                     "edits": ["crop_original_size": [size.width.wrapped, size.height.wrapped],
                               "crop_center": [-0.0, 0.0],
                               "crop_zoom": 1.0],
@@ -533,8 +533,8 @@ public extension Endpoint.Media.Stories {
                     "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                     "user_id": uploader.identifier.wrapped,
                     "_uid": $1.id.wrapped,
-                    "device_id": $1.device.deviceIdentifier.wrapped,
-                    "_uuid": $1.device.deviceGUID.uuidString.wrapped
+                    "device_id": $1.client.device.instagramIdentifier.wrapped,
+                    "_uuid": $1.client.device.identifier.uuidString.wrapped
                 ]
                 // Add to close friends only.
                 if isCloseFriendsOnly { body["audience"] = "besties" }
@@ -626,13 +626,13 @@ public extension Endpoint.Media.Stories {
                 if path.contains("upload_finish") {
                     return $0.appending(header: $1.header)
                         .appending(query: ["video": "1"])
-                        .signing(body: ["device": $1.device.payload.wrapped,
+                        .signing(body: [//"device": $1.device.payload.wrapped,
                                         "timezone_offset": "43200",
                                         "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                                         "user_id": uploader.identifier.wrapped,
                                         "_uid": $1.id.wrapped,
-                                        "device_id": $1.device.deviceIdentifier.wrapped,
-                                        "_uuid": $1.device.deviceGUID.uuidString.wrapped,
+                                        "device_id": $1.client.device.instagramIdentifier.wrapped,
+                                        "_uuid": $1.client.device.identifier.uuidString.wrapped,
                                         "upload_id": uploader.identifier.wrapped,
                                         "clips": [["length": uploader.duration.wrapped, "source_type": "3"]],
                                         "source_type": "3",
@@ -656,15 +656,15 @@ public extension Endpoint.Media.Stories {
                         "client_shared_at": String(seconds-Int.random(in: 3...10)).wrapped,
                         "client_timestamp": String(seconds).wrapped,
                         "configure_mode": 1,
-                        "device": $1.device.payload.wrapped,
+                        //"device": $1.device.payload.wrapped,
                         "clips": [["length": uploader.duration.wrapped, "source_type": "3"]],
                         "extra": ["source_width": uploader.size.width.wrapped,
                                   "source_height": uploader.size.height.wrapped],
                         "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
                         "user_id": uploader.identifier.wrapped,
                         "_uid": $1.id.wrapped,
-                        "device_id": $1.device.deviceIdentifier.wrapped,
-                        "_uuid": $1.device.deviceGUID.uuidString.wrapped,
+                        "device_id": $1.client.device.instagramIdentifier.wrapped,
+                        "_uuid": $1.client.device.identifier.uuidString.wrapped,
                         "audio_muted": false,
                         "poster_frame_index": 0,
                         "video_result": ""

@@ -142,9 +142,9 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
         // Obtain cookies.
         Endpoint.version1.accounts.read_msisdn_header.appending(path: "/")
             .appendingDefaultHeader()
-            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
+            .appending(header: "X-DEVICE-ID", with: Client.default.device.identifier.uuidString)
             .signing(body: ["mobile_subno_usage": "default",
-                            "device_id": Device.default.deviceGUID.uuidString])
+                            "device_id": Client.default.device.identifier.uuidString])
             .prepare()
             .debugTask(by: .authentication) {
                 guard let header = $0.response?.allHeaderFields as? [String: String] else {
@@ -163,9 +163,9 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
         // Obtain password key.
         Endpoint.version1.qe.sync.appending(path: "/")
             .appendingDefaultHeader()
-            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
+            .appending(header: "X-DEVICE-ID", with: Client.default.device.identifier.uuidString)
             .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
-            .signing(body: ["id": Device.default.deviceGUID.uuidString,
+            .signing(body: ["id": Client.default.device.identifier.uuidString,
                             "experiments": Constants.loginExperiments])
             .prepare()
             .debugTask(by: .authentication) { [self] in
@@ -202,14 +202,14 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
             .signing(body: [
                 "username": self.username,
                 "enc_password": encryptedPassword,
-                "guid": Device.default.deviceGUID.uuidString,
-                "phone_id": Device.default.phoneGUID.uuidString,
-                "device_id": Device.default.deviceIdentifier,
+                "guid": Client.default.device.identifier.uuidString,
+                "phone_id": Client.default.device.phoneIdentifier.uuidString,
+                "device_id": Client.default.device.instagramIdentifier,
                 "adid": "",
                 "google_tokens": "[]",
                 "country_codes": #"[{"country_code":"1","source": "default"}]"#,
                 "login_attempt_count": "0",
-                "jazoest": "2\(Device.default.phoneGUID.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
+                "jazoest": "2\(Client.default.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
             .prepare()
             .debugTask(by: .authentication) { [self] in
@@ -255,7 +255,7 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
                 let secret = Secret(cookies: HTTPCookie.cookies(
                     withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
                     for: url
-                ), device: .default)?.store(in: storage) {
+                ), client: .default)?.store(in: storage) {
                 onChange(.success(secret))
             }
             // Return a generic error.
