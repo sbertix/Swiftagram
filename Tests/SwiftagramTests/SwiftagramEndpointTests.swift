@@ -1,8 +1,12 @@
-import ComposableRequest
+//
+//  SwiftagramEndpointTests.swift
+//  SwiftagramTests
+//
+//  Created by Stefano Bertagno on 17/08/2020.
+//
+
 import CoreGraphics
 import Foundation
-@testable import Swiftagram
-@testable import SwiftagramCrypto
 import XCTest
 
 #if canImport(UIKit)
@@ -11,6 +15,11 @@ import UIKit
 #if canImport(AppKit)
 import AppKit
 #endif
+
+@testable import Swiftagram
+@testable import SwiftagramCrypto
+
+import ComposableRequest
 
 /// The default request timeout.
 let timeout: TimeInterval = 300
@@ -346,17 +355,5 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Location.summary(for: "189075947904164"))
         performTest(on: Endpoint.Location.stories(at: "189075947904164"))
     }
-
-    static var allTests = [
-        ("Endpoint.Direct", testEndpointDirect),
-        ("Endpoint.Discover", testEndpointDiscover),
-        ("Endpoint.Friendship", testEndpointFriendship),
-        ("Endpoint.Media", testEndpointMedia),
-        ("Endpoint.Media.Posts", testEndpointPosts),
-        ("Endpoint.Media.Stories", testEndpointStories),
-        ("Endpoint.News", testEndpointNews),
-        ("Endpoint.User", testEndpointUser),
-        ("Endpoint.Location", testEndpointLocation)
-    ]
 }
 //swiftlint enable:line_length
