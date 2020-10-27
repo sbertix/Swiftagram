@@ -282,17 +282,4 @@ final class SwiftagramModelsTest: XCTestCase {
                     mapper: ["userId": "identifier"],
                     wrapper: { response, _ in [response.x.flatMap(Double.init), response.y.flatMap(Double.init)].wrapped })
     }
-
-    static var allTests = [
-        ("Comment", testComment),
-        ("Friendship", testFriendship),
-        ("Location", testLocation),
-        ("Media", testMedia),
-        ("Status", testStatus),
-        ("Conversation", testThread),
-        ("Recipient", testThreadRecipient),
-        ("TrayItem", testTrayItem),
-        ("User", testUser),
-        ("UserTag", testUserTag)
-    ]
 }
