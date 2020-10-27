@@ -1,10 +1,21 @@
-import ComposableRequest
-@testable import Swiftagram
-@testable import SwiftagramCrypto
+//
+//  SwiftagramAuthenticatorTests.swift
+//  SwiftagramTests
+//
+//  Created by Stefano Bertagno on 17/08/2020.
+//
+
+import Foundation
 import XCTest
+
 #if canImport(WebKit)
 import WebKit
 #endif
+
+@testable import Swiftagram
+@testable import SwiftagramCrypto
+
+import ComposableRequest
 
 final class SwiftagramAuthenticatorTests: XCTestCase {
     #if canImport(WebKit)
@@ -76,11 +87,4 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
             wait(for: [expectation], timeout: 10)
         }
     }
-
-    static var allTests = [
-        ("Signing", testSigning),
-        ("BasicAuthenticator", testBasicAuthenticator),
-        ("TestTwoFactor", testTwoFactor),
-        ("WebViewAuthenticator", testWebViewAuthenticator)
-    ]
 }
