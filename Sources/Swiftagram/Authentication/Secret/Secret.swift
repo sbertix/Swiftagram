@@ -11,9 +11,15 @@ import ComposableRequest
 
 /// A `struct` holding reference to an Instagram-specific `HeaderKey`.
 public struct Secret: HeaderKey {
+    /// An `enum` holding reference to `Secret`s coding keys, used to maintain backwords compatibility.
+    private enum Keys: CodingKey {
+        case cookies
+        case client
+        case device
+    }
+
     /// All cookies.
     public private(set) var cookies: [CodableHTTPCookie]
-
     /// The associated `Client`. Defaults to `.default`.
     public var client: Client = .default
 
@@ -58,6 +64,7 @@ public struct Secret: HeaderKey {
     // MARK: Lifecycle
 
     /// Init.
+    ///
     /// - parameters:
     ///     - cookies: A `Collection` of `HTTPCookie`s.
     ///     - client: A valid `Client`. Defaults to `.default`.
@@ -65,5 +72,42 @@ public struct Secret: HeaderKey {
         guard Secret.hasValidCookies(cookies) else { return nil }
         self.cookies = cookies.compactMap(CodableHTTPCookie.init)
         self.client = client
+    }
+
+    /// Init.
+    ///
+    /// - parameter decoder: A valid `Decoder`.
+    /// - throws: Some `Error` related to the decoding process.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Keys.self)
+        let cookies = try container.decode([CodableHTTPCookie].self, forKey: .cookies)
+        // If `client` is non-`nil`, we do not need to upgrade the device.
+        if let client = try container.decodeIfPresent(Client.self, forKey: .client) {
+            self.cookies = cookies
+            self.client = client
+        } else if let device = try container.decodeIfPresent(LegacyDevice.self, forKey: .device),
+                  let width = device.resolution.first,
+                  let height = device.resolution.last {
+            // Try to convert a previously stored `Device` into a new `Client`.
+            self.cookies = cookies
+            self.client = .init(application: .android(device.api, code: device.code),
+                                device: .init(identifier: device.deviceGUID,
+                                              phoneIdentifier: device.phoneGUID,
+                                              adIdentifier: device.googleAdId,
+                                              hardware: .init(model: device.model,
+                                                              brand: device.brand,
+                                                              boot: device.modelBoot,
+                                                              cpu: device.cpu,
+                                                              manufacturer: nil),
+                                              software: .init(version: device.release+"/"+device.version,
+                                                              language: "en_US"),
+                                              resolution: .init(width: Int(width),
+                                                                height: Int(height),
+                                                                scale: 2,
+                                                                dpi: device.dpi)))
+        } else {
+            // Otherwise we just raise an error.
+            throw ResponseError.generic("Invalid cached `Secret`.")
+        }
     }
 }
