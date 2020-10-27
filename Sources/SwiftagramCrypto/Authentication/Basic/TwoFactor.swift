@@ -47,8 +47,8 @@ public final class TwoFactor {
                 "_csrftoken": crossSiteRequestForgery.value,
                 "two_factor_identifier": identifier,
                 "trust_this_device": "1",
-                "guid": Device.default.deviceGUID.uuidString,
-                "device_id": Device.default.deviceIdentifier,
+                "guid": Client.default.device.identifier.uuidString,
+                "device_id": Client.default.device.instagramIdentifier,
                 "verification_method": "1"
             ])
             .prepare()
@@ -62,7 +62,7 @@ public final class TwoFactor {
                         let secret = Secret(cookies: HTTPCookie.cookies(
                             withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
                             for: url
-                        ), device: .default) {
+                        ), client: .default) {
                         self.onChange(.success(secret))
                     }
                     // Otherwise check for error.

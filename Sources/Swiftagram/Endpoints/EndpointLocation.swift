@@ -34,7 +34,7 @@ public extension Endpoint {
                         .appending(query: [
                             "_csrftoken": $1.crossSiteRequestForgery.value,
                             "_uid": $1.id,
-                            "_uuid": $1.device.deviceGUID.uuidString
+                            "_uuid": $1.client.device.identifier.uuidString
                         ])
                 }
         }

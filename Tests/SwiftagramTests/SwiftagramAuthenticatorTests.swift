@@ -7,18 +7,10 @@ import WebKit
 #endif
 
 final class SwiftagramAuthenticatorTests: XCTestCase {
-    /// Environmental variables.
-    var environemnt: [String: String] = [:]
-
     #if canImport(WebKit)
     /// The web view.
     var webView: WKWebView?
     #endif
-
-    /// Set up.
-    override func setUp() {
-        environemnt = ProcessInfo.processInfo.environment
-    }
 
     /// Test signing.
     func testSigning() {

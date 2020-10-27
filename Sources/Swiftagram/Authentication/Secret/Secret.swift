@@ -9,21 +9,24 @@ import Foundation
 
 import ComposableRequest
 
+/// A `struct` holding reference to an Instagram-specific `HeaderKey`.
 public struct Secret: HeaderKey {
     /// All cookies.
     public private(set) var cookies: [CodableHTTPCookie]
-    /// The associated `Device`. Defaults to `.default`.
-    public var device: Device = .default
 
-    // MARK: Computer properties
+    /// The associated `Client`. Defaults to `.default`.
+    public var client: Client = .default
+
+    // MARK: Computed properties
+
     /// All header fields.
     public var header: [String: String] {
         return HTTPCookie.requestHeaderFields(with: cookies.filter { $0.name != "urlgen" })
             .merging(
-                ["X-IG-Device-ID": device.deviceGUID.uuidString,
-                 "X-IG-Android-ID": device.deviceIdentifier.lowercased(),
+                ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                 "X-IG-Android-ID": client.device.instagramIdentifier,
                  "X-MID": cookies.first(where: { $0.name == "mid"})?.value,
-                 "User-Agent": device.apiUserAgent].compactMapValues { $0 },
+                 "User-Agent": client.description].compactMapValues { $0 },
                 uniquingKeysWith: { _, rhs in rhs }
         )
     }
@@ -44,6 +47,7 @@ public struct Secret: HeaderKey {
     }
 
     // MARK: Accessories
+
     /// Return whether you have access to at least the required cookies.
     /// - parameter cookies: A `Collection` of `HTTPCookie`s.
     public static func hasValidCookies<Cookies: Collection>(_ cookies: Cookies) -> Bool where Cookies.Element: HTTPCookie {
@@ -51,14 +55,15 @@ public struct Secret: HeaderKey {
         return cookies.count >= 3 && cookies.filter { required.contains($0.name) }.count >= 3
     }
 
-    // MARK: Lifecycle.
+    // MARK: Lifecycle
+
     /// Init.
     /// - parameters:
     ///     - cookies: A `Collection` of `HTTPCookie`s.
-    ///     - device: A valid `Device`. Defaults to `.default`.
-    public init?<Cookies: Collection>(cookies: Cookies, device: Device = .default) where Cookies.Element: HTTPCookie {
+    ///     - client: A valid `Client`. Defaults to `.default`.
+    public init?<Cookies: Collection>(cookies: Cookies, client: Client = .default) where Cookies.Element: HTTPCookie {
         guard Secret.hasValidCookies(cookies) else { return nil }
         self.cookies = cookies.compactMap(CodableHTTPCookie.init)
-        self.device = device
+        self.client = client
     }
 }

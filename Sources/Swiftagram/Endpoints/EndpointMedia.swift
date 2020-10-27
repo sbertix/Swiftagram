@@ -180,22 +180,22 @@ public extension Endpoint {
                             return try $0.appending(header: $1.header)
                             .appending(header: [
                                 "X-Ads-Opt-Out": "0",
-                                "X-Google-AD-ID": $1.device.googleAdId.uuidString,
-                                "X-DEVICE-ID": $1.device.deviceGUID.uuidString,
+                                "X-Google-AD-ID": $1.client.device.adIdentifier.uuidString,
+                                "X-DEVICE-ID": $1.client.device.identifier.uuidString,
                                 "X-FB": "1"
                             ])
                             .appending(body: [
                                 "is_prefetch": "0",
                                 "feed_view_info": "",
                                 "seen_posts": "",
-                                "phone_id": $1.device.phoneGUID.uuidString,
+                                "phone_id": $1.client.device.phoneIdentifier.uuidString,
                                 "is_pull_to_refresh": "0",
                                 "battery_level": "72",
                                 "timezone_offset": "43200",
                                 "_csrftoken": $1.crossSiteRequestForgery.value,
                                 "client_session_id": $1.session.value,
-                                "device_id": $1.device.deviceGUID.uuidString,
-                                "_uuid": $1.device.deviceGUID.uuidString,
+                                "device_id": $1.client.device.identifier.uuidString,
+                                "_uuid": $1.client.device.identifier.uuidString,
                                 "is_charging": "0",
                                 "is_async_ads_in_headload_enabled": "0",
                                 "rti_delivery_backend": "0",
@@ -234,7 +234,7 @@ public extension Endpoint {
                                 .map { ["name": $0.key, "value": $0.value] }
                                 .wrapped
                                 .jsonRepresentation(),
-                            "phone_id": $1.device.phoneGUID.uuidString,
+                            "phone_id": $1.client.device.phoneIdentifier.uuidString,
                             "battery_level": "72",
                             "is_charging": "0",
                             "will_sound_on": "0"
