@@ -1,0 +1,58 @@
+name:                   release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    name:               release
+    runs-on:            ubuntu-latest
+
+    steps:
+      - name:           Checkout code
+        uses:           actions/checkout@v2
+      - run:            git fetch --prune --unshallow --tags
+      - name:           Create changelogs
+        id:             changelogs
+        uses:           heineiuo/create-changelogs@master
+      - name:           Create Release
+        id:             create_release
+        uses:           actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name:     ${{ github.ref }}
+          release_name: v${{ github.ref }}
+          body:         ${{ steps.changelogs.outputs.changelogs }}
+          draft:        false
+          prerelease:   ${{ steps.changelogs.outputs.release_type == 'prerelease' }}
+      - name:           Push to Telegram
+        uses:           appleboy/telegram-action@master
+        with:
+          to:           ${{ secrets.TELEGRAM_TO }}
+          token:        ${{ secrets.TELEGRAM_TOKEN }}
+          format:       markdown
+          args:         |
+            A [new version](${{ steps.create_release.outputs.html_url }}) of **Swiftagram** was just released.
+            Please consider updating your code.
+
+  docs:
+    name:               docs
+    runs-on:            ubuntu-latest
+
+    steps:
+      - name:           Checkout code
+        uses:           actions/checkout@v2
+      - name:           Docs (1)
+        uses:           SwiftDocOrg/swift-doc@master
+        with:
+          inputs:       "Sources"
+          format:       "html"
+          module-name:  Swiftagram
+      - name:           Docs (2)
+        uses:           peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir:  ./.build/documentation

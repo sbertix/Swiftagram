@@ -1,0 +1,33 @@
+name:                  push
+
+on:
+  push:
+    branches:
+      - master
+      - bugfixes
+      - development
+    paths:
+      - '**/*.swift'
+      - '**/push.yaml'
+  repository_dispatch:
+    types:             [build-command, lint-command]
+
+jobs:
+  lint:
+    runs-on:           ubuntu-latest
+
+    steps:
+      - uses:          actions/checkout@v2
+      - name:          Lint
+        uses:          norio-nomura/action-swiftlint@3.1.0
+        with:
+          args:        --strict
+
+  build:
+    needs:             lint
+    runs-on:           macos-latest
+
+    steps:
+    - uses:            actions/checkout@v2
+    - name:            Build
+      run:             swift build
