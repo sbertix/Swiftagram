@@ -1,5 +1,5 @@
 //
-//  SwiftagramAuthenticatorTests.swift
+//  AuthenticatorTests.swift
 //  SwiftagramTests
 //
 //  Created by Stefano Bertagno on 17/08/2020.
@@ -17,7 +17,7 @@ import WebKit
 
 import ComposableRequest
 
-final class SwiftagramAuthenticatorTests: XCTestCase {
+final class AuthenticatorTests: XCTestCase {
     #if canImport(WebKit)
     /// The web view.
     var webView: WKWebView?
@@ -58,6 +58,7 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
         TwoFactor(username: "A",
+                  client: .default,
                   identifier: "A",
                   crossSiteRequestForgery: .init(name: "_csrftoken", value: "A")) {
                     XCTAssert((try? $0.get()) == nil)
@@ -80,7 +81,6 @@ final class SwiftagramAuthenticatorTests: XCTestCase {
                     }
                 }
             }
-            .userAgent(UserAgent.default.string)
             .authenticate { _ in
                 // It cannot be tested.
             }

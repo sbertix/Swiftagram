@@ -1,5 +1,5 @@
 //
-//  SwiftagramClientTests.swift
+//  ClientTests.swift
 //  SwiftagramTests
 //
 //  Created by Stefano Bertagno on 27/10/20.
@@ -14,7 +14,7 @@ import UIKit
 
 @testable import Swiftagram
 
-final class SwiftagramClientTests: XCTestCase {
+final class ClientTests: XCTestCase {
     /// Test an Android device.
     func testAndroid() {
         let device = Client.samsungGalaxyS20

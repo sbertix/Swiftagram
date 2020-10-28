@@ -43,11 +43,13 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     public typealias Error = Swift.Error
 
     /// A `Storage` instance used to store `Secret`s.
-    public internal(set) var storage: Storage
+    public let storage: Storage
+    /// A `Client` instance used to create the `Secret`s.
+    public let client: Client
     /// A `String` holding a valid username.
-    public internal(set) var username: String
+    public let username: String
     /// A `String` holding a valid password.
-    public internal(set) var password: String
+    public let password: String
 
     /// A `String` holding a custom user agent to be passed to every request.
     /// Defaults to Safari on an iPhone with iOS 13.1.3.
@@ -59,10 +61,12 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     /// Init.
     /// - parameters:
     ///     - storage: A concrete `Storage` value.
+    ///     - client: A valid `Client`. Defaults to `.default`.
     ///     - username: A `String` representing a valid username.
     ///     - password: A `String` representing a valid password.
-    public init(storage: Storage, username: String, password: String) {
+    public init(storage: Storage, client: Client = .default, username: String, password: String) {
         self.storage = storage
+        self.client = client
         self.username = username
         self.password = password
     }
@@ -142,9 +146,12 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
         // Obtain cookies.
         Endpoint.version1.accounts.read_msisdn_header.appending(path: "/")
             .appendingDefaultHeader()
-            .appending(header: "X-DEVICE-ID", with: Client.default.device.identifier.uuidString)
+            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                "X-IG-Android-ID": client.device.instagramIdentifier,
+                                "User-Agent": client.description,
+                                "X-DEVICE-ID": client.device.identifier.uuidString])
             .signing(body: ["mobile_subno_usage": "default",
-                            "device_id": Client.default.device.identifier.uuidString])
+                            "device_id": client.device.identifier.uuidString])
             .prepare()
             .debugTask(by: .authentication) {
                 guard let header = $0.response?.allHeaderFields as? [String: String] else {
@@ -163,9 +170,12 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
         // Obtain password key.
         Endpoint.version1.qe.sync.appending(path: "/")
             .appendingDefaultHeader()
-            .appending(header: "X-DEVICE-ID", with: Client.default.device.identifier.uuidString)
+            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                "X-IG-Android-ID": client.device.instagramIdentifier,
+                                "User-Agent": client.description,
+                                "X-DEVICE-ID": client.device.identifier.uuidString])
             .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
-            .signing(body: ["id": Client.default.device.identifier.uuidString,
+            .signing(body: ["id": client.device.identifier.uuidString,
                             "experiments": Constants.loginExperiments])
             .prepare()
             .debugTask(by: .authentication) { [self] in
@@ -196,20 +206,22 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
         }
         // Obtain the `ds_user_id` and the `sessionid`.
         Endpoint.version1.accounts.login.appending(path: "/")
-            .appendingDefaultHeader()
+            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                "X-IG-Android-ID": client.device.instagramIdentifier,
+                                "User-Agent": client.description,
+                                "X-Csrf-Token": crossSiteRequestForgery.value])
             .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
-            .appending(header: "X-Csrf-Token", with: crossSiteRequestForgery.value)
             .signing(body: [
                 "username": self.username,
                 "enc_password": encryptedPassword,
-                "guid": Client.default.device.identifier.uuidString,
-                "phone_id": Client.default.device.phoneIdentifier.uuidString,
-                "device_id": Client.default.device.instagramIdentifier,
+                "guid": client.device.identifier.uuidString,
+                "phone_id": client.device.phoneIdentifier.uuidString,
+                "device_id": client.device.instagramIdentifier,
                 "adid": "",
                 "google_tokens": "[]",
                 "country_codes": #"[{"country_code":"1","source": "default"}]"#,
                 "login_attempt_count": "0",
-                "jazoest": "2\(Client.default.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
+                "jazoest": "2\(client.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
             .prepare()
             .debugTask(by: .authentication) { [self] in
@@ -230,6 +242,7 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
             // Wait for two factor authentication.
             if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
                 onChange(.failure(BasicAuthenticatorError.twoFactor(.init(username: username,
+                                                                          client: client,
                                                                           identifier: twoFactorIdentifier,
                                                                           crossSiteRequestForgery: crossSiteRequestForgery,
                                                                           onChange: { [storage] in
@@ -251,11 +264,14 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
             }
             // Check for `loggedInUser`.
             else if value.loggedInUser.pk.int() != nil,
-                let url = URL(string: "https://instagram.com"),
-                let secret = Secret(cookies: HTTPCookie.cookies(
-                    withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
-                    for: url
-                ), client: .default)?.store(in: storage) {
+                    let url = URL(string: "https://instagram.com"),
+                    let secret = Secret(
+                        cookies: HTTPCookie.cookies(
+                            withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
+                            for: url
+                        ),
+                        client: client
+                    )?.store(in: storage) {
                 onChange(.success(secret))
             }
             // Return a generic error.
