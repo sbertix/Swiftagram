@@ -20,6 +20,7 @@ import AppKit
 @testable import SwiftagramCrypto
 
 import ComposableRequest
+import SwCrypt
 
 /// The default request timeout.
 let timeout: TimeInterval = 300
@@ -27,24 +28,27 @@ let timeout: TimeInterval = 300
 //swiftlint:disable line_length
 /// A `class` dealing with testing all available `Endpoint`s.
 final class EndpointTests: XCTestCase {
+    //swiftlint:disable force_try
+    /// Read the `Secret`.
+    lazy var secret: Secret = {
+        let key = ProcessInfo.processInfo.environment["KEY"]!.dataFromHexadecimalString()!
+        let iv = ProcessInfo.processInfo.environment["IV"]!.dataFromHexadecimalString()!
+        let secret = Data(base64Encoded: ProcessInfo.processInfo.environment["SECRET"]!)!
+        // Decrypt the `Secret`.
+        let base64Encoded = try! CC.crypt(.decrypt, blockMode: .ctr, algorithm: .aes, padding: .noPadding, data: secret, key: key, iv: iv)
+        let base64EncodedString = String(data: base64Encoded, encoding: .utf8)!.trimmingCharacters(in: .whitespacesAndNewlines)
+        let data = Data(base64Encoded: base64EncodedString)!
+        // Decode the `Secret`.
+        return try! JSONDecoder().decode(Secret.self, from: data)
+    }()
+    //swiftlint:enable force_try
+
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapper`.
     @discardableResult
     func performTest(on endpoint: Endpoint.Disposable<Wrapper>,
                      logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
-        // Fetch the secret.
-        let secretCompletion = XCTestExpectation()
-        let secretReference = ReferenceType<Secret>()
-        SecretFetcher.default.secret {
-            switch $0 {
-            case .success(let secret): secretReference.value = secret
-            case .failure(let error): XCTFail(error.localizedDescription)
-            }
-            secretCompletion.fulfill()
-        }
-        wait(for: [secretCompletion], timeout: 30)
-        guard let secret = secretReference.value else { return nil }
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -69,18 +73,6 @@ final class EndpointTests: XCTestCase {
                                  logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
-        // Fetch the secret.
-        let secretCompletion = XCTestExpectation()
-        let secretReference = ReferenceType<Secret>()
-        SecretFetcher.default.secret {
-            switch $0 {
-            case .success(let secret): secretReference.value = secret
-            case .failure(let error): XCTFail(error.localizedDescription)
-            }
-            secretCompletion.fulfill()
-        }
-        wait(for: [secretCompletion], timeout: 30)
-        guard let secret = secretReference.value else { return nil }
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -105,18 +97,6 @@ final class EndpointTests: XCTestCase {
                                       logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
-        // Fetch the secret.
-        let secretCompletion = XCTestExpectation()
-        let secretReference = ReferenceType<Secret>()
-        SecretFetcher.default.secret {
-            switch $0 {
-            case .success(let secret): secretReference.value = secret
-            case .failure(let error): XCTFail(error.localizedDescription)
-            }
-            secretCompletion.fulfill()
-        }
-        wait(for: [secretCompletion], timeout: 30)
-        guard let secret = secretReference.value else { return nil }
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -141,18 +121,6 @@ final class EndpointTests: XCTestCase {
                      logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
-        // Fetch the secret.
-        let secretCompletion = XCTestExpectation()
-        let secretReference = ReferenceType<Secret>()
-        SecretFetcher.default.secret {
-            switch $0 {
-            case .success(let secret): secretReference.value = secret
-            case .failure(let error): XCTFail(error.localizedDescription)
-            }
-            secretCompletion.fulfill()
-        }
-        wait(for: [secretCompletion], timeout: 30)
-        guard let secret = secretReference.value else { return nil }
         // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
@@ -184,18 +152,6 @@ final class EndpointTests: XCTestCase {
                                  logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
-        // Fetch the secret.
-        let secretCompletion = XCTestExpectation()
-        let secretReference = ReferenceType<Secret>()
-        SecretFetcher.default.secret {
-            switch $0 {
-            case .success(let secret): secretReference.value = secret
-            case .failure(let error): XCTFail(error.localizedDescription)
-            }
-            secretCompletion.fulfill()
-        }
-        wait(for: [secretCompletion], timeout: 30)
-        guard let secret = secretReference.value else { return nil }
         // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
@@ -227,18 +183,6 @@ final class EndpointTests: XCTestCase {
                                       logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
-        // Fetch the secret.
-        let secretCompletion = XCTestExpectation()
-        let secretReference = ReferenceType<Secret>()
-        SecretFetcher.default.secret {
-            switch $0 {
-            case .success(let secret): secretReference.value = secret
-            case .failure(let error): XCTFail(error.localizedDescription)
-            }
-            secretCompletion.fulfill()
-        }
-        wait(for: [secretCompletion], timeout: 30)
-        guard let secret = secretReference.value else { return nil }
         // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
