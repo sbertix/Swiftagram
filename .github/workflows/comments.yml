@@ -3,12 +3,14 @@ name:                                 comments
 on:                                   [issues, pull_request]
 
 jobs:
-  autocomment:
+  comments:
     runs-on:                          ubuntu-latest
 
     steps:
-      - uses:                         bubkoo/auto-comment@v1.0.4
+      # notify closure and react to PR.
+      - name:                         Reactions
+        uses:                         bubkoo/auto-comment@v1.0.4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          issuesClosed: '_If you found this useful, please consider starring :star: this repo, [sponsoring the maintainer](https://github.com/sponsors/sbertix), tiers start from as low as $5, or even just [tip once](https://paypal.me/sbertix) :dollar:._<br />_Thank you for using **Swiftagram**._'
+          GITHUB_TOKEN:               ${{ secrets.GITHUB_TOKEN }}
+          issuesClosed:               '_If you found this useful, please consider starring :star: this repo, [sponsoring the maintainer](https://github.com/sponsors/sbertix), tiers start from as low as $5, or even just [tip once](https://paypal.me/sbertix) :dollar:._<br />_Thank you for using **Swiftagram**._'
           pullRequestOpenedReactions: 'hooray'
