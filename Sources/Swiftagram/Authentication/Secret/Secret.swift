@@ -27,14 +27,15 @@ public struct Secret: HeaderKey {
 
     /// All header fields.
     public var header: [String: String] {
-        return HTTPCookie.requestHeaderFields(with: cookies.filter { $0.name != "urlgen" })
+        return HTTPCookie
+            .requestHeaderFields(with: cookies.filter { $0.name != "urlgen" })
             .merging(
                 ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
                  "X-IG-Android-ID": client.device.instagramIdentifier,
                  "X-MID": cookies.first(where: { $0.name == "mid"})?.value,
                  "User-Agent": client.description].compactMapValues { $0 },
                 uniquingKeysWith: { _, rhs in rhs }
-        )
+            )
     }
 
     /// A `String` representing the logged in user identifier.

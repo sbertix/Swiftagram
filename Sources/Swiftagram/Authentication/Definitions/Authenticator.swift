@@ -19,6 +19,9 @@ public protocol Authenticator {
     /// A `Storage` instance used to store `Secret`s.
     var storage: Storage { get }
 
+    /// A `Client` instance used to create the `Secret`s.
+    var client: Client { get }
+
     /// Return a `Secret` and store it in `storage`.
     /// - parameter onChange: A block providing a `Result<Secret, Error>`.
     /// - warning: Always call `Secret.store` with `storage` when receiving the `Secret` .
