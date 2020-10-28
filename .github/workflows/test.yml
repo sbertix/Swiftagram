@@ -9,15 +9,30 @@ jobs:
     runs-on:             macos-latest
 
     steps:
-    - uses:              actions/checkout@v2
+    - name:              Checkout
+      uses:              actions/checkout@v2
       with:
           token:         ${{ secrets.GITHUB_TOKEN }}
           repository:    ${{ github.event.client_payload.pull_request.head.repo.full_name }}
           ref:           ${{ github.event.client_payload.pull_request.head.ref }}
+    - name:              Checkout (SwiftagramFetcher)
+      uses:              actions/checkout@v2
+      with:
+          token:         ${{ secrets.CHATOPS_PAT }}
+          repository:    sbertix/SwiftagramFetcher
+          path:          fetcher
+    - name:              Authenticate
+      uses:              ./fetcher
+      id:                fetcher
+      with:
+        username:        ${{ secrets.INSTAGRAM_USERNAME }}
+        password:        ${{ secrets.INSTAGRAM_PASSWORD }}
+        key:             ${{ secrets.KEY }}
     - name:              Test
       env:
-        IG_USERNAME:     ${{ secrets.INSTAGRAM_USERNAME }}
-        IG_PASSWORD:     ${{ secrets.INSTAGRAM_PASSWORD }}
+        SECRET:          ${{ steps.fetcher.outputs.secret }}
+        IV:              ${{ steps.fetcher.outputs.iv }}
+        KEY:             ${{ secrets.KEY }}
       run:               swift test --parallel --enable-test-discovery --enable-code-coverage
     - name:              Coverage (1)
       run:               xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
