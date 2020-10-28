@@ -9,44 +9,27 @@ jobs:
     runs-on:             macos-latest
 
     steps:
+    # checkout the current PR of `Swiftagram`.
     - name:              Checkout
       uses:              actions/checkout@v2
       with:
           token:         ${{ secrets.GITHUB_TOKEN }}
           repository:    ${{ github.event.client_payload.pull_request.head.repo.full_name }}
           ref:           ${{ github.event.client_payload.pull_request.head.ref }}
-    - name:              Checkout (SwiftagramFetcher)
-      uses:              actions/checkout@v2
-      with:
-          token:         ${{ secrets.CHATOPS_PAT }}
-          repository:    sbertix/SwiftagramFetcher
-          path:          fetcher
-    - name:              Authenticate
-      uses:              ./fetcher
-      id:                fetcher
-      with:
-        username:        ${{ secrets.INSTAGRAM_USERNAME }}
-        password:        ${{ secrets.INSTAGRAM_PASSWORD }}
-        key:             ${{ secrets.KEY }}
+    # run all tests.
     - name:              Test
       env:
-        SECRET:          ${{ steps.fetcher.outputs.secret }}
-        IV:              ${{ steps.fetcher.outputs.iv }}
+        SECRET:          ${{ secrets.SECRET }}
+        IV:              ${{ secrets.IV }}
         KEY:             ${{ secrets.KEY }}
-      run:               swift test --parallel --enable-test-discovery --enable-code-coverage
-    - name:              Coverage (1)
-      run:               xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
-    - name:              Coverage (2)
-      uses:              codecov/codecov-action@v1
-      with:
-        token:           ${{ secrets.CODECOV_TOKEN }}
-      timeout-minutes:   1
-      continue-on-error: true
+      run:               swift test --parallel --enable-test-discovery
+    # notify success with a reaction.
     - name:              Reply (Success)
       uses:              peter-evans/create-or-update-comment@v1
       with:
         comment-id:      ${{ github.event.client_payload.github.payload.comment.id }}
         reaction-type:   hooray
+    # notify failure with a comment.
     - name:              Reply (Failure)
       uses:              peter-evans/create-or-update-comment@v1
       if:                ${{ failure() }}

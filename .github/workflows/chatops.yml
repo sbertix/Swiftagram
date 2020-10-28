@@ -9,12 +9,13 @@ jobs:
     runs-on:             ubuntu-latest
 
     steps:
+      # launch workflows with specific instructions.
       - name:            ChatOps
         uses:            peter-evans/slash-command-dispatch@v2
         with:
           token:         ${{ secrets.CHATOPS_PAT }}
           dispatch_type: workflow
           commands:      |
-            build
-            lint
+            docs
+            release
             test
