@@ -1,5 +1,5 @@
 //
-//  SwiftagramEndpointTests.swift
+//  EndpointTests.swift
 //  SwiftagramTests
 //
 //  Created by Stefano Bertagno on 17/08/2020.
@@ -24,69 +24,31 @@ import ComposableRequest
 /// The default request timeout.
 let timeout: TimeInterval = 300
 
-/// A custom reference typed wrapper.
-class ReferenceType<T> {
-    var value: T?
-}
-
 //swiftlint:disable line_length
-final class SwiftagramEndpointTests: XCTestCase {
-    /// The requester.
-    lazy var requester: Requester = {
-        // Create a custom configuration.
-        let sessionConfiguration = URLSessionConfiguration.default
-        sessionConfiguration.httpMaximumConnectionsPerHost = 1
-        sessionConfiguration.timeoutIntervalForRequest = 300
-        sessionConfiguration.timeoutIntervalForResource = 600
-        // Update requester.
-        return .init(configuration: .init(sessionConfiguration: sessionConfiguration,
-                                          dispatcher: .init(),
-                                          waiting: 2...3))
-    }()
-
-    /// A valid `NSLock`.
-    static let lock = NSLock()
-    /// A valid `Secret`.
-    static var secret: Secret!
-    /// A temp `Secret`
-    var secret: Secret! { Self.secret }
-
-    // MARK: Lifecycle
-    /// Set up each and every test.
-    override func setUp() {
-        // Check for a valid secret.
-        defer { Self.lock.unlock() }
-        Self.lock.lock()
-        guard secret == nil else { return }
-        // Fetch a new one.
-        let reference = ReferenceType<Secret>()
-        let exp = expectation(description: "secret fetcher")
-        BasicAuthenticator(username: ProcessInfo.processInfo.environment["IG_USERNAME"]!,
-                           password: ProcessInfo.processInfo.environment["IG_PASSWORD"]!)
-            .authenticate {
-                switch $0 {
-                case .success(let secret): reference.value = secret
-                default: break
-                }
-                exp.fulfill()
-            }
-        // Wait for expectation.
-        waitForExpectations(timeout: timeout, handler: nil)
-        // Return secret.
-        guard let secret = reference.value else { fatalError("Invalid secret.") }
-        Self.secret = secret
-    }
-
-    // MARK: Testers
+/// A `class` dealing with testing all available `Endpoint`s.
+final class EndpointTests: XCTestCase {
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapper`.
     @discardableResult
     func performTest(on endpoint: Endpoint.Disposable<Wrapper>,
                      logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
+        // Fetch the secret.
+        let secretCompletion = XCTestExpectation()
+        let secretReference = ReferenceType<Secret>()
+        SecretFetcher.default.secret {
+            switch $0 {
+            case .success(let secret): secretReference.value = secret
+            case .failure(let error): XCTFail(error.localizedDescription)
+            }
+            secretCompletion.fulfill()
+        }
+        wait(for: [secretCompletion], timeout: 30)
+        guard let secret = secretReference.value else { return nil }
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task(requester: requester) {
+        endpoint.unlocking(with: secret).task(requester: .instagram) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -107,9 +69,22 @@ final class SwiftagramEndpointTests: XCTestCase {
                                  logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
+        // Fetch the secret.
+        let secretCompletion = XCTestExpectation()
+        let secretReference = ReferenceType<Secret>()
+        SecretFetcher.default.secret {
+            switch $0 {
+            case .success(let secret): secretReference.value = secret
+            case .failure(let error): XCTFail(error.localizedDescription)
+            }
+            secretCompletion.fulfill()
+        }
+        wait(for: [secretCompletion], timeout: 30)
+        guard let secret = secretReference.value else { return nil }
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task(requester: requester) {
+        endpoint.unlocking(with: secret).task(requester: .instagram) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -130,9 +105,22 @@ final class SwiftagramEndpointTests: XCTestCase {
                                       logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
+        // Fetch the secret.
+        let secretCompletion = XCTestExpectation()
+        let secretReference = ReferenceType<Secret>()
+        SecretFetcher.default.secret {
+            switch $0 {
+            case .success(let secret): secretReference.value = secret
+            case .failure(let error): XCTFail(error.localizedDescription)
+            }
+            secretCompletion.fulfill()
+        }
+        wait(for: [secretCompletion], timeout: 30)
+        guard let secret = secretReference.value else { return nil }
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task(requester: requester) {
+        endpoint.unlocking(with: secret).task(requester: .instagram) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -153,12 +141,25 @@ final class SwiftagramEndpointTests: XCTestCase {
                      logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
+        // Fetch the secret.
+        let secretCompletion = XCTestExpectation()
+        let secretReference = ReferenceType<Secret>()
+        SecretFetcher.default.secret {
+            switch $0 {
+            case .success(let secret): secretReference.value = secret
+            case .failure(let error): XCTFail(error.localizedDescription)
+            }
+            secretCompletion.fulfill()
+        }
+        wait(for: [secretCompletion], timeout: 30)
+        guard let secret = secretReference.value else { return nil }
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
-                  by: requester,
+                  by: .instagram,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -183,12 +184,25 @@ final class SwiftagramEndpointTests: XCTestCase {
                                  logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
+        // Fetch the secret.
+        let secretCompletion = XCTestExpectation()
+        let secretReference = ReferenceType<Secret>()
+        SecretFetcher.default.secret {
+            switch $0 {
+            case .success(let secret): secretReference.value = secret
+            case .failure(let error): XCTFail(error.localizedDescription)
+            }
+            secretCompletion.fulfill()
+        }
+        wait(for: [secretCompletion], timeout: 30)
+        guard let secret = secretReference.value else { return nil }
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
-                  by: requester,
+                  by: .instagram,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -213,12 +227,25 @@ final class SwiftagramEndpointTests: XCTestCase {
                                       logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
+        // Fetch the secret.
+        let secretCompletion = XCTestExpectation()
+        let secretReference = ReferenceType<Secret>()
+        SecretFetcher.default.secret {
+            switch $0 {
+            case .success(let secret): secretReference.value = secret
+            case .failure(let error): XCTFail(error.localizedDescription)
+            }
+            secretCompletion.fulfill()
+        }
+        wait(for: [secretCompletion], timeout: 30)
+        guard let secret = secretReference.value else { return nil }
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
-                  by: requester,
+                  by: .instagram,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -256,8 +283,8 @@ final class SwiftagramEndpointTests: XCTestCase {
 
     /// Test `Endpoint.Friendship`.
     func testEndpointFriendship() {
-        performTest(on: Endpoint.Friendship.followed(by: secret.id))
-        performTest(on: Endpoint.Friendship.following(secret.id))
+        performTest(on: Endpoint.Friendship.followed(by: "183250726"))
+        performTest(on: Endpoint.Friendship.following("183250726"))
         performTest(on: Endpoint.Friendship.summary(for: "25025320"))
         performTest(on: Endpoint.Friendship.summary(for: ["25025320"]))
         performTest(on: Endpoint.Friendship.pendingRequests())
@@ -275,7 +302,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointPosts() {
         performTest(on: Endpoint.Media.Posts.liked())
         performTest(on: Endpoint.Media.Posts.saved())
-        performTest(on: Endpoint.Media.Posts.owned(by: secret.id))
+        performTest(on: Endpoint.Media.Posts.owned(by: "183250726"))
         performTest(on: Endpoint.Media.Posts.including("25025320"))
         performTest(on: Endpoint.Media.Posts.tagged(with: "instagram"))
         performTest(on: Endpoint.Media.Posts.likers(for: "2366175454991362926_7271269732"))
@@ -307,7 +334,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointStories() {
         performTest(on: Endpoint.Media.Stories.followed)
         performTest(on: Endpoint.Media.Stories.archived())
-        performTest(on: Endpoint.Media.Stories.highlights(for: secret.id))
+        performTest(on: Endpoint.Media.Stories.highlights(for: "183250726"))
         performTest(on: Endpoint.Media.Stories.owned(by: "25025320"))
         performTest(on: Endpoint.Media.Stories.owned(by: ["183250726"]))
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
@@ -345,7 +372,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Test `Endpoint.User`.
     func testEndpointUser() {
         performTest(on: Endpoint.User.blocked)
-        performTest(on: Endpoint.User.summary(for: secret.id))
+        performTest(on: Endpoint.User.summary(for: "183250726"))
         performTest(on: Endpoint.User.all(matching: "instagram"))
     }
 

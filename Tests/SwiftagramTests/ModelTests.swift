@@ -1,5 +1,5 @@
 //
-//  SwiftagramModelsTests.swift
+//  ModelTests.swift
 //  SwiftagramTests
 //
 //  Created by Stefano Bertagno on 17/08/2020.
@@ -11,7 +11,7 @@ import XCTest
 import ComposableRequest
 @testable import Swiftagram
 
-final class SwiftagramModelsTest: XCTestCase {
+final class ModelTests: XCTestCase {
     // MARK: Testers
     /// Assess equality.
     /// - parameters:
