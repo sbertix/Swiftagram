@@ -1,0 +1,55 @@
+name:                    docs
+
+on:
+  repository_dispatch:
+    types:               [docs-command]
+
+jobs:
+  # create docs.
+  docs:
+    name:                docs
+    runs-on:             ubuntu-latest
+
+    steps:
+      # checkout the `main` branch.
+      - name:            Checkout
+        uses:            actions/checkout@v2
+        with:
+          token:         ${{ secrets.GITHUB_TOKEN }}
+          repository:    ${{ github.event.client_payload.pull_request.head.repo.full_name }}
+          ref:           ${{ github.event.client_payload.pull_request.head.ref }}
+      # create documentation.
+      - name:              Docs (Swiftagram)
+        uses:              SwiftDocOrg/swift-doc@master
+        with:
+          inputs:          "Sources"
+          format:          "html"
+          module-name:     Swiftagram
+          output:          docs
+      # update permissions.
+      - name:            Update Permissions
+        run:             'sudo chown --recursive $USER docs'
+      # publish to GitHub pages.
+      - name:            Publish
+        uses:            JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN:  ${{ secrets.CHATOPS_PAT }}
+          BRANCH:        gh-pages
+          FOLDER:        docs
+      # notify success with a reaction.
+      - name:            Notify (Success)
+        uses:            peter-evans/create-or-update-comment@v1
+        with:
+          comment-id:    ${{ github.event.client_payload.github.payload.comment.id }}
+          reaction-type: hooray
+      # notify failure.
+      - name:            Notify (Failure)
+        uses:            peter-evans/create-or-update-comment@v1
+        if:              ${{ failure() }}
+        with:
+          issue-number:  ${{ github.event.client_payload.github.payload.issue.number }}
+          body:          |
+            Hey @${{ github.event.client_payload.github.actor }} :muscle:
+
+            Unfortunately, the docs couldn't be published.\
+            A maintener will get to you soon.
