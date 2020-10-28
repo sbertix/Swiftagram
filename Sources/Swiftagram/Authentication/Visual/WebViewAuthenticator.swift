@@ -45,9 +45,10 @@ import ComposableRequest
 @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
 public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Authenticator where Storage.Key == Secret {
     /// A `Storage` instance used to store `Secret`s.
-    public internal(set) var storage: Storage
-    /// A `UserAgent`.
-    public var userAgent: UserAgent = .default
+    public let storage: Storage
+    /// A `Client` instance used to create the `Secret`s.
+    public let client: Client
+
     /// A block outputing a configured `WKWebView`.
     /// A `String` holding a custom user agent to be passed to every request.
     internal var webView: (WKWebView) -> Void
@@ -56,27 +57,14 @@ public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Aut
     /// Init.
     /// - parameters:
     ///     - storage: A concrete `Storage` value.
+    ///     - client: A valid `Client`. Defaults to `.default`.
     ///     - webView: A block outputing a configured `WKWebView`.
-    public init(storage: Storage, webView: @escaping (WKWebView) -> Void) {
+    public init(storage: Storage,
+                client: Client = .default,
+                webView: @escaping (WKWebView) -> Void) {
         self.storage = storage
+        self.client = client
         self.webView = webView
-    }
-
-    /// Set a custom User Agent.
-    /// - parameter userAgent: A valid `UserAgent`.
-    /// - returns: `self`.
-    /// - warning: Custom User Agents are not guaranteed to work.
-    public func userAgent(_ userAgent: UserAgent) -> WebViewAuthenticator<Storage> {
-        self.userAgent = userAgent
-        return self
-    }
-
-    /// Set a custom User Agent.
-    /// - parameter userAgent: A `String` representing a valid User Agent.
-    /// - returns: `self`.
-    /// - warning: Custom User Agents are not guaranteed to work.
-    public func userAgent(_ userAgent: String) -> WebViewAuthenticator<Storage> {
-        return self.userAgent(.custom(userAgent))
     }
 
     // MARK: Authenticator
@@ -90,11 +78,12 @@ public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Aut
                                                     // Update the process pool.
                                                     let configuration = WKWebViewConfiguration()
                                                     configuration.processPool = WKProcessPool()
-                                                    let webView = WebView<Storage>(frame: .zero, configuration: configuration)
+                                                    let webView = WebView<Storage>(frame: .zero,
+                                                                                   configuration: configuration,
+                                                                                   storage: self.storage,
+                                                                                   client: self.client,
+                                                                                   onChange: onChange)
                                                     webView.navigationDelegate = webView
-                                                    webView.customUserAgent = self.userAgent.string
-                                                    webView.storage = self.storage
-                                                    webView.onChange = onChange
                                                     // Return the web view.
                                                     DispatchQueue.main.async {
                                                         self.webView(webView)
@@ -112,9 +101,11 @@ public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Aut
 public extension WebViewAuthenticator where Storage == ComposableRequest.TransientStorage<Secret> {
     // MARK: Lifecycle
     /// Init.
-    /// - parameter webView: A block outputing a configured `WKWebView`.
-    convenience init(webView: @escaping (WKWebView) -> Void) {
-        self.init(storage: .init(), webView: webView)
+    /// - parameters:
+    ///     - client: A valid `Client`. Defaults to `.default`.
+    ///     - webView: A block outputing a configured `WKWebView`.
+    convenience init(client: Client = .default, webView: @escaping (WKWebView) -> Void) {
+        self.init(storage: .init(), client: client, webView: webView)
     }
 }
 #endif
