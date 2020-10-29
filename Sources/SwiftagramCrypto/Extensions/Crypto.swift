@@ -11,7 +11,7 @@ import ComposableRequest
 import SwCrypt
 import Swiftagram
 
-/// An `enum` representing  signing-related `Error`s.
+/// An `enum` listing all possible `Error`s in the signing process.
 public enum SigningError: Error {
     /// Cryptography unavailable.
     case cryptographyUnavailable
@@ -19,7 +19,6 @@ public enum SigningError: Error {
     case invalidRepresentation
 }
 
-/// An `internal` extension to computer the breadcrumb.
 extension Int {
     /// Breadcrumb.
     var breadcrumb: String {
@@ -36,7 +35,6 @@ extension Int {
     }
 }
 
-/// An `internal` extension for `Request` to deal with signed bodies.
 extension BodyComposable where Self: BodyParsable {
     /// Sign `body` and update the request accordingly.
     ///
@@ -70,7 +68,5 @@ extension BodyComposable where Self: BodyParsable {
     ///
     /// - parameter body: A valid `Wrappable`.
     /// - returns: An updated copy of `self`.
-    func signing<W: Wrappable>(body: W) -> Self {
-        return signing(body: body.wrapped)
-    }
+    func signing<W: Wrappable>(body: W) -> Self { signing(body: body.wrapped) }
 }

@@ -11,7 +11,7 @@ import UIKit
 import AppKit
 #endif
 
-/// A `struct` holding reference to "framework agnostic" types.
+/// A `struct` defining some platform agnostic commonly-used definitions.
 public struct Agnostic {
     #if canImport(UIKit)
     /// `UIImage`.

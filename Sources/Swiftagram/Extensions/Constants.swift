@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A `struct` holding reference to API constants.
+/// A `struct` defining some API constants.
 public struct Constants {
     /// The login experiments.
     public static let loginExperiments = ["ig_android_fci_onboarding_friend_search",
@@ -101,7 +101,7 @@ public struct Constants {
         .joined()
 }
 
-/// A `struct` holding reference to the API supported capabilities.
+/// A `struct` defining API supported capabilities.
 public struct SupportedCapabilities {
     /// A shared `Dictionary` of `String`s.
     public static let `default` = [
