@@ -1,42 +1,46 @@
 # Swiftagram
 [![Swift](https://img.shields.io/badge/Swift-5.1-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 [![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
+[![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
+<br />
 ![iOS](https://img.shields.io/badge/iOS-9.0-ff69b4)
 ![macOS](https://img.shields.io/badge/macOS-10.12-ff69b4)
 ![tvOS](https://img.shields.io/badge/tvOS-11.0-ff69b4)
 ![watchOS](https://img.shields.io/badge/watchOS-3.0-ff69b4)
-[![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
 
-**Swiftagram** is a wrapper for [**Instagram**](https://instagram.com) Private API, written entirely in modern **Swift**. 
+<br />
 
-**Instagram**'s official APIs, both the [*Instagram Basic Display API*](https://developers.facebook.com/docs/instagram-basic-display-api) and the [*Instagram Graph API*] — available for *Creator* and *Business* accounts alone, either lack support for the most mundane of features or limit their availability to a not large enough subset of profiles. 
+**Swiftagram** is a wrapper for [**Instagram**](https://instagram.com) Private API, written entirely in modern **Swift**.
 
-In order to bypass these limitations, **Swiftagram** relies on the API used internally by the Android and iOS official **Instagram** apps, requiring no _API token_, and allowing to reproduce virtually any action a user can take. 
-Please just bear in mind, as they're not authorized for external use, you're using them at your own risk. 
+**Instagram**'s official APIs, both the [*Instagram Basic Display API*](https://developers.facebook.com/docs/instagram-basic-display-api) and the [*Instagram Graph API*] — available for *Creator* and *Business* accounts alone, either lack support for the most mundane of features or limit their availability to a not large enough subset of profiles.
+
+In order to bypass these limitations, **Swiftagram** relies on the API used internally by the Android and iOS official **Instagram** apps, requiring no _API token_, and allowing to reproduce virtually any action a user can take.
+Please just bear in mind, as they're not authorized for external use, you're using them at your own risk.
+
 <br />
 
 > What's **SwiftagramCrypto**?
 
-Relying on encryption usually requires specific disclosure, e.g. on submission to the **App Store**. 
+Relying on encryption usually requires specific disclosure, e.g. on submission to the **App Store**.
 
-Despite **Swiftagram** cannot be considered **App Store** safe, we still value separating everything depending on encryption into its owen target library, we call **SwiftagramCrypto**. 
-Keep in mind features like `BasicAuthenticator`, a non-visual `Authenticator`, or `KeychainStorage`, the safe and preferred way to store `Secret`s, or even the ability to post on your feed and upload stories are **SwiftagramCrypto** only. 
+Despite **Swiftagram** cannot be considered **App Store** safe, we still value separating everything depending on encryption into its owen target library, we call **SwiftagramCrypto**.
+Keep in mind features like `BasicAuthenticator`, a non-visual `Authenticator`, or `KeychainStorage`, the safe and preferred way to store `Secret`s, or even the ability to post on your feed and upload stories are **SwiftagramCrypto** only.
 
-Please check out the _docs_ to find out more. 
+Please check out the _docs_ to find out more.
 
 ## Status
 ![push](https://github.com/sbertix/Swiftagram/workflows/push/badge.svg)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/sbertix/Swiftagram)
 
-You can find all changelogs directly under every [release](https://github.com/sbertix/Swiftagram/releases), and if you care to be notified about future ones, don't forget to subscribe to our [Telegram channel](https://t.me/Swiftagram). 
+You can find all changelogs directly under every [release](https://github.com/sbertix/Swiftagram/releases), and if you care to be notified about future ones, don't forget to subscribe to our [Telegram channel](https://t.me/Swiftagram).
 
 [![Stargazers over time](https://starchart.cc/sbertix/Swiftagram.svg)](https://starchart.cc/sbertix/Swiftagram)
 
 > What's next?
 
-[Milestones](https://github.com/sbertix/Swiftagram/milestones), [issues](https://github.com/sbertix/Swiftagram/issues), as well as the [_WIP dashboard_](https://github.com/sbertix/Swiftagram/projects/1), are the best way to keep updated with active developement. 
+[Milestones](https://github.com/sbertix/Swiftagram/milestones), [issues](https://github.com/sbertix/Swiftagram/issues), as well as the [_WIP dashboard_](https://github.com/sbertix/Swiftagram/projects/1), are the best way to keep updated with active developement.
 
-Feel free to contribute by sending a [pull request](https://github.com/sbertix/Swiftagram/pulls). 
+Feel free to contribute by sending a [pull request](https://github.com/sbertix/Swiftagram/pulls).
 Just remember to refer to our [guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) beforehand.
 
 ## Installation
@@ -71,7 +75,7 @@ The library comes with two concrete implementations.
 
 #### WebViewAuthenticator
 
-`WebViewAuthenticator` is a visual based `Authenticator`, relying on a `WKWebView` in order to log in the user. 
+`WebViewAuthenticator` is a visual based `Authenticator`, relying on a `WKWebView` in order to log in the user.
 As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 10.13 (and above).
 
 <details><summary><strong>Example</strong></summary>
@@ -126,7 +130,7 @@ final class LoginViewController: UIViewController {
 
 #### BasicAuthenticator
 
-`BasicAuthenticator` is a code based `Authenticator`, supporting 2FA, defined in **SwiftagramCrypto**: all you need is a _username_ and _password_ and you're ready to go. 
+`BasicAuthenticator` is a code based `Authenticator`, supporting 2FA, defined in **SwiftagramCrypto**: all you need is a _username_ and _password_ and you're ready to go.
 
 <details><summary><strong>Example</strong></summary>
     <p>
@@ -150,7 +154,7 @@ BasicAuthenticator(storage: storage,    // Optional. No storage will be used if 
                    password: /* password */)
     .authenticate {
         switch $0 {
-        case .failure(let error): 
+        case .failure(let error):
             // Please check out the docs to find out how to deal with 2FA.
             print(error.localizedDescription)
         default: print("Login successful.")
@@ -165,7 +169,7 @@ Caching of `Secret`s is provided through conformance to the `Storage` protocol i
 
 The library comes with several concrete implementations.  
 - `TransientStorage` should be used when no caching is necessary, and it's what `Authenticator`s default to when no `Storage` is provided.  
-- `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
+- `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encrypted.  
 - `KeychainStorage`, part of **ComposableRequestCrypto**, (**preferred**) stores them safely in the user's keychain.  
 
 ### Request
