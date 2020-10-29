@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftagram - Swiftagram</title>
+    <link rel="stylesheet" type="text/css" href="./all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="./">
+            <strong>
+                Swiftagram
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#classes">Classes</a></li><li><a href="#structures">Structures</a></li><li><a href="#enumerations">Enumerations</a></li><li><a href="#protocols">Protocols</a></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+                <section id="classes">
+        <h2>Classes</h2>
+        <dl>
+            <dt class="class">
+    <a href="./WebViewAuthenticator" title="class - WebViewAuthenticator">
+        Web​View​Authenticator
+    </a>
+</dt>
+<dd>
+    <p>A <code>class</code> holding reference to a visual <code>Authenticator</code> relying on a custom web view to log in.</p>
+
+</dd>
+<dt class="class">
+    <a href="./BasicAuthenticator" title="class - BasicAuthenticator">
+        Basic​Authenticator
+    </a>
+</dt>
+<dd>
+    <p>A <code>class</code> holding reference to a entirely code based <code>Authenticator</code>, with 2FA support.</p>
+
+</dd>
+<dt class="class">
+    <a href="./TwoFactor" title="class - TwoFactor">
+        Two​Factor
+    </a>
+</dt>
+<dd>
+    <p>A <code>class</code> defining 2FA challenge resolution for <code>BasicAuthenticator</code>.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="structures">
+        <h2>Structures</h2>
+        <dl>
+            <dt class="structure">
+    <a href="./Secret" title="structure - Secret">
+        Secret
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the logged in user authentication parameters.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Client_Application" title="structure - Client.Application">
+        Client.​Application
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining all possible information about a (mock) Instagram mobile app.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Client" title="structure - Client">
+        Client
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining all possible information used to identify the software and hardware combination of a logged in user.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Client_Device" title="structure - Client.Device">
+        Client.​Device
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining all possible information about a (mock) device.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Client_Device_Resolution" title="structure - Client.Device.Resolution">
+        Client.​Device.​Resolution
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining some characteristics of a device's screen.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Client_Device_Hardware" title="structure - Client.Device.Hardware">
+        Client.​Device.​Hardware
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining some device-specific characteristics.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Client_Device_Software" title="structure - Client.Device.Software">
+        Client.​Device.​Software
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining some software-specific characteristics.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Agnostic" title="structure - Agnostic">
+        Agnostic
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining some platform agnostic commonly-used definitions.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Constants" title="structure - Constants">
+        Constants
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining some API constants.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./SupportedCapabilities" title="structure - SupportedCapabilities">
+        Supported​Capabilities
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining API supported capabilities.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Pagination" title="structure - Pagination">
+        Pagination
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> holding reference to pagination parameters.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Comment" title="structure - Comment">
+        Comment
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Comment</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Comment_Collection" title="structure - Comment.Collection">
+        Comment.​Collection
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Comment</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Conversation" title="structure - Conversation">
+        Conversation
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Conversation</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Conversation_Unit" title="structure - Conversation.Unit">
+        Conversation.​Unit
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Conversation</code> single response.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Conversation_Collection" title="structure - Conversation.Collection">
+        Conversation.​Collection
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Conversation</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Friendship" title="structure - Friendship">
+        Friendship
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Friendship</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Friendship_Dictionary" title="structure - Friendship.Dictionary">
+        Friendship.​Dictionary
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Friendship</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Location" title="structure - Location">
+        Location
+    </a>
+</dt>
+<dd>
+    <p>A <code>class</code> representing a <code>Location</code></p>
+
+</dd>
+<dt class="structure">
+    <a href="./Location_Coordinates" title="structure - Location.Coordinates">
+        Location.​Coordinates
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> holding reference to longitude and latitude.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Location_Unit" title="structure - Location.Unit">
+        Location.​Unit
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a single <code>Location</code> response.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Location_Collection" title="structure - Location.Collection">
+        Location.​Collection
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Location</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Media" title="structure - Media">
+        Media
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Media</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Media_Version" title="structure - Media.Version">
+        Media.​Version
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing some content <code>Version</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Media_Picture" title="structure - Media.Picture">
+        Media.​Picture
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Picture</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Media_Video" title="structure - Media.Video">
+        Media.​Video
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Video</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Media_Unit" title="structure - Media.Unit">
+        Media.​Unit
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Media</code> single response.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Media_Collection" title="structure - Media.Collection">
+        Media.​Collection
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Media</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Recipient_Collection" title="structure - Recipient.Collection">
+        Recipient.​Collection
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Recipient</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Status" title="structure - Status">
+        Status
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>Status</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./Sticker" title="structure - Sticker">
+        Sticker
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> holding reference to a story sticker.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./TrayItem" title="structure - TrayItem">
+        Tray​Item
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>TrayItem</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./TrayItem_Unit" title="structure - TrayItem.Unit">
+        Tray​Item.​Unit
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>TrayItem</code> single response.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./TrayItem_Collection" title="structure - TrayItem.Collection">
+        Tray​Item.​Collection
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>TrayItem</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./TrayItem_Dictionary" title="structure - TrayItem.Dictionary">
+        Tray​Item.​Dictionary
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>TrayItem</code> dictionary.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./User" title="structure - User">
+        User
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>User</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./User_Counter" title="structure - User.Counter">
+        User.​Counter
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a profile's <code>Counter</code>s.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./User_Unit" title="structure - User.Unit">
+        User.​Unit
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>User</code> single response.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./User_Collection" title="structure - User.Collection">
+        User.​Collection
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>User</code> collection.</p>
+
+</dd>
+<dt class="structure">
+    <a href="./UserTag" title="structure - UserTag">
+        User​Tag
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> representing a <code>UserTag</code>.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="enumerations">
+        <h2>Enumerations</h2>
+        <dl>
+            <dt class="enumeration">
+    <a href="./WebViewAuthenticatorError" title="enumeration - WebViewAuthenticatorError">
+        Web​View​Authenticator​Error
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> listing all possible <code>Error</code>s in a visual based authentication process.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint" title="enumeration - Endpoint">
+        Endpoint
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> defining all possible <code>Endpoint</code>s.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_Direct" title="enumeration - Endpoint.Direct">
+        Endpoint.​Direct
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>direct_v2</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_Discover" title="enumeration - Endpoint.Discover">
+        Endpoint.​Discover
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>discover</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_Friendship" title="enumeration - Endpoint.Friendship">
+        Endpoint.​Friendship
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>friendships</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_Location" title="enumeration - Endpoint.Location">
+        Endpoint.​Location
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>location</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_Media" title="enumeration - Endpoint.Media">
+        Endpoint.​Media
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>media</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_Media_Posts" title="enumeration - Endpoint.Media.Posts">
+        Endpoint.​Media.​Posts
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>media</code> <code>Endpoint</code>s reguarding posts. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_Media_Stories" title="enumeration - Endpoint.Media.Stories">
+        Endpoint.​Media.​Stories
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>media</code> <code>Endpoint</code>s reguarding stories. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_News" title="enumeration - Endpoint.News">
+        Endpoint.​News
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>news</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Endpoint_User" title="enumeration - Endpoint.User">
+        Endpoint.​User
+    </a>
+</dt>
+<dd>
+    <p>A module-like <code>enum</code> holding reference to <code>users</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./UserAgent" title="enumeration - UserAgent">
+        User​Agent
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> holding reference to custom User Agents.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./ResponseError" title="enumeration - ResponseError">
+        Response​Error
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> holding reference to possible <code>Error</code>s in the response.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Media_Content" title="enumeration - Media.Content">
+        Media.​Content
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> holding reference to the actual <code>Media</code> content.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./Recipient" title="enumeration - Recipient">
+        Recipient
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> holding reference to either a <code>User</code> or a <code>Conversation</code> instance.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./User_Access" title="enumeration - User.Access">
+        User.​Access
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> representing an access status.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./BasicAuthenticatorError" title="enumeration - BasicAuthenticatorError">
+        Basic​Authenticator​Error
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> listing all possible <code>Error</code>s in a code based authentication process.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="./SigningError" title="enumeration - SigningError">
+        Signing​Error
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> listing all possible <code>Error</code>s in the signing process.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="protocols">
+        <h2>Protocols</h2>
+        <dl>
+            <dt class="protocol">
+    <a href="./Authenticator" title="protocol - Authenticator">
+        Authenticator
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a way to fetch and store <code>Secret</code>s.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="./PaginatedType" title="protocol - PaginatedType">
+        Paginated​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing a response holding a paginated value.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="./ReflectedType" title="protocol - ReflectedType">
+        Reflected​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> returning all underlying properties.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="./ResponseType" title="protocol - ResponseType">
+        Response​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing a generic response returning an element of <code>Response</code>.</p>
+
+</dd>
+        </dl>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2020-10-29T18:26:15+0000">October 29, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
+</p>
+    </footer>
+</body>
+</html>

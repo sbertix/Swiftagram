@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftagram - UserAgent</title>
+    <link rel="stylesheet" type="text/css" href="./all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="./">
+            <strong>
+                Swiftagram
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#enumeration cases">Enumeration Cases</a><ul><li class="case"><a href="#useragent.`default`">`default`</a></li><li class="case"><a href="#useragent.ios">iOS</a></li><li class="case"><a href="#useragent.custom">custom</a></li><li class="case"><a href="#useragent.current">current</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Enumeration</small>
+    <code class="name">User​Agent</code>
+</h1>
+
+<html><body><pre class="highlight"><code><span class="attribute">@</span><span class="attribute">available</span>(*, <span class="variable">unavailable</span>, <span class="variable">message</span>: <span class="string literal">"use custom `Client`s instead"</span>) <span class="keyword">public</span> <span class="keyword">enum</span> <span class="type">UserAgent</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An <code>enum</code> holding reference to custom User Agents.</p>
+
+</div>
+
+    <section id="enumeration cases">
+        <h2>Enumeration Cases</h2>
+
+        <div role="article" class="case" id="useragent.`default`">
+    <h3>
+        <code>`default`</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">case</span> <span class="variable">`default`</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Defaults to <code>Device.default.browserUserAgent</code>.</p>
+
+</div>
+</div>
+<div role="article" class="case" id="useragent.ios">
+    <h3>
+        <code>iOS</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">case</span> <span class="variable">iOS</span>(<span class="variable">version</span>: <span class="type">String</span>)</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Tied to a specific iOS version, e.g. <code>13_4_1</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="warning">
+    <p>You won't be able to use encrypted endpoints (e.g. <code>Endpoint.Friendship.follow</code>).</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="case" id="useragent.custom">
+    <h3>
+        <code>custom</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">case</span> <span class="variable">custom</span>(: <span class="type">String</span>)</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An entirely custom user agent.</p>
+
+</div>
+<div class="discussion">
+    <aside class="warning">
+    <p>You won't be abled to use encrypted endpoints (e.g. <code>Endpoint.Friendship.follow</code>), unless the user agent is of an Android device.</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="case" id="useragent.current">
+    <h3>
+        <code>current</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">case</span> <span class="variable">current</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Tied to the current iOS version.</p>
+
+</div>
+<div class="discussion">
+    <aside class="warning">
+    <p>You won't be able to use encrypted endpoints (e.g. <code>Endpoint.Friendship.follow</code>).</p>
+
+</aside>
+</div>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2020-10-29T18:26:16+0000">October 29, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
+</p>
+    </footer>
+</body>
+</html>

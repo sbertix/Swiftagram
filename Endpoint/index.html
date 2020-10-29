@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftagram - Endpoint</title>
+    <link rel="stylesheet" type="text/css" href="./all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="./">
+            <strong>
+                Swiftagram
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Nested Types</a></li></ul></li><li><a href="#nested type aliases">Nested Type Aliases</a><ul><li class="typealias"><a href="#endpoint.paginated">Paginated</a></li><li class="typealias"><a href="#endpoint.disposable">Disposable</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.api">api</a></li><li class="variable"><a href="#endpoint.version1">version1</a></li><li class="variable"><a href="#endpoint.generic">generic</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Enumeration</small>
+    <code class="name">Endpoint</code>
+</h1>
+
+<html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">enum</span> <span class="type">Endpoint</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>A module-like <code>enum</code> defining all possible <code>Endpoint</code>s.</p>
+
+</div>
+<section id="relationships">
+    <h2 hidden>Relationships</h2>
+        
+        <h3>Nested Types</h3>
+<dl>
+    <dt class="enumeration"><code><a href="./Endpoint_Direct">Endpoint.Direct</a></code></dt>
+<dd><p>A module-like <code>enum</code> holding reference to <code>direct_v2</code> <code>Endpoint</code>s. Requires authentication.</p>
+</dd>
+<dt class="enumeration"><code><a href="./Endpoint_Discover">Endpoint.Discover</a></code></dt>
+<dd><p>A module-like <code>enum</code> holding reference to <code>discover</code> <code>Endpoint</code>s. Requires authentication.</p>
+</dd>
+<dt class="enumeration"><code><a href="./Endpoint_Friendship">Endpoint.Friendship</a></code></dt>
+<dd><p>A module-like <code>enum</code> holding reference to <code>friendships</code> <code>Endpoint</code>s. Requires authentication.</p>
+</dd>
+<dt class="enumeration"><code><a href="./Endpoint_Location">Endpoint.Location</a></code></dt>
+<dd><p>A module-like <code>enum</code> holding reference to <code>location</code> <code>Endpoint</code>s. Requires authentication.</p>
+</dd>
+<dt class="enumeration"><code><a href="./Endpoint_Media">Endpoint.Media</a></code></dt>
+<dd><p>A module-like <code>enum</code> holding reference to <code>media</code> <code>Endpoint</code>s. Requires authentication.</p>
+</dd>
+<dt class="enumeration"><code><a href="./Endpoint_News">Endpoint.News</a></code></dt>
+<dd><p>A module-like <code>enum</code> holding reference to <code>news</code> <code>Endpoint</code>s. Requires authentication.</p>
+</dd>
+<dt class="enumeration"><code><a href="./Endpoint_User">Endpoint.User</a></code></dt>
+<dd><p>A module-like <code>enum</code> holding reference to <code>users</code> <code>Endpoint</code>s. Requires authentication.</p>
+</dd>
+</dl>
+</section>
+    <section id="nested type aliases">
+        <h2>Nested Type Aliases</h2>
+
+        <div role="article" class="typealias" id="endpoint.paginated">
+    <h3>
+        <code>Paginated</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Paginated</span>&lt;<span class="variable">Response</span>&gt; = <span class="type">Locker</span>&lt;<span class="type">Fetcher</span>&lt;<span class="type">Request</span>, <span class="type">Response</span>&gt;.<span class="type">Paginated</span>, <a href="./Secret"><span class="type">Secret</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An <code>Endpoint</code> allowing for a paginated request with a custom <code>Response</code> value.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p>Always reference this alias, to abstract away <code>ComposableRequest</code> implementation.</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="typealias" id="endpoint.disposable">
+    <h3>
+        <code>Disposable</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Disposable</span>&lt;<span class="variable">Response</span>&gt; = <span class="type">Locker</span>&lt;<span class="type">Fetcher</span>&lt;<span class="type">Request</span>, <span class="type">Response</span>&gt;.<span class="type">Disposable</span>, <a href="./Secret"><span class="type">Secret</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An <code>Endpoint</code> allowing for a single request with a custom <code>Response</code> value.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p>Always reference this alias, to abstract away <code>ComposableRequest</code> implementation.</p>
+
+</aside>
+</div>
+</div>
+    </section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="endpoint.api">
+    <h3>
+        <code>api</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">api</span>: <span class="type">Request</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An <code>Endpoint</code> pointing to <code>i.instagram.com</code>.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.version1">
+    <h3>
+        <code>version1</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">version1</span>: <span class="type">Request</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An <code>Endpoint</code> pointing to <code>api/v1</code>.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.generic">
+    <h3>
+        <code>generic</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">generic</span>: <span class="type">Request</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An <code>Endpoint</code> pointing to the Instagram homepage.</p>
+
+</div>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2020-10-29T18:26:15+0000">October 29, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
+</p>
+    </footer>
+</body>
+</html>

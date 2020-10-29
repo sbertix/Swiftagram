@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftagram - Endpoint.Friendship</title>
+    <link rel="stylesheet" type="text/css" href="./all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="./">
+            <strong>
+                Swiftagram
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Member Of</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.friendship.base">base</a></li><li class="variable"><a href="#endpoint.friendship.base">base</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.friendship.followed(by:startingat:)">followed(by:​starting​At:​)</a></li><li class="function"><a href="#endpoint.friendship.following(_:startingat:)">following(_:​starting​At:​)</a></li><li class="function"><a href="#endpoint.friendship.summary(for:)">summary(for:​)</a></li><li class="function"><a href="#endpoint.friendship.summary(for:)">summary(for:​)</a></li><li class="function"><a href="#endpoint.friendship.pendingrequests(startingat:)">pending​Requests(starting​At:​)</a></li><li class="function"><a href="#endpoint.friendship.edit(_:_:)">edit(_:​_:​)</a></li><li class="function"><a href="#endpoint.friendship.follow(_:)">follow(_:​)</a></li><li class="function"><a href="#endpoint.friendship.unfollow(_:)">unfollow(_:​)</a></li><li class="function"><a href="#endpoint.friendship.remove(follower:)">remove(follower:​)</a></li><li class="function"><a href="#endpoint.friendship.acceptrequest(from:)">accept​Request(from:​)</a></li><li class="function"><a href="#endpoint.friendship.rejectrequest(from:)">reject​Request(from:​)</a></li><li class="function"><a href="#endpoint.friendship.block(_:)">block(_:​)</a></li><li class="function"><a href="#endpoint.friendship.unblock(_:)">unblock(_:​)</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Enumeration</small>
+    <code class="name">Endpoint.​Friendship</code>
+</h1>
+
+<html><body><pre class="highlight"><code><span class="keyword">enum</span> <a href="./Friendship"><span class="type">Friendship</span></a></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>A module-like <code>enum</code> holding reference to <code>friendships</code> <code>Endpoint</code>s. Requires authentication.</p>
+
+</div>
+<section id="relationships">
+    <h2 hidden>Relationships</h2>
+        
+        <h3>Member Of</h3>
+<dl>
+    <dt class="enumeration"><code><a href="./Endpoint">Endpoint</a></code></dt>
+<dd><p>A module-like <code>enum</code> defining all possible <code>Endpoint</code>s.</p>
+</dd>
+</dl>
+</section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="endpoint.friendship.base">
+    <h3>
+        <code>base</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">base</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The base endpoint.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.friendship.base">
+    <h3>
+        <code>base</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">base</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The base endpoint.</p>
+
+</div>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="endpoint.friendship.followed(by:startingat:)">
+    <h3>
+        <code>followed(by:​starting​At:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="function">followed</span>(<span class="variable">by</span> <span class="variable">identifier</span>: <span class="type">String</span>, <span class="variable">startingAt</span> <span class="variable">page</span>: <span class="type">String</span>? = <span class="keyword">nil</span>) -&gt; <span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<a href="./User"><span class="type">User</span></a>.<span class="type">Collection</span>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>A list of users followed by the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p>This is equal to the user's <strong>following</strong>.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+<tr>
+    <th>page</th>
+    <td><code class="type">String?</code></td>
+    <td><p>An optional <code>String</code> holding reference to a valid cursor. Defaults to <code>nil</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.following(_:startingat:)">
+    <h3>
+        <code>following(_:​starting​At:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="function">following</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>, <span class="variable">startingAt</span> <span class="variable">page</span>: <span class="type">String</span>? = <span class="keyword">nil</span>) -&gt; <span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<a href="./User"><span class="type">User</span></a>.<span class="type">Collection</span>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>A list of users following the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p>This is equal to the user's <strong>followers</strong>.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+<tr>
+    <th>page</th>
+    <td><code class="type">String?</code></td>
+    <td><p>An optional <code>String</code> holding reference to a valid cursor. Defaults to <code>nil</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.summary(for:)">
+    <h3>
+        <code>summary(for:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="function">summary</span>(<span class="variable">for</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Disposable</span>&lt;<span class="type">Swiftagram</span>.<a href="./Friendship"><span class="type">Friendship</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The current friendship status between the authenticated user and the one matching <code>identifier</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.summary(for:)">
+    <h3>
+        <code>summary(for:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="function">summary</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="variable">for</span> <span class="variable">identifiers</span>: <span class="type">C</span>) -&gt; <span class="type">Disposable</span>&lt;<span class="type">Swiftagram</span>.<a href="./Friendship"><span class="type">Friendship</span></a>.<span class="type">Dictionary</span>&gt; <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The current friendship status between the authenticated user and all users matching <code>identifiers</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifiers</th>
+    <td><code class="type">C</code></td>
+    <td><p>A collection of <code>String</code>s hoding reference to valid user identifiers.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.pendingrequests(startingat:)">
+    <h3>
+        <code>pending​Requests(starting​At:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="function">pendingRequests</span>(<span class="variable">startingAt</span> <span class="variable">page</span>: <span class="type">String</span>? = <span class="keyword">nil</span>) -&gt; <span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<a href="./User"><span class="type">User</span></a>.<span class="type">Collection</span>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>A list of users who requested to follow you, without having been processed yet.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>page</th>
+    <td><code class="type">String?</code></td>
+    <td><p>An optional <code>String</code> holding reference to a valid cursor. Defaults to <code>nil</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.edit(_:_:)">
+    <h3>
+        <code>edit(_:​_:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="function">edit</span>(<span class="keyword">_</span> <span class="variable">keyPath</span>: <span class="type">KeyPath</span>&lt;<span class="type">Request</span>, <span class="type">Request</span>&gt;, <span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Perform an action involving the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>transformation</th>
+    <td></td>
+    <td><p>A <code>KeyPath</code> defining the endpoint path.</p>
+</td>
+</tr>
+<tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.follow(_:)">
+    <h3>
+        <code>follow(_:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">follow</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Follow (or send a follow request) the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.unfollow(_:)">
+    <h3>
+        <code>unfollow(_:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">unfollow</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Unfollow the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.remove(follower:)">
+    <h3>
+        <code>remove(follower:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">remove</span>(<span class="variable">follower</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Remove a user following you, matching the <code>identifier</code>. Said user will stop following you.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.acceptrequest(from:)">
+    <h3>
+        <code>accept​Request(from:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">acceptRequest</span>(<span class="variable">from</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Accept a follow request from the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.rejectrequest(from:)">
+    <h3>
+        <code>reject​Request(from:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">rejectRequest</span>(<span class="variable">from</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Reject a follow request from the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.block(_:)">
+    <h3>
+        <code>block(_:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">block</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Block the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="endpoint.friendship.unblock(_:)">
+    <h3>
+        <code>unblock(_:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">unblock</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="./Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Disposable</span>&lt;<a href="./Status"><span class="type">Status</span></a>&gt;</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Unblock the user matching <code>identifier</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note">
+    <p><strong>SwiftagramCrypto</strong> only.</p>
+
+</aside>
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A <code>String</code> holding reference to a valid user identifier.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2020-10-29T18:26:16+0000">October 29, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
+</p>
+    </footer>
+</body>
+</html>
