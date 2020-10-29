@@ -10,8 +10,8 @@ import Foundation
 import ComposableRequest
 
 public extension Endpoint {
-    /// A `struct` holding reference to `news` `Endpoint`s. Requires authentication.
-    struct News {
+    /// A module-like `enum` holding reference to `news` `Endpoint`s. Requires authentication.
+    enum News {
         /// The base endpoint.
         private static let base = Endpoint.version1.news.appendingDefaultHeader()
 

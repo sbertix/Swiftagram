@@ -13,6 +13,7 @@ opt_in_rules:
     - fatal_error_message
     - first_where
     - for_where
+    - implicit_return
     - last_where
     - legacy_multiple
     - legacy_random
@@ -42,6 +43,7 @@ empty_string: error
 fatal_error_message: error
 first_where: error
 for_where: error
+implicit_return: error
 last_where: error
 legacy_multiple: error
 legacy_random: error

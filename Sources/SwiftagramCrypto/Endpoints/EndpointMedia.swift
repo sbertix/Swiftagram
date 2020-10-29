@@ -25,9 +25,11 @@ public extension Endpoint.Media {
     private static let base = Endpoint.version1.media.appendingDefaultHeader()
 
     /// Delete the media matching `identifier`.
+    ///
     /// - parameter identifier: A valid media identifier.
+    /// - note: **SwiftagramCrypto** only.
     static func delete(_ identifier: String) -> Endpoint.Disposable<Status> {
-        return base
+        base
             .appending(path: identifier)
             .info
             .prepare(process: Status.self)
@@ -49,8 +51,8 @@ public extension Endpoint.Media {
                     .signing(body: [
                         "igtv_feed_preview": Wrapper(booleanLiteral: false),
                         "media_id": Wrapper(stringLiteral: identifier),
-                        "_csrftoken": Wrapper(stringLiteral: $1.crossSiteRequestForgery.value),
-                        "_uid": Wrapper(stringLiteral: $1.id),
+                        "_csrftoken": Wrapper(stringLiteral: $1["csrftoken"]!),
+                        "_uid": Wrapper(stringLiteral: $1.identifier),
                         "_uuid": Wrapper(stringLiteral: $1.client.device.identifier.uuidString)
                     ] as Wrapper)
             }
@@ -62,21 +64,21 @@ public extension Endpoint.Media.Posts {
     /// The base endpoint.
     private static let base = Endpoint.version1.media.appendingDefaultHeader()
 
-    // MARK: Actions
     /// Perform an action involving the media matching `identifier`.
+    ///
     /// - parameters:
     ///     - transformation: A `KeyPath` defining the endpoint path.
     ///     - identifier: A `String` holding reference to a valid user identifier.
+    /// - note: **SwiftagramCrypto** only.
     private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status> {
-        return base
-            .appending(path: identifier)[keyPath: keyPath]
+        base.appending(path: identifier)[keyPath: keyPath]
             .appending(path: "/")
             .prepare(process: Status.self)
             .locking(Secret.self) {
                 $0.appending(header: $1.header)
-                    .signing(body: ["_csrftoken": $1.crossSiteRequestForgery.value,
+                    .signing(body: ["_csrftoken": $1["csrftoken"]!,
                                     "radio_type": "wifi-none",
-                                    "_uid": $1.id,
+                                    "_uid": $1.identifier,
                                     "device_id": $1.client.device.instagramIdentifier,
                                     "_uuid": $1.client.device.identifier.uuidString,
                                     "media_id": identifier])
@@ -84,38 +86,48 @@ public extension Endpoint.Media.Posts {
     }
 
     /// Like the media matching `identifier`.
+    ///
     /// - parameter identifier: A valid media identifier.
+    /// - note: **SwiftagramCrypto** only.
     static func like(_ identifier: String) -> Endpoint.Disposable<Status> {
-        return edit(\.like, identifier)
+        edit(\.like, identifier)
     }
 
     /// Unlike the media matching `identifier`.
+    ///
     /// - parameter identifier: A valid media identifier.
+    /// - note: **SwiftagramCrypto** only.
     static func unlike(_ identifier: String) -> Endpoint.Disposable<Status> {
-        return edit(\.unlike, identifier)
+        edit(\.unlike, identifier)
     }
 
     /// Archive the media matching `identifier`.
+    ///
     /// - parameter identifier: A valid media identifier.
+    /// - note: **SwiftagramCrypto** only.
     static func archive(_ identifier: String) -> Endpoint.Disposable<Status> {
-        return edit(\.only_me, identifier)
+        edit(\.only_me, identifier)
     }
 
     /// Unarchive the media matching `identifier`.
+    ///
     /// - parameter identifier: A valid media identifier.
+    /// - note: **SwiftagramCrypto** only.
     static func unarchive(_ identifier: String) -> Endpoint.Disposable<Status> {
-        return edit(\.undo_only_me, identifier)
+        edit(\.undo_only_me, identifier)
     }
 
     /// Comment on the media matching `identifier`.
+    ///
     /// - parameters:
     ///     - text: A `String` holding the content of the comment.
     ///     - identifier: A valid media identifier.
     ///     - parentCommentIdentifier: An optional `String` representing the identifier for the comment you are replying to. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func comment(_ text: String,
                         on identifier: String,
                         replyingTo parentCommentIdentifier: String? = nil) -> Endpoint.Disposable<Status> {
-        return base.comment.appending(path: "check_offensive_comment/")
+        base.comment.appending(path: "check_offensive_comment/")
             .prepare(process: Status.self)
             .switch {
                 guard (try? $0.get().wrapper().isOffensive.bool()) == false else { return nil }
@@ -126,8 +138,8 @@ public extension Endpoint.Media.Posts {
                 guard !$0.url.absoluteString.contains("check_offensive_comment") else {
                     return $0.appending(header: $1.header)
                         .signing(body: [
-                            "_csrftoken": $1.crossSiteRequestForgery.value,
-                            "_uid": $1.id,
+                            "_csrftoken": $1["csrftoken"]!,
+                            "_uid": $1.identifier,
                             "_uuid": $1.client.device.identifier.uuidString,
                             "media_id": identifier,
                             "comment_text": text
@@ -137,9 +149,9 @@ public extension Endpoint.Media.Posts {
                 return $0.appending(header: $1.header)
                     .signing(body: ([
                         "user_breadcrumb": text.count.breadcrumb,
-                        "_csrftoken": $1.crossSiteRequestForgery.value,
+                        "_csrftoken": $1["csrftoken"]!,
                         "radio_type": "wifi-none",
-                        "_uid": $1.id,
+                        "_uid": $1.identifier,
                         "device_id": $1.client.device.instagramIdentifier,
                         "_uuid": $1.client.device.identifier.uuidString,
                         "media_id": identifier,
@@ -151,12 +163,14 @@ public extension Endpoint.Media.Posts {
     }
 
     /// Delete all matching comments in media matching `identifier`.
+    ///
     /// - parameters:
     ///     - commentIdentifiers: A collection of `String` representing comment identifiers.
     ///     - identifier: A valid media identifier.
+    /// - note: **SwiftagramCrypto** only.
     static func delete<C: Collection>(comments commentIdentifiers: C,
                                       on identifier: String) -> Endpoint.Disposable<Status> where C.Element == String {
-        return base
+        base
             .appending(path: identifier)
             .appending(path: "comment/bulk_delete/")
             .prepare(process: Status.self)
@@ -164,8 +178,8 @@ public extension Endpoint.Media.Posts {
                 $0.appending(header: $1.header)
                     .signing(body: [
                         "comment_ids_to_delete": commentIdentifiers.joined(separator: ","),
-                        "_csrftoken": $1.crossSiteRequestForgery.value,
-                        "_uid": $1.id,
+                        "_csrftoken": $1["csrftoken"]!,
+                        "_uid": $1.identifier,
                         "_uuid": $1.client.device.identifier.uuidString
                     ])
             }
@@ -174,11 +188,13 @@ public extension Endpoint.Media.Posts {
     // MARK: - Image upload
     #if canImport(UIKit) || (canImport(AppKit) && !targetEnvironment(macCatalyst))
     /// Upload `image` to instagram.
+    ///
     /// - parameters:
     ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<U: Collection>(image: Agnostic.Image,
                                       captioned caption: String?,
                                       tagging users: U,
@@ -188,23 +204,27 @@ public extension Endpoint.Media.Posts {
     }
 
     /// Upload `image` to instagram.
+    ///
     /// - parameters:
     ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(image: Agnostic.Image,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: image, captioned: caption, tagging: [], at: location)
+        upload(image: image, captioned: caption, tagging: [], at: location)
     }
 
     /// Upload `image` to instagram.
+    ///
     /// - parameters:
     ///     - data: Some `Data` holding reference to a `jpeg` representation.
     ///     - size: A valid `CGSize`.
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     internal static func upload<U: Collection>(image data: Data,
                                                size: CGSize,
                                                captioned caption: String?,
@@ -222,7 +242,7 @@ public extension Endpoint.Media.Posts {
             .locking(Secret.self) {
                 // Unlock when dealing with the first call.
                 guard $0.request()?.url?.absoluteString.contains("configure") ?? false else {
-                    return $0.appending(header: $1.header).appending(header: "IG-U-DS-User-ID", with: $1.id)
+                    return $0.appending(header: $1.header).appending(header: "IG-U-DS-User-ID", with: $1.identifier)
                 }
 
                 // Prepare the configuration request.
@@ -238,9 +258,9 @@ public extension Endpoint.Media.Posts {
                               "crop_zoom": 1.0],
                     "extra": ["source_width": size.width.wrapped,
                               "source_height": size.height.wrapped],
-                    "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                    "_csrftoken": $1["csrftoken"]!.wrapped,
                     "user_id": uploader.identifier.wrapped,
-                    "_uid": $1.id.wrapped,
+                    "_uid": $1.identifier.wrapped,
                     "device_id": $1.client.device.instagramIdentifier.wrapped,
                     "_uuid": $1.client.device.identifier.uuidString.wrapped
                 ]
@@ -273,11 +293,13 @@ public extension Endpoint.Media.Posts {
     }
 
     /// Upload `image` to instagram.
+    ///
     /// - parameters:
     ///     - data: Some `Data` holding reference to an image.
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<U: Collection>(image data: Data,
                                       captioned caption: String?,
                                       tagging users: U,
@@ -287,25 +309,29 @@ public extension Endpoint.Media.Posts {
     }
 
     /// Upload `image` to instagram.
+    ///
     /// - parameters:
     ///     - data: Some `Data` holding reference to an image.
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(image data: Data,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: data, captioned: caption, tagging: [], at: location)
+        upload(image: data, captioned: caption, tagging: [], at: location)
     }
 
     #if canImport(AVKit)
     // MARK: - Video upload
     /// Upload `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`) used as preview image.
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<U: Collection>(video url: URL,
                                       preview image: Agnostic.Image,
                                       captioned caption: String?,
@@ -316,19 +342,22 @@ public extension Endpoint.Media.Posts {
     }
 
     /// Upload `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`) used as preview image.
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(video url: URL,
                        preview image: Agnostic.Image,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
+        upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
     }
 
     /// Upload `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - data: Some `Data` holding reference to a `jpeg` representation, to be used as preview image.
@@ -336,6 +365,7 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     internal static func upload<U: Collection>(video url: URL,
                                                preview data: Data,
                                                size: CGSize,
@@ -363,9 +393,9 @@ public extension Endpoint.Media.Posts {
                         .appending(query: ["video": "1"])
                         .signing(body: [//"device": $1.device.payload.wrapped,
                                         "timezone_offset": "43200",
-                                        "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                                        "_csrftoken": $1["csrftoken"]!.wrapped,
                                         "user_id": uploader.identifier.wrapped,
-                                        "_uid": $1.id.wrapped,
+                                        "_uid": $1.identifier.wrapped,
                                         "device_id": $1.client.device.instagramIdentifier.wrapped,
                                         "_uuid": $1.client.device.identifier.uuidString.wrapped,
                                         "upload_id": uploader.identifier.wrapped,
@@ -387,9 +417,9 @@ public extension Endpoint.Media.Posts {
                         "width": uploader.size.width.wrapped,
                         "height": uploader.size.height.wrapped,
                         "clips": [["length": uploader.duration.wrapped, "source_type": "4"]],
-                        "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                        "_csrftoken": $1["csrftoken"]!.wrapped,
                         "user_id": uploader.identifier.wrapped,
-                        "_uid": $1.id.wrapped,
+                        "_uid": $1.identifier.wrapped,
                         "device_id": $1.client.device.instagramIdentifier.wrapped,
                         "_uuid": $1.client.device.identifier.uuidString.wrapped,
                         "filter_type": "0",
@@ -431,32 +461,38 @@ public extension Endpoint.Media.Posts {
     }
 
     /// Upload `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - data: Some `Data` holding reference to an image to be used as preview image.
     ///     - caption: An optional `String`.
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<U: Collection>(video url: URL,
                                       preview data: Data,
                                       captioned caption: String?,
                                       tagging users: U,
                                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
-        guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
+        guard let image = Agnostic.Image(data: data) else {
+            fatalError("Invalid `data`.")
+        }
         return upload(video: url, preview: image, captioned: caption, tagging: users, at: location)
     }
 
     /// Upload `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - data: Some `Data` holding reference to an image to be used as preview image.
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(video url: URL,
                        preview data: Data,
                        captioned caption: String?,
                        at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
-        return upload(video: url, preview: data, captioned: caption, tagging: [], at: location)
+        upload(video: url, preview: data, captioned: caption, tagging: [], at: location)
     }
     #endif
     #endif
@@ -470,10 +506,12 @@ public extension Endpoint.Media.Stories {
     // MARK: - Image upload
     #if canImport(UIKit) || (canImport(AppKit) && !targetEnvironment(macCatalyst))
     /// Upload story `image` to instagram.
+    ///
     /// - parameters:
     ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<S: Sequence>(image: Agnostic.Image,
                                     stickers: S,
                                     isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
@@ -482,19 +520,23 @@ public extension Endpoint.Media.Stories {
     }
 
     /// Upload story `image` to instagram.
+    ///
     /// - parameters:
     ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(image: Agnostic.Image, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
+        upload(image: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     /// Upload story `image` to instagram.
+    ///
     /// - parameters:
     ///     - data: Some `Data` holding reference to a `jpeg` representation.
     ///     - size: A valid `CGSize`.
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     internal static func upload<S: Sequence>(image data: Data,
                                              size: CGSize,
                                              stickers: S,
@@ -511,7 +553,7 @@ public extension Endpoint.Media.Stories {
             .locking(Secret.self) {
                 // Unlock when dealing with the first call.
                 guard $0.request()?.url?.absoluteString.contains("configure") ?? false else {
-                    return $0.appending(header: $1.header).appending(header: "IG-U-DS-User-ID", with: $1.id)
+                    return $0.appending(header: $1.header).appending(header: "IG-U-DS-User-ID", with: $1.identifier)
                 }
 
                 // Prepare the configuration request.
@@ -530,9 +572,9 @@ public extension Endpoint.Media.Stories {
                               "crop_zoom": 1.0],
                     "extra": ["source_width": size.width.wrapped,
                               "source_height": size.height.wrapped],
-                    "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                    "_csrftoken": $1["csrftoken"]!.wrapped,
                     "user_id": uploader.identifier.wrapped,
-                    "_uid": $1.id.wrapped,
+                    "_uid": $1.identifier.wrapped,
                     "device_id": $1.client.device.instagramIdentifier.wrapped,
                     "_uuid": $1.client.device.identifier.uuidString.wrapped
                 ]
@@ -546,10 +588,12 @@ public extension Endpoint.Media.Stories {
     }
 
     /// Upload story `image` to instagram.
+    ///
     /// - parameters:
     ///     - data: Some `Data` holding reference to an image.
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<S: Collection>(image data: Data,
                                       stickers: S,
                                       isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
@@ -558,48 +602,56 @@ public extension Endpoint.Media.Stories {
     }
 
     /// Upload story `image` to instagram.
+    ///
     /// - parameters:
     ///     - data: Some `Data` holding reference to an image.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(image data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
-        return upload(image: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
+        upload(image: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     #if canImport(AVKit)
     // MARK: - Video upload
     /// Upload story `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - image: An optional `Agnostic.Image` to be used as preview. Defaults to `nil`, meaning a full black preview will be used.
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<S: Sequence>(video url: URL,
                                     preview image: Agnostic.Image? = nil,
                                     stickers: S,
                                     isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
-        return upload(video: url,
-                      preview: image?.jpegRepresentation(),
-                      size: image?.size ?? .zero,
-                      stickers: stickers,
-                      isCloseFriendsOnly: isCloseFriendsOnly)
+        upload(video: url,
+               preview: image?.jpegRepresentation(),
+               size: image?.size ?? .zero,
+               stickers: stickers,
+               isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     /// Upload story `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - image: An `Agnostic.Image` to be used as preview. Defaults to `nil`, meaning a full black preview will be used.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(video url: URL, preview image: Agnostic.Image? = nil, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
-        return upload(video: url, preview: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
+        upload(video: url, preview: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     /// Upload story `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - data: Some `Data` holding reference to a `jpeg` representation to be used as preview. `nil` means a full black preview will be used.
     ///     - size: A valid `CGSize`.
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     internal static func upload<S: Sequence>(video url: URL,
                                              preview data: Data?,
                                              size: CGSize,
@@ -628,9 +680,9 @@ public extension Endpoint.Media.Stories {
                         .appending(query: ["video": "1"])
                         .signing(body: [//"device": $1.device.payload.wrapped,
                                         "timezone_offset": "43200",
-                                        "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                                        "_csrftoken": $1["csrftoken"]!.wrapped,
                                         "user_id": uploader.identifier.wrapped,
-                                        "_uid": $1.id.wrapped,
+                                        "_uid": $1.identifier.wrapped,
                                         "device_id": $1.client.device.instagramIdentifier.wrapped,
                                         "_uuid": $1.client.device.identifier.uuidString.wrapped,
                                         "upload_id": uploader.identifier.wrapped,
@@ -660,9 +712,9 @@ public extension Endpoint.Media.Stories {
                         "clips": [["length": uploader.duration.wrapped, "source_type": "3"]],
                         "extra": ["source_width": uploader.size.width.wrapped,
                                   "source_height": uploader.size.height.wrapped],
-                        "_csrftoken": $1.crossSiteRequestForgery.value.wrapped,
+                        "_csrftoken": $1["csrftoken"]!.wrapped,
                         "user_id": uploader.identifier.wrapped,
-                        "_uid": $1.id.wrapped,
+                        "_uid": $1.identifier.wrapped,
                         "device_id": $1.client.device.instagramIdentifier.wrapped,
                         "_uuid": $1.client.device.identifier.uuidString.wrapped,
                         "audio_muted": false,
@@ -684,25 +736,29 @@ public extension Endpoint.Media.Stories {
     }
 
     /// Upload story `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - data: Some `Data` holding reference to an image to be used as preview.
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload<S: Collection>(video url: URL,
                                       preview data: Data,
                                       stickers: S,
                                       isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
-        return upload(video: url, preview: Agnostic.Image(data: data), stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
+        upload(video: url, preview: Agnostic.Image(data: data), stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     /// Upload story `video` to instagram.
+    ///
     /// - parameters:
     ///     - url: A local or remote `URL` to a valid `.mp4` `h264` encoded video.
     ///     - data: Some `Data` holding reference to an image to be used as preview.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
+    /// - note: **SwiftagramCrypto** only.
     static func upload(video url: URL, preview data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
-        return upload(video: url, preview: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
+        upload(video: url, preview: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
     #endif
     #endif

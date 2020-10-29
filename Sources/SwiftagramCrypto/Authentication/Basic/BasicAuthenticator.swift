@@ -11,34 +11,32 @@ import ComposableRequest
 import SwCrypt
 import Swiftagram
 
-/**
-    A `class` describing an `Authenticator` using `username` and `password`.
- 
-    ## Usage
-    ```swift
-    /// A strong reference to a 2FA object.
-    var twoFactor: TwoFactor? {
-      didSet {
-        guard let twoFactor = twoFactor else { return }
-        // ask for the code and then pass it to `twoFactor.send`.
-      }
-    }
- 
-    /// Login.
-    BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
-                       username: /* the username */,
-                       password: /* the password */)
-      .authenticate {
-        switch $0 {
-        case .failure(let error):
-          switch error {
-            case BasicAuthenticatorError.twoFactor(let response): twoFactor = response
-            default: print(error)
-          }
-        case .success: print("Logged in")
-      }
-    ```
- */
+/// A `class` holding reference to a entirely code based `Authenticator`, with 2FA support.
+///
+/// ## Usage
+/// ```swift
+/// /// A `strong` reference to a 2FA resolution instance.
+/// var twoFactor: TwoFactor? {
+///     didSet {
+///         guard let twoFactor = twoFactor else { return }
+///         // Ask for the code and complete authentication calling `twoFactor?.send`.
+///     }
+/// }
+///
+/// /// Authenticate.
+/// BasicAuthenticator(storage: KeychainStorage(),  // Use any `Storage` you want.
+///                    username: /* the username */,
+///                    password: /* the password */)
+///     .authenticate {
+///         switch $0 {
+///             case .failure(let error): print(error.localizedDescription)
+///             default: print("Logged in")
+///         }
+///     }
+/// ```
+///
+/// - note: **SwiftagramCrypto** only.
+/// - warning: `Secret`s returned by `BasicAuthentciator` are bound to the `Client` passed in the initialization process.
 public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authenticator where Storage.Key == Secret {
     public typealias Error = Swift.Error
 
@@ -51,14 +49,10 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     /// A `String` holding a valid password.
     public let password: String
 
-    /// A `String` holding a custom user agent to be passed to every request.
-    /// Defaults to Safari on an iPhone with iOS 13.1.3.
-    internal var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                                      "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                      "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
-
     // MARK: Lifecycle
+
     /// Init.
+    ///
     /// - parameters:
     ///     - storage: A concrete `Storage` value.
     ///     - client: A valid `Client`. Defaults to `.default`.
@@ -72,7 +66,13 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     // MARK: Static
+
     /// Encrypt `password`.
+    ///
+    /// - parameters:
+    ///     - password: A valid `String`.
+    ///     - header: A valid dictionary of `String`s.
+    /// - returns: A `Result` of `String`s.
     private static func encrypt(password: String, with header: [String: String]) -> Result<String, Error> {
         guard CC.RSA.available(), CC.GCM.available() else {
             return .failure(SigningError.cryptographyUnavailable)
@@ -119,7 +119,9 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     // MARK: Authenticator
+
     /// Return a `Secret` and store it in `storage`.
+    ///
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Error>) -> Void) {
         // Update cookies.
@@ -141,7 +143,10 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     // MARK: Shared flow
+
     /// Pre-login flow.
+    ///
+    /// - parameter onChange: A block providing an array of `HTTPCookie`s.
     private func header(onComplete: @escaping (Result<[HTTPCookie], Error>) -> Void) {
         // Obtain cookies.
         Endpoint.version1.accounts.read_msisdn_header.appending(path: "/")
@@ -166,6 +171,10 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     /// Fetch password public key and encrypt password.
+    ///
+    /// - parameters:
+    ///     - cookies: An array of `HTTPCookie`.
+    ///     - onComplete: A block providing a `String`.
     private func encryptedPassword(with cookies: [HTTPCookie], onComplete: @escaping (Result<String, Error>) -> Void) {
         // Obtain password key.
         Endpoint.version1.qe.sync.appending(path: "/")
@@ -197,6 +206,11 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     /// Request authentication.
+    ///
+    /// - parameters:
+    ///     - encryptedPassword: A valid `String`.
+    ///     - cookies: An array of `HTTPCookie`s.
+    ///     - onChange: A block providing a `Secret`.
     private func authenticate(with encryptedPassword: String,
                               cookies: [HTTPCookie],
                               onChange: @escaping (Result<Secret, Error>) -> Void) {
@@ -233,6 +247,11 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     /// Handle `ds_user_id` and `sessionid` response.
+    ///
+    /// - parameters:
+    ///     - result: A `Wrapper`'s `Task.Response`.
+    ///     - crossSiteRequestForgery: A valid `HTTPCookie`.
+    ///     - onChange: A block providing a `Secret`.
     private func process(result: Requester.Task.Response<Wrapper>,
                          crossSiteRequestForgery: HTTPCookie,
                          onChange: @escaping (Result<Secret, Error>) -> Void) {
@@ -280,10 +299,9 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 }
 
-/// Extend for `TransientStorage`.
 public extension BasicAuthenticator where Storage == ComposableRequest.TransientStorage<Secret> {
-    // MARK: Lifecycle
     /// Init.
+    ///
     /// - parameters:
     ///     - username: A `String` representing a valid username.
     ///     - password: A `String` representing a valid password.

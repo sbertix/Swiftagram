@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// An `enum` describing all possible `Error`s in the authentication process.
+/// An `enum` listing all possible `Error`s in a visual based authentication process.
 public enum WebViewAuthenticatorError: Swift.Error {
     /// Invalid cookies.
     case invalidCookies

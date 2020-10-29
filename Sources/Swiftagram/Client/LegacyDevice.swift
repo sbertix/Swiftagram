@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A `struct` holding reference to `Device`s used before `4.2.0`.
+/// A `struct` representing `Device`s used before `4.2.0`.
 ///
 /// This is kept in order to maintain backwards compatibility with `Secret`s.
 /// Please keep in mind support for this might be removed in the future.
@@ -41,4 +41,42 @@ struct LegacyDevice: Codable {
     let release: String
     /// The application code.
     let code: String
+}
+
+extension Client.Device {
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - device: A valid `LegacyDevice`.
+    ///     - width: A valid `Int`.
+    ///     - height: A valid `Int`.
+    init(device: LegacyDevice, width: Int, height: Int) {
+        self.init(identifier: device.deviceGUID,
+                  phoneIdentifier: device.phoneGUID,
+                  adIdentifier: device.googleAdId,
+                  hardware: .init(model: device.model,
+                                  brand: device.brand,
+                                  boot: device.modelBoot,
+                                  cpu: device.cpu,
+                                  manufacturer: nil),
+                  software: .init(version: [device.release, device.version].joined(separator: "/"),
+                                  language: "en_US"),
+                  resolution: .init(width: width,
+                                    height: height,
+                                    scale: 2,
+                                    dpi: device.dpi))
+    }
+}
+
+extension Client {
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - device: A valid `LegacyDevice`.
+    ///     - width: A valid `Int`.
+    ///     - height: A valid `Int`.
+    init(device: LegacyDevice, width: Int, height: Int) {
+        self.init(application: .android(device.api, code: device.code),
+                  device: .init(device: device, width: Int(width), height: Int(height)))
+    }
 }
