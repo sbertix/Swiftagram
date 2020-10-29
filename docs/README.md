@@ -1,4 +1,7 @@
-# Swiftagram
+<br />
+<img alt="Header" src="https://github.com/sbertix/Swiftagram/blob/main/Resources/header.png" height="72" />
+<br />
+
 [![Swift](https://img.shields.io/badge/Swift-5.1-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 [![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
@@ -10,9 +13,9 @@
 
 <br />
 
-**Swiftagram** is a wrapper for [**Instagram**](https://instagram.com) Private API, written entirely in modern **Swift**.
+**Swiftagram** is a wrapper for [**Instagram**](https://instagram.com) Private API, written entirely in (modern) **Swift**.
 
-**Instagram**'s official APIs, both the [*Instagram Basic Display API*](https://developers.facebook.com/docs/instagram-basic-display-api) and the [*Instagram Graph API*] — available for *Creator* and *Business* accounts alone, either lack support for the most mundane of features or limit their availability to a not large enough subset of profiles.
+**Instagram**'s official APIs, both the [*Instagram Basic Display API*](https://developers.facebook.com/docs/instagram-basic-display-api) and the [*Instagram Graph API*](https://developers.facebook.com/docs/instagram-api) — available for *Creator* and *Business* accounts alone, either lack support for the most mundane of features or limit their availability to a not large enough subset of profiles.
 
 In order to bypass these limitations, **Swiftagram** relies on the API used internally by the Android and iOS official **Instagram** apps, requiring no _API token_, and allowing to reproduce virtually any action a user can take.
 Please just bear in mind, as they're not authorized for external use, you're using them at your own risk.
@@ -28,13 +31,13 @@ Keep in mind features like `BasicAuthenticator`, a non-visual `Authenticator`, o
 
 Please check out the _docs_ to find out more.
 
+<p />
+
 ## Status
 ![push](https://github.com/sbertix/Swiftagram/workflows/push/badge.svg)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/sbertix/Swiftagram)
 
 You can find all changelogs directly under every [release](https://github.com/sbertix/Swiftagram/releases), and if you care to be notified about future ones, don't forget to subscribe to our [Telegram channel](https://t.me/Swiftagram).
-
-[![Stargazers over time](https://starchart.cc/sbertix/Swiftagram.svg)](https://starchart.cc/sbertix/Swiftagram)
 
 > What's next?
 
@@ -42,6 +45,8 @@ You can find all changelogs directly under every [release](https://github.com/sb
 
 Feel free to contribute by sending a [pull request](https://github.com/sbertix/Swiftagram/pulls).
 Just remember to refer to our [guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) beforehand.
+
+<p />
 
 ## Installation
 ### Swift Package Manager (Xcode 11 and above)
@@ -64,6 +69,8 @@ It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publ
 - **SwiftagramCrypto**, depending on **ComposableRequestCrypto** and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
     </p>
 </details>
+
+<p />
 
 ## Usage
 Check out our [Examples](Examples) or visit the (_auto-generated_) [Documentation](https://sbertix.github.io/Swiftagram) to learn about use cases.  
@@ -189,7 +196,6 @@ Requester.default = .instagram
 ```
 
 Or just create a custom `Requester` and pass it to every single request you make.  
-<br/>
 
 > What if I wanna know the basic info about a profile?
 
@@ -207,7 +213,6 @@ Endpoint.User.summary(for: identifier)
     })
     .resume() // Strongly referenced by default, no need to worry about it.
 ```
-<br/>
 
 > What about cancelling an ongoing request?
 
@@ -229,12 +234,13 @@ let task = Endpoint.Friendship.following(secret.id)
 // Cancel it.
 task?.cancel()
 ```
-<br/>
 
 >  What about loading the next page?
 
 Just `resume` it once more.
 If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
+
+<p />
 
 ## Special thanks
 
