@@ -11,15 +11,19 @@ import WebKit
 
 import ComposableRequest
 
-/// A `class` describing a self-navigating `WKWebView`.
+/// A `class` holding reference to a specialized `WKWebView`.
+///
+/// - note: This should **only** be used for Instagram authentication.
 @available(iOS 11, macOS 10.13, macCatalyst 13, *)
-internal final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKNavigationDelegate where Storage.Key == Secret {
+final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKNavigationDelegate where Storage.Key == Secret {
     /// Any `Storage`.
     let storage: Storage
     /// A `Client` instance used to create the `Secret`s.
     let client: Client
     /// A block providing a `Secret`.
     private(set) var onChange: ((Result<Secret, WebViewAuthenticatorError>) -> Void)?
+
+    // MARK: Lifecycle
 
     /// Init.
     ///
@@ -50,6 +54,8 @@ internal final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKN
         fatalError("init(coder:) has not been implemented: do not use `WebView` in your Storyboards")
     }
 
+    // MARK: Web View
+
     /// A method called everytime a new page has finished loading.
     ///
     /// - parameters:
@@ -71,7 +77,7 @@ internal final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKN
                 // Obtain cookies.
                 let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                 // Prepare `Secret`.
-                guard Secret.hasValidCookies(cookies) else {
+                guard cookies.containsAuthenticationCookies else {
                     self.onChange?(.failure(.invalidCookies))
                     return
                 }
@@ -86,7 +92,7 @@ internal final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKN
                 // Obtain cookies.
                 let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                 // Prepare `Secret` or do nothing.
-                guard Secret.hasValidCookies(cookies) else { return }
+                guard cookies.containsAuthenticationCookies else { return }
                 webView.navigationDelegate = nil
                 self.onChange?(
                     Secret(cookies: cookies, client: self.client).flatMap { .success($0.store(in: self.storage)) } ?? .failure(.invalidCookies)

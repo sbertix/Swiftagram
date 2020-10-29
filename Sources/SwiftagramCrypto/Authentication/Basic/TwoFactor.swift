@@ -9,7 +9,7 @@ import Foundation
 import ComposableRequest
 import Swiftagram
 
-/// A `class` holding reference to a `TwoFactor`.
+/// A `class` defining 2FA challenge resolution for `BasicAuthenticator`.
 public final class TwoFactor {
     /// A `String` representing a user's username.
     let username: String

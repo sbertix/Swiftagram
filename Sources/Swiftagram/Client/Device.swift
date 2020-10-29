@@ -12,59 +12,8 @@ import SwCrypt
 #endif
 
 public extension Client {
-    /// A `struct` holding reference to a device info.
+    /// A `struct` defining all possible information about a (mock) device.
     struct Device: Equatable, Codable, CustomStringConvertible {
-        /// A `struct` holding reference to the device resolution.
-        public struct Resolution: Equatable, Codable {
-            /// The width.
-            public var width: Int
-            /// The height.
-            public var height: Int
-            /// The scale.
-            public var scale: Int
-            /// The DPI. Defaults to `nil`. Populated for Android devices alone.
-            public var dpi: Int?
-
-            /// Init.
-            ///
-            /// - parameters:
-            ///     - width: A valid `Int`.
-            ///     - height: A valid `Int`.
-            ///     - scale: A valid `Int`.
-            ///     - dpi: An optional `Int`. Defaults to `nil`.
-            public init(width: Int, height: Int, scale: Int, dpi: Int? = nil) {
-                self.width = width
-                self.height = height
-                self.scale = scale
-                self.dpi = dpi
-            }
-        }
-
-        /// A `struct` holding reference to the device hardware.
-        ///
-        /// Visit the link below to find out more about possible values:
-        /// https://developers.whatismybrowser.com/useragents/explore/software_name/instagram
-        public struct Hardware: Equatable, Codable {
-            /// The model.
-            public let model: String
-            /// The brand. Populated for Android devices alone.
-            public let brand: String?
-            /// The boot. Populated for Andorid devices alone.
-            public let boot: String?
-            /// The CPU. Populated for Android devices alone.
-            public let cpu: String?
-            /// The manufacturer.
-            public let manufacturer: String?
-        }
-
-        /// A `struct` holding reference to a device software.
-        public struct Software: Equatable, Codable {
-            /// The version, like *"iOS 13_3"* or *"29/10".*
-            public let version: String
-            /// The language, like _"en_US"_.
-            public let language: String
-        }
-
         /// The underlying device identifier.
         public let identifier: UUID
         /// The underlying phone identifier.
@@ -106,7 +55,7 @@ public extension Client {
                                    identifier: UUID = .init(),
                                    phoneIdentifier: UUID = .init(),
                                    adIdentifier: UUID = .init()) -> Device {
-            return .init(identifier: identifier,
+            .init(identifier: identifier,
                          phoneIdentifier: phoneIdentifier,
                          adIdentifier: adIdentifier,
                          hardware: .init(model: model,
@@ -135,7 +84,7 @@ public extension Client {
                                identifier: UUID = .init(),
                                phoneIdentifier: UUID = .init(),
                                adIdentifier: UUID = .init()) -> Device {
-            return .init(identifier: identifier,
+            .init(identifier: identifier,
                          phoneIdentifier: phoneIdentifier,
                          adIdentifier: adIdentifier,
                          hardware: .init(model: model, brand: nil, boot: nil, cpu: nil, manufacturer: nil),
@@ -146,6 +95,7 @@ public extension Client {
         // MARK: Accessories
 
         /// The Instagram device identifier.
+        ///
         /// - note: Importing **SwiftagramCrypto** allows for actual `md5` computation, otherwise a dummy value is set instead.
         public var instagramIdentifier: String {
             #if canImport(SwCrypt)
@@ -211,5 +161,62 @@ public extension Client {
                 fatalError("Invalid device browser user agent.")
             }
         }
+    }
+}
+
+public extension Client.Device {
+    /// A `struct` defining some characteristics of a device's screen.
+    struct Resolution: Equatable, Codable {
+        /// The width.
+        public let width: Int
+        /// The height.
+        public let height: Int
+        /// The scale.
+        public let scale: Int
+        /// The DPI. Defaults to `nil`. Populated for Android devices alone.
+        public let dpi: Int?
+
+        /// Init.
+        ///
+        /// - parameters:
+        ///     - width: A valid `Int`.
+        ///     - height: A valid `Int`.
+        ///     - scale: A valid `Int`.
+        ///     - dpi: An optional `Int`. Defaults to `nil`.
+        public init(width: Int, height: Int, scale: Int, dpi: Int? = nil) {
+            self.width = width
+            self.height = height
+            self.scale = scale
+            self.dpi = dpi
+        }
+    }
+}
+
+public extension Client.Device {
+    /// A `struct` defining some device-specific characteristics.
+    ///
+    /// Visit the link below to find out more about possible values:
+    /// https://developers.whatismybrowser.com/useragents/explore/software_name/instagram
+    struct Hardware: Equatable, Codable {
+        /// The model.
+        public let model: String
+        /// The brand. Populated for Android devices alone.
+        public let brand: String?
+        /// The boot. Populated for Andorid devices alone.
+        public let boot: String?
+        /// The CPU. Populated for Android devices alone.
+        public let cpu: String?
+        /// The manufacturer.
+        public let manufacturer: String?
+    }
+}
+
+public extension Client.Device {
+    /// A `struct` defining some software-specific characteristics.
+    struct Software: Equatable, Codable {
+        /// The version, like *"iOS 13_3"* or *"29/10".*
+        public let version: String
+        /// The language, like _"en_US"_.
+        public let language: String
     }
 }

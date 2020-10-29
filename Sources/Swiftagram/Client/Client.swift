@@ -11,10 +11,14 @@ import Foundation
 import UIKit
 #endif
 
-/// A `struct` holding reference to `Client` info.
+/// A `struct` defining all possible information used to identify the software and hardware combination of a logged in user.
+///
+/// -  warning: `Client.default` is not guaranteed to remain the same.
 public struct Client: Equatable, Codable, CustomStringConvertible {
     /// The default `Client`. Defaults to a **Samsung Galaxy S10**.
+    ///
     /// - note: Replace it with your own for custom `Device` management.
+    /// -  warning: `Client.default` is not guaranteed to remain the same.
     public static var `default` = Client.samsungGalaxyS20
 
     /// The application info.
@@ -38,11 +42,11 @@ public struct Client: Equatable, Codable, CustomStringConvertible {
 
     /// The user agent.
     public var description: String {
-        return "\(application.description) (\(device.description); \(application.code))"
+        "\(application.description) (\(device.description); \(application.code))"
     }
 
     /// The browser user agent.
-    public var browserDescription: String { return device.browserDescription }
+    public var browserDescription: String { device.browserDescription }
 }
 
 /// Extend `Client` to save custom implementations.
@@ -72,8 +76,9 @@ public extension Client {
                                                                       dpi: 458)))
 
     #if canImport(UIKit)
-    /// Return a custom iPhone device, computed from the current `UIDevice`.
-    /// - note: If you're not on an iPhone, it returns `nil`.
+    /// A custom iPhone device, based on the current `UIDevice`.
+    ///
+    /// - warning: If you're not running this on an iPhone (or an iPhone simulator), it will always evaluate to `nil`.
     static var current: Client? {
         // Prepare identifier for current model.
         let identifier: String
@@ -84,11 +89,11 @@ public extension Client {
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
         identifier = machineMirror.children.reduce(into: "") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return }
+            guard let value = element.value as? Int8, value != 0 else { }
             identifier += String(UnicodeScalar(UInt8(value)))
         }
         #endif
-        guard identifier.contains("iPhone") else { return nil }
+        guard identifier.contains("iPhone") else { nil }
         return .init(application: .iOS(),
                      device: .iOS("iOS "+UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_"),
                                   language: NSLocale.current.languageCode ?? "en_US",
