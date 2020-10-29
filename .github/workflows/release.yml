@@ -158,7 +158,10 @@ jobs:
             ref:           main
       # fetch commits.
       - name:              Commits
-        run:               git fetch --prune --unshallow --tags
+        run:               git fetch --prune --tags
+      # create a tag.
+      - name:              Tag
+        run:               git tag ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
       # create the changelog.
       - name:              Changelogs
         id:                changelogs
@@ -173,7 +176,7 @@ jobs:
           tag_name:        ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
           release_name:    v${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
           body:            ${{ steps.changelogs.outputs.changelogs }}
-          draft:           true
+          draft:           false
           prerelease:      ${{ steps.changelogs.outputs.release_type == 'prerelease' }}
       # notify on Telegram.
       - name:              Notify (Telegram)
@@ -193,9 +196,7 @@ jobs:
           issue-number:    ${{ github.event.client_payload.github.payload.issue.number }}
           body:            |
             Hey @${{ github.event.client_payload.github.actor }} :muscle:\
-            [${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}](${{ steps.release.outputs.html_url }}) was successfully drafted.
-
-            A maintener will get to release it as soon as possible.
+            [${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}](${{ steps.release.outputs.html_url }}) was successfully released.
       # notify failure.
       - name:              Notify (Failure)
         uses:              peter-evans/create-or-update-comment@v1
