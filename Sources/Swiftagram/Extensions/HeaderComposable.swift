@@ -9,14 +9,13 @@ import Foundation
 
 import ComposableRequest
 
-/// Extend `HeaderComposable` to accept default headers.
 public extension HeaderComposable where Self: HeaderParsable {
     /// Append default headers.
     ///
     /// - returns: `self` with updated header fields.
     /// - note: Starting from `4.2.0`, `Client` related info is no longer added through this method.
     func appendingDefaultHeader() -> Self {
-        return appending(header: [
+        appending(header: [
             "X-Ads-Opt-Out": "0",
             "X-CM-Bandwidth-KBPS": "-1.000",
             "X-CM-Latency": "-1.000",

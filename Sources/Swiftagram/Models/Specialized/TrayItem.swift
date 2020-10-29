@@ -57,11 +57,11 @@ public struct TrayItem: ReflectedType {
 
     /// The expiration date of the tray item.
     public var expiringAt: Date? {
-        return self["expiringAt"].date()
+        self["expiringAt"].date()
     }
     /// The date the tray was last seen on.
     public var lastSeenOn: Date? {
-        return self["seen"].date()
+        self["seen"].date()
     }
 
     /// The user.
