@@ -1,5 +1,5 @@
 //
-//  SwiftagramModelsTests.swift
+//  ModelTests.swift
 //  SwiftagramTests
 //
 //  Created by Stefano Bertagno on 17/08/2020.
@@ -11,9 +11,10 @@ import XCTest
 import ComposableRequest
 @testable import Swiftagram
 
-final class SwiftagramModelsTest: XCTestCase {
+final class ModelTests: XCTestCase {
     // MARK: Testers
     /// Assess equality.
+    /// 
     /// - parameters:
     ///     - dictionary: A valid dictionary of `Wrapper`s.
     ///     - type: A `ReflectedType` concrete implementation.
@@ -282,17 +283,4 @@ final class SwiftagramModelsTest: XCTestCase {
                     mapper: ["userId": "identifier"],
                     wrapper: { response, _ in [response.x.flatMap(Double.init), response.y.flatMap(Double.init)].wrapped })
     }
-
-    static var allTests = [
-        ("Comment", testComment),
-        ("Friendship", testFriendship),
-        ("Location", testLocation),
-        ("Media", testMedia),
-        ("Status", testStatus),
-        ("Conversation", testThread),
-        ("Recipient", testThreadRecipient),
-        ("TrayItem", testTrayItem),
-        ("User", testUser),
-        ("UserTag", testUserTag)
-    ]
 }

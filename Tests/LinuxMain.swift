@@ -1,9 +1,8 @@
-import XCTest
+//
+//  LinuxMain.swift
+//  SwiftagramTests
+//
+//  Created by Stefano Bertagno on 17/08/2020.
+//
 
-import SwiftagramTests
-
-var tests = [XCTestCaseEntry]()
-tests += SwiftagramEndpointTests.allTests()
-tests += SwiftagramAuthenticatorTests.allTests()
-tests += SwiftagramModelsTests.allTests()
-XCTMain(tests)
+fatalError("Please add `--enable-test-discovery` to your `args`")

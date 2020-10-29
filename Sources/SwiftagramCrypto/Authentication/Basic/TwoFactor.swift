@@ -9,46 +9,63 @@ import Foundation
 import ComposableRequest
 import Swiftagram
 
-/// A `class` holding reference to a `TwoFactor`.
+/// A `class` defining 2FA challenge resolution for `BasicAuthenticator`.
 public final class TwoFactor {
     /// A `String` representing a user's username.
-    internal let username: String
+    let username: String
+    /// The underlying `Client`.
+    let client: Client
     /// A `String` representing the 2FA identifier.
-    internal let identifier: String
+    let identifier: String
     /// A `HTTPCookie` for `csrftoken`.
-    internal let crossSiteRequestForgery: HTTPCookie
+    let crossSiteRequestForgery: HTTPCookie
     /// A block providing a `Secret`.
-    internal let onChange: (Result<Secret, Swift.Error>) -> Void
+    let onChange: (Result<Secret, Swift.Error>) -> Void
 
     // MARK: Lifecycle
+
     /// Init.
-    public init(username: String,
-                identifier: String,
-                crossSiteRequestForgery: HTTPCookie,
-                onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
+    ///
+    /// - parameters:
+    ///     - username: A valid `String`.
+    ///     - client: A valid `Client`.
+    ///     - identifier: A valid `String`.
+    ///     - crossSiteRequestForgery: A valid `HTTPCookie`.
+    ///     - onChange: A valid completion handler.
+    init(username: String,
+         client: Client,
+         identifier: String,
+         crossSiteRequestForgery: HTTPCookie,
+         onChange: @escaping (Result<Secret, Swift.Error>) -> Void) {
         self.username = username
+        self.client = client
         self.identifier = identifier
         self.crossSiteRequestForgery = crossSiteRequestForgery
         self.onChange = onChange
     }
 
     // MARK: 2FA flow
+
     /// Send the received code.
+    ///
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
         Endpoint.version1.accounts
             .appending(path: "two_factor_login/")
             .appendingDefaultHeader()
             .appending(header: HTTPCookie.requestHeaderFields(with: [crossSiteRequestForgery]))
-            .appending(header: "X-Csrf-Token", with: crossSiteRequestForgery.value)
+            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                "X-IG-Android-ID": client.device.instagramIdentifier,
+                                "User-Agent": client.description,
+                                "X-Csrf-Token": crossSiteRequestForgery.value])
             .signing(body: [
                 "username": self.username,
                 "verification_code": code,
                 "_csrftoken": crossSiteRequestForgery.value,
                 "two_factor_identifier": identifier,
                 "trust_this_device": "1",
-                "guid": Device.default.deviceGUID.uuidString,
-                "device_id": Device.default.deviceIdentifier,
+                "guid": Client.default.device.identifier.uuidString,
+                "device_id": Client.default.device.instagramIdentifier,
                 "verification_method": "1"
             ])
             .prepare()
@@ -58,11 +75,14 @@ public final class TwoFactor {
                 case .success(let value):
                     // Return secret.
                     if value.loggedInUser.pk.int() != nil,
-                        let url = URL(string: "https://instagram.com"),
-                        let secret = Secret(cookies: HTTPCookie.cookies(
+                       let url = URL(string: "https://instagram.com"),
+                       let secret = Secret(
+                        cookies: HTTPCookie.cookies(
                             withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
                             for: url
-                        ), device: .default) {
+                        ),
+                        client: self.client
+                       ) {
                         self.onChange(.success(secret))
                     }
                     // Otherwise check for error.

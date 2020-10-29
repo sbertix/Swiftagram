@@ -11,64 +11,68 @@ import ComposableRequest
 import SwCrypt
 import Swiftagram
 
-/**
-    A `class` describing an `Authenticator` using `username` and `password`.
- 
-    ## Usage
-    ```swift
-    /// A strong reference to a 2FA object.
-    var twoFactor: TwoFactor? {
-      didSet {
-        guard let twoFactor = twoFactor else { return }
-        // ask for the code and then pass it to `twoFactor.send`.
-      }
-    }
- 
-    /// Login.
-    BasicAuthenticator(storage: KeychainStorage(),  // any `Storage`.
-                       username: /* the username */,
-                       password: /* the password */)
-      .authenticate {
-        switch $0 {
-        case .failure(let error):
-          switch error {
-            case BasicAuthenticatorError.twoFactor(let response): twoFactor = response
-            default: print(error)
-          }
-        case .success: print("Logged in")
-      }
-    ```
- */
+/// A `class` holding reference to a entirely code based `Authenticator`, with 2FA support.
+///
+/// ## Usage
+/// ```swift
+/// /// A `strong` reference to a 2FA resolution instance.
+/// var twoFactor: TwoFactor? {
+///     didSet {
+///         guard let twoFactor = twoFactor else { return }
+///         // Ask for the code and complete authentication calling `twoFactor?.send`.
+///     }
+/// }
+///
+/// /// Authenticate.
+/// BasicAuthenticator(storage: KeychainStorage(),  // Use any `Storage` you want.
+///                    username: /* the username */,
+///                    password: /* the password */)
+///     .authenticate {
+///         switch $0 {
+///             case .failure(let error): print(error.localizedDescription)
+///             default: print("Logged in")
+///         }
+///     }
+/// ```
+///
+/// - note: **SwiftagramCrypto** only.
+/// - warning: `Secret`s returned by `BasicAuthentciator` are bound to the `Client` passed in the initialization process.
 public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authenticator where Storage.Key == Secret {
     public typealias Error = Swift.Error
 
     /// A `Storage` instance used to store `Secret`s.
-    public internal(set) var storage: Storage
+    public let storage: Storage
+    /// A `Client` instance used to create the `Secret`s.
+    public let client: Client
     /// A `String` holding a valid username.
-    public internal(set) var username: String
+    public let username: String
     /// A `String` holding a valid password.
-    public internal(set) var password: String
-
-    /// A `String` holding a custom user agent to be passed to every request.
-    /// Defaults to Safari on an iPhone with iOS 13.1.3.
-    internal var userAgent: String = ["Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_3 like Mac OS X)",
-                                      "AppleWebKit/605.1.15 (KHTML, like Gecko)",
-                                      "Version/13.0.1 Mobile/15E148 Safari/604.1"].joined(separator: " ")
+    public let password: String
 
     // MARK: Lifecycle
+
     /// Init.
+    ///
     /// - parameters:
     ///     - storage: A concrete `Storage` value.
+    ///     - client: A valid `Client`. Defaults to `.default`.
     ///     - username: A `String` representing a valid username.
     ///     - password: A `String` representing a valid password.
-    public init(storage: Storage, username: String, password: String) {
+    public init(storage: Storage, client: Client = .default, username: String, password: String) {
         self.storage = storage
+        self.client = client
         self.username = username
         self.password = password
     }
 
     // MARK: Static
+
     /// Encrypt `password`.
+    ///
+    /// - parameters:
+    ///     - password: A valid `String`.
+    ///     - header: A valid dictionary of `String`s.
+    /// - returns: A `Result` of `String`s.
     private static func encrypt(password: String, with header: [String: String]) -> Result<String, Error> {
         guard CC.RSA.available(), CC.GCM.available() else {
             return .failure(SigningError.cryptographyUnavailable)
@@ -115,7 +119,9 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     // MARK: Authenticator
+
     /// Return a `Secret` and store it in `storage`.
+    ///
     /// - parameter onChange: A block providing a `Secret`.
     public func authenticate(_ onChange: @escaping (Result<Secret, Error>) -> Void) {
         // Update cookies.
@@ -137,14 +143,20 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     // MARK: Shared flow
+
     /// Pre-login flow.
+    ///
+    /// - parameter onChange: A block providing an array of `HTTPCookie`s.
     private func header(onComplete: @escaping (Result<[HTTPCookie], Error>) -> Void) {
         // Obtain cookies.
         Endpoint.version1.accounts.read_msisdn_header.appending(path: "/")
             .appendingDefaultHeader()
-            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
+            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                "X-IG-Android-ID": client.device.instagramIdentifier,
+                                "User-Agent": client.description,
+                                "X-DEVICE-ID": client.device.identifier.uuidString])
             .signing(body: ["mobile_subno_usage": "default",
-                            "device_id": Device.default.deviceGUID.uuidString])
+                            "device_id": client.device.identifier.uuidString])
             .prepare()
             .debugTask(by: .authentication) {
                 guard let header = $0.response?.allHeaderFields as? [String: String] else {
@@ -159,13 +171,20 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     /// Fetch password public key and encrypt password.
+    ///
+    /// - parameters:
+    ///     - cookies: An array of `HTTPCookie`.
+    ///     - onComplete: A block providing a `String`.
     private func encryptedPassword(with cookies: [HTTPCookie], onComplete: @escaping (Result<String, Error>) -> Void) {
         // Obtain password key.
         Endpoint.version1.qe.sync.appending(path: "/")
             .appendingDefaultHeader()
-            .appending(header: "X-DEVICE-ID", with: Device.default.deviceGUID.uuidString)
+            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                "X-IG-Android-ID": client.device.instagramIdentifier,
+                                "User-Agent": client.description,
+                                "X-DEVICE-ID": client.device.identifier.uuidString])
             .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
-            .signing(body: ["id": Device.default.deviceGUID.uuidString,
+            .signing(body: ["id": client.device.identifier.uuidString,
                             "experiments": Constants.loginExperiments])
             .prepare()
             .debugTask(by: .authentication) { [self] in
@@ -187,6 +206,11 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     /// Request authentication.
+    ///
+    /// - parameters:
+    ///     - encryptedPassword: A valid `String`.
+    ///     - cookies: An array of `HTTPCookie`s.
+    ///     - onChange: A block providing a `Secret`.
     private func authenticate(with encryptedPassword: String,
                               cookies: [HTTPCookie],
                               onChange: @escaping (Result<Secret, Error>) -> Void) {
@@ -196,20 +220,22 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
         }
         // Obtain the `ds_user_id` and the `sessionid`.
         Endpoint.version1.accounts.login.appending(path: "/")
-            .appendingDefaultHeader()
+            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                "X-IG-Android-ID": client.device.instagramIdentifier,
+                                "User-Agent": client.description,
+                                "X-Csrf-Token": crossSiteRequestForgery.value])
             .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
-            .appending(header: "X-Csrf-Token", with: crossSiteRequestForgery.value)
             .signing(body: [
                 "username": self.username,
                 "enc_password": encryptedPassword,
-                "guid": Device.default.deviceGUID.uuidString,
-                "phone_id": Device.default.phoneGUID.uuidString,
-                "device_id": Device.default.deviceIdentifier,
+                "guid": client.device.identifier.uuidString,
+                "phone_id": client.device.phoneIdentifier.uuidString,
+                "device_id": client.device.instagramIdentifier,
                 "adid": "",
                 "google_tokens": "[]",
                 "country_codes": #"[{"country_code":"1","source": "default"}]"#,
                 "login_attempt_count": "0",
-                "jazoest": "2\(Device.default.phoneGUID.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
+                "jazoest": "2\(client.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
             .prepare()
             .debugTask(by: .authentication) { [self] in
@@ -221,6 +247,11 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 
     /// Handle `ds_user_id` and `sessionid` response.
+    ///
+    /// - parameters:
+    ///     - result: A `Wrapper`'s `Task.Response`.
+    ///     - crossSiteRequestForgery: A valid `HTTPCookie`.
+    ///     - onChange: A block providing a `Secret`.
     private func process(result: Requester.Task.Response<Wrapper>,
                          crossSiteRequestForgery: HTTPCookie,
                          onChange: @escaping (Result<Secret, Error>) -> Void) {
@@ -230,6 +261,7 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
             // Wait for two factor authentication.
             if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
                 onChange(.failure(BasicAuthenticatorError.twoFactor(.init(username: username,
+                                                                          client: client,
                                                                           identifier: twoFactorIdentifier,
                                                                           crossSiteRequestForgery: crossSiteRequestForgery,
                                                                           onChange: { [storage] in
@@ -251,11 +283,14 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
             }
             // Check for `loggedInUser`.
             else if value.loggedInUser.pk.int() != nil,
-                let url = URL(string: "https://instagram.com"),
-                let secret = Secret(cookies: HTTPCookie.cookies(
-                    withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
-                    for: url
-                ), device: .default)?.store(in: storage) {
+                    let url = URL(string: "https://instagram.com"),
+                    let secret = Secret(
+                        cookies: HTTPCookie.cookies(
+                            withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
+                            for: url
+                        ),
+                        client: client
+                    )?.store(in: storage) {
                 onChange(.success(secret))
             }
             // Return a generic error.
@@ -264,10 +299,9 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     }
 }
 
-/// Extend for `TransientStorage`.
 public extension BasicAuthenticator where Storage == ComposableRequest.TransientStorage<Secret> {
-    // MARK: Lifecycle
     /// Init.
+    ///
     /// - parameters:
     ///     - username: A `String` representing a valid username.
     ///     - password: A `String` representing a valid password.

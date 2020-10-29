@@ -10,15 +10,16 @@ import Foundation
 import ComposableRequest
 
 public extension Endpoint {
-    /// A `struct` holding reference to `location` `Endpoint`s. Requires authentication.
-    struct Location {
+    /// A module-like `enum` holding reference to `location` `Endpoint`s. Requires authentication.
+    enum Location {
         /// Get locations around coordinates.
+        ///
         /// - parameters:
         ///     - coordinates: A `CGPoint` with latitude and longitude.
         ///     - query: An optional `String` narrowing down the list. Defaults to `nil`.
         public static func around(coordinates: Swiftagram.Location.Coordinates,
                                   matching query: String? = nil) -> Disposable<Swiftagram.Location.Collection> {
-            return Endpoint.version1
+            Endpoint.version1
                 .appendingDefaultHeader()
                 .appending(path: "location_search/")
                 .appending(query: [
@@ -32,17 +33,18 @@ public extension Endpoint {
                 .locking(Secret.self) {
                     $0.appending(header: $1.header)
                         .appending(query: [
-                            "_csrftoken": $1.crossSiteRequestForgery.value,
-                            "_uid": $1.id,
-                            "_uuid": $1.device.deviceGUID.uuidString
+                            "_csrftoken": $1["csrftoken"]!,
+                            "_uid": $1.identifier,
+                            "_uuid": $1.client.device.identifier.uuidString
                         ])
                 }
         }
 
         /// Get the summary for the location matching `identifier`.
+        ///
         /// - parameter identifier: A valid location identifier.
         public static func summary(for identifier: String) -> Disposable<Swiftagram.Location.Unit> {
-            return Endpoint.version1
+            Endpoint.version1
                 .locations
                 .appending(path: identifier)
                 .appending(path: "info/")
@@ -51,9 +53,10 @@ public extension Endpoint {
         }
 
         /// Fetch stories currently available at the location matching `identifier`.
+        ///
         /// - parameter identifier: A valid location identifier.
         public static func stories(at identifier: String) -> Disposable<TrayItem.Unit> {
-            return Endpoint.version1
+            Endpoint.version1
                 .locations
                 .appending(path: identifier)
                 .appending(path: "story/")

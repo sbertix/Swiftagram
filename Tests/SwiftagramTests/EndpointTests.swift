@@ -1,8 +1,12 @@
-import ComposableRequest
+//
+//  EndpointTests.swift
+//  SwiftagramTests
+//
+//  Created by Stefano Bertagno on 17/08/2020.
+//
+
 import CoreGraphics
 import Foundation
-@testable import Swiftagram
-@testable import SwiftagramCrypto
 import XCTest
 
 #if canImport(UIKit)
@@ -12,50 +16,36 @@ import UIKit
 import AppKit
 #endif
 
+@testable import Swiftagram
+@testable import SwiftagramCrypto
+
+import ComposableRequest
+import SwCrypt
+
 /// The default request timeout.
 let timeout: TimeInterval = 300
 
-/// A custom reference typed wrapper.
-class ReferenceType<T> {
-    var value: T?
-}
-
 //swiftlint:disable line_length
-final class SwiftagramEndpointTests: XCTestCase {
-    /// A temp `Secret`
-    lazy var secret: Secret! = {
-        Secret(cookies: [
-            HTTPCookie(name: "ds_user_id", value: ProcessInfo.processInfo.environment["DS_USER_ID"]!),
-            HTTPCookie(name: "sessionid", value: ProcessInfo.processInfo.environment["SESSIONID"]!),
-            HTTPCookie(name: "csrftoken", value: ProcessInfo.processInfo.environment["CSRFTOKEN"]!),
-            HTTPCookie(name: "rur", value: ProcessInfo.processInfo.environment["RUR"]!)
-        ])
+/// A `class` dealing with testing all available `Endpoint`s.
+final class EndpointTests: XCTestCase {
+    //swiftlint:disable force_try
+    /// Read the `Secret`.
+    lazy var secret: Secret = {
+        let data = Data(base64Encoded: ProcessInfo.processInfo.environment["SECRET"]!.trimmingCharacters(in: .whitespacesAndNewlines))!
+        return try! JSONDecoder().decode(Secret.self, from: data)
     }()
+    //swiftlint:enable force_try
 
-    // MARK: Lifecycle
-    /// Set up.
-    override func setUp() {
-        // Create a custom configuration.
-        let sessionConfiguration = URLSessionConfiguration.default
-        sessionConfiguration.httpMaximumConnectionsPerHost = 1
-        sessionConfiguration.timeoutIntervalForRequest = 300
-        sessionConfiguration.timeoutIntervalForResource = 600
-        // Update requester.
-        Requester.default = .init(configuration: .init(sessionConfiguration: sessionConfiguration,
-                                                       dispatcher: .init(),
-                                                       waiting: 2...3))
-    }
-
-    // MARK: Testers
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapper`.
     @discardableResult
     func performTest(on endpoint: Endpoint.Disposable<Wrapper>,
                      logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task {
+        endpoint.unlocking(with: secret).task(requester: .instagram) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -76,9 +66,10 @@ final class SwiftagramEndpointTests: XCTestCase {
                                  logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task {
+        endpoint.unlocking(with: secret).task(requester: .instagram) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -99,9 +90,10 @@ final class SwiftagramEndpointTests: XCTestCase {
                                       logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
-        endpoint.unlocking(with: secret).task {
+        endpoint.unlocking(with: secret).task(requester: .instagram) {
             // Process.
             switch $0 {
             case .success(let response):
@@ -122,11 +114,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                      logging level: Logger.Level? = nil,
                      line: Int = #line,
                      function: String = #function) -> Wrapper? {
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
+                  by: .instagram,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -151,11 +145,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                                  logging level: Logger.Level? = nil,
                                  line: Int = #line,
                                  function: String = #function) -> Wrapper? {
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
+                  by: .instagram,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -180,11 +176,13 @@ final class SwiftagramEndpointTests: XCTestCase {
                                       logging level: Logger.Level? = nil,
                                       line: Int = #line,
                                       function: String = #function) -> Wrapper? {
+        // Perform the actual test.
         let completion = XCTestExpectation()
         let taskCompletion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
         endpoint.unlocking(with: secret)
             .task(maxLength: 1,
+                  by: .instagram,
                   onComplete: { XCTAssert($0 == 1); taskCompletion.fulfill() },
                   onChange: {
                     // Process.
@@ -222,18 +220,13 @@ final class SwiftagramEndpointTests: XCTestCase {
 
     /// Test `Endpoint.Friendship`.
     func testEndpointFriendship() {
-        performTest(on: Endpoint.Friendship.followed(by: secret.id))
-        performTest(on: Endpoint.Friendship.following(secret.id))
+        performTest(on: Endpoint.Friendship.followed(by: "183250726"))
+        performTest(on: Endpoint.Friendship.following("183250726"))
         performTest(on: Endpoint.Friendship.summary(for: "25025320"))
         performTest(on: Endpoint.Friendship.summary(for: ["25025320"]))
         performTest(on: Endpoint.Friendship.pendingRequests())
         performTest(on: Endpoint.Friendship.follow("25025320"))
         performTest(on: Endpoint.Friendship.unfollow("25025320"))
-    }
-
-    /// Test `Endpoint.Highlights`.
-    func testEndpointHighlights() {
-        performTest(on: Endpoint.Highlights.tray(for: secret.id))
     }
 
     /// Test `Endpoint.Media`.
@@ -246,7 +239,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointPosts() {
         performTest(on: Endpoint.Media.Posts.liked())
         performTest(on: Endpoint.Media.Posts.saved())
-        performTest(on: Endpoint.Media.Posts.by(secret.id))
+        performTest(on: Endpoint.Media.Posts.owned(by: "183250726"))
         performTest(on: Endpoint.Media.Posts.including("25025320"))
         performTest(on: Endpoint.Media.Posts.tagged(with: "instagram"))
         performTest(on: Endpoint.Media.Posts.likers(for: "2366175454991362926_7271269732"))
@@ -263,14 +256,14 @@ final class SwiftagramEndpointTests: XCTestCase {
                                                                      captioned: nil,
                                                                      tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
            let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.Posts.delete(matching: identifier))
+            performTest(on: Endpoint.Media.delete(identifier))
         }
         if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
                                                                      preview: Color.blue.image(sized: .init(width: 640, height: 360)),
                                                                      captioned: nil,
                                                                      tagging: [.init(x: 0.5, y: 0.5, identifier: "25025320")])),
            let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.Posts.delete(matching: identifier))
+            performTest(on: Endpoint.Media.delete(identifier))
         }
     }
 
@@ -278,8 +271,9 @@ final class SwiftagramEndpointTests: XCTestCase {
     func testEndpointStories() {
         performTest(on: Endpoint.Media.Stories.followed)
         performTest(on: Endpoint.Media.Stories.archived())
-        performTest(on: Endpoint.Media.Stories.by("25025320"))
-        performTest(on: Endpoint.Media.Stories.by(["183250726"]))
+        performTest(on: Endpoint.Media.Stories.highlights(for: "183250726"))
+        performTest(on: Endpoint.Media.Stories.owned(by: "25025320"))
+        performTest(on: Endpoint.Media.Stories.owned(by: ["183250726"]))
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
                                                                        stickers: [Sticker.mention("25025320")
                                                                                     .position(.init(x: 0.0, y: 0.125)),
@@ -315,7 +309,7 @@ final class SwiftagramEndpointTests: XCTestCase {
     /// Test `Endpoint.User`.
     func testEndpointUser() {
         performTest(on: Endpoint.User.blocked)
-        performTest(on: Endpoint.User.summary(for: secret.id))
+        performTest(on: Endpoint.User.summary(for: "183250726"))
         performTest(on: Endpoint.User.all(matching: "instagram"))
     }
 
@@ -325,18 +319,5 @@ final class SwiftagramEndpointTests: XCTestCase {
         performTest(on: Endpoint.Location.summary(for: "189075947904164"))
         performTest(on: Endpoint.Location.stories(at: "189075947904164"))
     }
-
-    static var allTests = [
-        ("Endpoint.Direct", testEndpointDirect),
-        ("Endpoint.Discover", testEndpointDiscover),
-        ("Endpoint.Friendship", testEndpointFriendship),
-        ("Endpoint.Highlights", testEndpointHighlights),
-        ("Endpoint.Media", testEndpointMedia),
-        ("Endpoint.Media.Posts", testEndpointPosts),
-        ("Endpoint.Media.Stories", testEndpointStories),
-        ("Endpoint.News", testEndpointNews),
-        ("Endpoint.User", testEndpointUser),
-        ("Endpoint.Location", testEndpointLocation)
-    ]
 }
 //swiftlint enable:line_length
