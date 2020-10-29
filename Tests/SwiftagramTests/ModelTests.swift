@@ -14,6 +14,7 @@ import ComposableRequest
 final class ModelTests: XCTestCase {
     // MARK: Testers
     /// Assess equality.
+    /// 
     /// - parameters:
     ///     - dictionary: A valid dictionary of `Wrapper`s.
     ///     - type: A `ReflectedType` concrete implementation.

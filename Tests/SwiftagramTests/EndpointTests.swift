@@ -31,14 +31,7 @@ final class EndpointTests: XCTestCase {
     //swiftlint:disable force_try
     /// Read the `Secret`.
     lazy var secret: Secret = {
-        let key = ProcessInfo.processInfo.environment["KEY"]!.dataFromHexadecimalString()!
-        let iv = ProcessInfo.processInfo.environment["IV"]!.dataFromHexadecimalString()!
-        let secret = Data(base64Encoded: ProcessInfo.processInfo.environment["SECRET"]!)!
-        // Decrypt the `Secret`.
-        let base64Encoded = try! CC.crypt(.decrypt, blockMode: .ctr, algorithm: .aes, padding: .noPadding, data: secret, key: key, iv: iv)
-        let base64EncodedString = String(data: base64Encoded, encoding: .utf8)!.trimmingCharacters(in: .whitespacesAndNewlines)
-        let data = Data(base64Encoded: base64EncodedString)!
-        // Decode the `Secret`.
+        let data = Data(base64Encoded: ProcessInfo.processInfo.environment["SECRET"]!.trimmingCharacters(in: .whitespacesAndNewlines))!
         return try! JSONDecoder().decode(Secret.self, from: data)
     }()
     //swiftlint:enable force_try
