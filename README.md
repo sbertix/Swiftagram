@@ -1,77 +1,52 @@
-# Swiftagram
+<br />
+<img alt="Header" src="https://github.com/sbertix/Swiftagram/blob/main/Resources/header.png" height="72" />
+<br />
+
 [![Swift](https://img.shields.io/badge/Swift-5.1-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 [![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
+<br />
+![iOS](https://img.shields.io/badge/iOS-9.0-ff69b4)
+![macOS](https://img.shields.io/badge/macOS-10.12-ff69b4)
+![tvOS](https://img.shields.io/badge/tvOS-11.0-ff69b4)
+![watchOS](https://img.shields.io/badge/watchOS-3.0-ff69b4)
 
-**Swiftagram** is a client for [**Instagram**](https://instagram.com) written entirely in **Swift**.
+<br />
 
-<br/>
+**Swiftagram** is a wrapper for [**Instagram**](https://instagram.com) Private API, written entirely in (modern) **Swift**.
 
-> How does it work?  
+**Instagram**'s official APIs, both the [*Instagram Basic Display API*](https://developers.facebook.com/docs/instagram-basic-display-api) and the [*Instagram Graph API*](https://developers.facebook.com/docs/instagram-api) — available for *Creator* and *Business* accounts alone, either lack support for the most mundane of features or limit their availability to a not large enough subset of profiles.
 
-**Swiftagram** relies on Instagram unofficial private APIs, used internally in the Android and iOS apps.  
+In order to bypass these limitations, **Swiftagram** relies on the API used internally by the Android and iOS official **Instagram** apps, requiring no _API token_, and allowing to reproduce virtually any action a user can take.
+Please just bear in mind, as they're not authorized for external use, you're using them at your own risk.
 
-This is because Instagram's **official APIs**, both the [**Instagram Basic Display API**](https://developers.facebook.com/docs/instagram-basic-display-api) and the [**Instagram Graph API**](https://developers.facebook.com/docs/instagram-api/), are either lacking support for even the most mundane of features or limited to a small audience (e.g. _Professional_, i.e. _Creator_ and _Influencer_, accounts).  
-
-> Do I need an API token?
-
-**Swiftagram** requires no token or registration.\
-Unofficial APIs, though, are not authorized by Instagram for external use: use them at your own risk.
-
-> Where can I use this?
-
-**Swiftagram** supports **iOS**, **macOS**, **watchOS**, **tvOS** and **Linux**.
+<br />
 
 > What's **SwiftagramCrypto**?
 
-Apps using encryption require specific disclosure before submission to the App Store.\
-Although **Swiftagram** cannot be considered App Store safe, we still think it's wise to separate everything requiring cryptography into their own target library, named **SwiftagramCrypto**.\
-Other than `KeychainStorage`, the prefered way to store `Secret`s, some `Endpoint`s are **SwiftagramCrypto** only.
+Relying on encryption usually requires specific disclosure, e.g. on submission to the **App Store**.
 
-<details><summary><strong>SwiftagramCrypto</strong>-specific endpoints</summary>
-    <p>
+Despite **Swiftagram** cannot be considered **App Store** safe, we still value separating everything depending on encryption into its owen target library, we call **SwiftagramCrypto**.
+Keep in mind features like `BasicAuthenticator`, a non-visual `Authenticator`, or `KeychainStorage`, the safe and preferred way to store `Secret`s, or even the ability to post on your feed and upload stories are **SwiftagramCrypto** only.
 
-- `Endpoint.Friendship`
-    - `.follow(_:)`
-    - `.unfollow(_:)`
-    - `.remove(follower:)`
-    - `.acceptRequest(from:)`
-    - `.rejectRequest(from:)`
-    - `.block(_:)`
-    - `.unblock(_:)`
-- `Endpoint.Media`
-    - `.delete(_:)`
-- `Endpoint.Media.Posts`
-    - `.like(_:)`
-    - `.unlike(_:)`
-    - `.archive(_:)`
-    - `.unarchive(_:)`
-    - `.comment(_:, on:, replyingTo:)`
-    - `.delete(comments:, on:)`
-    - `.upload(image:, captioned:, tagging:, at:)`
-    - `.upload(video:, preview:, captioned:, tagging: at:)`
-- `Endpoint.Media.Stories`
-    - `.upload(image:, stickers:, isCloseFriendOnly:)`
-    - `.upload(video:, preview:, stickers:, isCloseFriendOnly:)`
-    </p>
-</details>
+Please check out the _docs_ to find out more.
+
+<p />
 
 ## Status
-![Status](https://github.com/sbertix/Swiftagram/workflows/master/badge.svg)
-[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/Swiftagram)](https://github.com/sbertix/Swiftagram/wiki)
+![push](https://github.com/sbertix/Swiftagram/workflows/push/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/sbertix/Swiftagram)
 
-You can find all changelogs on [our Telegram channel](https://t.me/swiftagram).\
-Don't forget to subscribe to get all news and updates as soon as they're out.
-
-[![Stargazers over time](https://starchart.cc/sbertix/Swiftagram.svg)](https://starchart.cc/sbertix/Swiftagram)
+You can find all changelogs directly under every [release](https://github.com/sbertix/Swiftagram/releases), and if you care to be notified about future ones, don't forget to subscribe to our [Telegram channel](https://t.me/Swiftagram).
 
 > What's next?
 
-Check out our [milestones](https://github.com/sbertix/Swiftagram/milestones), [issues](https://github.com/sbertix/Swiftagram/issues) and the "WIP" [dashboard](https://github.com/sbertix/Swiftagram/projects/1).
+[Milestones](https://github.com/sbertix/Swiftagram/milestones), [issues](https://github.com/sbertix/Swiftagram/issues), as well as the [_WIP dashboard_](https://github.com/sbertix/Swiftagram/projects/1), are the best way to keep updated with active developement.
 
-[Pull requests](https://github.com/sbertix/Swiftagram/pulls) are more than welcome.\
-Just remember to refer to our [guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md), when you contribute.
+Feel free to contribute by sending a [pull request](https://github.com/sbertix/Swiftagram/pulls).
+Just remember to refer to our [guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) beforehand.
 
+<p />
 
 ## Installation
 ### Swift Package Manager (Xcode 11 and above)
@@ -91,9 +66,11 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 - **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**., and it's the core library.\
 It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s out of the box.
 
-- **SwiftagramCrypto**, depending on **ComposableRequestCrypto**, can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
+- **SwiftagramCrypto**, depending on **ComposableRequestCrypto** and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
     </p>
 </details>
+
+<p />
 
 ## Usage
 Check out our [Examples](Examples) or visit the (_auto-generated_) [Documentation](https://sbertix.github.io/Swiftagram) to learn about use cases.  
@@ -102,16 +79,105 @@ Check out our [Examples](Examples) or visit the (_auto-generated_) [Documentatio
 Authentication is provided through conformance to the `Authenticator` protocol, which, on success, returns a `Secret` containing all the cookies needed to sign an `Endpoint`'s request.
 
 The library comes with two concrete implementations.
-- [`BasicAuthenticator`](https://sbertix.github.io/SwiftagramCrypto/Classes/BasicAuthenticator.html) is code based and only requires _username_ and _password_, while supporting two factor authentication (requires **SwiftagramCrypto**).
-- [`WebViewAuthenticator`](https://sbertix.github.io/Swiftagram/Classes/WebViewAuthenticator.html), available for **iOS 11**+ and **macOS 10.13**+, relying on a `WKWebView` for fetching cookies.
+
+#### WebViewAuthenticator
+
+`WebViewAuthenticator` is a visual based `Authenticator`, relying on a `WKWebView` in order to log in the user.
+As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 10.13 (and above).
+
+<details><summary><strong>Example</strong></summary>
+    <p>
+
+```swift
+import UIKit
+import WebKit
+
+import ComposableRequest
+import ComposableRequestCrypto
+import Swiftagram
+
+/// A `class` defining a `UIViewController` displaying a `WKWebView` used for authentication.
+final class LoginViewController: UIViewController {
+    /// Any `ComposableRequest.Storage` used to cache `Secret`s.
+    /// We're using `KeychainStorage` as it's the safest option.
+    let storage = KeychainStorage()
+    /// A valid `Client`. We're relying on the `default` one.
+    let client = Client.default
+
+    /// The web view.
+    var webView: WKWebView? {
+        didSet {
+            oldValue?.removeFromSuperview() // Just in case.
+            guard let webView = webView else { return }
+            webView.frame = view.bounds     // Fill the parent view.
+            // You should also deal with layout constraints or similar here…
+            view.addSubview(webView)        // Add it to the parent view.
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Authenticate using any `Storage` you want (`KeychainStorage` is used as an example).
+        // `storage` can be omitted if you don't require `Secret`s caching.
+        // `client` can be omitted and the default once will be used.
+        WebViewAuthenticator(storage: storage,
+                             client: client) { self.webView = $0 }
+            .authenticate {
+                switch $0 {
+                    case .failure(let error): print(error.localizedDescription)
+                    default: print("Login succesful.")
+                }
+            }
+        }
+    }
+}
+```
+
+</p></details>
+
+#### BasicAuthenticator
+
+`BasicAuthenticator` is a code based `Authenticator`, supporting 2FA, defined in **SwiftagramCrypto**: all you need is a _username_ and _password_ and you're ready to go.
+
+<details><summary><strong>Example</strong></summary>
+    <p>
+
+```swift
+import ComposableRequest
+import ComposableRequestCrypto
+import Swiftagram
+import SwiftagramCrypto
+
+/// Any `ComposableRequest.Storage` used to cache `Secret`s.
+/// We're using `KeychainStorage` as it's the safest option.
+let storage = KeychainStorage()
+/// A valid `Client`. We're relying on the `default` one.
+let client = Client.default
+
+/// Authenticate.
+BasicAuthenticator(storage: storage,    // Optional. No storage will be used if omitted.
+                   client: client,      // Optional. Default client will be used if omitted.
+                   username: /* username */,
+                   password: /* password */)
+    .authenticate {
+        switch $0 {
+        case .failure(let error):
+            // Please check out the docs to find out how to deal with 2FA.
+            print(error.localizedDescription)
+        default: print("Login successful.")
+        }
+    }
+```
+
+</p></details>
 
 ### Caching
-Caching of `Secret`s is provided through conformance to the `Storage` protocol.  
+Caching of `Secret`s is provided through conformance to the `Storage` protocol in [**ComposableRequest**](https://github.com/sbertix/ComposableRequest).  
 
 The library comes with several concrete implementations.  
-- `TransientStorage` should be used when no caching is necessary.  
-- `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encoded.  
-- `KeychainStorage`, part of **SwiftagramCrypto**, (**preferred**) stores them safely in the user's keychain.  
+- `TransientStorage` should be used when no caching is necessary, and it's what `Authenticator`s default to when no `Storage` is provided.  
+- `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encrypted.  
+- `KeychainStorage`, part of **ComposableRequestCrypto**, (**preferred**) stores them safely in the user's keychain.  
 
 ### Request
 > How can I bypass Instagram "spam" filter, and make them believe I'm not actually a bot?
@@ -130,7 +196,6 @@ Requester.default = .instagram
 ```
 
 Or just create a custom `Requester` and pass it to every single request you make.  
-<br/>
 
 > What if I wanna know the basic info about a profile?
 
@@ -148,7 +213,6 @@ Endpoint.User.summary(for: identifier)
     })
     .resume() // Strongly referenced by default, no need to worry about it.
 ```
-<br/>
 
 > What about cancelling an ongoing request?
 
@@ -170,12 +234,13 @@ let task = Endpoint.Friendship.following(secret.id)
 // Cancel it.
 task?.cancel()
 ```
-<br/>
 
 >  What about loading the next page?
 
 Just `resume` it once more.
 If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
+
+<p />
 
 ## Special thanks
 
