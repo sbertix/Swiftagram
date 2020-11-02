@@ -89,11 +89,11 @@ public extension Client {
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
         identifier = machineMirror.children.reduce(into: "") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { }
+            guard let value = element.value as? Int8, value != 0 else { return }
             identifier += String(UnicodeScalar(UInt8(value)))
         }
         #endif
-        guard identifier.contains("iPhone") else { nil }
+        guard identifier.contains("iPhone") else { return nil }
         return .init(application: .iOS(),
                      device: .iOS("iOS "+UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_"),
                                   language: NSLocale.current.languageCode ?? "en_US",
