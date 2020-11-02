@@ -303,9 +303,10 @@ public extension BasicAuthenticator where Storage == ComposableRequest.Transient
     /// Init.
     ///
     /// - parameters:
+    ///     - client: A valid `Client`. Defaults to `.default`.
     ///     - username: A `String` representing a valid username.
     ///     - password: A `String` representing a valid password.
-    convenience init(username: String, password: String) {
-        self.init(storage: .init(), username: username, password: password)
+    convenience init(client: Client = .default, username: String, password: String) {
+        self.init(storage: .init(), client: client, username: username, password: password)
     }
 }
