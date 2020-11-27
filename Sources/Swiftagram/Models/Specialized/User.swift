@@ -101,13 +101,6 @@ public struct User: ReflectedType {
                      igtv: self["totalIgtvVideos"].int() ?? 0)
     }
 
-    /// The friendship status with the logged in user.
-    public var friendship: Friendship? {
-        (self["friendship"].optional()
-            ?? self["friendshipStatus"].optional())
-            .flatMap(Friendship.init)
-    }
-
     /// Init.
     /// - parameter wrapper: A valid `Wrapper`.
     public init(wrapper: @escaping () -> Wrapper) {
