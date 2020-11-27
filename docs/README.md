@@ -26,7 +26,7 @@ Please just bear in mind, as they're not authorized for external use, you're usi
 
 Relying on encryption usually requires specific disclosure, e.g. on submission to the **App Store**.
 
-Despite **Swiftagram** cannot be considered **App Store** safe, we still value separating everything depending on encryption into its owen target library, we call **SwiftagramCrypto**.
+[Despite **Swiftagram**, as all libraries relying on unathorized third-party APIs, cannot be considered **App Store** safe](https://9to5mac.com/2020/08/27/apple-rejects-watch-for-tesla-app-as-it-starts-requiring-written-consent-for-third-party-api-use/), we still value separating everything depending on [encryption](https://developer.apple.com/documentation/security/complying_with_encryption_export_regulations) into its owen target library, we call **SwiftagramCrypto**.
 Keep in mind features like `BasicAuthenticator`, a non-visual `Authenticator`, or `KeychainStorage`, the safe and preferred way to store `Secret`s, or even the ability to post on your feed and upload stories are **SwiftagramCrypto** only.
 
 Please check out the _docs_ to find out more.

@@ -7,6 +7,16 @@
 
 import Foundation
 
+public extension User {
+    /// The friendship status with the logged in user.
+    @available(*, deprecated, message: "Instagram changes mean this will always return `nil`; removing definition in `4.3.0`")
+    var friendship: Friendship? {
+        (self["friendship"].optional()
+            ?? self["friendshipStatus"].optional())
+            .flatMap(Friendship.init)
+    }
+}
+
 public extension Endpoint.Direct {
     /// All threads.
     /// 
