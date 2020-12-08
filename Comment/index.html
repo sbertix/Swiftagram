@@ -26,7 +26,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Nested Types</a></li><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#comment.init(wrapper:)">init(wrapper:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#comment.debugdescriptionprefix">debug​Description​Prefix</a></li><li class="variable"><a href="#comment.properties">properties</a></li><li class="variable"><a href="#comment.wrapper">wrapper</a></li><li class="variable"><a href="#comment.text">text</a></li><li class="variable"><a href="#comment.likes">likes</a></li><li class="variable"><a href="#comment.user">user</a></li></ul></li></ol>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Nested Types</a></li><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#comment.init(wrapper:)">init(wrapper:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#comment.debugdescriptionprefix">debug​Description​Prefix</a></li><li class="variable"><a href="#comment.properties">properties</a></li><li class="variable"><a href="#comment.wrapper">wrapper</a></li><li class="variable"><a href="#comment.identifier">identifier</a></li><li class="variable"><a href="#comment.text">text</a></li><li class="variable"><a href="#comment.likes">likes</a></li><li class="variable"><a href="#comment.user">user</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -151,7 +151,8 @@
     </h3>
     <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">properties</span>: [<span class="type">String</span>: <span class="type">PartialKeyPath</span>&lt;<span class="keyword">Self</span>&gt;] = [<span class="string literal">"</span><span class="string literal">text</span><span class="string literal">"</span>: \<span class="keyword">Self</span>.<span class="type">text</span>,
                                                                     <span class="string literal">"</span><span class="string literal">likes</span><span class="string literal">"</span>: \<span class="keyword">Self</span>.<span class="type">likes</span>,
-                                                                    <span class="string literal">"</span><span class="string literal">user</span><span class="string literal">"</span>: \<span class="keyword">Self</span>.<span class="type">user</span>]</code></pre></body></html>
+                                                                    <span class="string literal">"</span><span class="string literal">user</span><span class="string literal">"</span>: \<span class="keyword">Self</span>.<span class="type">user</span>,
+                                                                    <span class="string literal">"</span><span class="string literal">identifier</span><span class="string literal">"</span>: \<span class="keyword">Self</span>.<span class="type">identifier</span>]</code></pre></body></html>
 <div class="summary" role="doc-abstract">
     <p>A list of to-be-reflected properties.</p>
 
@@ -164,6 +165,16 @@
     <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">wrapper</span>: () -&gt; <span class="type">Wrapper</span></code></pre></body></html>
 <div class="summary" role="doc-abstract">
     <p>The underlying <code>Response</code>.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="comment.identifier">
+    <h3>
+        <code>identifier</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">identifier</span>: <span class="type">String</span>!</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The comment primary key.</p>
 
 </div>
 </div>
@@ -206,7 +217,7 @@
 
     <footer>
         <p>
-    Generated on <time datetime="2020-11-02T11:32:24+0000">November 2, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
+    Generated on <time datetime="2020-12-08T15:15:45+0000">December 8, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
 </p>
     </footer>
 </body>

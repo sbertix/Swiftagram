@@ -26,7 +26,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Member Of</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.user.base">base</a></li><li class="variable"><a href="#endpoint.user.blocked">blocked</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.user.summary(for:)">summary(for:​)</a></li><li class="function"><a href="#endpoint.user.all(matching:startingat:)">all(matching:​starting​At:​)</a></li></ul></li></ol>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Member Of</a></li><li><a href="#relationships">Nested Types</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.user.base">base</a></li><li class="variable"><a href="#endpoint.user.blocked">blocked</a></li><li class="variable"><a href="#user.friendship">friendship</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.user.summary(for:)">summary(for:​)</a></li><li class="function"><a href="#endpoint.user.all(matching:startingat:)">all(matching:​starting​At:​)</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -51,6 +51,15 @@
 <dd><p>A module-like <code>enum</code> defining all possible <code>Endpoint</code>s.</p>
 </dd>
 </dl>
+<h3>Nested Types</h3>
+<dl>
+    <dt class="structure"><code><a href="./User_Unit">User.Unit</a></code></dt>
+<dd><p>A <code>struct</code> representing a <code>User</code> single response.</p>
+</dd>
+<dt class="structure"><code><a href="./User_Collection">User.Collection</a></code></dt>
+<dd><p>A <code>struct</code> representing a <code>User</code> collection.</p>
+</dd>
+</dl>
 </section>
     <section id="properties">
         <h2>Properties</h2>
@@ -72,6 +81,16 @@
     <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">blocked</span>: <span class="type">Disposable</span>&lt;<span class="type">Wrapper</span>&gt;</code></pre></body></html>
 <div class="summary" role="doc-abstract">
     <p>A list of all profiles blocked by the user.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="user.friendship">
+    <h3>
+        <code>friendship</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">friendship</span>: <a href="./Friendship"><span class="type">Friendship</span></a>?</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The friendship status with the logged in user.</p>
 
 </div>
 </div>
@@ -152,7 +171,7 @@
 
     <footer>
         <p>
-    Generated on <time datetime="2020-11-02T11:32:24+0000">November 2, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
+    Generated on <time datetime="2020-12-08T15:15:46+0000">December 8, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.5</span>.
 </p>
     </footer>
 </body>
