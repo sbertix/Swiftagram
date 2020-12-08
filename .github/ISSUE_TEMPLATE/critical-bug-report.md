@@ -1,14 +1,13 @@
 ---
-name: Bug report
-about: Report things behaving unexpectedly requiring a fix. Use the new Discussions
-  section for requests and support.
+name: Critical bug report
+about: Report crashes and other exceptions rendering Swiftagram unusable.
 title: ''
-labels: bug
+labels: critical
 assignees: sbertix
 
 ---
 
-- [ ] I've searched past issues and I couldn't find reference to this. 
+- [ ] I've searched past issues and I couldn't find reference to this.
 
 **Swiftagram version**
 e.g. `2.0.1`, etc.
