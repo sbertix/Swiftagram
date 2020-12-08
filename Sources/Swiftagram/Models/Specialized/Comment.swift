@@ -16,11 +16,14 @@ public struct Comment: ReflectedType {
     /// A list of to-be-reflected properties.
     public static let properties: [String: PartialKeyPath<Self>] = ["text": \Self.text,
                                                                     "likes": \Self.likes,
-                                                                    "user": \Self.user]
+                                                                    "user": \Self.user,
+                                                                    "identifier": \Self.identifier]
 
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
+    /// The comment primary key.
+    public var identifier: String! { self["pk"].string(converting: true) }
     /// The `text` value.
     public var text: String! { self["text"].string() }
     /// The `commentLikeCount` value.
