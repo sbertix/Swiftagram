@@ -222,6 +222,8 @@ final class EndpointTests: XCTestCase {
     func testEndpointFriendship() {
         performTest(on: Endpoint.Friendship.followed(by: "183250726"))
         performTest(on: Endpoint.Friendship.following("183250726"))
+        performTest(on: Endpoint.Friendship.followed(by: "183250726", matching: "a"))
+        performTest(on: Endpoint.Friendship.following("183250726", matching: "a"))
         performTest(on: Endpoint.Friendship.summary(for: "25025320"))
         performTest(on: Endpoint.Friendship.summary(for: ["25025320"]))
         performTest(on: Endpoint.Friendship.pendingRequests())

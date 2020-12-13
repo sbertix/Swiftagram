@@ -19,11 +19,15 @@ public extension Endpoint {
         ///
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid user identifier.
+        ///     - query: An optional `String` representing a username or name component to query following. Defaults to `nil`.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         /// - note: This is equal to the user's **following**.
-        public static func followed(by identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
+        public static func followed(by identifier: String,
+                                    matching query: String? = nil,
+                                    startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
             base.appending(path: identifier)
                 .following
+                .appending(query: "q", with: query)
                 .paginating(process: Swiftagram.User.Collection.self, value: page)
                 .locking(Secret.self)
         }
@@ -32,13 +36,16 @@ public extension Endpoint {
         ///
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid user identifier.
+        ///     - query: An optional `String` representing a username or name component to query followers. Defaults to `nil`.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         /// - note: This is equal to the user's **followers**.
-        public static func following(_ identifier: String, startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
+        public static func following(_ identifier: String,
+                                     matching query: String? = nil,
+                                     startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
             base.appending(path: identifier)
                 .followers
-                .paginating(process: Swiftagram.User.Collection.self,
-                            value: page)
+                .appending(query: "q", with: query)
+                .paginating(process: Swiftagram.User.Collection.self, value: page)
                 .locking(Secret.self)
         }
 
