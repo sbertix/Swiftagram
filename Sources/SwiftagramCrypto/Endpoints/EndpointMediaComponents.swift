@@ -7,8 +7,8 @@
 
 import Foundation
 
-#if canImport(AVKit) && canImport(CoreGraphics)
-import AVKit
+#if canImport(AVFoundation) && canImport(CoreGraphics)
+import AVFoundation
 import CoreGraphics
 #endif
 
@@ -71,7 +71,8 @@ extension Endpoint.Media {
                 date: now)
     }
 
-    #if canImport(AVKit) && canImport(CoreGraphics)
+    #if canImport(AVFoundation) && canImport(CoreGraphics)
+    @available(watchOS 6, *)
     /// Upload video at `url`.
     /// - parameters:
     ///     - url: Some `url` to an `.mp4` video.

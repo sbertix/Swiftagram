@@ -67,6 +67,7 @@ final class AuthenticatorTests: XCTestCase {
         wait(for: [expectation], timeout: 3)
     }
 
+    #if canImport(WebKit)
     /// Test `WebViewAuthenticator` login flow.
     func testWebViewAuthenticator() {
         if #available(macOS 10.13, iOS 11, *) {
@@ -87,4 +88,5 @@ final class AuthenticatorTests: XCTestCase {
             wait(for: [expectation], timeout: 10)
         }
     }
+    #endif
 }

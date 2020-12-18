@@ -332,6 +332,7 @@ public extension Endpoint.Media.Posts {
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload<U: Collection>(video url: URL,
                                       preview image: Agnostic.Image,
                                       captioned caption: String?,
@@ -349,6 +350,7 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload(video url: URL,
                        preview image: Agnostic.Image,
                        captioned caption: String?,
@@ -366,6 +368,7 @@ public extension Endpoint.Media.Posts {
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     internal static func upload<U: Collection>(video url: URL,
                                                preview data: Data,
                                                size: CGSize,
@@ -469,6 +472,7 @@ public extension Endpoint.Media.Posts {
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload<U: Collection>(video url: URL,
                                       preview data: Data,
                                       captioned caption: String?,
@@ -488,6 +492,7 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload(video url: URL,
                        preview data: Data,
                        captioned caption: String?,
@@ -621,6 +626,7 @@ public extension Endpoint.Media.Stories {
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload<S: Sequence>(video url: URL,
                                     preview image: Agnostic.Image? = nil,
                                     stickers: S,
@@ -639,6 +645,7 @@ public extension Endpoint.Media.Stories {
     ///     - image: An `Agnostic.Image` to be used as preview. Defaults to `nil`, meaning a full black preview will be used.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload(video url: URL, preview image: Agnostic.Image? = nil, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
         upload(video: url, preview: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
@@ -652,6 +659,7 @@ public extension Endpoint.Media.Stories {
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     internal static func upload<S: Sequence>(video url: URL,
                                              preview data: Data?,
                                              size: CGSize,
@@ -743,6 +751,7 @@ public extension Endpoint.Media.Stories {
     ///     - stickers: A sequence of `Sticker`s.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload<S: Collection>(video url: URL,
                                       preview data: Data,
                                       stickers: S,
@@ -757,6 +766,7 @@ public extension Endpoint.Media.Stories {
     ///     - data: Some `Data` holding reference to an image to be used as preview.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
+    @available(watchOS 6, *)
     static func upload(video url: URL, preview data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
         upload(video: url, preview: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }

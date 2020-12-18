@@ -75,7 +75,7 @@ public extension Client {
                                                                       scale: 3,
                                                                       dpi: 458)))
 
-    #if canImport(UIKit)
+    #if canImport(UIKit) && !canImport(WatchKit)
     /// A custom iPhone device, based on the current `UIDevice`.
     ///
     /// - warning: If you're not running this on an iPhone (or an iPhone simulator), it will always evaluate to `nil`.

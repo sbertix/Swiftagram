@@ -75,6 +75,7 @@ public enum UserAgent {
     case current
 }
 
+#if canImport(WebKit)
 @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
 public extension WebViewAuthenticator {
     /// Set a custom User Agent.
@@ -93,3 +94,4 @@ public extension WebViewAuthenticator {
     @available(*, unavailable, message: "please create a custom `Client` and pass it to your `WebViewAuthenticator`.")
     func userAgent(_ userAgent: String) -> WebViewAuthenticator<Storage> { fatalError("Unavailable") }
 }
+#endif
