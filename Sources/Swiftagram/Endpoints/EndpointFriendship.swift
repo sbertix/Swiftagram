@@ -21,15 +21,20 @@ public extension Endpoint {
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - query: An optional `String` representing a username or name component to query following. Defaults to `nil`.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        ///     - rank: An optional `String` making sure users are paginated consistently. Defaults to `secret.client.device.identifier` when `nil`.
         /// - note: This is equal to the user's **following**.
         public static func followed(by identifier: String,
                                     matching query: String? = nil,
-                                    startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
+                                    startingAt page: String? = nil,
+                                    rank: String? = nil) -> Paginated<Swiftagram.User.Collection> {
             base.appending(path: identifier)
                 .following
                 .appending(query: "q", with: query)
                 .paginating(process: Swiftagram.User.Collection.self, value: page)
-                .locking(Secret.self)
+                .locking(Secret.self) {
+                    $0.appending(header: $1.header)
+                        .appending(header: "rank_token", with: rank ?? $1.client.device.identifier.uuidString)
+                }
         }
 
         /// A list of users following the user matching `identifier`.
@@ -38,15 +43,20 @@ public extension Endpoint {
         ///     - identifier: A `String` holding reference to a valid user identifier.
         ///     - query: An optional `String` representing a username or name component to query followers. Defaults to `nil`.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        ///     - rank: An optional `String` making sure users are paginated consistently. Defaults to `secret.client.device.identifier` when `nil`.
         /// - note: This is equal to the user's **followers**.
         public static func following(_ identifier: String,
                                      matching query: String? = nil,
-                                     startingAt page: String? = nil) -> Paginated<Swiftagram.User.Collection> {
+                                     startingAt page: String? = nil,
+                                     rank: String? = nil) -> Paginated<Swiftagram.User.Collection> {
             base.appending(path: identifier)
                 .followers
                 .appending(query: "q", with: query)
                 .paginating(process: Swiftagram.User.Collection.self, value: page)
-                .locking(Secret.self)
+                .locking(Secret.self) {
+                    $0.appending(header: $1.header)
+                        .appending(header: "rank_token", with: rank ?? $1.client.device.identifier.uuidString)
+                }
         }
 
         /// The current friendship status between the authenticated user and the one matching `identifier`.
