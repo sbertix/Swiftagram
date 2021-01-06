@@ -182,11 +182,22 @@ public extension Endpoint.Media {
         public static func timeline(startingAt page: String? = nil) -> Endpoint.Paginated<Wrapper> {
             Endpoint.version1.feed.appendingDefaultHeader()
                 .appending(path: "timeline/")
-                .prepare { request, response in
-                    guard let nextMaxId = try? response?.get().nextMaxId.string() else {
-                        return (try? request.appending(body: ["reason": "cold_start_fetch", "is_pull_to_refresh": "0"])) ?? request
+                .appending(query: ["max_id": page])
+                .prepare {
+                    switch $1 {
+                    case .none:
+                        switch $0.query["max_id"] {
+                        case let value? where !value.isEmpty:
+                            return $0.appending(query: ["reason": "pagination"])
+                        default:
+                            return (try? $0.appending(body: ["reason": "cold_start_fetch",
+                                                             "is_pull_to_refresh": "0"]))
+                                ?? $0
+                        }
+                    case let response?:
+                        guard let nextMaxId = try? response.get().nextMaxId.string() else { return nil }
+                        return $0.appending(query: ["max_id": nextMaxId, "reason": "pagination"])
                     }
-                    return request.appending(query: ["max_id": nextMaxId, "reason": "pagination"])
                 }
                 .locking(Secret.self) {
                     do {
