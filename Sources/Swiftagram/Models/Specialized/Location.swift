@@ -43,7 +43,7 @@ public struct Location: ReflectedType {
     public var wrapper: () -> Wrapper
 
     /// The latitude.
-    public var coordinates: Coordinates! {
+    public var coordinates: Coordinates? {
         guard let latitude = self["lat"].double().flatMap(CGFloat.init),
               let longitude = self["lng"].double().flatMap(CGFloat.init) else { return nil }
         return .init(latitude: latitude, longitude: longitude)

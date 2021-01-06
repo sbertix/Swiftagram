@@ -273,15 +273,15 @@ public extension Endpoint.Media.Posts {
                 // Add location.
                 if let location = location {
                     body["location"] = ["name": location.name.wrapped,
-                                        "lat": Double(location.coordinates.latitude).wrapped,
-                                        "lng": Double(location.coordinates.longitude).wrapped,
+                                        "lat": (location.coordinates?.latitude).flatMap(Double.init).wrapped,
+                                        "lng": (location.coordinates?.longitude).flatMap(Double.init).wrapped,
                                         "address": location.address.wrapped,
                                         "external_source": location.identifier.flatMap(\.keys.first).wrapped,
                                         "external_id": location.identifier.flatMap(\.values.first).wrapped,
                                         (location.identifier.flatMap(\.keys.first) ?? "")+"_id": location.identifier.flatMap(\.values.first).wrapped]
                     body["geotag_enabled"] = 1
-                    body["media_latitude"] = String(Double(location.coordinates.latitude)).wrapped
-                    body["media_longitude"] = String(Double(location.coordinates.longitude)).wrapped
+                    body["media_latitude"] = (location.coordinates?.latitude).flatMap { String(Double($0)) }.wrapped
+                    body["media_longitude"] = (location.coordinates?.longitude).flatMap { String(Double($0)) }.wrapped
                     body["posting_latitude"] = body["media_latitude"]
                     body["posting_longitude"] = body["media_longitude"]
                     body["exif_latitude"] = "0.0"
@@ -438,8 +438,8 @@ public extension Endpoint.Media.Posts {
                     // Add location.
                     if let location = location {
                         body["location"] = ["name": location.name.wrapped,
-                                            "lat": Double(location.coordinates.latitude).wrapped,
-                                            "lng": Double(location.coordinates.longitude).wrapped,
+                                            "lat": (location.coordinates?.latitude).flatMap(Double.init).wrapped,
+                                            "lng": (location.coordinates?.longitude).flatMap(Double.init).wrapped,
                                             "address": location.address.wrapped,
                                             "external_source": location.identifier.flatMap(\.keys.first).wrapped,
                                             "external_id": location.identifier.flatMap(\.values.first).wrapped,
@@ -447,8 +447,8 @@ public extension Endpoint.Media.Posts {
                                                 .flatMap(\.values.first)
                                                 .wrapped]
                         body["geotag_enabled"] = 1
-                        body["media_latitude"] = String(Double(location.coordinates.latitude)).wrapped
-                        body["media_longitude"] = String(Double(location.coordinates.longitude)).wrapped
+                        body["media_latitude"] = (location.coordinates?.latitude).flatMap { String(Double($0)) }.wrapped
+                        body["media_longitude"] = (location.coordinates?.longitude).flatMap { String(Double($0)) }.wrapped
                         body["posting_latitude"] = body["media_latitude"]
                         body["posting_longitude"] = body["media_longitude"]
                         body["exif_latitude"] = "0.0"
