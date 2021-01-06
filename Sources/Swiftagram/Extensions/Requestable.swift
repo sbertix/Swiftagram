@@ -42,8 +42,8 @@ public extension Requestable where Self: QueryComposable & QueryParsable {
         self.appending(query: key, with: value)
             .prepare(process: Mapped.self) { request, response in
                 guard let response = try? response?.get().wrapper() else { return request }
-                return (keyPath(response).string() ?? keyPath(response).int().flatMap(String.init))
-                    .flatMap { request.appending(query: key, with: $0) }
+                guard let nextCursor = keyPath(response).string(converting: true) else { return nil }
+                return request.appending(query: key, with: nextCursor)
             }
     }
 }

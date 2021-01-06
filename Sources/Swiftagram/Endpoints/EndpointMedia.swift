@@ -179,6 +179,7 @@ public extension Endpoint.Media {
         /// Timeline.
         ///
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        @available(*, deprecated, message: "visit https://github.com/sbertix/Swiftagram/discussions/128")
         public static func timeline(startingAt page: String? = nil) -> Endpoint.Paginated<Wrapper> {
             Endpoint.version1.feed.appendingDefaultHeader()
                 .appending(path: "timeline/")
@@ -196,7 +197,7 @@ public extension Endpoint.Media {
                         }
                     case let response?:
                         guard let nextMaxId = try? response.get().nextMaxId.string() else { return nil }
-                        return $0.appending(query: ["max_id": nextMaxId, "reason": "pagination"])
+                        return try? $0.appending(query: ["max_id": nextMaxId]).appending(body: ["reason": "pagination"])
                     }
                 }
                 .locking(Secret.self) {

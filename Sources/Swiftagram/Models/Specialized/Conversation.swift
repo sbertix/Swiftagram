@@ -92,6 +92,12 @@ public extension Conversation {
         /// The logged in user.
         public var viewer: User? { self["viewer"].optional().flatMap(User.init) }
 
+        /// The pagination parameters.
+        public var pagination: Pagination {
+            /// The current cursor is always `nil` for inboxes.
+            .init(current: nil, next: self["inbox"]["oldestCursor"].string())
+        }
+
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
         public init(wrapper: @escaping () -> Wrapper) {

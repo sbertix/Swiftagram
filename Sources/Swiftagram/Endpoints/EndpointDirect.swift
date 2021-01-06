@@ -17,15 +17,21 @@ public extension Endpoint {
 
         /// All threads.
         ///
-        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func inbox(startingAt page: String? = nil) -> Paginated<Conversation.Collection> {
+        /// - parameters:
+        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
+        ///     - rank: A valid `Int` making sure users are paginated consistently. Defaults to a random `Int` between `1_000` and `10_000`.
+        public static func inbox(startingAt page: String? = nil, rank: Int = Int.random(in: 1_000..<10_000)) -> Paginated<Conversation.Collection> {
             base.inbox
                 .appending(query: ["visual_message_return_type": "unseen",
                                    "direction": page.flatMap { _ in "older" },
                                    "thread_message_limit": "10",
                                    "persistent_badging": "true",
-                                   "limit": "20"])
-                .paginating(process: Conversation.Collection.self, key: "cursor", keyPath: \.oldestCursor, value: page)
+                                   "limit": "20",
+                                   "seq_id": String(rank)])
+                .paginating(process: Conversation.Collection.self,
+                            key: "cursor",
+                            keyPath: \.inbox.oldestCursor,
+                            value: page)
                 .locking(Secret.self)
         }
 
