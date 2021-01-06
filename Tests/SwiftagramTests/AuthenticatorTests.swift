@@ -41,12 +41,17 @@ final class AuthenticatorTests: XCTestCase {
         // removed implementation.
         let invalidUsername = XCTestExpectation()
         // Authenticate and checkpoint.
-        let authenticator = BasicAuthenticator(username: "·····",
-                                               password: "·····")
+        let authenticator = BasicAuthenticator(username: "···",
+                                               password: "···")
         authenticator.authenticate {
             switch $0 {
             case .failure(let error): print(error)
-            case .success(let secret): print(secret); XCTFail("It should not succeed")
+            case .success(let secret):
+                if let data = try? JSONEncoder().encode(secret) {
+                    XCTFail(data.base64EncodedString())
+                } else {
+                    XCTFail("It should not succeed")
+                }
             }
             invalidUsername.fulfill()
         }

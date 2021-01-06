@@ -105,8 +105,8 @@ final class ModelTests: XCTestCase {
                     to: Location.self,
                     wrapper: {
                         switch $1 {
-                        case "lat": return Double($0.coordinates.latitude).wrapped
-                        case "lng": return Double($0.coordinates.longitude).wrapped
+                        case "lat": return ($0.coordinates?.latitude).flatMap(Double.init).wrapped
+                        case "lng": return ($0.coordinates?.longitude).flatMap(Double.init).wrapped
                         case "externalIdSource": return ($0.identifier?.keys.first).wrapped
                         case "externalId": return ($0.identifier?.values.first).wrapped
                         default: return .empty
