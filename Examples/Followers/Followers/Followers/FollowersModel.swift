@@ -27,7 +27,7 @@ final class FollowersModel: ObservableObject {
     /// The logged in secret.
     var secret: Secret? {
         didSet {
-            guard let secret = secret, secret.id != oldValue?.id else { return }
+            guard let secret = secret, secret.identifier != oldValue?.identifier else { return }
             fetch(secret: secret)
         }
     }
@@ -42,7 +42,7 @@ final class FollowersModel: ObservableObject {
         if let secret = KeychainStorage<Secret>().all().first {
             self.secret = secret
             self.current = UserDefaults.standard
-                .data(forKey: secret.id)
+                .data(forKey: secret.identifier)
                 .flatMap { try? JSONDecoder().decode(User.self, from: $0) }
             // Fetch the data.
             self.fetch(secret: secret)
@@ -59,7 +59,7 @@ final class FollowersModel: ObservableObject {
     /// Fetch values.
     func fetch(secret: Secret) {
         // Load info for the logged in user.
-        Endpoint.User.summary(for: secret.id)
+        Endpoint.User.summary(for: secret.identifier)
             .unlocking(with: secret)
             .publish()
             .map(\.user)
@@ -69,7 +69,7 @@ final class FollowersModel: ObservableObject {
         // Load the first 3 pages of the current user's followers.
         // In a real app you might want to fetch all of them.
         followers = []
-        Endpoint.Friendship.following(secret.id)
+        Endpoint.Friendship.following(secret.identifier)
             .unlocking(with: secret)
             .publish()
             .prefix(3)

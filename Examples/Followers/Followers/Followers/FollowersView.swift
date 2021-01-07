@@ -22,8 +22,10 @@ struct FollowersView: View {
                 Text("Loading…")
                     .font(.headline)
                     .foregroundColor(.secondary)
+                    .padding(.vertical)
             } else if model.followers?.isEmpty == true {
                 Text("No followers.")
+                    .padding(.vertical)
             } else {
                 ForEach(model.followers ?? [], id: \.username.hashValue) { user in
                     /// Visit **Instagram** on tap.
@@ -37,10 +39,12 @@ struct FollowersView: View {
                             Spacer()
                             Image(systemName: "chevron.right").imageScale(.small).foregroundColor(.secondary)
                         }
+                        .padding(.vertical)
                     }
                 }
             }
         }
+        .listStyle(PlainListStyle())
         .onAppear {
             guard self.model.secret == nil else { return }
             self.shouldDisplayLogin = true
