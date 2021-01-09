@@ -239,6 +239,7 @@ final class EndpointTests: XCTestCase {
 
     /// Test `Endpoint.Media.Posts`.
     func testEndpointPosts() {
+        performTest(on: Endpoint.Media.Posts.timeline())
         performTest(on: Endpoint.Media.Posts.liked())
         performTest(on: Endpoint.Media.Posts.saved())
         performTest(on: Endpoint.Media.Posts.owned(by: "183250726"))

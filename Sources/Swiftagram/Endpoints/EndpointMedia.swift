@@ -179,25 +179,38 @@ public extension Endpoint.Media {
         /// Timeline.
         ///
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        @available(*, deprecated, message: "visit https://github.com/sbertix/Swiftagram/discussions/128")
         public static func timeline(startingAt page: String? = nil) -> Endpoint.Paginated<Wrapper> {
             Endpoint.version1.feed.appendingDefaultHeader()
                 .appending(path: "timeline/")
-                .appending(query: ["max_id": page])
+                .replacing(body: ["max_id": page])
                 .prepare {
                     switch $1 {
                     case .none:
                         switch $0.query["max_id"] {
                         case let value? where !value.isEmpty:
-                            return $0.appending(query: ["reason": "pagination"])
+                            return try? $0.appending(body: ["reason": "pagination"])
                         default:
-                            return (try? $0.appending(body: ["reason": "cold_start_fetch",
-                                                             "is_pull_to_refresh": "0"]))
-                                ?? $0
+                            return try? $0.appending(body: ["reason": "cold_start_fetch", "is_pull_to_refresh": "0"])
                         }
                     case let response?:
-                        guard let nextMaxId = try? response.get().nextMaxId.string() else { return nil }
-                        return try? $0.appending(query: ["max_id": nextMaxId]).appending(body: ["reason": "pagination"])
+                        guard let success = try? response.get(), let nextMaxId = success.nextMaxId.string() else { return nil }
+                        // Check if you reached the end for unwatched posts.
+                        // If you have, load older posts.
+                        switch nextMaxId {
+                        case "feed_recs_head_load":
+                            guard let actualNextMaxId = success.feedItems.array()?
+                                    .last?
+                                    .endOfFeedDemarcator
+                                    .groupSet
+                                    .groups
+                                    .array()?
+                                    .first(where: { $0.id.string() == "past_posts" })?
+                                    .nextMaxId
+                                    .string() else { return nil }
+                            return try? $0.appending(body: ["max_id": actualNextMaxId, "reason": "pagination"])
+                        default:
+                            return try? $0.appending(body: ["max_id": nextMaxId, "reason": "pagination"])
+                        }
                     }
                 }
                 .locking(Secret.self) {
