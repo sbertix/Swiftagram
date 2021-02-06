@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableRequest
+import ComposableStorage
 import SwCrypt
 import Swiftagram
 
@@ -37,7 +38,7 @@ import Swiftagram
 ///
 /// - note: **SwiftagramCrypto** only.
 /// - warning: `Secret`s returned by `BasicAuthentciator` are bound to the `Client` passed in the initialization process.
-public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authenticator where Storage.Key == Secret {
+public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authenticator where Storage.Item == Secret {
     public typealias Error = Swift.Error
 
     /// A `Storage` instance used to store `Secret`s.
@@ -149,25 +150,23 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     /// - parameter onChange: A block providing an array of `HTTPCookie`s.
     private func header(onComplete: @escaping (Result<[HTTPCookie], Error>) -> Void) {
         // Obtain cookies.
-        Endpoint.version1.accounts.read_msisdn_header.appending(path: "/")
+        Endpoint.version1
+            .accounts.read_msisdn_header
+            .path(appending: "/")
             .appendingDefaultHeader()
-            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+            .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
                                 "X-IG-Android-ID": client.device.instagramIdentifier,
                                 "User-Agent": client.description,
                                 "X-DEVICE-ID": client.device.identifier.uuidString])
             .signing(body: ["mobile_subno_usage": "default",
                             "device_id": client.device.identifier.uuidString])
-            .prepare()
-            .debugTask(by: .authentication) {
-                guard let header = $0.response?.allHeaderFields as? [String: String] else {
-                    return onComplete(.failure(BasicAuthenticatorError.invalidResponse))
-                }
-                // Get cookies.
-                let cookies = HTTPCookie.cookies(withResponseHeaderFields: header,
-                                                 for: URL(string: ".instagram.com")!)
-                onComplete(.success(cookies))
+            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .tryMap {
+                guard let header = ($0.response as? HTTPURLResponse)?
+                        .allHeaderFields as? [String: String] else { throw BasicAuthenticatorError.invalidResponse }
+                return HTTPCookie.cookies(withResponseHeaderFields: header, for: URL(string: ".instagram.com")!)
             }
-            .resume()
+            .observe(output: { onComplete(.success($0)) }, failure: { onComplete(.failure($0)) })
     }
 
     /// Fetch password public key and encrypt password.
@@ -177,32 +176,27 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
     ///     - onComplete: A block providing a `String`.
     private func encryptedPassword(with cookies: [HTTPCookie], onComplete: @escaping (Result<String, Error>) -> Void) {
         // Obtain password key.
-        Endpoint.version1.qe.sync.appending(path: "/")
+        Endpoint.version1.qe.sync
+            .path(appending: "/")
             .appendingDefaultHeader()
-            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+            .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
                                 "X-IG-Android-ID": client.device.instagramIdentifier,
                                 "User-Agent": client.description,
                                 "X-DEVICE-ID": client.device.identifier.uuidString])
-            .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
+            .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
             .signing(body: ["id": client.device.identifier.uuidString,
                             "experiments": Constants.loginExperiments])
-            .prepare()
-            .debugTask(by: .authentication) { [self] in
-                guard let response = $0.response else {
-                    return onComplete(.failure(BasicAuthenticatorError.invalidResponse))
+            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .tryMap {
+                guard let response = $0.response as? HTTPURLResponse,
+                      let header = response.allHeaderFields as? [String: String],
+                      try $0.data.flatMap(Wrapper.decode)?.status.string() == "ok" else {
+                    throw BasicAuthenticatorError.invalidResponse
                 }
-                switch $0.value {
-                case .failure(let error): onComplete(.failure(error))
-                case .success(let value) where value.status.string() == "ok":
-                    // Process headers and handle encryption.
-                    guard let header = response.allHeaderFields as? [String: String] else {
-                        return onComplete(.failure(BasicAuthenticatorError.invalidCookies))
-                    }
-                    onComplete(BasicAuthenticator<Storage>.encrypt(password: self.password, with: header))
-                default: onComplete(.failure(BasicAuthenticatorError.invalidResponse))
-                }
+                return header
             }
-            .resume()
+            .observe(output: { onComplete(BasicAuthenticator<Storage>.encrypt(password: self.password, with: $0)) },
+                     failure: { onComplete(.failure($0)) })
     }
 
     /// Request authentication.
@@ -219,12 +213,13 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
             return onChange(.failure(BasicAuthenticatorError.invalidCookies))
         }
         // Obtain the `ds_user_id` and the `sessionid`.
-        Endpoint.version1.accounts.login.appending(path: "/")
-            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+        Endpoint.version1.accounts.login
+            .path(appending: "/")
+            .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
                                 "X-IG-Android-ID": client.device.instagramIdentifier,
                                 "User-Agent": client.description,
                                 "X-Csrf-Token": crossSiteRequestForgery.value])
-            .appending(header: HTTPCookie.requestHeaderFields(with: cookies))
+            .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
             .signing(body: [
                 "username": self.username,
                 "enc_password": encryptedPassword,
@@ -237,69 +232,77 @@ public final class BasicAuthenticator<Storage: ComposableRequest.Storage>: Authe
                 "login_attempt_count": "0",
                 "jazoest": "2\(client.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
-            .prepare()
-            .debugTask(by: .authentication) { [self] in
-                self.process(result: $0,
-                             crossSiteRequestForgery: crossSiteRequestForgery,
-                             onChange: onChange)
-            }
-            .resume()
+            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .observe(output: { self.process(result: .success($0),
+                                            crossSiteRequestForgery: crossSiteRequestForgery,
+                                            onChange: onChange) },
+                     failure: { self.process(result: .failure($0),
+                                             crossSiteRequestForgery: crossSiteRequestForgery,
+                                             onChange: onChange) })
     }
 
     /// Handle `ds_user_id` and `sessionid` response.
     ///
     /// - parameters:
-    ///     - result: A `Wrapper`'s `Task.Response`.
+    ///     - result: A `Request.Response`.
     ///     - crossSiteRequestForgery: A valid `HTTPCookie`.
     ///     - onChange: A block providing a `Secret`.
-    private func process(result: Requester.Task.Response<Wrapper>,
+    private func process(result: Result<Request.Response, Error>,
                          crossSiteRequestForgery: HTTPCookie,
                          onChange: @escaping (Result<Secret, Error>) -> Void) {
-        switch result.value {
-        case .failure(let error): onChange(.failure(error))
-        case .success(let value):
-            // Wait for two factor authentication.
-            if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
-                onChange(.failure(BasicAuthenticatorError.twoFactor(.init(username: username,
-                                                                          client: client,
-                                                                          identifier: twoFactorIdentifier,
-                                                                          crossSiteRequestForgery: crossSiteRequestForgery,
-                                                                          onChange: { [storage] in
-                                                                            switch $0 {
-                                                                            case .success(let secret):
-                                                                                onChange(.success(secret.store(in: storage)))
-                                                                            default:
-                                                                                onChange($0)
-                                                                            }
-                                                                          }))))
-            }
-            // Check for errors.
-            else if let error = value.errorType.string() {
-                switch error {
-                case "bad_password": onChange(.failure(BasicAuthenticatorError.invalidPassword))
-                case "invalid_user": onChange(.failure(BasicAuthenticatorError.invalidUsername))
-                default: onChange(.failure(BasicAuthenticatorError.custom(error)))
+        switch result {
+        case .failure(let error):
+            onChange(.failure(error))
+        case .success(let item):
+            do {
+                guard let value = try item.data.flatMap(Wrapper.decode),
+                      let response = item.response as? HTTPURLResponse else {
+                    throw BasicAuthenticatorError.invalidResponse
                 }
+                if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
+                    // Wait for two factor authentication.
+                    throw BasicAuthenticatorError.twoFactor(.init(username: username,
+                                                                  client: client,
+                                                                  identifier: twoFactorIdentifier,
+                                                                  crossSiteRequestForgery: crossSiteRequestForgery,
+                                                                  onChange: { [storage] in
+                                                                    switch $0 {
+                                                                    case .success(let secret):
+                                                                        onChange(Result { try Storage.store(secret, in: storage) })
+                                                                    default:
+                                                                        onChange($0)
+                                                                    }
+                                                                  }))
+                } else if let error = value.errorType.string() {
+                    // Check for errors.
+                    switch error {
+                    case "bad_password": throw BasicAuthenticatorError.invalidPassword
+                    case "invalid_user": throw BasicAuthenticatorError.invalidUsername
+                    default: throw BasicAuthenticatorError.custom(error)
+                    }
+                } else if value.loggedInUser.pk.int() != nil,
+                          let url = URL(string: "https://instagram.com"),
+                          let secret = Secret(
+                            cookies: HTTPCookie.cookies(
+                                withResponseHeaderFields: response.allHeaderFields as? [String: String] ?? [:],
+                                for: url
+                            ),
+                            client: client
+                          ) {
+                    // Check for `loggedInUser`.
+                    onChange(Result { try Storage.store(secret, in: storage) })
+                } else {
+                    // Return a generic error.
+                    throw BasicAuthenticatorError.invalidResponse
+                }
+            } catch {
+                onChange(.failure(error))
             }
-            // Check for `loggedInUser`.
-            else if value.loggedInUser.pk.int() != nil,
-                    let url = URL(string: "https://instagram.com"),
-                    let secret = Secret(
-                        cookies: HTTPCookie.cookies(
-                            withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
-                            for: url
-                        ),
-                        client: client
-                    )?.store(in: storage) {
-                onChange(.success(secret))
-            }
-            // Return a generic error.
-            else { onChange(.failure(BasicAuthenticatorError.invalidResponse)) }
         }
     }
 }
 
-public extension BasicAuthenticator where Storage == ComposableRequest.TransientStorage<Secret> {
+public extension BasicAuthenticator where Storage == ComposableStorage.TransientStorage<Secret> {
     /// Init.
     ///
     /// - parameters:

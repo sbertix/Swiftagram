@@ -55,18 +55,24 @@ public struct Conversation: ReflectedType {
 
 public extension Conversation {
     /// A `struct` representing a `Conversation` single response.
-    struct Unit: ResponseType, ReflectedType {
+    struct Unit: ResponseType, ReflectedType, PaginatedType {
         /// The prefix.
         public static var debugDescriptionPrefix: String { "Conversation." }
         /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["thread": \Self.thread,
+        public static let properties: [String: PartialKeyPath<Self>] = ["thread": \Self.conversation,
                                                                         "error": \Self.error]
 
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
         /// The thread.
-        public var thread: Conversation? { self["thread"].optional().flatMap(Conversation.init) }
+        public var conversation: Conversation? { self["thread"].optional().flatMap(Conversation.init) }
+
+        /// The pagination parameters.
+        public var bookmark: Pagination {
+            /// The current cursor is always `nil` for inboxes.
+            .init(next: self["thread"]["oldestCursor"].string())
+        }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
@@ -80,7 +86,7 @@ public extension Conversation {
         /// The prefix.
         public static var debugDescriptionPrefix: String { "Conversation." }
         /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["threads": \Self.threads,
+        public static let properties: [String: PartialKeyPath<Self>] = ["threads": \Self.conversations,
                                                                         "viewer": \Self.viewer,
                                                                         "error": \Self.error]
 
@@ -88,14 +94,14 @@ public extension Conversation {
         public var wrapper: () -> Wrapper
 
         /// The threads.
-        public var threads: [Conversation]? { self["inbox"].threads.array()?.map(Conversation.init) }
+        public var conversations: [Conversation]? { self["inbox"].threads.array()?.map(Conversation.init) }
         /// The logged in user.
         public var viewer: User? { self["viewer"].optional().flatMap(User.init) }
 
         /// The pagination parameters.
-        public var pagination: Pagination {
+        public var bookmark: Pagination {
             /// The current cursor is always `nil` for inboxes.
-            .init(current: nil, next: self["inbox"]["oldestCursor"].string())
+            .init(next: self["inbox"]["oldestCursor"].string())
         }
 
         /// Init.

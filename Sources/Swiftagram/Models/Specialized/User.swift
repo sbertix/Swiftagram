@@ -136,7 +136,6 @@ public extension User {
         public static var debugDescriptionPrefix: String { "User." }
         /// A list of to-be-reflected properties.
         public static let properties: [String: PartialKeyPath<Self>] = ["users": \Self.users,
-                                                                        "pagination": \Self.pagination,
                                                                         "error": \Self.error]
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper

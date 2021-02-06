@@ -46,7 +46,6 @@ public extension Recipient {
         public static var debugDescriptionPrefix: String { "Recipient." }
         /// A list of to-be-reflected properties.
         public static let properties: [String: PartialKeyPath<Self>] = ["recipients": \Self.recipients,
-                                                                        "pagination": \Self.pagination,
                                                                         "error": \Self.error]
 
         /// The underlying `Response`.

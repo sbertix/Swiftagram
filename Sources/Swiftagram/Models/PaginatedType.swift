@@ -10,9 +10,7 @@ import Foundation
 import ComposableRequest
 
 /// A `struct` holding reference to pagination parameters.
-public struct Pagination {
-    /// The current cursor.
-    public var current: String?
+public struct Pagination: Hashable {
     /// Next cursor.
     public var next: String?
     /// Whether more pages are available or not.
@@ -20,15 +18,12 @@ public struct Pagination {
 }
 
 /// A `protocol` describing a response holding a paginated value.
-public protocol PaginatedType: Wrapped {
+public protocol PaginatedType: Wrapped, Bookmarkable {
     /// The pagination parameters.
-    var pagination: Pagination { get }
+    var bookmark: Pagination { get }
 }
 
 public extension PaginatedType {
     /// The pagination parameters.
-    var pagination: Pagination {
-        .init(current: self["cursor"].string(),
-              next: self["nextMaxId"].string())
-    }
+    var bookmark: Pagination { .init(next: self["nextMaxId"].string()) }
 }

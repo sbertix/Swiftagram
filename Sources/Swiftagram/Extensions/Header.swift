@@ -1,5 +1,5 @@
 //
-//  HeaderComposable.swift
+//  Header.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 18/05/2020.
@@ -9,13 +9,13 @@ import Foundation
 
 import ComposableRequest
 
-public extension HeaderComposable where Self: HeaderParsable {
+public extension Header {
     /// Append default headers.
     ///
     /// - returns: `self` with updated header fields.
     /// - note: Starting from `4.2.0`, `Client` related info is no longer added through this method.
     func appendingDefaultHeader() -> Self {
-        appending(header: [
+        header(appending: [
             "X-Ads-Opt-Out": "0",
             "X-CM-Bandwidth-KBPS": "-1.000",
             "X-CM-Latency": "-1.000",

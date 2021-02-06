@@ -1,17 +1,15 @@
 //
 //  LoginView.swift
-//  Followers
+//  Authenticator
 //
-//  Created by Stefano Bertagno on 10/03/2020.
-//  Copyright © 2020 Stefano Bertagno. All rights reserved.
+//  Created by Stefano Bertagno on 07/02/21.
 //
+
 import SwiftUI
 import UIKit
 import WebKit
 
-import ComposableRequestCrypto
 import Swiftagram
-import SwiftagramCrypto
 
 class LoginViewController: UIViewController {
     /// The completion handler.
@@ -28,7 +26,7 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Authenticate.
-        WebViewAuthenticator(storage: ComposableRequestCrypto.KeychainStorage<Secret>()) {
+        WebViewAuthenticator {
             self.webView = $0
         }.authenticate { [weak self] in
             switch $0 {

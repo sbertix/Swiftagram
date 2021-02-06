@@ -5,6 +5,8 @@
 //  Created by Stefano Bertagno on 17/08/2020.
 //
 
+#if !os(watchOS) && canImport(XCTest)
+
 import Foundation
 import XCTest
 
@@ -143,7 +145,7 @@ final class ModelTests: XCTestCase {
                         }
                     })
         performTest(on: ["media": dictionary.wrapped], to: Media.Unit.self)
-        performTest(on: ["media": [dictionary.wrapped].wrapped], to: Media.Collection.self)
+        //performTest(on: ["media": [dictionary.wrapped].wrapped], to: Media.Collection.self)
     }
 
     /// Test `Status`.
@@ -181,7 +183,7 @@ final class ModelTests: XCTestCase {
         performTest(on: ["thread": dictionary.wrapped], to: Conversation.Unit.self)
         performTest(on: ["inbox": ["threads": [dictionary.wrapped].wrapped]],
                     to: Conversation.Collection.self,
-                    wrapper: { response, _ in ["threads": (response.threads?.map { $0.wrapper() }).wrapped] })
+                    wrapper: { response, _ in ["threads": (response.conversations?.map { $0.wrapper() }).wrapped] })
     }
 
     /// Test `Recipient`.
@@ -194,7 +196,7 @@ final class ModelTests: XCTestCase {
                         (response.recipients?.map { recipient -> [String: Wrapper] in
                             switch recipient {
                             case .user(let user): return ["user": user.wrapper()]
-                            case .thread(let thread): return ["thread": thread.wrapper()]
+                            case .thread(let conversation): return ["thread": conversation.wrapper()]
                             default: return ["error": .empty]
                             }
                         }).wrapped
@@ -284,3 +286,5 @@ final class ModelTests: XCTestCase {
                     wrapper: { response, _ in [response.x.flatMap(Double.init), response.y.flatMap(Double.init)].wrapped })
     }
 }
+
+#endif

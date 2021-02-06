@@ -8,11 +8,12 @@
 import Foundation
 
 import ComposableRequest
+import ComposableStorage
 
 /// A `protocol` defining a way to fetch and store `Secret`s.
 public protocol Authenticator {
     /// A `Storage` concrete type in which `Secret` are stored.
-    associatedtype Storage: ComposableRequest.Storage
+    associatedtype Storage: ComposableStorage.Storage
     /// An `Error` concrete type.
     associatedtype Error: Swift.Error
 
@@ -27,13 +28,4 @@ public protocol Authenticator {
     /// - warning: Always call `Secret.store` with `storage` when receiving the `Secret` .
     /// - note: Using `TransientStorage` as `Storage` allows to disregard any storing mechanism.
     func authenticate(_ onChange: @escaping (Result<Secret, Error>) -> Void)
-}
-
-public extension Requester {
-    /// An ephemeral `Requester` guaranteed to be fired immediately, provided as a convinience for custom `Authenticator`s.
-    ///
-    /// - warning: **Do not** use this to call your `Endpoint`s as Instagram spam filter will surely intervene after just a few call.
-    static let authentication = Requester(configuration: .init(sessionConfiguration: .default,
-                                                               dispatcher: .init(),
-                                                               waiting: 0...0))
 }

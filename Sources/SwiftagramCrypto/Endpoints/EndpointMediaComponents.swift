@@ -15,25 +15,22 @@ import CoreGraphics
 import ComposableRequest
 import Swiftagram
 
-//swiftlint:disable large_tuple
 /// An `internal` extension providing reusable code for media upload and configuration.
 extension Endpoint.Media {
     /// The base endpoint.
     private static var base: Request { Endpoint.version1.media.appendingDefaultHeader() }
 
     /// Upload an image `data` with size `size`.
+    ///
+    /// - note: Make sure the `Future` generator is only ever called inside `Deferred`, otherwise it will fetch immediately.
     /// - parameters:
     ///     - data: Some `Data` representing a `jpeg` image.
     ///     - identifier: An optional `uploadId`. Defaults to `nil`.
     ///     - waterfallIdentifier: An optional `waterfallIdentifier`. Defaults to `nil`
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
-    /// - warning: Remember to set `Secret` specific headers in the request.
     static func upload(image data: Data,
                        identifier: String? = nil,
-                       waterfallIdentifier: String? = nil) -> (fetcher: Fetcher<Request, Media.Unit>.Disposable,
-                                                               identifier: String,
-                                                               name: String,
-                                                               date: Date) {
+                       waterfallIdentifier: String? = nil) -> Upload.Image {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = identifier ?? String(Int(now.timeIntervalSince1970*1_000))
@@ -58,38 +55,41 @@ extension Endpoint.Media {
             "Content-Length": length,
             "Accept-Encoding": "gzip"
         ]
-        /// Return the first endpoint.
-        return (fetcher: Endpoint.api
-                    .appending(path: "rupload_igphoto")
-                    .appending(path: name)
-                    .appendingDefaultHeader()
-                    .appending(header: header)
-                    .replacing(body: data)
-                    .prepare(process: Media.Unit.self),
-                identifier: identifier,
-                name: name,
-                date: now)
+        // Return.
+        return .init(identifier: identifier, name: name, date: now) { input in
+            Endpoint.api
+                .path(appending: "rupload_igphoto")
+                .path(appending: name)
+                .appendingDefaultHeader()
+                .header(appending: header)
+                .header(appending: input.secret.header)
+                .header(appending: input.secret.identifier, forKey: "IG-U-DS-User-ID")
+                .body(data)
+                .session(input.session)
+                .map(\.data)
+                .wrap()
+                .map(Media.Unit.init)
+                .observe(on: input.session.scheduler)
+        }
     }
 
     #if canImport(AVFoundation) && canImport(CoreGraphics)
+
     @available(watchOS 6, *)
     /// Upload video at `url`.
     /// - parameters:
     ///     - url: Some `url` to an `.mp4` video.
     ///     - data: Some `Data` representing a `jpeg` preview of the video.
     ///     - previewSize: A `CGSize` holding reference to the preview size.
+    ///     - sourceType: A valid `String`.
     ///     - isForAlbum: A `Bool`.
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
     /// - warning: Remember to set `Secret` specific headers in the request.
     static func upload(video url: URL,
                        preview data: Data?,
                        previewSize: CGSize,
-                       isForAlbum: Bool = false) -> (fetcher: Fetcher<Request, Media.Unit>.Disposable,
-                                                     identifier: String,
-                                                     name: String,
-                                                     date: Date,
-                                                     duration: TimeInterval,
-                                                     size: CGSize) {
+                       sourceType: String,
+                       isForAlbum: Bool = false) -> Upload.Video {
         // Prepare upload parameters.
         let video = AVAsset(url: url)
         let now = Date()
@@ -122,50 +122,121 @@ extension Endpoint.Media {
             "Accept-Encoding": "gzip"
         ]
         // Return the first endpoint.
-        return (fetcher: Endpoint.api
-                    .appending(path: "rupload_igvideo")
-                    .appending(path: name)
-                    .appendingDefaultHeader()
-                    .appending(header: header)
-                    .prepare(process: Media.Unit.self)
-                    .switch {
-                        // Actually upload the data.
-                        guard let response = try? $0.get(),
-                              let offset = response.offset.int(),
-                              let data = try? Data(contentsOf: url) else { return nil }
-                        // The actual configuration will be performed by the preprocessor on `unlocking`.
-                        return Endpoint.api
-                            .appending(path: "rupload_igvideo")
-                            .appending(path: name)
-                            .appending(header: header)
-                            .appending(header: ["Offset": String(offset),
-                                                "X-Entity-Length": String(data.count),
-                                                "Content-Length": String(data.count) ])
-                            .replacing(body: data)
+        let duration = TimeInterval(video.duration.seconds)
+        return .init(identifier: identifier, name: name, size: size, date: now, duration: duration) { input in
+            Endpoint.api
+                .path(appending: "rupload_igvideo")
+                .path(appending: name)
+                .appendingDefaultHeader()
+                .header(appending: header)
+                .header(appending: input.secret.header)
+                .header(appending: input.secret.identifier, forKey: "IG-U-DS-User-ID")
+                .session(input.session)
+                .map(\.data)
+                .wrap()
+                .flatMap { output -> Future<Wrapper, Error> in
+                    // Actually upload the video.
+                    guard let offset = output.offset.int() else {
+                        return .init(error: MediaError.artifact(output))
                     }
-                    .switch {
-                        // Upload the picture.
-                        guard let response = try? $0.get(), response.error == nil else { return nil }
-                        // The actual configuration will be performed by the preprocessor on `unlocking`.
-                        return upload(image: preview,
-                                      identifier: identifier,
-                                      waterfallIdentifier: waterfallIdentifier).fetcher.request
-                    }
-                    .switch {
-                        // Finish the upload.
-                        guard let response = try? $0.get(), response.error == nil else { return nil }
-                        // The actual configuration will be performed by the preprocessor on `unlocking`.
-                        return base
-                            .appending(path: "upload_finish/")
-                            .appending(header: ["retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#])
-                            .appending(query: ["video": "1"])
-                    },
-                identifier: identifier,
-                name: name,
-                date: now,
-                duration: TimeInterval(video.duration.seconds),
-                size: size)
+                    // Fetch the video and then upload it.
+                    return Request(url)
+                        .session(input.session.session,
+                                 on: Scheduler.queue(.userInitiated),
+                                 controlledBy: input.session.token,
+                                 logging: input.session.logger)
+                        .map(\.data)
+                        .flatMap { $0.flatMap(Future.init) ?? Future(error: MediaError.videoNotFound) }
+                        .flatMap {
+                            Endpoint.api
+                                .path(appending: "rupload_igvideo")
+                                .path(appending: name)
+                                .appendingDefaultHeader()
+                                .header(appending: header)
+                                .header(appending: input.secret.header)
+                                .header(appending: input.secret.identifier,
+                                        forKey: "IG-U-DS-User-ID")
+                                .header(appending: ["Offset": String(offset),
+                                                    "X-Entity-Length": String($0.count),
+                                                    "Content-Length": String($0.count)])
+                                .body($0)
+                                .session(input.session)
+                                .map(\.data)
+                                .wrap()
+                        }
+                }
+                .map(Media.Unit.init)
+                .flatMap { output -> Future<Media.Unit, Error> in
+                    // Upload the preview.
+                    guard output.error == nil else { return .init(error: MediaError.artifact(output.wrapper())) }
+                    return upload(image: preview,
+                                  identifier: identifier,
+                                  waterfallIdentifier: waterfallIdentifier)
+                        .generator(input)
+                }
+                .flatMap { output -> Future<Media.Unit, Error> in
+                    // Finish uploading process.
+                    guard output.error == nil else { return .init(error: MediaError.artifact(output.wrapper())) }
+                    return base.path(appending: "upload_finish/")
+                        .header(appending: input.secret.header)
+                        .header(appending: ["retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#])
+                        .query(appending: "1", forKey: "video")
+                        .signing(body: ["timezone_offset": "43200",
+                                        "_csrftoken": input.secret["csrftoken"]!.wrapped,
+                                        "user_id": identifier.wrapped,
+                                        "_uid": identifier.wrapped,
+                                        "device_id": input.secret.client.device.instagramIdentifier.wrapped,
+                                        "_uuid": input.secret.client.device.identifier.uuidString.wrapped,
+                                        "upload_id": identifier.wrapped,
+                                        "clips": [["length": duration.wrapped, "source_type": sourceType.wrapped]],
+                                        "source_type": sourceType.wrapped,
+                                        "length": Int(duration).wrapped,
+                                        "poster_frame_index": 0,
+                                        "audio_muted": false].wrapped)
+                        .session(input.session)
+                        .map(\.data)
+                        .wrap()
+                        .map(Media.Unit.init)
+                }
+                .observe(on: input.session.scheduler)
+        }
     }
+
     #endif
 }
-//swiftlint:enable large_tuple
+
+extension Endpoint.Media {
+    /// A module-like `enum` listing upload media respones.
+    enum Upload {
+        /// An alias for the generator input type.
+        typealias Input = (secret: Secret, session: SessionProviderInput)
+
+        /// A `struct` defining an image response.
+        struct Image {
+            /// The identifier.
+            let identifier: String
+            /// The name.
+            let name: String
+            /// The creation date.
+            let date: Date
+            /// A generator.
+            let generator: (Input) -> Future<Media.Unit, Error>
+        }
+
+        /// A `struct` defining a video response.
+        struct Video {
+            /// The identifier.
+            let identifier: String
+            /// The name.
+            let name: String
+            /// The size.
+            let size: CGSize
+            /// The creation date.
+            let date: Date
+            /// The duration.
+            let duration: TimeInterval
+            /// A generator.
+            let generator: (Input) -> Future<Media.Unit, Error>
+        }
+    }
+}

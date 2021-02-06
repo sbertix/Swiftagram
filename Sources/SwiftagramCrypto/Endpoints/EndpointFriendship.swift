@@ -21,18 +21,25 @@ public extension Endpoint.Friendship {
     ///     - identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
     private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status> {
-        base[keyPath: keyPath]
-            .appending(path: identifier)
-            .appending(path: "/")
-            .prepare(process: Status.self)
-            .locking(Secret.self) {
-                $0.appending(header: $1.header)
-                    .signing(body: ["_csrftoken": $1["csrftoken"],
+        .init { secret, session in
+            Deferred {
+                base[keyPath: keyPath]
+                    .path(appending: identifier)
+                    .path(appending: "/")
+                    .header(appending: secret.header)
+                    .signing(body: ["_csrftoken": secret["csrftoken"],
                                     "user_id": identifier,
                                     "radio_type": "wifi-none",
-                                    "_uid": $1.identifier,
-                                    "device_id": $1.client.device.instagramIdentifier,
-                                    "_uuid": $1.client.device.identifier.uuidString])
+                                    "_uid": secret.identifier,
+                                    "device_id": secret.client.device.instagramIdentifier,
+                                    "_uuid": secret.client.device.identifier.uuidString])
+                    .session(session)
+                    .map(\.data)
+                    .wrap()
+                    .map(Status.init)
+            }
+            .eraseToAnyObservable()
+            .observe(on: session.scheduler)
         }
     }
 

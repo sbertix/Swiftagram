@@ -109,7 +109,6 @@ public extension TrayItem {
         public static var debugDescriptionPrefix: String { "TrayItem." }
         /// A list of to-be-reflected properties.
         public static let properties: [String: PartialKeyPath<Self>] = ["items": \Self.items,
-                                                                        "pagination": \Self.pagination,
                                                                         "error": \Self.error]
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper

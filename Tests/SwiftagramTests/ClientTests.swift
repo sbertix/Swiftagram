@@ -5,6 +5,8 @@
 //  Created by Stefano Bertagno on 27/10/20.
 //
 
+#if !os(watchOS) && canImport(XCTest)
+
 import Foundation
 import XCTest
 
@@ -33,3 +35,5 @@ final class ClientTests: XCTestCase {
         XCTAssert(device.description == description, "Invalid user agent")
     }
 }
+
+#endif

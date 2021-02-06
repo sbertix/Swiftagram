@@ -48,7 +48,6 @@ public extension Comment {
         public static var debugDescriptionPrefix: String { "Comment." }
         /// A list of to-be-reflected properties.
         public static let properties: [String: PartialKeyPath<Self>] = ["comments": \Self.comments,
-                                                                        "pagination": \Self.pagination,
                                                                         "error": \Self.error]
 
         /// The underlying `Wrapper`.

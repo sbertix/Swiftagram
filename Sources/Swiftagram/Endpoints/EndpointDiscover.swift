@@ -19,35 +19,59 @@ public extension Endpoint {
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func users(like identifier: String) -> Disposable<Swiftagram.User.Collection> {
-            base.chaining
-                .appending(query: "target_id", with: identifier)
-                .prepare(process: Swiftagram.User.Collection.self)
-                .locking(Secret.self)
+            .init { secret, session in
+                Deferred {
+                    base.chaining
+                        .query(appending: identifier, forKey: "target_id")
+                        .header(appending: secret.header)
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                        .map(Swiftagram.User.Collection.init)
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
         }
 
         /// The explore feed.
-        ///
-        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func explore(startingAt page: String? = nil) -> Paginated<Wrapper> {
-            base.explore.paginating(value: page).locking(Secret.self)
+        public static var explore: Paginated<Page<Wrapper, String?>, String?> {
+            .init { secret, session, pages in
+                Pager(pages) { _, next, _ in
+                    base.explore
+                        .header(appending: secret.header)
+                        .query(appending: next, forKey: "max_id")
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
         }
 
         /// The topical explore feed.
         /// 
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func topics(startingAt page: String? = nil) -> Paginated<Wrapper> {
-            base.topical_explore
-                .paginating()
-                .locking(Secret.self) {
-                    $0.appending(query: [
-                        "is_prefetch": "true",
-                        "omit_cover_media": "false",
-                        "use_sectional_payload": "true",
-                        "timezone_offset": "43200",
-                        "session_id": $1["sessionid"]!,
-                        "include_fixed_destinations": "false"
-                    ]).appending(header: $1.header)
+        public static var topics: Paginated<Page<Wrapper, String?>, String?> {
+            .init { secret, session, pages in
+                Pager(pages) { _, next, _ in
+                    base.topical_explore
+                        .header(appending: secret.header)
+                        .query(appending: ["is_prefetch": "true",
+                                           "omit_cover_media": "false",
+                                           "use_sectional_payload": "true",
+                                           "timezone_offset": "43200",
+                                           "session_id": secret["sessionid"]!,
+                                           "include_fixed_destinations": "false",
+                                           "max_id": next])
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
                 }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
         }
     }
 }

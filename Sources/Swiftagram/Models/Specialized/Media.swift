@@ -247,14 +247,16 @@ public extension Media {
         public static var debugDescriptionPrefix: String { "Media." }
         /// A list of to-be-reflected properties.
         public static let properties: [String: PartialKeyPath<Self>] = ["media": \Self.media,
-                                                                        "pagination": \Self.pagination,
                                                                         "error": \Self.error]
 
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
         /// The media.
-        public var media: [Media]? { self["items"].array()?.map(Media.init) }
+        public var media: [Media]? {
+            self["items"].array()?.map(Media.init)
+                ?? self["media"].array()?.map(Media.init)
+        }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.

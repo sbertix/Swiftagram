@@ -10,18 +10,19 @@ import Foundation
 import WebKit
 
 import ComposableRequest
+import ComposableStorage
 
 /// A `class` holding reference to a specialized `WKWebView`.
 ///
 /// - note: This should **only** be used for Instagram authentication.
 @available(iOS 11, macOS 10.13, macCatalyst 13, *)
-final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKNavigationDelegate where Storage.Key == Secret {
+final class WebView<Storage: ComposableStorage.Storage>: WKWebView, WKNavigationDelegate where Storage.Item == Secret {
     /// Any `Storage`.
     let storage: Storage
     /// A `Client` instance used to create the `Secret`s.
     let client: Client
     /// A block providing a `Secret`.
-    private(set) var onChange: ((Result<Secret, WebViewAuthenticatorError>) -> Void)?
+    private(set) var onChange: ((Result<Secret, Error>) -> Void)?
 
     // MARK: Lifecycle
 
@@ -37,7 +38,7 @@ final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKNavigation
                   configuration: WKWebViewConfiguration,
                   storage: Storage,
                   client: Client,
-                  onChange: @escaping (Result<Secret, WebViewAuthenticatorError>) -> Void) {
+                  onChange: @escaping (Result<Secret, Error>) -> Void) {
         self.storage = storage
         self.client = client
         self.onChange = onChange
@@ -78,11 +79,13 @@ final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKNavigation
                 let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                 // Prepare `Secret`.
                 guard cookies.containsAuthenticationCookies else {
-                    self.onChange?(.failure(.invalidCookies))
+                    self.onChange?(.failure(WebViewAuthenticatorError.invalidCookies))
                     return
                 }
                 self.onChange?(
-                    Secret(cookies: cookies, client: self.client).flatMap { .success($0.store(in: self.storage)) } ?? .failure(.invalidCookies)
+                    Secret(cookies: cookies, client: self.client)
+                        .flatMap { secret in Result { try Storage.store(secret, in: self.storage) }}
+                        ?? .failure(WebViewAuthenticatorError.invalidCookies)
                 )
             }
             // No need to check anymore.
@@ -95,7 +98,9 @@ final class WebView<Storage: ComposableRequest.Storage>: WKWebView, WKNavigation
                 guard cookies.containsAuthenticationCookies else { return }
                 webView.navigationDelegate = nil
                 self.onChange?(
-                    Secret(cookies: cookies, client: self.client).flatMap { .success($0.store(in: self.storage)) } ?? .failure(.invalidCookies)
+                    Secret(cookies: cookies, client: self.client)
+                        .flatMap { secret in Result { try Storage.store(secret, in: self.storage) }}
+                        ?? .failure(WebViewAuthenticatorError.invalidCookies)
                 )
                 // Do not notify again.
                 self.onChange = nil

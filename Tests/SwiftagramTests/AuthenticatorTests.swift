@@ -5,6 +5,8 @@
 //  Created by Stefano Bertagno on 17/08/2020.
 //
 
+#if !os(watchOS) && canImport(XCTest)
+
 import Foundation
 import XCTest
 
@@ -95,3 +97,5 @@ final class AuthenticatorTests: XCTestCase {
     }
     #endif
 }
+
+#endif

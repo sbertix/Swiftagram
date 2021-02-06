@@ -16,6 +16,18 @@ public extension Endpoint {
         private static let base = Endpoint.version1.news.appendingDefaultHeader()
 
         /// Latest news.
-        public static var recent: Disposable<Wrapper> = base.inbox.prepare().locking(Secret.self)
+        public static var recent: Disposable<Wrapper> {
+            .init { secret, session in
+                Deferred {
+                    base.inbox
+                        .header(appending: secret.header)
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
+        }
     }
 }

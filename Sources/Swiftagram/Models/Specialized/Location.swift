@@ -104,7 +104,6 @@ public extension Location {
         public static var debugDescriptionPrefix: String { "Location." }
         /// A list of to-be-reflected properties.
         public static let properties: [String: PartialKeyPath<Self>] = ["venues": \Self.venues,
-                                                                        "pagination": \Self.pagination,
                                                                         "error": \Self.error]
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper

@@ -10,6 +10,7 @@ import Foundation
 import WebKit
 
 import ComposableRequest
+import ComposableStorage
 
 /// A `class` holding reference to a visual `Authenticator` relying on a custom web view to log in.
 ///
@@ -42,7 +43,7 @@ import ComposableRequest
 ///
 /// - warning: `Secret`s returned by `WebViewAuthenticator` are bound to the `Client` passed in the initialization process.
 @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
-public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Authenticator where Storage.Key == Secret {
+public final class WebViewAuthenticator<Storage: ComposableStorage.Storage>: Authenticator where Storage.Item == Secret {
     /// A `Storage` instance used to store `Secret`s.
     public let storage: Storage
 
@@ -73,7 +74,7 @@ public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Aut
     /// Return a `Secret` and store it in `storage`.
     ///
     /// - parameter onChange: A block providing a `Secret`.
-    public func authenticate(_ onChange: @escaping (Result<Secret, WebViewAuthenticatorError>) -> Void) {
+    public func authenticate(_ onChange: @escaping (Result<Secret, Error>) -> Void) {
         // Delete all cookies.
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
         WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
@@ -100,7 +101,7 @@ public final class WebViewAuthenticator<Storage: ComposableRequest.Storage>: Aut
 }
 
 @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
-public extension WebViewAuthenticator where Storage == ComposableRequest.TransientStorage<Secret> {
+public extension WebViewAuthenticator where Storage == ComposableStorage.TransientStorage<Secret> {
     /// Init.
     ///
     /// - parameters:

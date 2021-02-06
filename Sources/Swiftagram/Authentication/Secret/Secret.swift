@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableRequest
+import ComposableStorage
 
 /// A `struct` defining the logged in user authentication parameters.
 ///
@@ -15,12 +16,14 @@ import ComposableRequest
 /// just authenticate again, passing the new one to the `Authenticator`.
 ///
 /// - note: The information contained by any given instance of `Secret` is extremely sensitive. Please handle it with care.
-public struct Secret: HeaderKey {
+public struct Secret: Codable, Storable {
     /// The associated `Client`. Defaults to `.default`.
     public let client: Client
 
     /// The authenticated user primary key.
     public let identifier: String
+    /// The storable label.
+    public var label: String { identifier }
 
     /// All authentication cookies.
     ///

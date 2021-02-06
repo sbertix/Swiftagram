@@ -51,10 +51,10 @@ public final class TwoFactor {
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
         Endpoint.version1.accounts
-            .appending(path: "two_factor_login/")
+            .path(appending: "two_factor_login/")
             .appendingDefaultHeader()
-            .appending(header: HTTPCookie.requestHeaderFields(with: [crossSiteRequestForgery]))
-            .appending(header: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+            .header(appending: HTTPCookie.requestHeaderFields(with: [crossSiteRequestForgery]))
+            .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
                                 "X-IG-Android-ID": client.device.instagramIdentifier,
                                 "User-Agent": client.description,
                                 "X-Csrf-Token": crossSiteRequestForgery.value])
@@ -68,29 +68,36 @@ public final class TwoFactor {
                 "device_id": Client.default.device.instagramIdentifier,
                 "verification_method": "1"
             ])
-            .prepare()
-            .debugTask(by: .authentication) { [self] result in
-                switch result.value {
-                case .failure(let error): self.onChange(.failure(error))
-                case .success(let value):
-                    // Return secret.
-                    if value.loggedInUser.pk.int() != nil,
-                       let url = URL(string: "https://instagram.com"),
-                       let secret = Secret(
-                        cookies: HTTPCookie.cookies(
-                            withResponseHeaderFields: result.response?.allHeaderFields as? [String: String] ?? [:],
-                            for: url
-                        ),
-                        client: self.client
-                       ) {
-                        self.onChange(.success(secret))
+            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .observe(
+                output: { item in
+                    do {
+                        guard let response = item.response as? HTTPURLResponse,
+                              let value = try item.data.flatMap(Wrapper.decode) else {
+                            throw BasicAuthenticatorError.invalidResponse
+                        }
+                        // Prepare secret.
+                        if value.loggedInUser.pk.int() != nil,
+                           let url = URL(string: "https://instagram.com"),
+                           let secret = Secret(
+                            cookies: HTTPCookie.cookies(
+                                withResponseHeaderFields: response.allHeaderFields as? [String: String] ?? [:],
+                                for: url
+                            ),
+                            client: self.client
+                           ) {
+                            self.onChange(.success(secret))
+                        } else if let error = value.errorType.string() {
+                            // Otherwise check for errors.
+                            throw BasicAuthenticatorError.custom(error)
+                        } else {
+                            throw BasicAuthenticatorError.invalidCookies
+                        }
+                    } catch {
+                        self.onChange(.failure(error))
                     }
-                    // Otherwise check for error.
-                    else if let error = value.errorType.string() {
-                        self.onChange(.failure(BasicAuthenticatorError.custom(error)))
-                    } else { self.onChange(.failure(BasicAuthenticatorError.invalidCookies)) }
-                }
-            }
-            .resume()
+                },
+                failure: { self.onChange(.failure($0)) }
+            )
     }
 }

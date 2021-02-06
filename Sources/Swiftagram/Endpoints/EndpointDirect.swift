@@ -15,69 +15,111 @@ public extension Endpoint {
         /// The base endpoint.
         private static let base = Endpoint.version1.direct_v2.appendingDefaultHeader()
 
-        /// All threads.
-        ///
-        /// - parameters:
-        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        ///     - rank: A valid `Int` making sure users are paginated consistently. Defaults to a random `Int` between `1_000` and `10_000`.
-        public static func inbox(startingAt page: String? = nil, rank: Int = Int.random(in: 1_000..<10_000)) -> Paginated<Conversation.Collection> {
-            base.inbox
-                .appending(query: ["visual_message_return_type": "unseen",
-                                   "direction": page.flatMap { _ in "older" },
-                                   "thread_message_limit": "10",
-                                   "persistent_badging": "true",
-                                   "limit": "20",
-                                   "seq_id": String(rank)])
-                .paginating(process: Conversation.Collection.self,
-                            key: "cursor",
-                            keyPath: \.inbox.oldestCursor,
-                            value: page)
-                .locking(Secret.self)
+        /// Fetch all threads.
+        public static var inbox: Paginated<Conversation.Collection, RankedPageReference<String, String>?> {
+            .init { secret, session, pages in
+                // Persist the rank token.
+                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                // Prepare the actual pager.
+                return Pager(pages) { _, next, _ in
+                    base.inbox
+                        .header(appending: secret.header)
+                        .query(appending: ["visual_message_return_type": "unseen",
+                                           "direction": next.flatMap { _ in "older" },
+                                           "cursor": next,
+                                           "thread_message_limit": "10",
+                                           "persistent_badging": "true",
+                                           "limit": "20",
+                                           "seq_id": rank])
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                        .map(Conversation.Collection.init)
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
         }
 
         /// All pending threads.
-        ///
-        /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func pendingInbox(startingAt page: String? = nil) -> Paginated<Conversation.Collection> {
-            base.appending(path: "pending_inbox")
-                .appending(query: ["visual_message_return_type": "unseen",
-                                   "direction": page.flatMap { _ in "older" },
-                                   "thread_message_limit": "10",
-                                   "persistent_badging": "true",
-                                   "limit": "20"])
-                .paginating(process: Conversation.Collection.self, key: "cursor", keyPath: \.oldestCursor, value: page)
-                .locking(Secret.self)
+        public static var pendingInbox: Paginated<Conversation.Collection, String?> {
+            .init { secret, session, pages in
+                Pager(pages) { _, next, _ in
+                    base.path(appending: "pending_inbox")
+                        .header(appending: secret.header)
+                        .query(appending: ["visual_message_return_type": "unseen",
+                                           "direction": next.flatMap { _ in "older" },
+                                           "cursor": next,
+                                           "thread_message_limit": "10",
+                                           "persistent_badging": "true",
+                                           "limit": "20"])
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                        .map(Conversation.Collection.init)
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
         }
 
         /// Top ranked recipients matching `query`.
         ///
         /// - parameter query: An optional `String`.
         public static func recipients(matching query: String? = nil) -> Disposable<Recipient.Collection> {
-            base.appending(path: "ranked_recipients/")
-                .appending(header: ["mode": "raven",
-                                    "query": query ?? "",
-                                    "show_threads": "true"])
-                .prepare(process: Recipient.Collection.self)
-                .locking(Secret.self)
+            .init { secret, session in
+                Deferred {
+                    base.path(appending: "ranked_recipients/")
+                        .header(appending: secret.header)
+                        .header(appending: ["mode": "raven",
+                                            "query": query,
+                                            "show_threads": "true"])
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                        .map(Recipient.Collection.init)
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
         }
 
         /// A thread matching `identifier`.
         /// 
-        /// - parameters:
-        ///     - identifier: A `String` holding reference to a valid thread identifier.
-        ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func conversation(matching identifier: String,
-                                        startingAt page: String? = nil) -> Paginated<Conversation.Unit> {
-            base.threads
-                .appending(path: identifier)
-                .appending(query: ["visual_message_return_type": "unseen",
-                                   "direction": "older",
-                                   "limit": "20"])
-                .paginating(process: Conversation.Unit.self, key: "cursor", keyPath: \.thread.oldestCursor, value: page)
-                .locking(Secret.self)
+        /// - parameter identifier: A `String` holding reference to a valid thread identifier.
+        public static func conversation(matching identifier: String) -> Paginated<Conversation.Unit, String?> {
+            .init { secret, session, pages in
+                Pager(pages) { _, next, _ in
+                    base.threads
+                        .path(appending: identifier)
+                        .header(appending: secret.header)
+                        .query(appending: ["visual_message_return_type": "unseen",
+                                           "direction": next.flatMap { _ in "older" },
+                                           "cursor": next,
+                                           "limit": "20"])
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                        .map(Conversation.Unit.init)
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
         }
 
         /// Get user presence.
-        public static let presence: Disposable<Wrapper> = base.appending(path: "get_presence/").prepare().locking(Secret.self)
+        public static var presence: Disposable<Wrapper> {
+            .init { secret, session in
+                Deferred {
+                    base.path(appending: "get_presence/")
+                        .header(appending: secret.header)
+                        .session(session)
+                        .map(\.data)
+                        .wrap()
+                }
+                .eraseToAnyObservable()
+                .observe(on: session.scheduler)
+            }
+        }
     }
 }

@@ -6,10 +6,10 @@
 [![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
 <br />
-![iOS](https://img.shields.io/badge/iOS-9.0-ff69b4)
-![macOS](https://img.shields.io/badge/macOS-10.12-ff69b4)
-![tvOS](https://img.shields.io/badge/tvOS-11.0-ff69b4)
-![watchOS](https://img.shields.io/badge/watchOS-3.0-ff69b4)
+![iOS](https://img.shields.io/badge/iOS-9.0-DD5D43)
+![macOS](https://img.shields.io/badge/macOS-10.12-DD5D43)
+![tvOS](https://img.shields.io/badge/tvOS-11.0-DD5D43)
+![watchOS](https://img.shields.io/badge/watchOS-3.0-DD5D43)
 
 <br />
 
@@ -63,10 +63,10 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 <details><summary><strong>Targets</strong></summary>
     <p>
 
-- **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**., and it's the core library.\
-It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s out of the box.
+- **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**.\
+It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s and caching `Secret`s, through **ComposableStorage**, out-of-the-box.
 
-- **SwiftagramCrypto**, depending on **ComposableRequestCrypto** and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
+- **SwiftagramCrypto**, depending on [**Swiftchain**](https//github.com/sbertix/Swiftchain) and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
     </p>
 </details>
 
@@ -92,15 +92,15 @@ As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 
 import UIKit
 import WebKit
 
-import ComposableRequest
-import ComposableRequestCrypto
+import ComposableStorage
 import Swiftagram
+import Swiftchain
 
 /// A `class` defining a `UIViewController` displaying a `WKWebView` used for authentication.
 final class LoginViewController: UIViewController {
     /// Any `ComposableRequest.Storage` used to cache `Secret`s.
     /// We're using `KeychainStorage` as it's the safest option.
-    let storage = KeychainStorage()
+    let storage = KeychainStorage<Secret>()
     /// A valid `Client`. We're relying on the `default` one.
     let client = Client.default
 
@@ -143,14 +143,13 @@ final class LoginViewController: UIViewController {
     <p>
 
 ```swift
-import ComposableRequest
-import ComposableRequestCrypto
+import ComposableStorage
 import Swiftagram
-import SwiftagramCrypto
+import Swiftchain
 
 /// Any `ComposableRequest.Storage` used to cache `Secret`s.
 /// We're using `KeychainStorage` as it's the safest option.
-let storage = KeychainStorage()
+let storage = KeychainStorage<Secret>()
 /// A valid `Client`. We're relying on the `default` one.
 let client = Client.default
 
@@ -172,9 +171,9 @@ BasicAuthenticator(storage: storage,    // Optional. No storage will be used if 
 </p></details>
 
 ### Caching
-Caching of `Secret`s is provided through conformance to the `Storage` protocol in [**ComposableRequest**](https://github.com/sbertix/ComposableRequest).  
+Caching of `Secret`s is provided through its conformacy to [**ComopsableStorage**](https://github.com/sbertix/ComposableRequest)'s `Storable` protocol.  
 
-The library comes with several concrete implementations.  
+The library comes with several concrete implementations of `Storage`.  
 - `TransientStorage` should be used when no caching is necessary, and it's what `Authenticator`s default to when no `Storage` is provided.  
 - `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encrypted.  
 - `KeychainStorage`, part of **ComposableRequestCrypto**, (**preferred**) stores them safely in the user's keychain.  
@@ -182,63 +181,115 @@ The library comes with several concrete implementations.
 ### Request
 > How can I bypass Instagram "spam" filter, and make them believe I'm not actually a bot?
 
-Just set the default `waiting` time in the `Requester` to something greater than `0`.
+In older versions of **Swiftagram** we let the user set a delay between the firing of a request, and its actual dispatch. 
+This would eventually just slow down implementations, doing close to nothing to prevent misuse. 
+
+Starting with `5.0`, we're now directly exposing `URLSession`s to final users, so you can build your own implementation. And through `Scheduler.Work`, in case you still want to mimic the old behavior, you can add back any delay you feel necessary (although it's not recommended at this point). 
+
+**Swiftagram** defines a `static` `URLSession` (`URLSession.instagram`) fetching one resource at a time. Relying on this is the preferred way to deal with Instagram "spam" filter.
 
 ```swift
-import ComposableRequest
-import Swiftagram
-import SwiftagramCrypto
-
-// Somewhere in your code, for instance in your `AppDelegate`, set a new `default` `Requester`.
-// `O.5` to `1.5` seconds is a long enough time, usually.
-// `Requester.instagram` deals about it for you.
-Requester.default = .instagram
-```
-
-Or just create a custom `Requester` and pass it to every single request you make.  
-
-> What if I wanna know the basic info about a profile?
-
-All you need is the user identifier and a valid `Secret`.
-
-```swift
-let identifier: String = /* the profile identifier */
 let secret: Secret = /* the authentication response */
 
-// Perform the request.
-Endpoint.User.summary(for: identifier)
-    .unlocking(with: secret)
-    .task {
-        // Do something here.
-    })
-    .resume() // Strongly referenced by default, no need to worry about it.
+// We're using a random endpoint to demonstrate 
+// how `URLSession` is exposed in code. 
+Endpoint.User.Summary(for: secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram)    // `URLSession.instagram` 
+    .observe { _ in }
 ```
 
 > What about cancelling an ongoing request?
 
-Easy!
+The new **ComposableRequest** `Observable`, on which all `Endpoint`s are built, is heavily based on standardized (deferred) `Future`s, which, by definition, do not allow for cancellation per se. 
+That's why In **Swiftagram** `5.0`, you'll note a renwed approach to cancellation – and task management as a whole. Cancelling and resuming a request is now independent from the actual `Observable` stream, allowing for better notifications too (cancelled requests now trigger a descriptive `Error` instead of just vanishing in thin air, so you have a way to deal with it directly). 
+
+All you need to do is link a `Token` with your `Endpoint` request.
 
 ```swift
 let secret: Secret = /* the authentication response */
 
-// Perform the request.
-let task = Endpoint.Friendship.following(secret.id)
-    .unlocking(with: secret)
-    .task(maxLength: 10,
-          onComplete: { _ in },
-          onChange: { _ in  
-            // Do something here.
-    })
-    .resume() // Exhaust 10 pages of followers.
-
-// Cancel it.
-task?.cancel()
+// The source for the `Token` used to control
+// the request.
+let source: Token.Source = .init()
+// We're using a random endpoint to demonstrate 
+// how `Token` is exposed in code. 
+Endpoint.User.Summary(for: secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram, controlledBy: source.token) 
+    .observe { _ in }
 ```
 
->  What about loading the next page?
+Nothing will happen until you call `source.resume()`, and you can just as easily cancel the request with `source.cancel()`. 
+If you still want to be able to deal with cancellation, without having to explicitly resume the request, you can rely on a custom `Token.Source`.
 
-Just `resume` it once more.
-If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
+```swift
+let source: Token.Source = .immediate
+
+// Which is equivalent to…
+
+let equivalentSource: Token.Source = .init()
+equivalentSource.resume()
+```
+
+> How do I deal with pagination and pagination offsets? 
+
+Easy. 
+Assuming you're fetching a resource that can actually be paginated… 
+
+```swift
+let secret = /* the authentication response */
+
+// We're using a random endpoint to demonstrate 
+// how `PagerProvider` is exposed in code. 
+Endpoint.Media.owned(by: secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram)
+    .pages(.max)    // Exhaust all with `.max`
+                    // or pass any `Int` to limit
+                    // pages.
+    .observe { _ in }
+```
+
+`PagerProvider` also supports an `offset`, i.e. the value passed to its first iteration, and a `rank` (token) in same cases, both as optional parameters in the `pages(_:offset:)`/`pages(_:offset:rank:)` method above.  
+
+### Combine
+
+`Observable` expose a `publish` method by default. 
+
+```swift
+var bin: Set<AnyCancellable> = []
+let secret = /* the authentication response */
+
+// We're using a random endpoint to demonstrate 
+// how `Combine` is exposed in code. 
+Endpoint.User.Summary(for: secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram) 
+    .publish()
+    .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+    .store(in: &bin)
+```
+
+If you're relying on `Token`s, you can also link them to your `Publisher`, so you don't have to deal with it yourself. 
+
+```swift
+let secret: Secret = /* the authentication response */
+
+// The source for the `Token` used to control
+// the request.
+let source: Token.Source = .init()
+// We're using a random endpoint to demonstrate 
+// how `Token` is exposed in code. 
+Endpoint.User.Summary(for: secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram, controlledBy: source.token) 
+    .publish(handling: source.token)    // There's also a method 
+                                        // accepting a collection of
+                                        // `Token`s. 
+    .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+    .store(in: &bin)
+```
 
 <p />
 

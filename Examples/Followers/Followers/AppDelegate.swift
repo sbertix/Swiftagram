@@ -8,26 +8,20 @@
 
 import UIKit
 
-import ComposableRequest
-import ComposableRequestCrypto
+import ComposableStorage
 import Swiftagram
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Delete persisted data on updated version.
         if UserDefaults.standard.string(forKey: "swiftagram.version") != "4.1.0" {
-            KeychainStorage<Secret>().removeAll()
+            do { try KeychainStorage<Secret>().empty() } catch { print(error) }
             Bundle.main.bundleIdentifier.flatMap(UserDefaults.standard.removePersistentDomain)
             // Update version.
             UserDefaults.standard.set("4.1.0", forKey: "swiftagram.version")
             UserDefaults.standard.synchronize()
         }
-        // Update the `Requester`.
-        Requester.default = .instagram
-        // Uncomment to log requests.
-        // Logger.level = .full
         return true
     }
 
