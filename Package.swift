@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.1
 
 import Foundation
 import PackageDescription
@@ -21,15 +21,11 @@ let package = Package(
                    .package(url: "https://github.com/sbertix/Swiftchain.git", .upToNextMinor(from: "1.0.0"))],
     // All targets.
     targets: [.target(name: "Swiftagram",
-                      dependencies: [.product(name: "ComposableRequest", package: "ComposableRequest"),
-                                     .product(name: "ComposableStorage", package: "ComposableRequest")]),
+                      dependencies: ["ComposableRequest", "ComposableStorage"]),
               .target(name: "SwiftagramCrypto",
-                      dependencies: [.target(name: "Swiftagram"),
-                                     .product(name: "SwCrypt", package: "SwCrypt"),
-                                     .product(name: "Swiftchain", package: "Swiftchain")]),
+                      dependencies: ["Swiftagram", "SwCrypt", "Swiftchain"]),
               .testTarget(name: "SwiftagramTests",
-                          dependencies: [.target(name: "Swiftagram"),
-                                         .target(name: "SwiftagramCrypto")])]
+                          dependencies: ["Swiftagram", "SwiftagramCrypto"])]
 )
 
 if ProcessInfo.processInfo.environment["TARGETING_WATCHOS"] == "true" {
