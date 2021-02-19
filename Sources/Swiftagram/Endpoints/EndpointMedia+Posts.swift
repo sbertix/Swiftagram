@@ -12,6 +12,28 @@ import ComposableRequest
 public extension Endpoint.Media {
     /// A module-like `enum` holding reference to `media` `Endpoint`s reguarding posts. Requires authentication.
     enum Posts {
+        /// Return a media identifier from a valid post `URL`.
+        ///
+        /// - parameter url: A valid `URL`.
+        public static func identifier(for url: URL) -> AnyObservable<String?, Never> {
+            // Prepare the `URL`.
+            let components = url.pathComponents
+            guard let postIndex = components.firstIndex(of: "p"),
+                  postIndex < components.count-1 else {
+                return Future(output: nil).eraseToAnyObservable()
+            }
+            let shortcode = components[postIndex+1]
+            // Process the shortcode.
+            let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+            let set = CharacterSet(charactersIn: alphabet)
+            guard shortcode.rangeOfCharacter(from: set.inverted) == nil else {
+                return Future(output: nil).eraseToAnyObservable()
+            }
+            var identifier: Int64 = 0
+            shortcode.forEach { identifier = identifier*64+Int64(alphabet.firstIndex(of: $0)!.utf16Offset(in: alphabet)) }
+            return Future(output: String(identifier)).eraseToAnyObservable()
+        }
+
         /// A list of all users liking the media matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid post media identifier.

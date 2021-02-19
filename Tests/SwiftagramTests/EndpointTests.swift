@@ -116,6 +116,32 @@ final class EndpointTests: XCTestCase {
         return reference.value
     }
 
+    /// Perform a test on `Endpoint` returning an `Equatable`.
+    @discardableResult
+    func performTest<T: Equatable, F: Error>(on endpoint: AnyObservable<T, F>,
+                                             comparison: T,
+                                             logging level: Logger.Level? = nil,
+                                             line: Int = #line,
+                                             function: String = #function) -> T? {
+        // Perform the actual test.
+        let completion = XCTestExpectation()
+        let reference = ReferenceType<T>()
+        endpoint.observe(result: {
+            // Process.
+            switch $0 {
+            case .success(let response):
+                XCTAssert(response == comparison, "\(function) #\(line)")
+                reference.value = response
+            case .failure(let error):
+                XCTFail(error.localizedDescription+" \(function) #\(line)")
+            }
+            // Complete.
+            DispatchQueue.main.asyncAfter(deadline: .now()+2) { completion.fulfill() }
+        })
+        wait(for: [completion], timeout: timeout)
+        return reference.value
+    }
+
     // Perform test on `Endpoint` returning a `Paginated` `Wrapper`.
     @discardableResult
     func performTest<P, N>(on endpoint: Endpoint.Paginated<Page<Wrapper, N?>, P?>,
@@ -250,6 +276,8 @@ final class EndpointTests: XCTestCase {
 
     /// Test `Endpoint.Media.Posts`.
     func testEndpointPosts() {
+        performTest(on: Endpoint.Media.Posts.identifier(for: URL(string: "https://www.instagram.com/p/CK_odwyBEcL/")!),
+                    comparison: "2503897884945303307")
         performTest(on: Endpoint.Media.Posts.timeline)
         performTest(on: Endpoint.Media.Posts.liked)
         performTest(on: Endpoint.Media.Posts.saved)
