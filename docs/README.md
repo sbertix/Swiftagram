@@ -197,39 +197,25 @@ Endpoint.User.Summary(for: secret.identifier)
     .unlock(with: secret)
     .session(.instagram)    // `URLSession.instagram` 
     .observe { _ in }
+    .resume()
 ```
 
 > What about cancelling an ongoing request?
 
-The new **ComposableRequest** `Observable`, on which all `Endpoint`s are built, is heavily based on standardized (deferred) `Future`s, which, by definition, do not allow for cancellation per se. 
-That's why In **Swiftagram** `5.0`, you'll note a renwed approach to cancellation – and task management as a whole. Cancelling and resuming a request is now independent from the actual `Observable` stream, allowing for better notifications too (cancelled requests now trigger a descriptive `Error` instead of just vanishing in thin air, so you have a way to deal with it directly). 
-
-All you need to do is link a `Token` with your `Endpoint` request.
+Once you have a stream `Deferrable`, just call `cancel` on it. 
 
 ```swift
 let secret: Secret = /* the authentication response */
 
-// The source for the `Token` used to control
-// the request.
-let source: Token.Source = .init()
 // We're using a random endpoint to demonstrate 
-// how `Token` is exposed in code. 
-Endpoint.User.Summary(for: secret.identifier)
+// how `Deferrable` is exposed in code. 
+let deferrable: Deferrable = Endpoint.User.Summary(for: secret.identifier)
     .unlock(with: secret)
-    .session(.instagram, controlledBy: source.token) 
+    .session(.instagram) 
     .observe { _ in }
-```
-
-Nothing will happen until you call `source.resume()`, and you can just as easily cancel the request with `source.cancel()`. 
-If you still want to be able to deal with cancellation, without having to explicitly resume the request, you can rely on a custom `Token.Source`.
-
-```swift
-let source: Token.Source = .immediate
-
-// Which is equivalent to…
-
-let equivalentSource: Token.Source = .init()
-equivalentSource.resume()
+    .resume()
+// Cancel it.
+deferrable.cancel()
 ```
 
 > How do I deal with pagination and pagination offsets? 
@@ -249,6 +235,7 @@ Endpoint.Media.owned(by: secret.identifier)
                     // or pass any `Int` to limit
                     // pages.
     .observe { _ in }
+    .resume()
 ```
 
 `PagerProvider` also supports an `offset`, i.e. the value passed to its first iteration, and a `rank` (token) in same cases, both as optional parameters in the `pages(_:offset:)`/`pages(_:offset:rank:)` method above.  
@@ -267,26 +254,6 @@ Endpoint.User.Summary(for: secret.identifier)
     .unlock(with: secret)
     .session(.instagram) 
     .publish()
-    .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-    .store(in: &bin)
-```
-
-If you're relying on `Token`s, you can also link them to your `Publisher`, so you don't have to deal with it yourself. 
-
-```swift
-let secret: Secret = /* the authentication response */
-
-// The source for the `Token` used to control
-// the request.
-let source: Token.Source = .init()
-// We're using a random endpoint to demonstrate 
-// how `Token` is exposed in code. 
-Endpoint.User.Summary(for: secret.identifier)
-    .unlock(with: secret)
-    .session(.instagram, controlledBy: source.token) 
-    .publish(handling: source.token)    // There's also a method 
-                                        // accepting a collection of
-                                        // `Token`s. 
     .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
     .store(in: &bin)
 ```

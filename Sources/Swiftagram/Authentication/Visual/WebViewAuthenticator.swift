@@ -101,7 +101,7 @@ public final class WebViewAuthenticator<Storage: ComposableStorage.Storage>: Aut
 }
 
 @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
-public extension WebViewAuthenticator where Storage == ComposableStorage.TransientStorage<Secret> {
+public extension WebViewAuthenticator where Storage == TransientStorage<Secret> {
     /// Init.
     ///
     /// - parameters:

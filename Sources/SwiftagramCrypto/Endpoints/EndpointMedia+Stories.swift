@@ -65,12 +65,12 @@ public extension Endpoint.Media.Stories {
                                              stickers: S,
                                              isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         .init { secret, session in
-            Deferred { () -> Future<Media.Unit, Error> in
+            Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
                 let upload = Endpoint.Media.upload(image: data)
                 // Compose the future.
                 return upload.generator((secret, session))
-                    .flatMap { output in
-                        guard output.error == nil else { return Future(output: output) }
+                    .flatMap { output -> AnyProjectable<Media.Unit, Error> in
+                        guard output.error == nil else { return Projectables.Just(output).eraseToAnyProjectable() }
                         // Configure the picture.
                         // Prepare the configuration request.
                         let seconds = Int(upload.date.timeIntervalSince1970)
@@ -101,14 +101,16 @@ public extension Endpoint.Media.Stories {
                         return base.path(appending: "configure_to_story/")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
-                            .session(session)
+                            .project(session)
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
+                            .eraseToAnyProjectable()
                     }
+                    .eraseToAnyProjectable()
             }
-            .eraseToAnyObservable()
             .observe(on: session.scheduler)
+            .eraseToAnyObservable()
         }
     }
 
@@ -188,13 +190,15 @@ public extension Endpoint.Media.Stories {
                                              stickers: S,
                                              isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
         .init { secret, session in
-            Deferred { () -> Future<Media.Unit, Error> in
+            Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
                 let upload = Endpoint.Media.upload(video: url, preview: data, previewSize: size, sourceType: "3")
-                guard upload.duration < 15 else { return .init(error: MediaError.videoTooLong(seconds: upload.duration)) }
+                guard upload.duration < 15 else {
+                    return Projectables.Fail(MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyProjectable()
+                }
                 // Compose the future.
                 return upload.generator((secret, session))
-                    .flatMap { output in
-                        guard output.error == nil else { return Future(output: output) }
+                    .flatMap { output -> AnyProjectable<Media.Unit, Error> in
+                        guard output.error == nil else { return Projectables.Just(output).eraseToAnyProjectable() }
                         // Prepare the configuration request.
                         let seconds = Int(upload.date.timeIntervalSince1970)
                         // Prepare the body.
@@ -232,14 +236,16 @@ public extension Endpoint.Media.Stories {
                             .query(appending: "1", forKey: "video")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
-                            .session(session)
+                            .project(session)
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
+                            .eraseToAnyProjectable()
                     }
+                    .eraseToAnyProjectable()
             }
-            .eraseToAnyObservable()
             .observe(on: session.scheduler)
+            .eraseToAnyObservable()
         }
     }
 

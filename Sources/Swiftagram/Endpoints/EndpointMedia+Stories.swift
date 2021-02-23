@@ -15,18 +15,18 @@ public extension Endpoint.Media {
         /// Stories tray.
         public static var followed: Endpoint.Disposable<TrayItem.Collection> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     Endpoint.version1.feed
                         .reels_tray
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -35,7 +35,7 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func highlights(for identifier: String) -> Endpoint.Disposable<TrayItem.Collection> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     Endpoint.version1.highlights
                         .path(appending: identifier)
                         .highlights_tray
@@ -52,13 +52,13 @@ public extension Endpoint.Media {
                             "is_charging": "0",
                             "will_sound_on": "0"
                         ])
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -72,19 +72,19 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     base.path(appending: identifier)
                         .path(appending: "list_reel_media_viewer")
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -94,7 +94,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .archive
                         .reel
@@ -103,13 +103,13 @@ public extension Endpoint.Media {
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -118,7 +118,7 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func owned(by identifier: String) -> Endpoint.Disposable<TrayItem.Unit> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     Endpoint.version1
                         .feed
                         .user
@@ -126,13 +126,13 @@ public extension Endpoint.Media {
                         .reel_media
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Unit.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -141,20 +141,20 @@ public extension Endpoint.Media {
         /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
         public static func owned<C: Collection>(by identifiers: C) -> Endpoint.Disposable<TrayItem.Dictionary> where C.Element == String {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     Endpoint.version1
                         .feed
                         .path(appending: "reels_media/")
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .body(["user_ids": "[\(identifiers.joined(separator: ","))]"])
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Dictionary.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
     }

@@ -160,13 +160,18 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
                                 "X-DEVICE-ID": client.device.identifier.uuidString])
             .signing(body: ["mobile_subno_usage": "default",
                             "device_id": client.device.identifier.uuidString])
-            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
             .tryMap {
                 guard let header = ($0.response as? HTTPURLResponse)?
                         .allHeaderFields as? [String: String] else { throw BasicAuthenticatorError.invalidResponse }
                 return HTTPCookie.cookies(withResponseHeaderFields: header, for: URL(string: ".instagram.com")!)
             }
-            .observe(output: { onComplete(.success($0)) }, failure: { onComplete(.failure($0)) })
+            .observe(output: { onComplete(.success($0)) },
+                     completion: {
+                        guard let error = $0 else { return }
+                        onComplete(.failure(error))
+                     })
+            .resume()
     }
 
     /// Fetch password public key and encrypt password.
@@ -186,7 +191,7 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
             .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
             .signing(body: ["id": client.device.identifier.uuidString,
                             "experiments": Constants.loginExperiments])
-            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
             .tryMap {
                 guard let response = $0.response as? HTTPURLResponse,
                       let header = response.allHeaderFields as? [String: String],
@@ -196,7 +201,11 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
                 return header
             }
             .observe(output: { onComplete(BasicAuthenticator<Storage>.encrypt(password: self.password, with: $0)) },
-                     failure: { onComplete(.failure($0)) })
+                     completion: {
+                        guard let error = $0 else { return }
+                        onComplete(.failure(error))
+                     })
+            .resume()
     }
 
     /// Request authentication.
@@ -232,13 +241,17 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
                 "login_attempt_count": "0",
                 "jazoest": "2\(client.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
-            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
             .observe(output: { self.process(result: .success($0),
                                             crossSiteRequestForgery: crossSiteRequestForgery,
                                             onChange: onChange) },
-                     failure: { self.process(result: .failure($0),
-                                             crossSiteRequestForgery: crossSiteRequestForgery,
-                                             onChange: onChange) })
+                     completion: {
+                        guard let error = $0 else { return }
+                        self.process(result: .failure(error),
+                                     crossSiteRequestForgery: crossSiteRequestForgery,
+                                     onChange: onChange)
+                     })
+            .resume()
     }
 
     /// Handle `ds_user_id` and `sessionid` response.

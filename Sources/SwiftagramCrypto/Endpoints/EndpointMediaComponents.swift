@@ -65,11 +65,12 @@ extension Endpoint.Media {
                 .header(appending: input.secret.header)
                 .header(appending: input.secret.identifier, forKey: "IG-U-DS-User-ID")
                 .body(data)
-                .session(input.session)
+                .project(input.session)
                 .map(\.data)
                 .wrap()
                 .map(Media.Unit.init)
                 .observe(on: input.session.scheduler)
+                .eraseToAnyProjectable()
         }
     }
 
@@ -131,22 +132,26 @@ extension Endpoint.Media {
                 .header(appending: header)
                 .header(appending: input.secret.header)
                 .header(appending: input.secret.identifier, forKey: "IG-U-DS-User-ID")
-                .session(input.session)
+                .project(input.session)
                 .map(\.data)
                 .wrap()
-                .flatMap { output -> Future<Wrapper, Error> in
+                .flatMap { output -> AnyProjectable<Wrapper, Error> in
                     // Actually upload the video.
                     guard let offset = output.offset.int() else {
-                        return .init(error: MediaError.artifact(output))
+                        return Projectables.Fail(MediaError.artifact(output)).eraseToAnyProjectable()
                     }
                     // Fetch the video and then upload it.
                     return Request(url)
-                        .session(input.session.session,
+                        .project(session: input.session.session,
                                  on: Scheduler.queue(.userInitiated),
-                                 controlledBy: input.session.token,
                                  logging: input.session.logger)
                         .map(\.data)
-                        .flatMap { $0.flatMap(Future.init) ?? Future(error: MediaError.videoNotFound) }
+                        .flatMap { output -> AnyProjectable<Data, Error> in
+                            guard let output = output else {
+                                return Projectables.Fail(MediaError.videoNotFound).eraseToAnyProjectable()
+                            }
+                            return Projectables.Just(output).eraseToAnyProjectable()
+                        }
                         .flatMap {
                             Endpoint.api
                                 .path(appending: "rupload_igvideo")
@@ -160,23 +165,29 @@ extension Endpoint.Media {
                                                     "X-Entity-Length": String($0.count),
                                                     "Content-Length": String($0.count)])
                                 .body($0)
-                                .session(input.session)
+                                .project(input.session)
                                 .map(\.data)
                                 .wrap()
                         }
+                        .eraseToAnyProjectable()
                 }
                 .map(Media.Unit.init)
-                .flatMap { output -> Future<Media.Unit, Error> in
+                .flatMap { output -> AnyProjectable<Media.Unit, Error> in
                     // Upload the preview.
-                    guard output.error == nil else { return .init(error: MediaError.artifact(output.wrapper())) }
+                    guard output.error == nil else {
+                        return Projectables.Fail(MediaError.artifact(output.wrapper())).eraseToAnyProjectable()
+                    }
                     return upload(image: preview,
                                   identifier: identifier,
                                   waterfallIdentifier: waterfallIdentifier)
                         .generator(input)
+                        .eraseToAnyProjectable()
                 }
-                .flatMap { output -> Future<Media.Unit, Error> in
+                .flatMap { output -> AnyProjectable<Media.Unit, Error> in
                     // Finish uploading process.
-                    guard output.error == nil else { return .init(error: MediaError.artifact(output.wrapper())) }
+                    guard output.error == nil else {
+                        return Projectables.Fail(MediaError.artifact(output.wrapper())).eraseToAnyProjectable()
+                    }
                     return base.path(appending: "upload_finish/")
                         .header(appending: input.secret.header)
                         .header(appending: ["retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#])
@@ -193,12 +204,14 @@ extension Endpoint.Media {
                                         "length": Int(duration).wrapped,
                                         "poster_frame_index": 0,
                                         "audio_muted": false].wrapped)
-                        .session(input.session)
+                        .project(input.session)
                         .map(\.data)
                         .wrap()
                         .map(Media.Unit.init)
+                        .eraseToAnyProjectable()
                 }
                 .observe(on: input.session.scheduler)
+                .eraseToAnyProjectable()
         }
     }
 
@@ -220,7 +233,7 @@ extension Endpoint.Media {
             /// The creation date.
             let date: Date
             /// A generator.
-            let generator: (Input) -> Future<Media.Unit, Error>
+            let generator: (Input) -> AnyProjectable<Media.Unit, Error>
         }
 
         /// A `struct` defining a video response.
@@ -236,7 +249,7 @@ extension Endpoint.Media {
             /// The duration.
             let duration: TimeInterval
             /// A generator.
-            let generator: (Input) -> Future<Media.Unit, Error>
+            let generator: (Input) -> AnyProjectable<Media.Unit, Error>
         }
     }
 }

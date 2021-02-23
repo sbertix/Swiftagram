@@ -20,18 +20,18 @@ public extension Endpoint.Media {
             let components = url.pathComponents
             guard let postIndex = components.firstIndex(of: "p"),
                   postIndex < components.count-1 else {
-                return Future(output: nil).eraseToAnyObservable()
+                return Projectables.Just(nil).eraseToAnyObservable()
             }
             let shortcode = components[postIndex+1]
             // Process the shortcode.
             let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
             let set = CharacterSet(charactersIn: alphabet)
             guard shortcode.rangeOfCharacter(from: set.inverted) == nil else {
-                return Future(output: nil).eraseToAnyObservable()
+                return Projectables.Just(nil).eraseToAnyObservable()
             }
             var identifier: Int64 = 0
             shortcode.forEach { identifier = identifier*64+Int64(alphabet.firstIndex(of: $0)!.utf16Offset(in: alphabet)) }
-            return Future(output: String(identifier)).eraseToAnyObservable()
+            return Projectables.Just(String(identifier)).eraseToAnyObservable()
         }
 
         /// A list of all users liking the media matching `identifier`.
@@ -42,19 +42,19 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     base.path(appending: identifier)
                         .likers
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -68,19 +68,19 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     base.path(appending: identifier)
                         .comments
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Comment.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -89,18 +89,18 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
         public static func save(_ identifier: String) -> Endpoint.Disposable<Status> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     base.path(appending: identifier)
                         .path(appending: "save/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -109,18 +109,18 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
         public static func unsave(_ identifier: String) -> Endpoint.Disposable<Status> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     base.path(appending: identifier)
                         .path(appending: "unsave/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -129,18 +129,18 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid comment identfiier.
         public static func like(comment identifier: String) -> Endpoint.Disposable<Status> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     base.path(appending: identifier)
                         .path(appending: "comment_like/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -149,18 +149,18 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid comment identfiier.
         public static func unlike(comment identifier: String) -> Endpoint.Disposable<Status> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     base.path(appending: identifier)
                         .path(appending: "comment_unlike/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -170,7 +170,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .feed
                         .liked
@@ -178,13 +178,13 @@ public extension Endpoint.Media {
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -194,7 +194,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .feed
                         .saved
@@ -203,13 +203,13 @@ public extension Endpoint.Media {
                         .header(appending: ["rank_token": rank,
                                             "include_igtv_preview": "false"])
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -219,7 +219,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .feed
                         .path(appending: "only_me_feed/")
@@ -227,13 +227,13 @@ public extension Endpoint.Media {
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -245,7 +245,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .feed
                         .user
@@ -254,13 +254,13 @@ public extension Endpoint.Media {
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -272,7 +272,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .usertags
                         .path(appending: identifier)
@@ -281,13 +281,13 @@ public extension Endpoint.Media {
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -299,7 +299,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Projectables.Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .feed
                         .tag
@@ -308,13 +308,13 @@ public extension Endpoint.Media {
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
                         .query(appending: next, forKey: "max_id")
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -324,8 +324,8 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages,
-                             transformer: {
+                return Projectables.Pager(pages,
+                                          transformer: {
                                 switch $0.nextMaxId.string() {
                                 case .none:
                                     return nil
@@ -375,12 +375,12 @@ public extension Endpoint.Media {
                                "is_async_ads_double_request": "0",
                                "will_sound_on": "0",
                                "is_async_ads_rti": "0"].compactMapValues { $0 })
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
     }

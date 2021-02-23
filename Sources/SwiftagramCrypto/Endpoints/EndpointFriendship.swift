@@ -22,7 +22,7 @@ public extension Endpoint.Friendship {
     /// - note: **SwiftagramCrypto** only.
     private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status> {
         .init { secret, session in
-            Deferred {
+            Projectables.Deferred {
                 base[keyPath: keyPath]
                     .path(appending: identifier)
                     .path(appending: "/")
@@ -33,13 +33,13 @@ public extension Endpoint.Friendship {
                                     "_uid": secret.identifier,
                                     "device_id": secret.client.device.instagramIdentifier,
                                     "_uuid": secret.client.device.identifier.uuidString])
-                    .session(session)
+                    .project(session)
                     .map(\.data)
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyObservable()
             .observe(on: session.scheduler)
+            .eraseToAnyObservable()
         }
     }
 

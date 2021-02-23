@@ -20,7 +20,7 @@ public extension Endpoint {
         public static func around(coordinates: Swiftagram.Location.Coordinates,
                                   matching query: String? = nil) -> Disposable<Swiftagram.Location.Collection> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     Endpoint.version1
                         .appendingDefaultHeader()
                         .path(appending: "location_search/")
@@ -35,13 +35,13 @@ public extension Endpoint {
                             "_uid": secret.identifier,
                             "_uuid": secret.client.device.identifier.uuidString
                         ])
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Location.Collection.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -50,20 +50,20 @@ public extension Endpoint {
         /// - parameter identifier: A valid location identifier.
         public static func summary(for identifier: String) -> Disposable<Swiftagram.Location.Unit> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     Endpoint.version1
                         .locations
                         .path(appending: identifier)
                         .path(appending: "info/")
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Location.Unit.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
 
@@ -72,20 +72,20 @@ public extension Endpoint {
         /// - parameter identifier: A valid location identifier.
         public static func stories(at identifier: String) -> Disposable<TrayItem.Unit> {
             .init { secret, session in
-                Deferred {
+                Projectables.Deferred {
                     Endpoint.version1
                         .locations
                         .path(appending: identifier)
                         .path(appending: "story/")
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .session(session)
+                        .project(session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Unit.init)
                 }
-                .eraseToAnyObservable()
                 .observe(on: session.scheduler)
+                .eraseToAnyObservable()
             }
         }
     }

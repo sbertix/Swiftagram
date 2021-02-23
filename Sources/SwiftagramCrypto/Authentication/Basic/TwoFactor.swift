@@ -68,7 +68,7 @@ public final class TwoFactor {
                 "device_id": Client.default.device.instagramIdentifier,
                 "verification_method": "1"
             ])
-            .session(.ephemeral, on: Scheduler.queue(.userInitiated), controlledBy: .static, logging: nil)
+            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
             .observe(
                 output: { item in
                     do {
@@ -97,7 +97,11 @@ public final class TwoFactor {
                         self.onChange(.failure(error))
                     }
                 },
-                failure: { self.onChange(.failure($0)) }
+                completion: {
+                    guard let error = $0 else { return }
+                    self.onChange(.failure(error))
+                }
             )
+            .resume()
     }
 }
