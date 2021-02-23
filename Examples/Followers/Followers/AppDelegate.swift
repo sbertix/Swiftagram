@@ -8,8 +8,8 @@
 
 import UIKit
 
-import ComposableStorage
 import Swiftagram
+import SwiftagramCrypto
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

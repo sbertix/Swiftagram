@@ -10,10 +10,8 @@ import Combine
 import Foundation
 import SwiftUI
 
-import ComposableRequest
-import ComposableStorage
 import Swiftagram
-import Swiftchain
+import SwiftagramCrypto
 
 /// An `ObservableObject` dealing with requests.
 final class FollowersModel: ObservableObject {
@@ -35,11 +33,10 @@ final class FollowersModel: ObservableObject {
             .flatMap { secret -> AnyPublisher<User?, Never> in
                 guard let secret = secret else { return Just(nil).eraseToAnyPublisher() }
                 // Fetch the user.
-                let source = Token.Source.immediate
                 return Endpoint.User.summary(for: secret.identifier)
                     .unlock(with: secret)
-                    .session(.instagram, controlledBy: source.token)
-                    .publish(handling: source.token)
+                    .session(.instagram)
+                    .publish()
                     .map(\.user)
                     .catch { _ in Just(nil) }
                     .eraseToAnyPublisher()
@@ -54,12 +51,11 @@ final class FollowersModel: ObservableObject {
             .flatMap { secret -> AnyPublisher<[User]?, Never> in
                 guard let secret = secret else { return Just(nil).eraseToAnyPublisher() }
                 // Fetch followers.
-                let source = Token.Source.immediate
                 return Endpoint.Friendship.following(secret.identifier)
                     .unlock(with: secret)
-                    .session(.instagram, controlledBy: source.token)
+                    .session(.instagram)
                     .pages(3)
-                    .publish(handling: source.token)
+                    .publish()
                     .compactMap(\.users)
                     //swiftlint:disable reduce_into
                     .reduce([], +)

@@ -9,9 +9,8 @@ import SwiftUI
 import UIKit
 import WebKit
 
-import ComposableStorage
 import Swiftagram
-import Swiftchain
+import SwiftagramCrypto
 
 class LoginViewController: UIViewController {
     /// The completion handler.
