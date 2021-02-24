@@ -13,7 +13,7 @@ public extension Endpoint.Media {
     /// A module-like `enum` holding reference to `media` `Endpoint`s reguarding stories. Requires authentication.
     enum Stories {
         /// Stories tray.
-        public static var followed: Endpoint.Disposable<TrayItem.Collection> {
+        public static var followed: Endpoint.Disposable<TrayItem.Collection, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     Endpoint.version1.feed
@@ -33,7 +33,7 @@ public extension Endpoint.Media {
         /// Return the highlights tray for a specific user.
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func highlights(for identifier: String) -> Endpoint.Disposable<TrayItem.Collection> {
+        public static func highlights(for identifier: String) -> Endpoint.Disposable<TrayItem.Collection, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     Endpoint.version1.highlights
@@ -67,7 +67,9 @@ public extension Endpoint.Media {
         /// - parameters:
         ///     - identifier: A `String` holding reference to a valid post media identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static func viewers(for identifier: String) -> Endpoint.Paginated<Swiftagram.User.Collection, RankedPageReference<String, String>?> {
+        public static func viewers(for identifier: String) -> Endpoint.Paginated<Swiftagram.User.Collection,
+                                                                                 RankedPageReference<String, String>?,
+                                                                                 Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -89,7 +91,7 @@ public extension Endpoint.Media {
         }
 
         /// Archived stories.
-        public static var archived: Endpoint.Paginated<TrayItem.Collection, RankedPageReference<String, String>?> {
+        public static var archived: Endpoint.Paginated<TrayItem.Collection, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -116,7 +118,7 @@ public extension Endpoint.Media {
         /// All available stories for user matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func owned(by identifier: String) -> Endpoint.Disposable<TrayItem.Unit> {
+        public static func owned(by identifier: String) -> Endpoint.Disposable<TrayItem.Unit, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     Endpoint.version1
@@ -139,7 +141,7 @@ public extension Endpoint.Media {
         /// All available stories for user matching `identifiers`.
         ///
         /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
-        public static func owned<C: Collection>(by identifiers: C) -> Endpoint.Disposable<TrayItem.Dictionary> where C.Element == String {
+        public static func owned<C: Collection>(by identifiers: C) -> Endpoint.Disposable<TrayItem.Dictionary, Error> where C.Element == String {
             .init { secret, session in
                 Projectables.Deferred {
                     Endpoint.version1

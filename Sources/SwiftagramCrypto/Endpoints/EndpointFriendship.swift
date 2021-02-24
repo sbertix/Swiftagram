@@ -20,7 +20,7 @@ public extension Endpoint.Friendship {
     ///     - transformation: A `KeyPath` defining the endpoint path.
     ///     - identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status> {
+    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
             Projectables.Deferred {
                 base[keyPath: keyPath]
@@ -47,7 +47,7 @@ public extension Endpoint.Friendship {
     ///
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func follow(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func follow(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.create, identifier)
     }
 
@@ -55,7 +55,7 @@ public extension Endpoint.Friendship {
     ///
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func unfollow(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func unfollow(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.destroy, identifier)
     }
 
@@ -63,7 +63,7 @@ public extension Endpoint.Friendship {
     ///
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func remove(follower identifier: String) -> Endpoint.Disposable<Status> {
+    static func remove(follower identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.remove_follower, identifier)
     }
 
@@ -71,7 +71,7 @@ public extension Endpoint.Friendship {
     ///
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func acceptRequest(from identifier: String) -> Endpoint.Disposable<Status> {
+    static func acceptRequest(from identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.approve, identifier)
     }
 
@@ -79,7 +79,7 @@ public extension Endpoint.Friendship {
     ///
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func rejectRequest(from identifier: String) -> Endpoint.Disposable<Status> {
+    static func rejectRequest(from identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.reject, identifier)
     }
 
@@ -87,7 +87,7 @@ public extension Endpoint.Friendship {
     ///
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func block(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func block(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.block, identifier)
     }
 
@@ -95,7 +95,7 @@ public extension Endpoint.Friendship {
     ///
     /// - parameter identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func unblock(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func unblock(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.unblock, identifier)
     }
 }

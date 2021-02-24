@@ -16,7 +16,7 @@ public extension Endpoint {
         private static let base = Endpoint.version1.users.appendingDefaultHeader()
 
         /// A list of all profiles blocked by the user.
-        public static var blocked: Disposable<Wrapper> {
+        public static var blocked: Disposable<Wrapper, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.blocked_list
@@ -33,7 +33,7 @@ public extension Endpoint {
         /// A user matching `identifier`'s info.
         /// 
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Disposable<Swiftagram.User.Unit> {
+        public static func summary(for identifier: String) -> Disposable<Swiftagram.User.Unit, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: identifier)
@@ -52,7 +52,7 @@ public extension Endpoint {
         /// All user matching `query`.
         ///
         /// - parameter query: A `String` holding reference to a valid user query.
-        public static func all(matching query: String) -> Paginated<Swiftagram.User.Collection, RankedPageReference<String, String>?> {
+        public static func all(matching query: String) -> Paginated<Swiftagram.User.Collection, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))

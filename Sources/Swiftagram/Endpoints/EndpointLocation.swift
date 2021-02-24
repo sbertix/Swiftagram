@@ -18,7 +18,7 @@ public extension Endpoint {
         ///     - coordinates: A `CGPoint` with latitude and longitude.
         ///     - query: An optional `String` narrowing down the list. Defaults to `nil`.
         public static func around(coordinates: Swiftagram.Location.Coordinates,
-                                  matching query: String? = nil) -> Disposable<Swiftagram.Location.Collection> {
+                                  matching query: String? = nil) -> Disposable<Swiftagram.Location.Collection, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     Endpoint.version1
@@ -48,7 +48,7 @@ public extension Endpoint {
         /// Get the summary for the location matching `identifier`.
         ///
         /// - parameter identifier: A valid location identifier.
-        public static func summary(for identifier: String) -> Disposable<Swiftagram.Location.Unit> {
+        public static func summary(for identifier: String) -> Disposable<Swiftagram.Location.Unit, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     Endpoint.version1
@@ -70,7 +70,7 @@ public extension Endpoint {
         /// Fetch stories currently available at the location matching `identifier`.
         ///
         /// - parameter identifier: A valid location identifier.
-        public static func stories(at identifier: String) -> Disposable<TrayItem.Unit> {
+        public static func stories(at identifier: String) -> Disposable<TrayItem.Unit, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     Endpoint.version1

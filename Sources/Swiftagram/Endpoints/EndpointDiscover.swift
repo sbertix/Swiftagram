@@ -18,7 +18,7 @@ public extension Endpoint {
         /// Suggested users.
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func users(like identifier: String) -> Disposable<Swiftagram.User.Collection> {
+        public static func users(like identifier: String) -> Disposable<Swiftagram.User.Collection, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.chaining
@@ -35,7 +35,7 @@ public extension Endpoint {
         }
 
         /// The explore feed.
-        public static var explore: Paginated<Page<Wrapper, String?>, String?> {
+        public static var explore: Paginated<Page<Wrapper, String?>, String?, Error> {
             .init { secret, session, pages in
                 Projectables.Pager(pages) { _, next, _ in
                     base.explore
@@ -53,7 +53,7 @@ public extension Endpoint {
         /// The topical explore feed.
         /// 
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static var topics: Paginated<Page<Wrapper, String?>, String?> {
+        public static var topics: Paginated<Page<Wrapper, String?>, String?, Error> {
             .init { secret, session, pages in
                 Projectables.Pager(pages) { _, next, _ in
                     base.topical_explore

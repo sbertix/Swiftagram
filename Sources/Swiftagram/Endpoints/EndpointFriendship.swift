@@ -22,7 +22,9 @@ public extension Endpoint {
         ///     - query: An optional `String` representing a username or name component to query following. Defaults to `nil`.
         /// - note: This is equal to the user's **following**.
         public static func followed(by identifier: String,
-                                    matching query: String? = nil) -> Paginated<Swiftagram.User.Collection, RankedPageReference<String, String>?> {
+                                    matching query: String? = nil) -> Paginated<Swiftagram.User.Collection,
+                                                                                RankedPageReference<String, String>?,
+                                                                                Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -52,7 +54,9 @@ public extension Endpoint {
         ///     - rank: An optional `String` making sure users are paginated consistently. Defaults to `secret.client.device.identifier` when `nil`.
         /// - note: This is equal to the user's **followers**.
         public static func following(_ identifier: String,
-                                     matching query: String? = nil) -> Paginated<Swiftagram.User.Collection, RankedPageReference<String, String>?> {
+                                     matching query: String? = nil) -> Paginated<Swiftagram.User.Collection,
+                                                                                 RankedPageReference<String, String>?,
+                                                                                 Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -76,7 +80,7 @@ public extension Endpoint {
         /// The current friendship status between the authenticated user and the one matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func summary(for identifier: String) -> Disposable<Swiftagram.Friendship> {
+        public static func summary(for identifier: String) -> Disposable<Swiftagram.Friendship, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.show
@@ -95,7 +99,8 @@ public extension Endpoint {
         /// The current friendship status between the authenticated user and all users matching `identifiers`.
         ///
         /// - parameter identifiers: A collection of `String`s hoding reference to valid user identifiers.
-        public static func summary<C: Collection>(for identifiers: C) -> Disposable<Swiftagram.Friendship.Dictionary> where C.Element == String {
+        public static func summary<C: Collection>(for identifiers: C) -> Disposable<Swiftagram.Friendship.Dictionary, Error>
+        where C.Element == String {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: "show_many/")
@@ -114,7 +119,7 @@ public extension Endpoint {
         }
 
         /// A list of users who requested to follow you, without having been processed yet.
-        public static var pendingRequests: Paginated<Swiftagram.User.Collection, String?> {
+        public static var pendingRequests: Paginated<Swiftagram.User.Collection, String?, Error> {
             .init { secret, session, pages in
                 Projectables.Pager(pages) { _, next, _ in
                     base.pending

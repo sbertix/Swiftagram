@@ -18,7 +18,7 @@ public extension Endpoint {
         /// A media matching `identifier`'s info.
         ///
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func summary(for identifier: String) -> Disposable<Swiftagram.Media.Collection> {
+        public static func summary(for identifier: String) -> Disposable<Swiftagram.Media.Collection, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: identifier)
@@ -37,7 +37,7 @@ public extension Endpoint {
         /// The permalinkg for the media matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func permalink(for identifier: String) -> Disposable<Wrapper> {
+        public static func permalink(for identifier: String) -> Disposable<Wrapper, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: identifier)

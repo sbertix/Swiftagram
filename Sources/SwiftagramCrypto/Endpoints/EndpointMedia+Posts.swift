@@ -30,7 +30,7 @@ public extension Endpoint.Media.Posts {
     ///     - transformation: A `KeyPath` defining the endpoint path.
     ///     - identifier: A `String` holding reference to a valid user identifier.
     /// - note: **SwiftagramCrypto** only.
-    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status> {
+    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
             Projectables.Deferred {
                 base.path(appending: identifier)[keyPath: keyPath]
@@ -56,7 +56,7 @@ public extension Endpoint.Media.Posts {
     ///
     /// - parameter identifier: A valid media identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func like(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func like(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.like, identifier)
     }
 
@@ -64,7 +64,7 @@ public extension Endpoint.Media.Posts {
     ///
     /// - parameter identifier: A valid media identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func unlike(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func unlike(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.unlike, identifier)
     }
 
@@ -72,7 +72,7 @@ public extension Endpoint.Media.Posts {
     ///
     /// - parameter identifier: A valid media identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func archive(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func archive(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.only_me, identifier)
     }
 
@@ -80,7 +80,7 @@ public extension Endpoint.Media.Posts {
     ///
     /// - parameter identifier: A valid media identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func unarchive(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func unarchive(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         edit(\.undo_only_me, identifier)
     }
 
@@ -93,7 +93,7 @@ public extension Endpoint.Media.Posts {
     /// - note: **SwiftagramCrypto** only.
     static func comment(_ text: String,
                         on identifier: String,
-                        replyingTo parentCommentIdentifier: String? = nil) -> Endpoint.Disposable<Status> {
+                        replyingTo parentCommentIdentifier: String? = nil) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
             Projectables.Deferred {
                 // Make sure the comment is not offensive and can actually
@@ -147,7 +147,7 @@ public extension Endpoint.Media.Posts {
     ///     - identifier: A valid media identifier.
     /// - note: **SwiftagramCrypto** only.
     static func delete<C: Collection>(comments commentIdentifiers: C,
-                                      on identifier: String) -> Endpoint.Disposable<Status> where C.Element == String {
+                                      on identifier: String) -> Endpoint.Disposable<Status, Error> where C.Element == String {
         .init { secret, session in
             Projectables.Deferred {
                 base.path(appending: identifier)
@@ -174,7 +174,7 @@ public extension Endpoint.Media.Posts {
     /// - parameters:
     ///     - commentIdentifier: A valid `String` representing a comment identifier.
     ///     - identifier: A valid media identifier.
-    static func delete(comment commentIdentifier: String, on identifier: String) -> Endpoint.Disposable<Status> {
+    static func delete(comment commentIdentifier: String, on identifier: String) -> Endpoint.Disposable<Status, Error> {
         delete(comments: [commentIdentifier], on: identifier)
     }
 
@@ -193,7 +193,7 @@ public extension Endpoint.Media.Posts {
     static func upload<U: Collection>(image: Agnostic.Image,
                                       captioned caption: String?,
                                       tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(image: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -207,7 +207,7 @@ public extension Endpoint.Media.Posts {
     /// - note: **SwiftagramCrypto** only.
     static func upload(image: Agnostic.Image,
                        captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
+                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(image: image, captioned: caption, tagging: [], at: location)
     }
 
@@ -224,7 +224,7 @@ public extension Endpoint.Media.Posts {
                                                size: CGSize,
                                                captioned caption: String?,
                                                tagging users: U,
-                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
             Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
                 let upload = Endpoint.Media.upload(image: data)
@@ -303,7 +303,7 @@ public extension Endpoint.Media.Posts {
     static func upload<U: Collection>(image data: Data,
                                       captioned caption: String?,
                                       tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
         return upload(image: image, captioned: caption, tagging: users, at: location)
     }
@@ -317,7 +317,7 @@ public extension Endpoint.Media.Posts {
     /// - note: **SwiftagramCrypto** only.
     static func upload(image data: Data,
                        captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
+                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(image: data, captioned: caption, tagging: [], at: location)
     }
 
@@ -339,7 +339,7 @@ public extension Endpoint.Media.Posts {
                                       preview image: Agnostic.Image,
                                       captioned caption: String?,
                                       tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(video: url, preview: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -356,7 +356,7 @@ public extension Endpoint.Media.Posts {
     static func upload(video url: URL,
                        preview image: Agnostic.Image,
                        captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
+                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
     }
 
@@ -376,7 +376,7 @@ public extension Endpoint.Media.Posts {
                                                size: CGSize,
                                                captioned caption: String?,
                                                tagging users: U,
-                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
             Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
                 let upload = Endpoint.Media.upload(video: url, preview: data, previewSize: size, sourceType: "4")
@@ -465,7 +465,7 @@ public extension Endpoint.Media.Posts {
                                       preview data: Data,
                                       captioned caption: String?,
                                       tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> where U.Element == UserTag {
+                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         guard let image = Agnostic.Image(data: data) else {
             fatalError("Invalid `data`.")
         }
@@ -484,7 +484,7 @@ public extension Endpoint.Media.Posts {
     static func upload(video url: URL,
                        preview data: Data,
                        captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit> {
+                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(video: url, preview: data, captioned: caption, tagging: [], at: location)
     }
 

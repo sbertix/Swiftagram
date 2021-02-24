@@ -37,7 +37,7 @@ public extension Endpoint.Media.Stories {
     /// - note: **SwiftagramCrypto** only.
     static func upload<S: Sequence>(image: Agnostic.Image,
                                     stickers: S,
-                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(image: data, size: image.size, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
@@ -48,7 +48,7 @@ public extension Endpoint.Media.Stories {
     ///     - image: An `Agnostic.Image` (either `UIImage` or `NSImage`).
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
-    static func upload(image: Agnostic.Image, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+    static func upload(image: Agnostic.Image, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(image: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
@@ -63,7 +63,7 @@ public extension Endpoint.Media.Stories {
     internal static func upload<S: Sequence>(image data: Data,
                                              size: CGSize,
                                              stickers: S,
-                                             isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+                                             isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         .init { secret, session in
             Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
                 let upload = Endpoint.Media.upload(image: data)
@@ -123,7 +123,7 @@ public extension Endpoint.Media.Stories {
     /// - note: **SwiftagramCrypto** only.
     static func upload<S: Collection>(image data: Data,
                                       stickers: S,
-                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
         return upload(image: image, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
@@ -134,7 +134,7 @@ public extension Endpoint.Media.Stories {
     ///     - data: Some `Data` holding reference to an image.
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
-    static func upload(image data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+    static func upload(image data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(image: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
@@ -154,7 +154,7 @@ public extension Endpoint.Media.Stories {
     static func upload<S: Sequence>(video url: URL,
                                     preview image: Agnostic.Image? = nil,
                                     stickers: S,
-                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+                                    isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         upload(video: url,
                preview: image?.jpegRepresentation(),
                size: image?.size ?? .zero,
@@ -170,7 +170,9 @@ public extension Endpoint.Media.Stories {
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
     @available(watchOS 6, *)
-    static func upload(video url: URL, preview image: Agnostic.Image? = nil, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+    static func upload(video url: URL,
+                       preview image: Agnostic.Image? = nil,
+                       isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(video: url, preview: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
@@ -188,7 +190,7 @@ public extension Endpoint.Media.Stories {
                                              preview data: Data?,
                                              size: CGSize,
                                              stickers: S,
-                                             isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+                                             isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         .init { secret, session in
             Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
                 let upload = Endpoint.Media.upload(video: url, preview: data, previewSize: size, sourceType: "3")
@@ -261,7 +263,7 @@ public extension Endpoint.Media.Stories {
     static func upload<S: Collection>(video url: URL,
                                       preview data: Data,
                                       stickers: S,
-                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> where S.Element == Sticker {
+                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         upload(video: url, preview: Agnostic.Image(data: data), stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
@@ -273,7 +275,7 @@ public extension Endpoint.Media.Stories {
     ///     - isCloseFriendsOnly: A valid `Bool`. Defaults to `false`.
     /// - note: **SwiftagramCrypto** only.
     @available(watchOS 6, *)
-    static func upload(video url: URL, preview data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit> {
+    static func upload(video url: URL, preview data: Data, isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> {
         upload(video: url, preview: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 

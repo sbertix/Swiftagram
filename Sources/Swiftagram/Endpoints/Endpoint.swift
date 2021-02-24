@@ -14,12 +14,17 @@ public enum Endpoint {
     /// An `Endpoint` allowing for a paginated request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Paginated<Response, Offset> = LockSessionPagerProvider<Secret, Offset, AnyObservable<Response, Error>>
+    public typealias Paginated<Response, Offset, Failure: Error> = LockSessionPagerProvider<Secret, Offset, UnlockedDisposable<Response, Failure>>
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Disposable<Response> = LockSessionProvider<Secret, AnyObservable<Response, Error>>
+    public typealias Disposable<Response, Failure: Error> = LockSessionProvider<Secret, UnlockedDisposable<Response, Failure>>
+
+    /// An `Endpoint` allowing for a single request with a custom `Response` value.
+    ///
+    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
+    public typealias UnlockedDisposable<Response, Failure: Error> = AnyObservable<Response, Failure>
 
     // MARK: Composition
 

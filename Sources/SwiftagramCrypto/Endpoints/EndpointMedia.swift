@@ -32,7 +32,7 @@ public extension Endpoint.Media {
     ///
     /// - parameter identifier: A valid media identifier.
     /// - note: **SwiftagramCrypto** only.
-    static func delete(_ identifier: String) -> Endpoint.Disposable<Status> {
+    static func delete(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
             Projectables.Deferred {
                 base.path(appending: identifier)

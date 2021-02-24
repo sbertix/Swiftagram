@@ -38,12 +38,14 @@ final class EndpointTests: XCTestCase {
     }()
     //swiftlint:enable force_try
 
+    // MARK: Tests
+
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapper`.
     @discardableResult
-    func performTest(on endpoint: Endpoint.Disposable<Wrapper>,
-                     _ identifier: String,
-                     logging level: Logger.Level? = nil,
-                     line: Int = #line) -> Wrapper? {
+    func performTest<E: Error>(on endpoint: Endpoint.Disposable<Wrapper, E>,
+                               _ identifier: String,
+                               logging level: Logger.Level? = nil,
+                               line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -66,10 +68,10 @@ final class EndpointTests: XCTestCase {
 
     /// Perform test on `Endpoint` returning a `Disposable` `Wrapped`.
     @discardableResult
-    func performTest<T: Wrapped>(on endpoint: Endpoint.Disposable<T>,
-                                 _ identifier: String,
-                                 logging level: Logger.Level? = nil,
-                                 line: Int = #line) -> Wrapper? {
+    func performTest<T: Wrapped, E: Error>(on endpoint: Endpoint.Disposable<T, E>,
+                                           _ identifier: String,
+                                           logging level: Logger.Level? = nil,
+                                           line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -92,10 +94,10 @@ final class EndpointTests: XCTestCase {
 
     /// Perform a test on `Endpoint` returning a `Disposable` `ResponseType`.
     @discardableResult
-    func performTest<T: ResponseType>(on endpoint: Endpoint.Disposable<T>,
-                                      _ identifier: String,
-                                      logging level: Logger.Level? = nil,
-                                      line: Int = #line) -> Wrapper? {
+    func performTest<T: ResponseType, E: Error>(on endpoint: Endpoint.Disposable<T, E>,
+                                                _ identifier: String,
+                                                logging level: Logger.Level? = nil,
+                                                line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -118,7 +120,7 @@ final class EndpointTests: XCTestCase {
 
     /// Perform a test on `Endpoint` returning an `Equatable`.
     @discardableResult
-    func performTest<T: Equatable, F: Error>(on endpoint: AnyObservable<T, F>,
+    func performTest<T: Equatable, E: Error>(on endpoint: Endpoint.UnlockedDisposable<T, E>,
                                              comparison: T,
                                              _ identifier: String,
                                              logging level: Logger.Level? = nil,
@@ -142,11 +144,11 @@ final class EndpointTests: XCTestCase {
 
     // Perform test on `Endpoint` returning a `Paginated` `Wrapper`.
     @discardableResult
-    func performTest<P, N>(on endpoint: Endpoint.Paginated<Page<Wrapper, N?>, P?>,
-                           _ identifier: String,
-                           pages: Int = 1,
-                           logging level: Logger.Level? = nil,
-                           line: Int = #line) -> Wrapper? {
+    func performTest<P, N, E: Error>(on endpoint: Endpoint.Paginated<Page<Wrapper, N?>, P?, E>,
+                                     _ identifier: String,
+                                     pages: Int = 1,
+                                     logging level: Logger.Level? = nil,
+                                     line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -171,11 +173,11 @@ final class EndpointTests: XCTestCase {
 
     /// Perform test on `Endpoint` returning a `Paginated` `Wrapped`.
     @discardableResult
-    func performTest<P, T: Wrapped>(on endpoint: Endpoint.Paginated<T, P?>,
-                                    _ identifier: String,
-                                    pages: Int = 1,
-                                    logging level: Logger.Level? = nil,
-                                    line: Int = #line) -> Wrapper? {
+    func performTest<P, T: Wrapped, E: Error>(on endpoint: Endpoint.Paginated<T, P?, E>,
+                                              _ identifier: String,
+                                              pages: Int = 1,
+                                              logging level: Logger.Level? = nil,
+                                              line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -200,11 +202,11 @@ final class EndpointTests: XCTestCase {
 
     /// Perform a test on `Endpoint` returning a `Paginated` `ResponseType`.
     @discardableResult
-    func performTest<P, T: ResponseType>(on endpoint: Endpoint.Paginated<T, P?>,
-                                         _ identifier: String,
-                                         pages: Int = 1,
-                                         logging level: Logger.Level? = nil,
-                                         line: Int = #line) -> Wrapper? {
+    func performTest<P, T: ResponseType, E: Error>(on endpoint: Endpoint.Paginated<T, P?, E>,
+                                                   _ identifier: String,
+                                                   pages: Int = 1,
+                                                   logging level: Logger.Level? = nil,
+                                                   line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -227,6 +229,7 @@ final class EndpointTests: XCTestCase {
     }
 
     // MARK: Endpoints
+
     /// Test `Endpoint.Direct`.
     func testEndpointDirect() {
         performTest(on: Endpoint.Direct.inbox, "Endpoint.Direct.Inbox")

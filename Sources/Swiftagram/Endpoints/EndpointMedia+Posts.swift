@@ -15,19 +15,19 @@ public extension Endpoint.Media {
         /// Return a media identifier from a valid post `URL`.
         ///
         /// - parameter url: A valid `URL`.
-        public static func identifier(for url: URL) -> AnyObservable<String?, Never> {
+        public static func identifier(for url: URL) -> Endpoint.UnlockedDisposable<String, IdentifierError> {
             // Prepare the `URL`.
             let components = url.pathComponents
             guard let postIndex = components.firstIndex(of: "p"),
                   postIndex < components.count-1 else {
-                return Projectables.Just(nil).eraseToAnyObservable()
+                return Projectables.Fail(.invalidURL(url)).eraseToAnyObservable()
             }
             let shortcode = components[postIndex+1]
             // Process the shortcode.
             let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
             let set = CharacterSet(charactersIn: alphabet)
             guard shortcode.rangeOfCharacter(from: set.inverted) == nil else {
-                return Projectables.Just(nil).eraseToAnyObservable()
+                return Projectables.Fail(.invalidShortcode(shortcode)).eraseToAnyObservable()
             }
             var identifier: Int64 = 0
             shortcode.forEach { identifier = identifier*64+Int64(alphabet.firstIndex(of: $0)!.utf16Offset(in: alphabet)) }
@@ -37,7 +37,9 @@ public extension Endpoint.Media {
         /// A list of all users liking the media matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid post media identifier.
-        public static func likers(for identifier: String) -> Endpoint.Paginated<Swiftagram.User.Collection, RankedPageReference<String, String>?> {
+        public static func likers(for identifier: String) -> Endpoint.Paginated<Swiftagram.User.Collection,
+                                                                                RankedPageReference<String, String>?,
+                                                                                Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -63,7 +65,7 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid post media identifier.
         public static func comments(for identifier: String,
                                     startingAt page: String? = nil) -> Endpoint.Paginated<Comment.Collection,
-                                                                                          RankedPageReference<String, String>?> {
+                                                                                          RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -87,7 +89,7 @@ public extension Endpoint.Media {
         /// Save the media metching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func save(_ identifier: String) -> Endpoint.Disposable<Status> {
+        public static func save(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: identifier)
@@ -107,7 +109,7 @@ public extension Endpoint.Media {
         /// Unsave the media metching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
-        public static func unsave(_ identifier: String) -> Endpoint.Disposable<Status> {
+        public static func unsave(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: identifier)
@@ -127,7 +129,7 @@ public extension Endpoint.Media {
         /// Like the comment matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid comment identfiier.
-        public static func like(comment identifier: String) -> Endpoint.Disposable<Status> {
+        public static func like(comment identifier: String) -> Endpoint.Disposable<Status, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: identifier)
@@ -147,7 +149,7 @@ public extension Endpoint.Media {
         /// Unlike the comment matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid comment identfiier.
-        public static func unlike(comment identifier: String) -> Endpoint.Disposable<Status> {
+        public static func unlike(comment identifier: String) -> Endpoint.Disposable<Status, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.path(appending: identifier)
@@ -165,7 +167,7 @@ public extension Endpoint.Media {
         }
 
         /// Liked media.
-        public static var liked: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?> {
+        public static var liked: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -189,7 +191,7 @@ public extension Endpoint.Media {
         }
 
         /// All saved media.
-        public static var saved: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?> {
+        public static var saved: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -214,7 +216,7 @@ public extension Endpoint.Media {
         }
 
         /// All archived media.
-        public static var archived: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?> {
+        public static var archived: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -240,7 +242,9 @@ public extension Endpoint.Media {
         /// All posts for user matching `identifier`.
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func owned(by identifier: String) -> Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?> {
+        public static func owned(by identifier: String) -> Endpoint.Paginated<Swiftagram.Media.Collection,
+                                                                              RankedPageReference<String,
+                                                                                                  String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -267,7 +271,9 @@ public extension Endpoint.Media {
         /// All posts a user matching `identifier` is tagged in.
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func including(_ identifier: String) -> Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?> {
+        public static func including(_ identifier: String) -> Endpoint.Paginated<Swiftagram.Media.Collection,
+                                                                                 RankedPageReference<String, String>?,
+                                                                                 Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -294,7 +300,7 @@ public extension Endpoint.Media {
         /// All media matching `tag`.
         ///
         /// - parameter tag: A `String` holding reference to a valid _#tag_.
-        public static func tagged(with tag: String) -> Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?> {
+        public static func tagged(with tag: String) -> Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
@@ -319,7 +325,7 @@ public extension Endpoint.Media {
         }
 
         /// Timeline.
-        public static var timeline: Endpoint.Paginated<Page<Wrapper, String?>, RankedPageReference<String, String>?> {
+        public static var timeline: Endpoint.Paginated<Page<Wrapper, String?>, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))

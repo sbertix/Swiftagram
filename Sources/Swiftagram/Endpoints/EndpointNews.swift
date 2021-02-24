@@ -16,7 +16,7 @@ public extension Endpoint {
         private static let base = Endpoint.version1.news.appendingDefaultHeader()
 
         /// Latest news.
-        public static var recent: Disposable<Wrapper> {
+        public static var recent: Disposable<Wrapper, Error> {
             .init { secret, session in
                 Projectables.Deferred {
                     base.inbox
