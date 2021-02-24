@@ -69,6 +69,16 @@ public struct Secret: Codable, Storable {
             // Try to convert a previously stored `Device` into a new `Client`.
             self.cookies = cookies
             self.client = .init(device: device, width: Int(width), height: Int(height))
+
+            #if DEBUG
+            print("———————")
+            print("`LegacyDevice` will lose support starting with `5.1.0`.")
+            print("All your users will be logged out automatically.")
+            print("At that point, by logging back in, they'll be migrated")
+            print("to the safer `Client`-based instance, added with `4.2.0`.")
+            print("in October, 2020.")
+            print("———————")
+            #endif
         } else {
             // Otherwise we just raise an error.
             throw ResponseError.generic("Invalid cached `Secret`.")
