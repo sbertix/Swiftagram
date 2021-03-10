@@ -410,8 +410,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:kean/FetchImage.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.0;
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.4.0;
 			};
 		};
 		E0A49C5825E58B200065CAD2 /* XCRemoteSwiftPackageReference "Swiftagram" */ = {

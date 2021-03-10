@@ -14,7 +14,10 @@ import FetchImage
 /// A `struct` displaying a remote image.
 struct RemoteImage: View {
     /// The current image.
-    @ObservedObject var image: FetchImage
+    @StateObject private var image: FetchImage = .init()
+
+    /// The underlying url.
+    var url: URL?
     /// The placeholder.
     var placeholder: UIImage
 
@@ -23,7 +26,7 @@ struct RemoteImage: View {
     ///     - url: An optional `URL`.
     ///     - placeholder: A valid `UIImage`.
     init(url: URL?, placeholder: UIImage) {
-        self.image = FetchImage(url: url ?? URL(string: "https://example.com")!)
+        self.url = url
         self.placeholder = placeholder
     }
 
@@ -33,7 +36,7 @@ struct RemoteImage: View {
             .resizable()
             .aspectRatio(contentMode: .fill)
             .animation(.default)
-            .onAppear(perform: image.fetch)
+            .onAppear { if let url = url { image.load(url) }}
             .onDisappear(perform: image.cancel)
     }
 }
