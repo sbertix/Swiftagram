@@ -32,7 +32,7 @@ public extension Endpoint.Media.Posts {
     /// - note: **SwiftagramCrypto** only.
     private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
-            Projectables.Deferred {
+            Deferred {
                 base.path(appending: identifier)[keyPath: keyPath]
                     .path(appending: "/")
                     .header(appending: secret.header)
@@ -47,8 +47,8 @@ public extension Endpoint.Media.Posts {
                     .wrap()
                     .map(Status.init)
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 
@@ -95,7 +95,7 @@ public extension Endpoint.Media.Posts {
                         on identifier: String,
                         replyingTo parentCommentIdentifier: String? = nil) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
-            Projectables.Deferred {
+            Deferred {
                 // Make sure the comment is not offensive and can actually
                 // be posted. This is a required check.
                 base.comment
@@ -109,9 +109,9 @@ public extension Endpoint.Media.Posts {
                     .project(session)
                     .map(\.data)
                     .wrap()
-                    .flatMap { output -> AnyProjectable<Status, Error> in
+                    .flatMap { output -> AnyPublisher<Status, Error> in
                         guard output.isOffensive.bool() == false else {
-                            return Projectables.Fail(MediaError.offensiveComment).eraseToAnyProjectable()
+                            return Fail(error: MediaError.offensiveComment).eraseToAnyPublisher()
                         }
                         // Post the actual comment.
                         return base.path(appending: identifier)
@@ -132,11 +132,11 @@ public extension Endpoint.Media.Posts {
                             .map(\.data)
                             .wrap()
                             .map(Status.init)
-                            .eraseToAnyProjectable()
+                            .eraseToAnyPublisher()
                     }
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 
@@ -149,7 +149,7 @@ public extension Endpoint.Media.Posts {
     static func delete<C: Collection>(comments commentIdentifiers: C,
                                       on identifier: String) -> Endpoint.Disposable<Status, Error> where C.Element == String {
         .init { secret, session in
-            Projectables.Deferred {
+            Deferred {
                 base.path(appending: identifier)
                     .path(appending: "comment/bulk_delete/")
                     .header(appending: secret.header)
@@ -164,8 +164,8 @@ public extension Endpoint.Media.Posts {
                     .wrap()
                     .map(Status.init)
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 
@@ -226,13 +226,13 @@ public extension Endpoint.Media.Posts {
                                                tagging users: U,
                                                at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
-            Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
-                let upload = Endpoint.Media.upload(image: data)
+            Deferred { () -> AnyPublisher<Media.Unit, Error> in
+                let upload: Endpoint.Media.Upload<DispatchQueue>.Image = Endpoint.Media.upload(image: data)
                 // Compose the future.
                 return upload.generator((secret, session))
-                    .flatMap { output -> AnyProjectable<Media.Unit, Error> in
+                    .flatMap { output -> AnyPublisher<Media.Unit, Error> in
                         guard output.error == nil else {
-                            return Projectables.Just(output).eraseToAnyProjectable()
+                            return Just(output).setFailureType(to: Error.self).eraseToAnyPublisher()
                         }
                         // Configure the picture.
                         // Prepare the body.
@@ -283,12 +283,12 @@ public extension Endpoint.Media.Posts {
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
-                            .eraseToAnyProjectable()
+                            .eraseToAnyPublisher()
                     }
-                    .eraseToAnyProjectable()
+                    .eraseToAnyPublisher()
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 
@@ -378,16 +378,19 @@ public extension Endpoint.Media.Posts {
                                                tagging users: U,
                                                at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
-            Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
-                let upload = Endpoint.Media.upload(video: url, preview: data, previewSize: size, sourceType: "4")
+            Deferred { () -> AnyPublisher<Media.Unit, Error> in
+                let upload: Endpoint.Media.Upload<DispatchQueue>.Video = Endpoint.Media.upload(video: url,
+                                                                                               preview: data,
+                                                                                               previewSize: size,
+                                                                                               sourceType: "4")
                 guard upload.duration < 60 else {
-                    return Projectables.Fail(MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyProjectable()
+                    return Fail(error: MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
                 }
                 // Compose the future.
                 return upload.generator((secret, session))
-                    .flatMap { output -> AnyProjectable<Media.Unit, Error> in
+                    .flatMap { output -> AnyPublisher<Media.Unit, Error> in
                         guard output.error == nil else {
-                            return Projectables.Just(output).eraseToAnyProjectable()
+                            return Just(output).setFailureType(to: Error.self).eraseToAnyPublisher()
                         }
                         // Configure the video.
                         var body: [String: Wrapper] = [
@@ -442,12 +445,12 @@ public extension Endpoint.Media.Posts {
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
-                            .eraseToAnyProjectable()
+                            .eraseToAnyPublisher()
                     }
-                    .eraseToAnyProjectable()
+                    .eraseToAnyPublisher()
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 

@@ -21,6 +21,8 @@ public final class TwoFactor {
     let crossSiteRequestForgery: HTTPCookie
     /// A block providing a `Secret`.
     let onChange: (Result<Secret, Swift.Error>) -> Void
+    /// The underlying dispose bag.
+    private var bin: Set<AnyCancellable> = []
 
     // MARK: Lifecycle
 
@@ -68,12 +70,13 @@ public final class TwoFactor {
                 "device_id": Client.default.device.instagramIdentifier,
                 "verification_method": "1"
             ])
-            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
-            .observe(
-                output: { item in
+            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
+            .sink(
+                receiveCompletion: { if case .failure(let error) = $0 { self.onChange(.failure(error)) }},
+                receiveValue: { item in
                     do {
-                        guard let response = item.response as? HTTPURLResponse,
-                              let value = try item.data.flatMap(Wrapper.decode) else {
+                        let value = try Wrapper.decode(item.data)
+                        guard !value.isEmpty, let response = item.response as? HTTPURLResponse else {
                             throw BasicAuthenticatorError.invalidResponse
                         }
                         // Prepare secret.
@@ -96,12 +99,8 @@ public final class TwoFactor {
                     } catch {
                         self.onChange(.failure(error))
                     }
-                },
-                completion: {
-                    guard let error = $0 else { return }
-                    self.onChange(.failure(error))
                 }
             )
-            .resume()
+            .store(in: &bin)
     }
 }

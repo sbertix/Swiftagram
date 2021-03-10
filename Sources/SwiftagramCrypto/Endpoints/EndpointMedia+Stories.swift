@@ -65,12 +65,14 @@ public extension Endpoint.Media.Stories {
                                              stickers: S,
                                              isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         .init { secret, session in
-            Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
-                let upload = Endpoint.Media.upload(image: data)
+            Deferred { () -> AnyPublisher<Media.Unit, Error> in
+                let upload: Endpoint.Media.Upload<DispatchQueue>.Image = Endpoint.Media.upload(image: data)
                 // Compose the future.
                 return upload.generator((secret, session))
-                    .flatMap { output -> AnyProjectable<Media.Unit, Error> in
-                        guard output.error == nil else { return Projectables.Just(output).eraseToAnyProjectable() }
+                    .flatMap { output -> AnyPublisher<Media.Unit, Error> in
+                        guard output.error == nil else {
+                            return Just(output).setFailureType(to: Error.self).eraseToAnyPublisher()
+                        }
                         // Configure the picture.
                         // Prepare the configuration request.
                         let seconds = Int(upload.date.timeIntervalSince1970)
@@ -105,12 +107,12 @@ public extension Endpoint.Media.Stories {
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
-                            .eraseToAnyProjectable()
+                            .eraseToAnyPublisher()
                     }
-                    .eraseToAnyProjectable()
+                    .eraseToAnyPublisher()
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 
@@ -192,15 +194,20 @@ public extension Endpoint.Media.Stories {
                                              stickers: S,
                                              isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         .init { secret, session in
-            Projectables.Deferred { () -> AnyProjectable<Media.Unit, Error> in
-                let upload = Endpoint.Media.upload(video: url, preview: data, previewSize: size, sourceType: "3")
+            Deferred { () -> AnyPublisher<Media.Unit, Error> in
+                let upload: Endpoint.Media.Upload<DispatchQueue>.Video = Endpoint.Media.upload(video: url,
+                                                                                               preview: data,
+                                                                                               previewSize: size,
+                                                                                               sourceType: "3")
                 guard upload.duration < 15 else {
-                    return Projectables.Fail(MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyProjectable()
+                    return Fail(error: MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
                 }
                 // Compose the future.
                 return upload.generator((secret, session))
-                    .flatMap { output -> AnyProjectable<Media.Unit, Error> in
-                        guard output.error == nil else { return Projectables.Just(output).eraseToAnyProjectable() }
+                    .flatMap { output -> AnyPublisher<Media.Unit, Error> in
+                        guard output.error == nil else {
+                            return Just(output).setFailureType(to: Error.self).eraseToAnyPublisher()
+                        }
                         // Prepare the configuration request.
                         let seconds = Int(upload.date.timeIntervalSince1970)
                         // Prepare the body.
@@ -242,12 +249,12 @@ public extension Endpoint.Media.Stories {
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
-                            .eraseToAnyProjectable()
+                            .eraseToAnyPublisher()
                     }
-                    .eraseToAnyProjectable()
+                    .eraseToAnyPublisher()
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 

@@ -29,7 +29,7 @@ public extension Endpoint {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Projectables.Pager(pages) { _, next, _ in
+                return Pager(pages) { _, next, _ in
                     base.path(appending: identifier)
                         .following
                         .header(appending: secret.header)
@@ -40,8 +40,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -61,7 +61,7 @@ public extension Endpoint {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Projectables.Pager(pages) { _, next, _ in
+                return Pager(pages) { _, next, _ in
                     base.path(appending: identifier)
                         .followers
                         .header(appending: secret.header)
@@ -72,8 +72,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -82,7 +82,7 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func summary(for identifier: String) -> Disposable<Swiftagram.Friendship, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.show
                         .path(appending: identifier)
                         .header(appending: secret.header)
@@ -91,8 +91,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.Friendship.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -102,7 +102,7 @@ public extension Endpoint {
         public static func summary<C: Collection>(for identifiers: C) -> Disposable<Swiftagram.Friendship.Dictionary, Error>
         where C.Element == String {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.path(appending: "show_many/")
                         .header(appending: secret.header)
                         .body(["user_ids": identifiers.joined(separator: ","),
@@ -113,15 +113,15 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.Friendship.Dictionary.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
         /// A list of users who requested to follow you, without having been processed yet.
         public static var pendingRequests: Paginated<Swiftagram.User.Collection, String?, Error> {
             .init { secret, session, pages in
-                Projectables.Pager(pages) { _, next, _ in
+                Pager(pages) { _, next, _ in
                     base.pending
                         .header(appending: secret.header)
                         .query(appending: next, forKey: "max_id")
@@ -130,8 +130,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }

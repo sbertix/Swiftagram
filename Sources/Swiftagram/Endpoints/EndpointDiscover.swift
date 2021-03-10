@@ -20,7 +20,7 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func users(like identifier: String) -> Disposable<Swiftagram.User.Collection, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.chaining
                         .query(appending: identifier, forKey: "target_id")
                         .header(appending: secret.header)
@@ -29,15 +29,15 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
         /// The explore feed.
         public static var explore: Paginated<Page<Wrapper, String?>, String?, Error> {
             .init { secret, session, pages in
-                Projectables.Pager(pages) { _, next, _ in
+                Pager(pages) { _, next, _ in
                     base.explore
                         .header(appending: secret.header)
                         .query(appending: next, forKey: "max_id")
@@ -45,8 +45,8 @@ public extension Endpoint {
                         .map(\.data)
                         .wrap()
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -55,7 +55,7 @@ public extension Endpoint {
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         public static var topics: Paginated<Page<Wrapper, String?>, String?, Error> {
             .init { secret, session, pages in
-                Projectables.Pager(pages) { _, next, _ in
+                Pager(pages) { _, next, _ in
                     base.topical_explore
                         .header(appending: secret.header)
                         .query(appending: ["is_prefetch": "true",
@@ -69,8 +69,8 @@ public extension Endpoint {
                         .map(\.data)
                         .wrap()
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }

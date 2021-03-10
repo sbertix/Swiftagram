@@ -30,6 +30,9 @@ let timeout: TimeInterval = 30
 //swiftlint:disable line_length
 /// A `class` dealing with testing all available `Endpoint`s.
 final class EndpointTests: XCTestCase {
+    /// The underlying dispose bag.
+    private var bin: Set<AnyCancellable> = []
+
     //swiftlint:disable force_try
     /// Read the `Secret`.
     lazy var secret: Secret = {
@@ -51,17 +54,17 @@ final class EndpointTests: XCTestCase {
         let reference = ReferenceType<Wrapper>()
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
-            .observe(
-                output: {
+            .sink(
+                receiveCompletion: {
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+                    completion.fulfill()
+                },
+                receiveValue: {
                     XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
                     reference.value = $0
-                },
-                completion: {
-                    if let error = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
-                    completion.fulfill()
                 }
             )
-            .resume()
+            .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }
@@ -77,17 +80,17 @@ final class EndpointTests: XCTestCase {
         let reference = ReferenceType<Wrapper>()
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
-            .observe(
-                output: {
-                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.wrapper()
-                },
-                completion: {
-                    if let error = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+            .sink(
+                receiveCompletion: {
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
                     completion.fulfill()
+                },
+                receiveValue: {
+                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = $0.wrapped
                 }
             )
-            .resume()
+            .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }
@@ -103,17 +106,17 @@ final class EndpointTests: XCTestCase {
         let reference = ReferenceType<Wrapper>()
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
-            .observe(
-                output: {
-                    XCTAssert($0.error == nil || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.wrapper()
-                },
-                completion: {
-                    if let error = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+            .sink(
+                receiveCompletion: {
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
                     completion.fulfill()
+                },
+                receiveValue: {
+                    XCTAssert($0.error == nil || $0.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = $0.wrapped
                 }
             )
-            .resume()
+            .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }
@@ -128,16 +131,17 @@ final class EndpointTests: XCTestCase {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<T>()
-        endpoint.observe(
-            output: {
-                XCTAssert($0 == comparison, "\(identifier) #\(line)")
-                reference.value = $0
-            },
-            completion: {
-                if let error = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
-                completion.fulfill()
-            }
-        ).resume()
+        endpoint.sink(
+                receiveCompletion: {
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+                    completion.fulfill()
+                },
+                receiveValue: {
+                    XCTAssert($0 == comparison, "\(identifier) #\(line)")
+                    reference.value = $0
+                }
+            )
+            .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }
@@ -155,18 +159,17 @@ final class EndpointTests: XCTestCase {
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .pages(pages)
-            .observe(
-                output: {
-                    XCTAssert($0.content.status.string() == "ok" || $0.content.response.spam.bool() == true,
-                              "\(identifier) #\(line)")
-                    reference.value = $0.content
-                },
-                completion: {
-                    if let error = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+            .sink(
+                receiveCompletion: {
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
                     completion.fulfill()
+                },
+                receiveValue: {
+                    XCTAssert($0.content.status.string() == "ok" || $0.content.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = $0.content
                 }
             )
-            .resume()
+            .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }
@@ -184,18 +187,17 @@ final class EndpointTests: XCTestCase {
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .pages(pages)
-            .observe(
-                output: {
-                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true,
-                              "\(identifier) #\(line)")
-                    reference.value = $0.wrapper()
-                },
-                completion: {
-                    if let error = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+            .sink(
+                receiveCompletion: {
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
                     completion.fulfill()
+                },
+                receiveValue: {
+                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = $0.wrapped
                 }
             )
-            .resume()
+            .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }
@@ -213,17 +215,17 @@ final class EndpointTests: XCTestCase {
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .pages(pages)
-            .observe(
-                output: {
-                    XCTAssert($0.error == nil || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.wrapper()
-                },
-                completion: {
-                    if let error = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+            .sink(
+                receiveCompletion: {
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
                     completion.fulfill()
+                },
+                receiveValue: {
+                    XCTAssert($0.error == nil || $0.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = $0.wrapped
                 }
             )
-            .resume()
+            .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }

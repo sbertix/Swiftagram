@@ -18,15 +18,15 @@ public extension Endpoint {
         /// A list of all profiles blocked by the user.
         public static var blocked: Disposable<Wrapper, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.blocked_list
                         .header(secret.header)
                         .project(session)
                         .map(\.data)
                         .wrap()
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -35,7 +35,7 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func summary(for identifier: String) -> Disposable<Swiftagram.User.Unit, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.path(appending: identifier)
                         .info
                         .header(secret.header)
@@ -44,8 +44,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.User.Unit.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -57,7 +57,7 @@ public extension Endpoint {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Projectables.Pager(pages) { _, next, _ in
+                return Pager(pages) { _, next, _ in
                     base.search
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
@@ -67,8 +67,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }

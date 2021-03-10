@@ -9,7 +9,7 @@ import Foundation
 
 import ComposableRequest
 
-public extension Projectables.Pager where Generator == AnyProjectable<Page<Wrapper, String?>, Error> {
+public extension Publishers.Pager where Generator == AnyPublisher<Page<Wrapper, String?>, Error> {
     /// Init.
     ///
     /// - parameters:
@@ -17,15 +17,15 @@ public extension Projectables.Pager where Generator == AnyProjectable<Page<Wrapp
     ///     - offset: An optional `String`.
     ///     - transformer: A valid mapper.
     ///     - generator: A valid `Generator`.
-    init<P: Projectable>(_ input: PagerProviderInput<RankedPageReference<String, String>?>,
-                         transformer: @escaping (Wrapper) -> String? = { $0.nextMaxId.string() },
-                         generator: @escaping (_ output: Wrapper?, _ next: String?, _ offset: Int) -> P?)
+    init<P: Publisher>(_ input: PagerProviderInput<RankedPageReference<String, String>?>,
+                       transformer: @escaping (Wrapper) -> String? = { $0.nextMaxId.string() },
+                       generator: @escaping (_ output: Wrapper?, _ next: String?, _ offset: Int) -> P?)
     where P.Output == Wrapper, P.Failure == Error {
-        self.init(pages: input.pages) { output, index -> AnyProjectable<Page<Wrapper, String?>, Error>? in
+        self.init(pages: input.pages) { output, index -> AnyPublisher<Page<Wrapper, String?>, Error>? in
             guard output == nil || output?.bookmark != nil else { return nil }
             return generator(output?.content, output == nil ? input.offset?.offset : output?.bookmark, index)
                 .flatMap { $0.map { Page(content: $0, bookmark: transformer($0)) }}?
-                .eraseToAnyProjectable()
+                .eraseToAnyPublisher()
         }
     }
 
@@ -36,20 +36,20 @@ public extension Projectables.Pager where Generator == AnyProjectable<Page<Wrapp
     ///     - offset: An optional `String`.
     ///     - transformer: A valid mapper.
     ///     - generator: A valid `Generator`.
-    init<P: Projectable>(_ input: PagerProviderInput<String?>,
-                         transformer: @escaping (Wrapper) -> String? = { $0.nextMaxId.string() },
-                         generator: @escaping (_ output: Wrapper?, _ next: String?, _ offset: Int) -> P?)
+    init<P: Publisher>(_ input: PagerProviderInput<String?>,
+                       transformer: @escaping (Wrapper) -> String? = { $0.nextMaxId.string() },
+                       generator: @escaping (_ output: Wrapper?, _ next: String?, _ offset: Int) -> P?)
     where P.Output == Wrapper, P.Failure == Error {
-        self.init(pages: input.pages) { output, index -> AnyProjectable<Page<Wrapper, String?>, Error>? in
+        self.init(pages: input.pages) { output, index -> AnyPublisher<Page<Wrapper, String?>, Error>? in
             guard output == nil || output?.bookmark != nil else { return nil }
             return generator(output?.content, output == nil ? input.offset : output?.bookmark, index)
                 .flatMap { $0.map { Page(content: $0, bookmark: transformer($0)) }}?
-                .eraseToAnyProjectable()
+                .eraseToAnyPublisher()
         }
     }
 }
 
-public extension Projectables.Pager where Output: PaginatedType {
+public extension Publishers.Pager where Output: PaginatedType {
     /// Init.
     ///
     /// - parameters:

@@ -15,7 +15,7 @@ public extension Endpoint.Media {
         /// Stories tray.
         public static var followed: Endpoint.Disposable<TrayItem.Collection, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     Endpoint.version1.feed
                         .reels_tray
                         .appendingDefaultHeader()
@@ -25,8 +25,8 @@ public extension Endpoint.Media {
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -35,7 +35,7 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func highlights(for identifier: String) -> Endpoint.Disposable<TrayItem.Collection, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     Endpoint.version1.highlights
                         .path(appending: identifier)
                         .highlights_tray
@@ -57,8 +57,8 @@ public extension Endpoint.Media {
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -74,7 +74,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Projectables.Pager(pages) { _, next, _ in
+                return Pager(pages) { _, next, _ in
                     base.path(appending: identifier)
                         .path(appending: "list_reel_media_viewer")
                         .header(appending: secret.header)
@@ -85,8 +85,8 @@ public extension Endpoint.Media {
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -96,7 +96,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Projectables.Pager(pages) { _, next, _ in
+                return Pager(pages) { _, next, _ in
                     Endpoint.version1
                         .archive
                         .reel
@@ -110,8 +110,8 @@ public extension Endpoint.Media {
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -120,7 +120,7 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func owned(by identifier: String) -> Endpoint.Disposable<TrayItem.Unit, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     Endpoint.version1
                         .feed
                         .user
@@ -133,8 +133,8 @@ public extension Endpoint.Media {
                         .wrap()
                         .map(TrayItem.Unit.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -143,7 +143,7 @@ public extension Endpoint.Media {
         /// - parameters identifiers: A `Collection` of `String`s holding reference to valud user identifiers.
         public static func owned<C: Collection>(by identifiers: C) -> Endpoint.Disposable<TrayItem.Dictionary, Error> where C.Element == String {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     Endpoint.version1
                         .feed
                         .path(appending: "reels_media/")
@@ -155,8 +155,8 @@ public extension Endpoint.Media {
                         .wrap()
                         .map(TrayItem.Dictionary.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }

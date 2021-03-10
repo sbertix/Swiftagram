@@ -18,15 +18,15 @@ public extension Endpoint {
         /// Latest news.
         public static var recent: Disposable<Wrapper, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.inbox
                         .header(appending: secret.header)
                         .project(session)
                         .map(\.data)
                         .wrap()
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }

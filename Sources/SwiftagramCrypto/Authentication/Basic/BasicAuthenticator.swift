@@ -50,6 +50,9 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
     /// A `String` holding a valid password.
     public let password: String
 
+    /// The underlying dispose bag.
+    private var bin: Set<AnyCancellable> = []
+
     // MARK: Lifecycle
 
     /// Init.
@@ -160,18 +163,17 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
                                 "X-DEVICE-ID": client.device.identifier.uuidString])
             .signing(body: ["mobile_subno_usage": "default",
                             "device_id": client.device.identifier.uuidString])
-            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
+            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
             .tryMap {
                 guard let header = ($0.response as? HTTPURLResponse)?
                         .allHeaderFields as? [String: String] else { throw BasicAuthenticatorError.invalidResponse }
                 return HTTPCookie.cookies(withResponseHeaderFields: header, for: URL(string: ".instagram.com")!)
             }
-            .observe(output: { onComplete(.success($0)) },
-                     completion: {
-                        guard let error = $0 else { return }
-                        onComplete(.failure(error))
-                     })
-            .resume()
+            .sink(
+                receiveCompletion: { if case .failure(let error) = $0 { onComplete(.failure(error)) }},
+                receiveValue: { onComplete(.success($0)) }
+            )
+            .store(in: &bin)
     }
 
     /// Fetch password public key and encrypt password.
@@ -191,21 +193,20 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
             .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
             .signing(body: ["id": client.device.identifier.uuidString,
                             "experiments": Constants.loginExperiments])
-            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
+            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
             .tryMap {
                 guard let response = $0.response as? HTTPURLResponse,
                       let header = response.allHeaderFields as? [String: String],
-                      try $0.data.flatMap(Wrapper.decode)?.status.string() == "ok" else {
+                      try Wrapper.decode($0.data).status.string() == "ok" else {
                     throw BasicAuthenticatorError.invalidResponse
                 }
                 return header
             }
-            .observe(output: { onComplete(BasicAuthenticator<Storage>.encrypt(password: self.password, with: $0)) },
-                     completion: {
-                        guard let error = $0 else { return }
-                        onComplete(.failure(error))
-                     })
-            .resume()
+            .sink(
+                receiveCompletion: { if case .failure(let error) = $0 { onComplete(.failure(error)) }},
+                receiveValue: { onComplete(BasicAuthenticator<Storage>.encrypt(password: self.password, with: $0)) }
+            )
+            .store(in: &bin)
     }
 
     /// Request authentication.
@@ -241,17 +242,19 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
                 "login_attempt_count": "0",
                 "jazoest": "2\(client.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
-            .project(session: .ephemeral, on: Scheduler.queue(.userInitiated), logging: nil)
-            .observe(output: { self.process(result: .success($0),
-                                            crossSiteRequestForgery: crossSiteRequestForgery,
-                                            onChange: onChange) },
-                     completion: {
-                        guard let error = $0 else { return }
-                        self.process(result: .failure(error),
-                                     crossSiteRequestForgery: crossSiteRequestForgery,
-                                     onChange: onChange)
-                     })
-            .resume()
+            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
+            .sink(
+                receiveCompletion: {
+                    guard case .failure(let error) = $0 else { return }
+                    self.process(result: .failure(error),
+                                 crossSiteRequestForgery: crossSiteRequestForgery,
+                                 onChange: onChange)
+                },
+                receiveValue: { self.process(result: .success($0),
+                                             crossSiteRequestForgery: crossSiteRequestForgery,
+                                             onChange: onChange) }
+            )
+            .store(in: &bin)
     }
 
     /// Handle `ds_user_id` and `sessionid` response.
@@ -268,8 +271,8 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
             onChange(.failure(error))
         case .success(let item):
             do {
-                guard let value = try item.data.flatMap(Wrapper.decode),
-                      let response = item.response as? HTTPURLResponse else {
+                let value = try Wrapper.decode(item.data)
+                guard !value.isEmpty, let response = item.response as? HTTPURLResponse else {
                     throw BasicAuthenticatorError.invalidResponse
                 }
                 if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {

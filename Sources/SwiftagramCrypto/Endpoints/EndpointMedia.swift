@@ -34,7 +34,7 @@ public extension Endpoint.Media {
     /// - note: **SwiftagramCrypto** only.
     static func delete(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
-            Projectables.Deferred {
+            Deferred {
                 base.path(appending: identifier)
                     .info
                     .header(appending: secret.header)
@@ -42,9 +42,9 @@ public extension Endpoint.Media {
                     .map(\.data)
                     .wrap()
                     .map { $0["items"][0].mediaType.int() }
-                    .flatMap { type -> AnyProjectable<Request.Response, Error> in
+                    .flatMap { type -> AnyPublisher<Request.Response, Error> in
                         guard let mediaType = type, [1, 2, 8].contains(mediaType) else {
-                            return Projectables.Fail(MediaError.unsupportedType(type)).eraseToAnyProjectable()
+                            return Fail(error: MediaError.unsupportedType(type)).eraseToAnyPublisher()
                         }
                         return base.path(appending: identifier)
                             .path(appending: "delete/")
@@ -63,8 +63,8 @@ public extension Endpoint.Media {
                     .wrap()
                     .map(Status.init)
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 }

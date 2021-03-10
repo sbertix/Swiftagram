@@ -36,7 +36,6 @@ final class FollowersModel: ObservableObject {
                 return Endpoint.User.summary(for: secret.identifier)
                     .unlock(with: secret)
                     .session(.instagram)
-                    .publish()
                     .map(\.user)
                     .catch { _ in Just(nil) }
                     .eraseToAnyPublisher()
@@ -55,7 +54,6 @@ final class FollowersModel: ObservableObject {
                     .unlock(with: secret)
                     .session(.instagram)
                     .pages(3)
-                    .publish()
                     .compactMap(\.users)
                     //swiftlint:disable reduce_into
                     .reduce([], +)

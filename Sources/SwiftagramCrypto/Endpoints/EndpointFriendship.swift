@@ -22,7 +22,7 @@ public extension Endpoint.Friendship {
     /// - note: **SwiftagramCrypto** only.
     private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status, Error> {
         .init { secret, session in
-            Projectables.Deferred {
+            Deferred {
                 base[keyPath: keyPath]
                     .path(appending: identifier)
                     .path(appending: "/")
@@ -38,8 +38,8 @@ public extension Endpoint.Friendship {
                     .wrap()
                     .map(Status.init)
             }
-            .observe(on: session.scheduler)
-            .eraseToAnyObservable()
+            .receive(on: session.scheduler)
+            .eraseToAnyPublisher()
         }
     }
 

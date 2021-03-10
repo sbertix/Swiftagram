@@ -343,9 +343,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Followers/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6YNCRQZ25E;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Followers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -365,9 +365,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Followers/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6YNCRQZ25E;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Followers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

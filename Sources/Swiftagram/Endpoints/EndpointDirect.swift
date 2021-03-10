@@ -18,7 +18,7 @@ public extension Endpoint {
         /// Fetch all threads.
         public static var inbox: Paginated<Conversation.Collection, String?, Error> {
             .init { secret, session, pages in
-                Projectables.Pager(pages) { _, next, _ in
+                Pager(pages) { _, next, _ in
                     base.inbox
                         .header(appending: secret.header)
                         .query(appending: ["visual_message_return_type": "unseen",
@@ -32,15 +32,15 @@ public extension Endpoint {
                         .wrap()
                         .map(Conversation.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
         /// All pending threads.
         public static var pendingInbox: Paginated<Conversation.Collection, String?, Error> {
             .init { secret, session, pages in
-                Projectables.Pager(pages) { _, next, _ in
+                Pager(pages) { _, next, _ in
                     base.path(appending: "pending_inbox")
                         .header(appending: secret.header)
                         .query(appending: ["visual_message_return_type": "unseen",
@@ -54,8 +54,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Conversation.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -64,7 +64,7 @@ public extension Endpoint {
         /// - parameter query: An optional `String`.
         public static func recipients(matching query: String? = nil) -> Disposable<Recipient.Collection, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.path(appending: "ranked_recipients/")
                         .header(appending: secret.header)
                         .header(appending: ["mode": "raven",
@@ -75,8 +75,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Recipient.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -85,7 +85,7 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid thread identifier.
         public static func conversation(matching identifier: String) -> Paginated<Conversation.Unit, String?, Error> {
             .init { secret, session, pages in
-                Projectables.Pager(pages) { _, next, _ in
+                Pager(pages) { _, next, _ in
                     base.threads
                         .path(appending: identifier)
                         .header(appending: secret.header)
@@ -98,23 +98,23 @@ public extension Endpoint {
                         .wrap()
                         .map(Conversation.Unit.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
         /// Get user presence.
         public static var presence: Disposable<Wrapper, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.path(appending: "get_presence/")
                         .header(appending: secret.header)
                         .project(session)
                         .map(\.data)
                         .wrap()
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }

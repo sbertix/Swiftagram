@@ -28,9 +28,9 @@ extension Endpoint.Media {
     ///     - identifier: An optional `uploadId`. Defaults to `nil`.
     ///     - waterfallIdentifier: An optional `waterfallIdentifier`. Defaults to `nil`
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
-    static func upload(image data: Data,
-                       identifier: String? = nil,
-                       waterfallIdentifier: String? = nil) -> Upload.Image {
+    static func upload<S: Scheduler>(image data: Data,
+                                     identifier: String? = nil,
+                                     waterfallIdentifier: String? = nil) -> Upload<S>.Image {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = identifier ?? String(Int(now.timeIntervalSince1970*1_000))
@@ -69,8 +69,8 @@ extension Endpoint.Media {
                 .map(\.data)
                 .wrap()
                 .map(Media.Unit.init)
-                .observe(on: input.session.scheduler)
-                .eraseToAnyProjectable()
+                .receive(on: input.session.scheduler)
+                .eraseToAnyPublisher()
         }
     }
 
@@ -86,11 +86,11 @@ extension Endpoint.Media {
     ///     - isForAlbum: A `Bool`.
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
     /// - warning: Remember to set `Secret` specific headers in the request.
-    static func upload(video url: URL,
-                       preview data: Data?,
-                       previewSize: CGSize,
-                       sourceType: String,
-                       isForAlbum: Bool = false) -> Upload.Video {
+    static func upload<S: Scheduler>(video url: URL,
+                                     preview data: Data?,
+                                     previewSize: CGSize,
+                                     sourceType: String,
+                                     isForAlbum: Bool = false) -> Upload<S>.Video {
         // Prepare upload parameters.
         let video = AVAsset(url: url)
         let now = Date()
@@ -135,23 +135,17 @@ extension Endpoint.Media {
                 .project(input.session)
                 .map(\.data)
                 .wrap()
-                .flatMap { output -> AnyProjectable<Wrapper, Error> in
+                .flatMap { output -> AnyPublisher<Wrapper, Error> in
                     // Actually upload the video.
                     guard let offset = output.offset.int() else {
-                        return Projectables.Fail(MediaError.artifact(output)).eraseToAnyProjectable()
+                        return Fail(error: MediaError.artifact(output)).eraseToAnyPublisher()
                     }
                     // Fetch the video and then upload it.
                     return Request(url)
                         .project(session: input.session.session,
-                                 on: Scheduler.queue(.userInitiated),
+                                 on: DispatchQueue.global(qos: .userInitiated),
                                  logging: input.session.logger)
                         .map(\.data)
-                        .flatMap { output -> AnyProjectable<Data, Error> in
-                            guard let output = output else {
-                                return Projectables.Fail(MediaError.videoNotFound).eraseToAnyProjectable()
-                            }
-                            return Projectables.Just(output).eraseToAnyProjectable()
-                        }
                         .flatMap {
                             Endpoint.api
                                 .path(appending: "rupload_igvideo")
@@ -169,24 +163,24 @@ extension Endpoint.Media {
                                 .map(\.data)
                                 .wrap()
                         }
-                        .eraseToAnyProjectable()
+                        .eraseToAnyPublisher()
                 }
                 .map(Media.Unit.init)
-                .flatMap { output -> AnyProjectable<Media.Unit, Error> in
+                .flatMap { output -> AnyPublisher<Media.Unit, Error> in
                     // Upload the preview.
                     guard output.error == nil else {
-                        return Projectables.Fail(MediaError.artifact(output.wrapper())).eraseToAnyProjectable()
+                        return Fail(error: MediaError.artifact(output.wrapper())).eraseToAnyPublisher()
                     }
                     return upload(image: preview,
                                   identifier: identifier,
                                   waterfallIdentifier: waterfallIdentifier)
                         .generator(input)
-                        .eraseToAnyProjectable()
+                        .eraseToAnyPublisher()
                 }
-                .flatMap { output -> AnyProjectable<Media.Unit, Error> in
+                .flatMap { output -> AnyPublisher<Media.Unit, Error> in
                     // Finish uploading process.
                     guard output.error == nil else {
-                        return Projectables.Fail(MediaError.artifact(output.wrapper())).eraseToAnyProjectable()
+                        return Fail(error: MediaError.artifact(output.wrapper())).eraseToAnyPublisher()
                     }
                     return base.path(appending: "upload_finish/")
                         .header(appending: input.secret.header)
@@ -208,10 +202,10 @@ extension Endpoint.Media {
                         .map(\.data)
                         .wrap()
                         .map(Media.Unit.init)
-                        .eraseToAnyProjectable()
+                        .eraseToAnyPublisher()
                 }
-                .observe(on: input.session.scheduler)
-                .eraseToAnyProjectable()
+                .receive(on: input.session.scheduler)
+                .eraseToAnyPublisher()
         }
     }
 
@@ -220,9 +214,9 @@ extension Endpoint.Media {
 
 extension Endpoint.Media {
     /// A module-like `enum` listing upload media respones.
-    enum Upload {
+    enum Upload<Scheduler: ComposableRequest.Scheduler> {
         /// An alias for the generator input type.
-        typealias Input = (secret: Secret, session: SessionProviderInput)
+        typealias Input = (secret: Secret, session: SessionProviderInput<Scheduler>)
 
         /// A `struct` defining an image response.
         struct Image {
@@ -233,7 +227,7 @@ extension Endpoint.Media {
             /// The creation date.
             let date: Date
             /// A generator.
-            let generator: (Input) -> AnyProjectable<Media.Unit, Error>
+            let generator: (Input) -> AnyPublisher<Media.Unit, Error>
         }
 
         /// A `struct` defining a video response.
@@ -249,7 +243,7 @@ extension Endpoint.Media {
             /// The duration.
             let duration: TimeInterval
             /// A generator.
-            let generator: (Input) -> AnyProjectable<Media.Unit, Error>
+            let generator: (Input) -> AnyPublisher<Media.Unit, Error>
         }
     }
 }

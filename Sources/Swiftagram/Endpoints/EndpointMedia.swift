@@ -20,7 +20,7 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
         public static func summary(for identifier: String) -> Disposable<Swiftagram.Media.Collection, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.path(appending: identifier)
                         .info
                         .header(appending: secret.header)
@@ -29,8 +29,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -39,7 +39,7 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid media identifier.
         public static func permalink(for identifier: String) -> Disposable<Wrapper, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     base.path(appending: identifier)
                         .permalink
                         .header(appending: secret.header)
@@ -47,8 +47,8 @@ public extension Endpoint {
                         .map(\.data)
                         .wrap()
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }

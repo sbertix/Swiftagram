@@ -20,7 +20,7 @@ public extension Endpoint {
         public static func around(coordinates: Swiftagram.Location.Coordinates,
                                   matching query: String? = nil) -> Disposable<Swiftagram.Location.Collection, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     Endpoint.version1
                         .appendingDefaultHeader()
                         .path(appending: "location_search/")
@@ -40,8 +40,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.Location.Collection.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -50,7 +50,7 @@ public extension Endpoint {
         /// - parameter identifier: A valid location identifier.
         public static func summary(for identifier: String) -> Disposable<Swiftagram.Location.Unit, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     Endpoint.version1
                         .locations
                         .path(appending: identifier)
@@ -62,8 +62,8 @@ public extension Endpoint {
                         .wrap()
                         .map(Swiftagram.Location.Unit.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
 
@@ -72,7 +72,7 @@ public extension Endpoint {
         /// - parameter identifier: A valid location identifier.
         public static func stories(at identifier: String) -> Disposable<TrayItem.Unit, Error> {
             .init { secret, session in
-                Projectables.Deferred {
+                Deferred {
                     Endpoint.version1
                         .locations
                         .path(appending: identifier)
@@ -84,8 +84,8 @@ public extension Endpoint {
                         .wrap()
                         .map(TrayItem.Unit.init)
                 }
-                .observe(on: session.scheduler)
-                .eraseToAnyObservable()
+                .receive(on: session.scheduler)
+                .eraseToAnyPublisher()
             }
         }
     }
