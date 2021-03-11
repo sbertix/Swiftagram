@@ -24,12 +24,11 @@ public extension Endpoint {
                     base.path(appending: identifier)
                         .info
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -43,11 +42,10 @@ public extension Endpoint {
                     base.path(appending: identifier)
                         .permalink
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

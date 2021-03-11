@@ -44,6 +44,9 @@ public struct Comment: ReflectedType {
 public extension Comment {
     /// A `struct` representing a `Comment` collection.
     struct Collection: ResponseType, PaginatedType, ReflectedType {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The prefix.
         public static var debugDescriptionPrefix: String { "Comment." }
         /// A list of to-be-reflected properties.

@@ -44,18 +44,18 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     base.path(appending: identifier)
                         .likers
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -70,18 +70,18 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     base.path(appending: identifier)
                         .comments
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Comment.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -96,12 +96,11 @@ public extension Endpoint.Media {
                         .path(appending: "save/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -116,12 +115,11 @@ public extension Endpoint.Media {
                         .path(appending: "unsave/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -136,12 +134,11 @@ public extension Endpoint.Media {
                         .path(appending: "comment_like/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -156,12 +153,11 @@ public extension Endpoint.Media {
                         .path(appending: "comment_unlike/")
                         .method(.post)
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Status.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -172,20 +168,20 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .feed
                         .liked
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -196,7 +192,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .feed
                         .saved
@@ -204,13 +200,13 @@ public extension Endpoint.Media {
                         .header(appending: secret.header)
                         .header(appending: ["rank_token": rank,
                                             "include_igtv_preview": "false"])
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -221,20 +217,20 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .feed
                         .path(appending: "only_me_feed/")
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -249,7 +245,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .feed
                         .user
@@ -257,13 +253,13 @@ public extension Endpoint.Media {
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -278,7 +274,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .usertags
                         .path(appending: identifier)
@@ -286,13 +282,13 @@ public extension Endpoint.Media {
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -305,7 +301,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .feed
                         .tag
@@ -313,43 +309,24 @@ public extension Endpoint.Media {
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Media.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
 
         /// Timeline.
-        public static var timeline: Endpoint.Paginated<Page<Wrapper, String?>, RankedPageReference<String, String>?, Error> {
+        public static var timeline: Endpoint.Paginated<Wrapper, RankedPageReference<String, String>?, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages,
-                             transformer: {
-                                switch $0.nextMaxId.string() {
-                                case .none:
-                                    return nil
-                                case "feed_recs_head_load":
-                                    return $0.feedItems
-                                        .array()?
-                                        .last?
-                                        .endOfFeedDemarcator
-                                        .groupSet
-                                        .groups
-                                        .array()?
-                                        .first(where: { $0.id.string() == "past_posts" })?
-                                        .nextMaxId
-                                        .string()
-                                case let cursor?:
-                                    return cursor
-                                }
-                             }) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .feed
                         .path(appending: "timeline/")
@@ -362,9 +339,9 @@ public extension Endpoint.Media {
                             "X-DEVICE-ID": secret.client.device.identifier.uuidString,
                             "X-FB": "1"
                         ])
-                        .body(["max_id": next,
-                               "reason": next == nil ? "cold_start_fetch" : "pagination",
-                               "is_pull_to_refresh": next == nil ? "0" : nil,
+                        .body(["max_id": $0,
+                               "reason": $0 == nil ? "cold_start_fetch" : "pagination",
+                               "is_pull_to_refresh": $0 == nil ? "0" : nil,
                                "is_prefetch": "0",
                                "feed_view_info": "",
                                "seen_posts": "",
@@ -381,11 +358,29 @@ public extension Endpoint.Media {
                                "is_async_ads_double_request": "0",
                                "will_sound_on": "0",
                                "is_async_ads_rti": "0"].compactMapValues { $0 })
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
+                        .iterateFirst(stoppingAt: $0) {
+                            switch $0?.nextMaxId.string() {
+                            case .none:
+                                return nil
+                            case "feed_recs_head_load":
+                                return $0?.feedItems
+                                    .array()?
+                                    .last?
+                                    .endOfFeedDemarcator
+                                    .groupSet
+                                    .groups
+                                    .array()?
+                                    .first(where: { $0.id.string() == "past_posts" })?
+                                    .nextMaxId
+                                    .string()
+                            case let cursor?:
+                                return cursor
+                            }
+                        }
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

@@ -148,11 +148,11 @@ final class EndpointTests: XCTestCase {
 
     // Perform test on `Endpoint` returning a `Paginated` `Wrapper`.
     @discardableResult
-    func performTest<P, N, E: Error>(on endpoint: Endpoint.Paginated<Page<Wrapper, N?>, P?, E>,
-                                     _ identifier: String,
-                                     pages: Int = 1,
-                                     logging level: Logger.Level? = nil,
-                                     line: Int = #line) -> Wrapper? {
+    func performTest<P, E: Error>(on endpoint: Endpoint.Paginated<Wrapper, P?, E>,
+                                  _ identifier: String,
+                                  pages: Int = 1,
+                                  logging level: Logger.Level? = nil,
+                                  line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -165,8 +165,8 @@ final class EndpointTests: XCTestCase {
                     completion.fulfill()
                 },
                 receiveValue: {
-                    XCTAssert($0.content.status.string() == "ok" || $0.content.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.content
+                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = $0
                 }
             )
             .store(in: &bin)

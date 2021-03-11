@@ -243,6 +243,9 @@ public extension Media {
 
     /// A `struct` representing a `Media` collection.
     struct Collection: ResponseType, ReflectedType, PaginatedType {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The prefix.
         public static var debugDescriptionPrefix: String { "Media." }
         /// A list of to-be-reflected properties.

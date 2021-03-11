@@ -7,23 +7,13 @@
 
 import Foundation
 
-import ComposableRequest
-
-/// A `struct` holding reference to pagination parameters.
-public struct Pagination: Hashable {
-    /// Next cursor.
-    public var next: String?
-    /// Whether more pages are available or not.
-    public var canLoadMore: Bool { next != nil }
-}
-
 /// A `protocol` describing a response holding a paginated value.
-public protocol PaginatedType: Wrapped, Bookmarkable {
+public protocol PaginatedType: Wrapped, Paginatable {
     /// The pagination parameters.
-    var bookmark: Pagination { get }
+    var offset: Offset { get }
 }
 
-public extension PaginatedType {
+public extension PaginatedType where Offset == String? {
     /// The pagination parameters.
-    var bookmark: Pagination { .init(next: self["nextMaxId"].string()) }
+    var offset: Offset { self["nextMaxId"].string() }
 }

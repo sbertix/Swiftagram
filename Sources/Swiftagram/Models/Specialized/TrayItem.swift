@@ -105,6 +105,9 @@ public extension TrayItem {
 
     /// A `struct` representing a `TrayItem` collection.
     struct Collection: ResponseType, ReflectedType, PaginatedType {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The prefix.
         public static var debugDescriptionPrefix: String { "TrayItem." }
         /// A list of to-be-reflected properties.

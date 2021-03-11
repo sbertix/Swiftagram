@@ -18,21 +18,21 @@ public extension Endpoint {
         /// Fetch all threads.
         public static var inbox: Paginated<Conversation.Collection, String?, Error> {
             .init { secret, session, pages in
-                Pager(pages) { _, next, _ in
+                Pager(pages) {
                     base.inbox
                         .header(appending: secret.header)
                         .query(appending: ["visual_message_return_type": "unseen",
-                                           "direction": next.flatMap { _ in "older" },
-                                           "cursor": next,
+                                           "direction": $0.flatMap { _ in "older" },
+                                           "cursor": $0,
                                            "thread_message_limit": "10",
                                            "persistent_badging": "true",
                                            "limit": "20"])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Conversation.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -40,21 +40,21 @@ public extension Endpoint {
         /// All pending threads.
         public static var pendingInbox: Paginated<Conversation.Collection, String?, Error> {
             .init { secret, session, pages in
-                Pager(pages) { _, next, _ in
+                Pager(pages) {
                     base.path(appending: "pending_inbox")
                         .header(appending: secret.header)
                         .query(appending: ["visual_message_return_type": "unseen",
-                                           "direction": next.flatMap { _ in "older" },
-                                           "cursor": next,
+                                           "direction": $0.flatMap { _ in "older" },
+                                           "cursor": $0,
                                            "thread_message_limit": "10",
                                            "persistent_badging": "true",
                                            "limit": "20"])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Conversation.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -70,12 +70,11 @@ public extension Endpoint {
                         .header(appending: ["mode": "raven",
                                             "query": query,
                                             "show_threads": "true"])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Recipient.Collection.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -85,20 +84,20 @@ public extension Endpoint {
         /// - parameter identifier: A `String` holding reference to a valid thread identifier.
         public static func conversation(matching identifier: String) -> Paginated<Conversation.Unit, String?, Error> {
             .init { secret, session, pages in
-                Pager(pages) { _, next, _ in
+                Pager(pages) {
                     base.threads
                         .path(appending: identifier)
                         .header(appending: secret.header)
                         .query(appending: ["visual_message_return_type": "unseen",
-                                           "direction": next.flatMap { _ in "older" },
-                                           "cursor": next,
+                                           "direction": $0.flatMap { _ in "older" },
+                                           "cursor": $0,
                                            "limit": "20"])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Conversation.Unit.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -109,11 +108,10 @@ public extension Endpoint {
                 Deferred {
                     base.path(appending: "get_presence/")
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

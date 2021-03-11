@@ -100,6 +100,9 @@ public extension Location {
 
     /// A `struct` representing a `Location` collection.
     struct Collection: ResponseType, PaginatedType, ReflectedType {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The prefix.
         public static var debugDescriptionPrefix: String { "Location." }
         /// A list of to-be-reflected properties.

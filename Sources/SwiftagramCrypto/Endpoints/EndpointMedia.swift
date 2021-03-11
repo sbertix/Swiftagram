@@ -38,7 +38,7 @@ public extension Endpoint.Media {
                 base.path(appending: identifier)
                     .info
                     .header(appending: secret.header)
-                    .project(session)
+                    .publish(with: session)
                     .map(\.data)
                     .wrap()
                     .map { $0["items"][0].mediaType.int() }
@@ -57,13 +57,12 @@ public extension Endpoint.Media {
                                 "_uid": secret.identifier.wrapped,
                                 "_uuid": secret.client.device.identifier.uuidString.wrapped
                             ] as Wrapper)
-                            .project(session)
+                            .publish(with: session)
                     }
                     .map(\.data)
                     .wrap()
                     .map(Status.init)
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }

@@ -33,12 +33,11 @@ public extension Endpoint.Friendship {
                                     "_uid": secret.identifier,
                                     "device_id": secret.client.device.instagramIdentifier,
                                     "_uuid": secret.client.device.identifier.uuidString])
-                    .project(session)
+                    .publish(with: session)
                     .map(\.data)
                     .wrap()
                     .map(Status.init)
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }

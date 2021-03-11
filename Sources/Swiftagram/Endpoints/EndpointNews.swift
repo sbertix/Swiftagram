@@ -21,11 +21,10 @@ public extension Endpoint {
                 Deferred {
                     base.inbox
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

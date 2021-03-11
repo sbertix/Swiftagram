@@ -132,6 +132,9 @@ public extension User {
 
     /// A `struct` representing a `User` collection.
     struct Collection: ResponseType, ReflectedType, PaginatedType {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The prefix.
         public static var debugDescriptionPrefix: String { "User." }
         /// A list of to-be-reflected properties.

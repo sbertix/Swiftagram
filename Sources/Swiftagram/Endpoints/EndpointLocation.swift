@@ -35,12 +35,11 @@ public extension Endpoint {
                             "_uid": secret.identifier,
                             "_uuid": secret.client.device.identifier.uuidString
                         ])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Location.Collection.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -57,12 +56,11 @@ public extension Endpoint {
                         .path(appending: "info/")
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Location.Unit.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -79,12 +77,11 @@ public extension Endpoint {
                         .path(appending: "story/")
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Unit.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

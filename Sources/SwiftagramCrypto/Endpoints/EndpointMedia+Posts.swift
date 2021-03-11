@@ -42,12 +42,11 @@ public extension Endpoint.Media.Posts {
                                     "device_id": secret.client.device.instagramIdentifier,
                                     "_uuid": secret.client.device.identifier.uuidString,
                                     "media_id": identifier])
-                    .project(session)
+                    .publish(with: session)
                     .map(\.data)
                     .wrap()
                     .map(Status.init)
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }
@@ -106,7 +105,7 @@ public extension Endpoint.Media.Posts {
                                     "_uuid": secret.client.device.identifier.uuidString,
                                     "media_id": identifier,
                                     "comment_text": text])
-                    .project(session)
+                    .publish(with: session)
                     .map(\.data)
                     .wrap()
                     .flatMap { output -> AnyPublisher<Status, Error> in
@@ -128,14 +127,13 @@ public extension Endpoint.Media.Posts {
                                              "containermodule": "self_comments_v2",
                                              "replied_to_comment_id": parentCommentIdentifier] as [String: String?])
                                         .compactMapValues { $0 })
-                            .project(session)
+                            .publish(with: session)
                             .map(\.data)
                             .wrap()
                             .map(Status.init)
                             .eraseToAnyPublisher()
                     }
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }
@@ -159,12 +157,11 @@ public extension Endpoint.Media.Posts {
                         "_uid": secret.identifier,
                         "_uuid": secret.client.device.identifier.uuidString
                     ])
-                    .project(session)
+                    .publish(with: session)
                     .map(\.data)
                     .wrap()
                     .map(Status.init)
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }
@@ -227,7 +224,7 @@ public extension Endpoint.Media.Posts {
                                                at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
-                let upload: Endpoint.Media.Upload<DispatchQueue>.Image = Endpoint.Media.upload(image: data)
+                let upload = Endpoint.Media.upload(image: data)
                 // Compose the future.
                 return upload.generator((secret, session))
                     .flatMap { output -> AnyPublisher<Media.Unit, Error> in
@@ -279,7 +276,7 @@ public extension Endpoint.Media.Posts {
                         return base.path(appending: "configure/")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
-                            .project(session)
+                            .publish(with: session)
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
@@ -287,7 +284,6 @@ public extension Endpoint.Media.Posts {
                     }
                     .eraseToAnyPublisher()
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }
@@ -379,10 +375,10 @@ public extension Endpoint.Media.Posts {
                                                at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
-                let upload: Endpoint.Media.Upload<DispatchQueue>.Video = Endpoint.Media.upload(video: url,
-                                                                                               preview: data,
-                                                                                               previewSize: size,
-                                                                                               sourceType: "4")
+                let upload = Endpoint.Media.upload(video: url,
+                                                   preview: data,
+                                                   previewSize: size,
+                                                   sourceType: "4")
                 guard upload.duration < 60 else {
                     return Fail(error: MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
                 }
@@ -441,7 +437,7 @@ public extension Endpoint.Media.Posts {
                             .query(appending: "1", forKey: "video")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
-                            .project(session)
+                            .publish(with: session)
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
@@ -449,7 +445,6 @@ public extension Endpoint.Media.Posts {
                     }
                     .eraseToAnyPublisher()
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }

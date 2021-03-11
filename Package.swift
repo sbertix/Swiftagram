@@ -37,8 +37,6 @@ enum CombineImplementation {
     case combine
     /// **cx-org/CombineX**.
     case combineX
-    /// **OpenCombine/OpenCombine**.
-    case openCombine
     
     /// Default implementation.
     /// If available, Apple **Combine** is always preferred.
@@ -58,7 +56,6 @@ enum CombineImplementation {
         switch desc {
         case "combine": self = .combine
         case "combinex": self = .combineX
-        case "opencombine": self = .openCombine
         default: return nil
         }
     }

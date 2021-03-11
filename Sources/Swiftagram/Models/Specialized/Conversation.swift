@@ -69,10 +69,7 @@ public extension Conversation {
         public var conversation: Conversation? { self["thread"].optional().flatMap(Conversation.init) }
 
         /// The pagination parameters.
-        public var bookmark: Pagination {
-            /// The current cursor is always `nil` for inboxes.
-            .init(next: self["thread"]["oldestCursor"].string())
-        }
+        public var offset: String? { self["thread"]["oldestCursor"].string() }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
@@ -99,10 +96,7 @@ public extension Conversation {
         public var viewer: User? { self["viewer"].optional().flatMap(User.init) }
 
         /// The pagination parameters.
-        public var bookmark: Pagination {
-            /// The current cursor is always `nil` for inboxes.
-            .init(next: self["inbox"]["oldestCursor"].string())
-        }
+        public var offset: String? { self["inbox"]["oldestCursor"].string() }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.

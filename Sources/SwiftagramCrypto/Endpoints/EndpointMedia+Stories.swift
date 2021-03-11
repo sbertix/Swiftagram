@@ -66,7 +66,7 @@ public extension Endpoint.Media.Stories {
                                              isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
-                let upload: Endpoint.Media.Upload<DispatchQueue>.Image = Endpoint.Media.upload(image: data)
+                let upload = Endpoint.Media.upload(image: data)
                 // Compose the future.
                 return upload.generator((secret, session))
                     .flatMap { output -> AnyPublisher<Media.Unit, Error> in
@@ -103,7 +103,7 @@ public extension Endpoint.Media.Stories {
                         return base.path(appending: "configure_to_story/")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
-                            .project(session)
+                            .publish(with: session)
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
@@ -111,7 +111,6 @@ public extension Endpoint.Media.Stories {
                     }
                     .eraseToAnyPublisher()
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }
@@ -195,10 +194,10 @@ public extension Endpoint.Media.Stories {
                                              isCloseFriendsOnly: Bool = false) -> Endpoint.Disposable<Media.Unit, Error> where S.Element == Sticker {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
-                let upload: Endpoint.Media.Upload<DispatchQueue>.Video = Endpoint.Media.upload(video: url,
-                                                                                               preview: data,
-                                                                                               previewSize: size,
-                                                                                               sourceType: "3")
+                let upload = Endpoint.Media.upload(video: url,
+                                                   preview: data,
+                                                   previewSize: size,
+                                                   sourceType: "3")
                 guard upload.duration < 15 else {
                     return Fail(error: MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
                 }
@@ -245,7 +244,7 @@ public extension Endpoint.Media.Stories {
                             .query(appending: "1", forKey: "video")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
-                            .project(session)
+                            .publish(with: session)
                             .map(\.data)
                             .wrap()
                             .map(Media.Unit.init)
@@ -253,7 +252,6 @@ public extension Endpoint.Media.Stories {
                     }
                     .eraseToAnyPublisher()
             }
-            .receive(on: session.scheduler)
             .eraseToAnyPublisher()
         }
     }

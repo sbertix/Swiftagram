@@ -79,3 +79,15 @@ public struct RankedPageReference<Offset, Rank>: RankedPage {
         self.rank = rank
     }
 }
+
+extension RankedPageReference: Equatable where Offset: Equatable {
+    /// Check equality.
+    ///
+    /// - parameters:
+    ///     - lhs: A valid `RankedPageReference`.
+    ///     - rhs: A valid `RankedPageReference`.
+    /// - returns: A valid `Bool`.
+    public static func ==(lhs: RankedPageReference, rhs: RankedPageReference) -> Bool {
+        lhs.offset == rhs.offset
+    }
+}

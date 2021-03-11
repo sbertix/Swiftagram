@@ -20,12 +20,11 @@ public extension Endpoint.Media {
                         .reels_tray
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -52,12 +51,11 @@ public extension Endpoint.Media {
                             "is_charging": "0",
                             "will_sound_on": "0"
                         ])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Collection.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -74,18 +72,18 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     base.path(appending: identifier)
                         .path(appending: "list_reel_media_viewer")
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -96,7 +94,7 @@ public extension Endpoint.Media {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     Endpoint.version1
                         .archive
                         .reel
@@ -104,13 +102,13 @@ public extension Endpoint.Media {
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -128,12 +126,11 @@ public extension Endpoint.Media {
                         .reel_media
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Unit.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -150,12 +147,11 @@ public extension Endpoint.Media {
                         .appendingDefaultHeader()
                         .header(appending: secret.header)
                         .body(["user_ids": "[\(identifiers.joined(separator: ","))]"])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(TrayItem.Dictionary.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

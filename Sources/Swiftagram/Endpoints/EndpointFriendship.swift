@@ -29,18 +29,18 @@ public extension Endpoint {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     base.path(appending: identifier)
                         .following
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: ["q": query, "max_id": next])
-                        .project(session)
+                        .query(appending: ["q": query, "max_id": $0])
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -61,18 +61,18 @@ public extension Endpoint {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     base.path(appending: identifier)
                         .followers
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: ["q": query, "max_id": next])
-                        .project(session)
+                        .query(appending: ["q": query, "max_id": $0])
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -86,12 +86,11 @@ public extension Endpoint {
                     base.show
                         .path(appending: identifier)
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Friendship.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -108,12 +107,11 @@ public extension Endpoint {
                         .body(["user_ids": identifiers.joined(separator: ","),
                                "_csrftoken": secret["csrftoken"]!,
                                "_uuid": secret.client.device.identifier.uuidString])
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.Friendship.Dictionary.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -121,16 +119,16 @@ public extension Endpoint {
         /// A list of users who requested to follow you, without having been processed yet.
         public static var pendingRequests: Paginated<Swiftagram.User.Collection, String?, Error> {
             .init { secret, session, pages in
-                Pager(pages) { _, next, _ in
+                Pager(pages) {
                     base.pending
                         .header(appending: secret.header)
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

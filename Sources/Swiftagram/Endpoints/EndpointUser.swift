@@ -21,11 +21,10 @@ public extension Endpoint {
                 Deferred {
                     base.blocked_list
                         .header(secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -39,12 +38,11 @@ public extension Endpoint {
                     base.path(appending: identifier)
                         .info
                         .header(secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Unit.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -57,17 +55,17 @@ public extension Endpoint {
                 // Persist the rank token.
                 let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages) { _, next, _ in
+                return Pager(pages.count, offset: pages.offset?.offset) {
                     base.search
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
-                        .query(appending: ["q": query, "max_id": next])
-                        .project(session)
+                        .query(appending: ["q": query, "max_id": $0])
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
+                        .iterateFirst(stoppingAt: $0)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

@@ -24,28 +24,27 @@ public extension Endpoint {
                     base.chaining
                         .query(appending: identifier, forKey: "target_id")
                         .header(appending: secret.header)
-                        .project(session)
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
                         .map(Swiftagram.User.Collection.init)
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
 
         /// The explore feed.
-        public static var explore: Paginated<Page<Wrapper, String?>, String?, Error> {
+        public static var explore: Paginated<Wrapper, String?, Error> {
             .init { secret, session, pages in
-                Pager(pages) { _, next, _ in
+                Pager(pages) {
                     base.explore
                         .header(appending: secret.header)
-                        .query(appending: next, forKey: "max_id")
-                        .project(session)
+                        .query(appending: $0, forKey: "max_id")
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
+                        .iterateFirst(stoppingAt: $0) { $0?.nextMaxId.string() }
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }
@@ -53,9 +52,9 @@ public extension Endpoint {
         /// The topical explore feed.
         /// 
         /// - parameter page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
-        public static var topics: Paginated<Page<Wrapper, String?>, String?, Error> {
+        public static var topics: Paginated<Wrapper, String?, Error> {
             .init { secret, session, pages in
-                Pager(pages) { _, next, _ in
+                Pager(pages) {
                     base.topical_explore
                         .header(appending: secret.header)
                         .query(appending: ["is_prefetch": "true",
@@ -64,12 +63,12 @@ public extension Endpoint {
                                            "timezone_offset": "43200",
                                            "session_id": secret["sessionid"]!,
                                            "include_fixed_destinations": "false",
-                                           "max_id": next])
-                        .project(session)
+                                           "max_id": $0])
+                        .publish(with: session)
                         .map(\.data)
                         .wrap()
+                        .iterateFirst(stoppingAt: $0) { $0?.nextMaxId.string() }
                 }
-                .receive(on: session.scheduler)
                 .eraseToAnyPublisher()
             }
         }

@@ -70,7 +70,7 @@ public final class TwoFactor {
                 "device_id": Client.default.device.instagramIdentifier,
                 "verification_method": "1"
             ])
-            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
+            .publish(session: .ephemeral)
             .sink(
                 receiveCompletion: { if case .failure(let error) = $0 { self.onChange(.failure(error)) }},
                 receiveValue: { item in

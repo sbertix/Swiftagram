@@ -163,7 +163,7 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
                                 "X-DEVICE-ID": client.device.identifier.uuidString])
             .signing(body: ["mobile_subno_usage": "default",
                             "device_id": client.device.identifier.uuidString])
-            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
+            .publish(session: .ephemeral)
             .tryMap {
                 guard let header = ($0.response as? HTTPURLResponse)?
                         .allHeaderFields as? [String: String] else { throw BasicAuthenticatorError.invalidResponse }
@@ -193,7 +193,7 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
             .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
             .signing(body: ["id": client.device.identifier.uuidString,
                             "experiments": Constants.loginExperiments])
-            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
+            .publish(session: .ephemeral)
             .tryMap {
                 guard let response = $0.response as? HTTPURLResponse,
                       let header = response.allHeaderFields as? [String: String],
@@ -242,7 +242,7 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
                 "login_attempt_count": "0",
                 "jazoest": "2\(client.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
             ])
-            .project(session: .ephemeral, on: DispatchQueue.global(qos: .userInitiated), logging: nil)
+            .publish(session: .ephemeral)
             .sink(
                 receiveCompletion: {
                     guard case .failure(let error) = $0 else { return }

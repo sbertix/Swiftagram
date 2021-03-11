@@ -17,7 +17,6 @@ public enum Endpoint {
     public typealias Paginated<Response,
                                Offset,
                                Failure: Error> = LockSessionPagerProvider<Secret,
-                                                                          DispatchQueue,
                                                                           Offset,
                                                                           UnlockedDisposable<Response, Failure>>
 
@@ -26,7 +25,6 @@ public enum Endpoint {
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
     public typealias Disposable<Response,
                                 Failure: Error> = LockSessionProvider<Secret,
-                                                                      DispatchQueue,
                                                                       UnlockedDisposable<Response, Failure>>
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
