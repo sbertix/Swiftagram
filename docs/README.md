@@ -33,6 +33,22 @@ Please check out the _docs_ to find out more.
 
 <p />
 
+## Supporting older platform versions
+
+**Swiftagram** relies on [**CombineX**](https://github.com/cx-org/CombineX/)'s [**CXShim**](https://github.com/cx-org/CombineX/wiki/Combine-Compatible-Package) to provide a **Combine** runtime on all platforms and versions. 
+
+However, Apple's **Combine** is used by default, meaning, without any configuration, your minimum deployment target will be limited to **iOS 13**, **macOS 10.15**, **tvOS 13** and **watchOS 6**. 
+If you're developing apps with **SwiftUI** or supporting recent versions alone, we suggest sticking with this default runtime, as it's supported out-of-the-box and no external libraries will be packaged inside your release archive. 
+
+If you need to support older versions, though, all you have to do, is make sure you're running your **Xcode** process specifying the custom **Combine** implementation through an environmental variable. 
+Something as simple as the code below is enough.
+
+```bash
+export CX_COMBINE_IMPLEMENTATION="combinex"
+killall Xcode
+open *.xcodeproj
+```
+
 ## Status
 ![push](https://github.com/sbertix/Swiftagram/workflows/push/badge.svg)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/sbertix/Swiftagram)
@@ -92,9 +108,7 @@ As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 
 import UIKit
 import WebKit
 
-import ComposableStorage
 import Swiftagram
-import Swiftchain
 
 /// A `class` defining a `UIViewController` displaying a `WKWebView` used for authentication.
 final class LoginViewController: UIViewController {
@@ -143,9 +157,7 @@ final class LoginViewController: UIViewController {
     <p>
 
 ```swift
-import ComposableStorage
 import Swiftagram
-import Swiftchain
 
 /// Any `ComposableRequest.Storage` used to cache `Secret`s.
 /// We're using `KeychainStorage` as it's the safest option.
@@ -184,38 +196,45 @@ The library comes with several concrete implementations of `Storage`.
 In older versions of **Swiftagram** we let the user set a delay between the firing of a request, and its actual dispatch. 
 This would eventually just slow down implementations, doing close to nothing to prevent misuse. 
 
-Starting with `5.0`, we're now directly exposing `URLSession`s to final users, so you can build your own implementation. And through `Scheduler.Work`, in case you still want to mimic the old behavior, you can add back any delay you feel necessary (although it's not recommended at this point). 
+Starting with `5.0`, we're now directly exposing `URLSession`s to final users, so you can build your own implementation.  
 
 **Swiftagram** defines a `static` `URLSession` (`URLSession.instagram`) fetching one resource at a time. Relying on this is the preferred way to deal with Instagram "spam" filter.
 
 ```swift
+// A valid secret.
 let secret: Secret = /* the authentication response */
+// A **retained** collection of cancellables.
+var bin: Set<AnyCancellable> = []
 
 // We're using a random endpoint to demonstrate 
 // how `URLSession` is exposed in code. 
 Endpoint.User.Summary(for: secret.identifier)
     .unlock(with: secret)
     .session(.instagram)    // `URLSession.instagram` 
-    .observe { _ in }
-    .resume()
+    .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
+    .store(in: &bin)
 ```
 
 > What about cancelling an ongoing request?
 
-Once you have a stream `Deferrable`, just call `cancel` on it. 
+Once you have a stream `Cancellable`, just call `cancel` on it or empty `bin`.
 
 ```swift
+// A valid secret.
 let secret: Secret = /* the authentication response */
+// A **retained** collection of cancellables.
+var bin: Set<AnyCancellable> = []
 
 // We're using a random endpoint to demonstrate 
 // how `Deferrable` is exposed in code. 
-let deferrable: Deferrable = Endpoint.User.Summary(for: secret.identifier)
+Endpoint.User.Summary(for: secret.identifier)
     .unlock(with: secret)
     .session(.instagram) 
-    .observe { _ in }
-    .resume()
+    .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
+    .store(in: &bin)
+    
 // Cancel it.
-deferrable.cancel()
+bin.removeAll()
 ```
 
 > How do I deal with pagination and pagination offsets? 
@@ -224,7 +243,10 @@ Easy.
 Assuming you're fetching a resource that can actually be paginated… 
 
 ```swift
-let secret = /* the authentication response */
+// A valid secret.
+let secret: Secret = /* the authentication response */
+// A **retained** collection of cancellables.
+var bin: Set<AnyCancellable> = []
 
 // We're using a random endpoint to demonstrate 
 // how `PagerProvider` is exposed in code. 
@@ -234,29 +256,11 @@ Endpoint.Media.owned(by: secret.identifier)
     .pages(.max)    // Exhaust all with `.max`
                     // or pass any `Int` to limit
                     // pages.
-    .observe { _ in }
-    .resume()
+    .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
+    .store(in: &bin)
 ```
 
 `PagerProvider` also supports an `offset`, i.e. the value passed to its first iteration, and a `rank` (token) in same cases, both as optional parameters in the `pages(_:offset:)`/`pages(_:offset:rank:)` method above.  
-
-### Combine
-
-`Observable` expose a `publish` method by default. 
-
-```swift
-var bin: Set<AnyCancellable> = []
-let secret = /* the authentication response */
-
-// We're using a random endpoint to demonstrate 
-// how `Combine` is exposed in code. 
-Endpoint.User.Summary(for: secret.identifier)
-    .unlock(with: secret)
-    .session(.instagram) 
-    .publish()
-    .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-    .store(in: &bin)
-```
 
 <p />
 
