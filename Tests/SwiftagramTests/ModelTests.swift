@@ -18,15 +18,15 @@ final class ModelTests: XCTestCase {
     /// 
     /// - parameters:
     ///     - dictionary: A valid dictionary of `Wrapper`s.
-    ///     - type: A `ReflectedType` concrete implementation.
-    ///     - mapper: An association between the original dictionary `key` and the `ReflectedType` `properties`'. Defaults to empty.
+    ///     - type: A `Reflected` concrete implementation.
+    ///     - mapper: An association between the original dictionary `key` and the `Reflected` `properties`'. Defaults to empty.
     ///     - forcingWrapper: Whether you should bypass mapping or not. Defaults to `false`.
     ///     - wrapper: A custom fallback implementation for non 1-to-1 `mapper` keys, starting from the unmapped key.
-    func performTest<T: ReflectedType>(on dictionary: [String: Wrapper],
-                                       to type: T.Type,
-                                       mapper: [String: String] = [:],
-                                       forcingWrapper: Bool = false,
-                                       wrapper: (T, String) -> Wrapper = { _, _ in .empty }) {
+    func performTest<T: Reflected>(on dictionary: [String: Wrapper],
+                                   to type: T.Type,
+                                   mapper: [String: String] = [:],
+                                   forcingWrapper: Bool = false,
+                                   wrapper: (T, String) -> Wrapper = { _, _ in .empty }) {
         let response = T(wrapper: dictionary.wrapped)
         let name = String(describing: type)
         dictionary.forEach { key, value in

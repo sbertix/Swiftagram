@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `struct` representing a `User`.
-public struct User: ReflectedType {
+public struct User: Wrapped {
     /// An `enum` representing an access status.
     public enum Access: Int, Hashable, Codable {
         /// Default.
@@ -35,19 +35,6 @@ public struct User: ReflectedType {
         /// IGTV.
         public var igtv: Int
     }
-
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "username": \Self.username,
-                                                                    "name": \Self.name,
-                                                                    "biography": \Self.biography,
-                                                                    "thumbnail": \Self.thumbnail,
-                                                                    "avatar": \Self.avatar,
-                                                                    "access": \Self.access,
-                                                                    "counter": \Self.counter,
-                                                                    "friendship": \Self.friendship]
 
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
@@ -108,13 +95,7 @@ public struct User: ReflectedType {
 
 public extension User {
     /// A `struct` representing a `User` single response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Comment." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["user": \Self.user,
-                                                                        "error": \Self.error]
-
+    struct Unit: ResponseType {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -129,15 +110,10 @@ public extension User {
     }
 
     /// A `struct` representing a `User` collection.
-    struct Collection: ResponseType, ReflectedType, PaginatedType {
+    struct Collection: ResponseType, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "User." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["users": \Self.users,
-                                                                        "error": \Self.error]
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

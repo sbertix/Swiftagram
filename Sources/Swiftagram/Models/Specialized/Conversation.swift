@@ -8,19 +8,7 @@
 import Foundation
 
 /// A `struct` representing a `Conversation`.
-public struct Conversation: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "title": \Self.title,
-                                                                    "updatedAt": \Self.updatedAt,
-                                                                    "openedAt": \Self.openedAt,
-                                                                    "hasMutedMessages": \Self.hasMutedMessages,
-                                                                    "hasMutedVideocalls": \Self.hasMutedVideocalls,
-                                                                    "users": \Self.users,
-                                                                    "messages": \Self.messages]
-
+public struct Conversation: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -53,13 +41,7 @@ public struct Conversation: ReflectedType {
 
 public extension Conversation {
     /// A `struct` representing a `Conversation` single response.
-    struct Unit: ResponseType, ReflectedType, PaginatedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Conversation." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["thread": \Self.conversation,
-                                                                        "error": \Self.error]
-
+    struct Unit: ResponseType, Paginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -77,14 +59,7 @@ public extension Conversation {
     }
 
     /// A `struct` representing a `Conversation` collection.
-    struct Collection: ResponseType, PaginatedType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Conversation." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["threads": \Self.conversations,
-                                                                        "viewer": \Self.viewer,
-                                                                        "error": \Self.error]
-
+    struct Collection: ResponseType, Paginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

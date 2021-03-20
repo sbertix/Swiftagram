@@ -8,11 +8,7 @@
 import Foundation
 
 /// A `struct` representing a `Status`.
-public struct Status: ResponseType, ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["error": \Self.error]
+public struct Status: ResponseType {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 

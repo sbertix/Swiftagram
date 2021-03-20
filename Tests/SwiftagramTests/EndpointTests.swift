@@ -225,21 +225,21 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Posts.unsave("2503897884945303307"), "Endpoint.Media.Posts.unsave")
         performTest(on: Endpoint.Media.Posts.like(comment: "18159034204108974"), "Endpoint.Media.Posts.likeComment")
         performTest(on: Endpoint.Media.Posts.unlike(comment: "18159034204108974"), "Endpoint.Media.Posts.unlikeComment")
-//        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
-//                                                                     captioned: nil,
-//                                                                     tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
-//                                     "Endpoint.Media.Posts.uploadImage", logging: .full),
-//           let identifier = wrapper.media.id.string() {
-//            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Posts.deleteImage")
-//        }
-//        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
-//                                                                     preview: Color.blue.image(sized: .init(width: 640, height: 360)),
-//                                                                     captioned: nil,
-//                                                                     tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
-//                                     "Endpoint.Media.Posts.uploadVideo", logging: .full),
-//           let identifier = wrapper.media.id.string() {
-//            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Posts.deleteVideo")
-//        }
+        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
+                                                                     captioned: nil,
+                                                                     tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
+                                     "Endpoint.Media.Posts.uploadImage"),
+           let identifier = wrapper.media.id.string() {
+            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Posts.deleteImage")
+        }
+        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
+                                                                     preview: Color.blue.image(sized: .init(width: 640, height: 360)),
+                                                                     captioned: nil,
+                                                                     tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
+                                     "Endpoint.Media.Posts.uploadVideo"),
+           let identifier = wrapper.media.id.string() {
+            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Posts.deleteVideo")
+        }
     }
 
     /// Test `Endpoint.Media.Stories`.
@@ -249,30 +249,30 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Stories.highlights(for: "25025320"), "Endpoint.Media.Stories.highlights")
         performTest(on: Endpoint.Media.Stories.owned(by: "25025320"), "Endpoint.Media.Stories.owned")
         performTest(on: Endpoint.Media.Stories.owned(by: ["25025320"]), "Endpoint.Media.Stories.ownedMultiple")
-//        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
-//                                                                       stickers: [Sticker.mention("25025320")
-//                                                                                    .position(.init(x: 0.0, y: 0.125)),
-//                                                                                  Sticker.tag("instagram")
-//                                                                                    .position(.init(x: 0.5, y: 0.125)),
-//                                                                                  Sticker.location("189075947904164")
-//                                                                                    .position(.init(x: 1.0, y: 0.125)),
-//                                                                                  Sticker.slider("Test?", emoji: "😀")
-//                                                                                    .position(.init(x: 0.5, y: 0.2)),
-//                                                                                  Sticker.countdown(to: Date().addingTimeInterval(60*60*24),
-//                                                                                                    event: "Event")
-//                                                                                    .position(.init(x: 0.5, y: 0.4)),
-//                                                                                  Sticker.question("Test?")
-//                                                                                    .position(.init(x: 0.5, y: 0.6)),
-//                                                                                  Sticker.poll("Test?", tallies: ["A", "B"])
-//                                                                                    .position(.init(x: 0.5, y: 0.8))],
-//                                                                       isCloseFriendsOnly: true),
-//                                     "Endpoint.Media.Stories.uploadImage", logging: .full),
-//           let identifier = wrapper.media.id.string() {
-//            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteImage")
-//        }
+        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
+                                                                       stickers: [Sticker.mention("25025320")
+                                                                                    .position(.init(x: 0.0, y: 0.125)),
+                                                                                  Sticker.tag("instagram")
+                                                                                    .position(.init(x: 0.5, y: 0.125)),
+                                                                                  Sticker.location("189075947904164")
+                                                                                    .position(.init(x: 1.0, y: 0.125)),
+                                                                                  Sticker.slider("Test?", emoji: "😀")
+                                                                                    .position(.init(x: 0.5, y: 0.2)),
+                                                                                  Sticker.countdown(to: Date().addingTimeInterval(60*60*24),
+                                                                                                    event: "Event")
+                                                                                    .position(.init(x: 0.5, y: 0.4)),
+                                                                                  Sticker.question("Test?")
+                                                                                    .position(.init(x: 0.5, y: 0.6)),
+                                                                                  Sticker.poll("Test?", tallies: ["A", "B"])
+                                                                                    .position(.init(x: 0.5, y: 0.8))],
+                                                                       isCloseFriendsOnly: true),
+                                     "Endpoint.Media.Stories.uploadImage"),
+           let identifier = wrapper.media.id.string() {
+            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteImage")
+        }
 //        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
 //                                                                       stickers: [.mention("25025320")]),
-//                                     "Endpoint.Media.Stories.uploadVideo", logging: .full),
+//                                     "Endpoint.Media.Stories.uploadVideo"),
 //           let identifier = wrapper.media.id.string() {
 //            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteVideo")
 //        }

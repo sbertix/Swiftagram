@@ -9,7 +9,7 @@ import CoreGraphics
 import Foundation
 
 /// A `class` representing a `Location`
-public struct Location: ReflectedType {
+public struct Location: Wrapped {
     /// A `struct` holding reference to longitude and latitude.
     public struct Coordinates: Equatable {
         /// The longitude.
@@ -26,16 +26,6 @@ public struct Location: ReflectedType {
             self.longitude = longitude
         }
     }
-
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["coordinates": \Self.coordinates,
-                                                                    "name": \Self.name,
-                                                                    "shortName": \Self.shortName,
-                                                                    "address": \Self.address,
-                                                                    "city": \Self.city,
-                                                                    "identifier": \Self.identifier]
 
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
@@ -76,13 +66,7 @@ public struct Location: ReflectedType {
 
 public extension Location {
     /// A `struct` representing a single `Location` response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Location." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["location": \Self.location,
-                                                                        "error": \Self.error]
-
+    struct Unit: ResponseType {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -97,15 +81,10 @@ public extension Location {
     }
 
     /// A `struct` representing a `Location` collection.
-    struct Collection: ResponseType, PaginatedType, ReflectedType {
+    struct Collection: ResponseType, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Location." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["venues": \Self.venues,
-                                                                        "error": \Self.error]
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

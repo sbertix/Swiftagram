@@ -8,23 +8,7 @@
 import Foundation
 
 /// A `struct` representing a `TrayItem`.
-public struct TrayItem: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "position": \Self.position,
-                                                                    "seenPosition": \Self.seenPosition,
-                                                                    "availableCount": \Self.availableCount,
-                                                                    "fetchedCount": \Self.fetchedCount,
-                                                                    "title": \Self.title,
-                                                                    "latestMediaPrimaryKey": \Self.latestMediaPrimaryKey,
-                                                                    "cover": \Self.cover,
-                                                                    "items": \Self.items,
-                                                                    "expiringAt": \Self.expiringAt,
-                                                                    "lastSeenOn": \Self.lastSeenOn,
-                                                                    "user": \Self.user,
-                                                                    "containsCloseFriendsExclusives": \Self.containsCloseFriendsExclusives]
+public struct TrayItem: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -77,12 +61,7 @@ public struct TrayItem: ReflectedType {
 
 public extension TrayItem {
     /// A `struct` representing a `TrayItem` single response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "TrayItem." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["item": \Self.item,
-                                                                        "error": \Self.error]
+    struct Unit: ResponseType {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -102,15 +81,10 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` collection.
-    struct Collection: ResponseType, ReflectedType, PaginatedType {
+    struct Collection: ResponseType, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "TrayItem." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["items": \Self.items,
-                                                                        "error": \Self.error]
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -127,12 +101,7 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` dictionary.
-    struct Dictionary: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "TrayItem." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["items": \Self.items,
-                                                                        "error": \Self.error]
+    struct Dictionary: ResponseType {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

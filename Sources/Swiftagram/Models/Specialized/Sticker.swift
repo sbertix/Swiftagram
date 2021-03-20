@@ -9,15 +9,7 @@ import CoreGraphics
 import Foundation
 
 /// A `struct` holding reference to a story sticker.
-public struct Sticker: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "level": \Self.level,
-                                                                    "offset": \Self.offset,
-                                                                    "rotation": \Self.rotation]
-
+public struct Sticker: Wrapped {
     /// The identifier.
     public var identifier: String
     /// The relative position.

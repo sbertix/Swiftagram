@@ -8,15 +8,7 @@
 import Foundation
 
 /// A `struct` representing a `Comment`.
-public struct Comment: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["text": \Self.text,
-                                                                    "likes": \Self.likes,
-                                                                    "user": \Self.user,
-                                                                    "identifier": \Self.identifier]
-
+public struct Comment: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -41,15 +33,9 @@ public struct Comment: ReflectedType {
 
 public extension Comment {
     /// A `struct` representing a `Comment` collection.
-    struct Collection: ResponseType, PaginatedType, ReflectedType {
+    struct Collection: ResponseType, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
-
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Comment." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["comments": \Self.comments,
-                                                                        "error": \Self.error]
 
         /// The underlying `Wrapper`.
         public var wrapper: () -> Wrapper

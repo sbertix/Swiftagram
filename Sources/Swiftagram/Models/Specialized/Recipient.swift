@@ -39,15 +39,9 @@ public enum Recipient: Wrapped {
 
 public extension Recipient {
     /// A `struct` representing a `Recipient` collection.
-    struct Collection: ResponseType, PaginatedType, ReflectedType {
+    struct Collection: ResponseType, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
-
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Recipient." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["recipients": \Self.recipients,
-                                                                        "error": \Self.error]
 
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper

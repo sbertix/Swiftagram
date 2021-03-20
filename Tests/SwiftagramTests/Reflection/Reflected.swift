@@ -1,5 +1,5 @@
 //
-//  ReflectedType.swift
+//  Reflected.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 26/08/20.
@@ -7,8 +7,10 @@
 
 import Foundation
 
+import ComposableRequest
+
 /// A `protocol` returning all underlying properties.
-public protocol ReflectedType: Wrapped, CustomDebugStringConvertible {
+protocol Reflected: Wrapped, CustomDebugStringConvertible {
     /// An optional prefix.
     static var debugDescriptionPrefix: String { get }
 
@@ -17,9 +19,9 @@ public protocol ReflectedType: Wrapped, CustomDebugStringConvertible {
     static var properties: [String: PartialKeyPath<Self>] { get }
 }
 
-public extension ReflectedType {
+extension Reflected {
     /// A custom debug description.
-    var debugDescription: String {
+    public var debugDescription: String {
         let name = String(describing: Self.self)
         let properties = Self.properties
             .map { $0+": "+String(reflecting: self[keyPath: $1]) }
