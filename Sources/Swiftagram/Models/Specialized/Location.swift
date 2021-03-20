@@ -66,7 +66,7 @@ public struct Location: Wrapped {
 
 public extension Location {
     /// A `struct` representing a single `Location` response.
-    struct Unit: ResponseType {
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -81,7 +81,7 @@ public extension Location {
     }
 
     /// A `struct` representing a `Location` collection.
-    struct Collection: ResponseType, Paginatable {
+    struct Collection: Specialized, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 

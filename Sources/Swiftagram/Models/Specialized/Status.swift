@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `struct` representing a `Status`.
-public struct Status: ResponseType {
+public struct Status: Specialized {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 

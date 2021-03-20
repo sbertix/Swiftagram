@@ -179,7 +179,7 @@ public struct Media: Wrapped {
 
 public extension Media {
     /// A `struct` representing a `Media` single response.
-    struct Unit: ResponseType {
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -196,7 +196,7 @@ public extension Media {
     }
 
     /// A `struct` representing a `Media` collection.
-    struct Collection: ResponseType, Paginatable {
+    struct Collection: Specialized, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 

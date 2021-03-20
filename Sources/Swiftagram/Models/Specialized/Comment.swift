@@ -33,7 +33,7 @@ public struct Comment: Wrapped {
 
 public extension Comment {
     /// A `struct` representing a `Comment` collection.
-    struct Collection: ResponseType, Paginatable {
+    struct Collection: Specialized, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 

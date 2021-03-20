@@ -65,7 +65,7 @@ final class AuthenticatorTests: XCTestCase {
         TwoFactor(username: "A",
                   client: .default,
                   identifier: "A",
-                  crossSiteRequestForgery: .init(name: "_csrftoken", value: "A")) {
+                  crossSiteRequestForgery: HTTPCookie(properties: [.name: "_csrftoken", .value: "A", .path: "", .domain: ""])!) {
                     XCTAssert((try? $0.get()) == nil)
                     expectation.fulfill()
         }.send(code: "123456")

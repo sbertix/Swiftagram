@@ -95,7 +95,7 @@ public struct User: Wrapped {
 
 public extension User {
     /// A `struct` representing a `User` single response.
-    struct Unit: ResponseType {
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -110,7 +110,7 @@ public extension User {
     }
 
     /// A `struct` representing a `User` collection.
-    struct Collection: ResponseType, Paginatable {
+    struct Collection: Specialized, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 

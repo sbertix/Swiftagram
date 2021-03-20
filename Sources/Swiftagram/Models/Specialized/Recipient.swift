@@ -39,7 +39,7 @@ public enum Recipient: Wrapped {
 
 public extension Recipient {
     /// A `struct` representing a `Recipient` collection.
-    struct Collection: ResponseType, Paginatable {
+    struct Collection: Specialized, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 

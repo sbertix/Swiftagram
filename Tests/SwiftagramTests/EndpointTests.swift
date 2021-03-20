@@ -50,7 +50,7 @@ final class EndpointTests: XCTestCase {
                                              line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
-        let reference = ReferenceType<Wrapper>()
+        let reference = Reference<Wrapper?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .sink(
@@ -78,7 +78,7 @@ final class EndpointTests: XCTestCase {
                                              line: Int = #line) -> T? {
         // Perform the actual test.
         let completion = XCTestExpectation()
-        let reference = ReferenceType<T>()
+        let reference = Reference<T?>(nil)
         endpoint.sink(
                 receiveCompletion: {
                     if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
@@ -104,7 +104,7 @@ final class EndpointTests: XCTestCase {
     where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
         // Perform the actual test.
         let completion = XCTestExpectation()
-        let reference = ReferenceType<Wrapper>()
+        let reference = Reference<Wrapper?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .pages(pages)
@@ -134,7 +134,7 @@ final class EndpointTests: XCTestCase {
     where P: ComposableOptionalType {
         // Perform the actual test.
         let completion = XCTestExpectation()
-        let reference = ReferenceType<Wrapper>()
+        let reference = Reference<Wrapper?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .pages(pages)

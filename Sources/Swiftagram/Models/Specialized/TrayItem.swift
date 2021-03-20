@@ -61,7 +61,7 @@ public struct TrayItem: Wrapped {
 
 public extension TrayItem {
     /// A `struct` representing a `TrayItem` single response.
-    struct Unit: ResponseType {
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -81,7 +81,7 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` collection.
-    struct Collection: ResponseType, Paginatable {
+    struct Collection: Specialized, Paginatable {
         /// The associated offset type.
         public typealias Offset = String?
 
@@ -101,7 +101,7 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` dictionary.
-    struct Dictionary: ResponseType {
+    struct Dictionary: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

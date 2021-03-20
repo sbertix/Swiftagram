@@ -39,7 +39,7 @@ public struct Friendship: Wrapped {
 
 public extension Friendship {
     /// A `struct` representing a `Friendship` collection.
-    struct Dictionary: ResponseType {
+    struct Dictionary: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
