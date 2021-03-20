@@ -9,9 +9,6 @@
 import Foundation
 import WebKit
 
-import ComposableRequest
-import ComposableStorage
-
 /// A `class` holding reference to a visual `Authenticator` relying on a custom web view to log in.
 ///
 /// ## Usage

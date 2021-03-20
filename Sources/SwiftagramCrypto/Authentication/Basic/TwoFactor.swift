@@ -6,7 +6,6 @@
 //
 import Foundation
 
-import ComposableRequest
 import Swiftagram
 
 /// A `class` defining 2FA challenge resolution for `BasicAuthenticator`.

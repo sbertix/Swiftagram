@@ -17,7 +17,6 @@ import AppKit
 import AVKit
 #endif
 
-import ComposableRequest
 import Swiftagram
 
 public extension Endpoint.Media.Posts {

@@ -10,7 +10,6 @@
 import Foundation
 import XCTest
 
-import ComposableRequest
 @testable import Swiftagram
 
 final class ModelTests: XCTestCase {

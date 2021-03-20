@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 public extension Endpoint.Media {
     /// A module-like `enum` holding reference to `media` `Endpoint`s reguarding posts. Requires authentication.
     enum Posts {

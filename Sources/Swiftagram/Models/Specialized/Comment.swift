@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `Comment`.
 public struct Comment: ReflectedType {
     /// The debug description prefix.

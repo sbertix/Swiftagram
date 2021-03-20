@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 public extension Endpoint {
     /// A module-like `enum` holding reference to `media` `Endpoint`s. Requires authentication.
     enum Media {

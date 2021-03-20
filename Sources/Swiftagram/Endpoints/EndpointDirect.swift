@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 public extension Endpoint {
     /// A module-like `enum` holding reference to `direct_v2` `Endpoint`s. Requires authentication.
     enum Direct {

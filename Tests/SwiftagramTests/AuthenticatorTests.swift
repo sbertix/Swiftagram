@@ -17,8 +17,6 @@ import WebKit
 @testable import Swiftagram
 @testable import SwiftagramCrypto
 
-import ComposableRequest
-
 final class AuthenticatorTests: XCTestCase {
     #if canImport(WebKit)
     /// The web view.

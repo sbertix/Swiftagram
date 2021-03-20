@@ -7,9 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-import ComposableStorage
-
 /// A `protocol` defining a way to fetch and store `Secret`s.
 public protocol Authenticator {
     /// A `Storage` concrete type in which `Secret` are stored.

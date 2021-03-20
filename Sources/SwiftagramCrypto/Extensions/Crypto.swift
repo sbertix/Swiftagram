@@ -7,7 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
 import SwCrypt
 import Swiftagram
 

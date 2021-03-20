@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `TrayItem`.
 public struct TrayItem: ReflectedType {
     /// The debug description prefix.

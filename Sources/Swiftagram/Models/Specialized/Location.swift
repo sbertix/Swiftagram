@@ -8,8 +8,6 @@
 import CoreGraphics
 import Foundation
 
-import ComposableRequest
-
 /// A `class` representing a `Location`
 public struct Location: ReflectedType {
     /// A `struct` holding reference to longitude and latitude.

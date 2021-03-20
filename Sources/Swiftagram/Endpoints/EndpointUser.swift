@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 public extension Endpoint {
     /// A module-like `enum` holding reference to `users` `Endpoint`s. Requires authentication.
     enum User {

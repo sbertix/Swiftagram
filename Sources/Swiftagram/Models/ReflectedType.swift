@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `protocol` returning all underlying properties.
 public protocol ReflectedType: Wrapped, CustomDebugStringConvertible {
     /// An optional prefix.

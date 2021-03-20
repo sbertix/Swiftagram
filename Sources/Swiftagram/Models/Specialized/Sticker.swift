@@ -8,8 +8,6 @@
 import CoreGraphics
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` holding reference to a story sticker.
 public struct Sticker: ReflectedType {
     /// The debug description prefix.

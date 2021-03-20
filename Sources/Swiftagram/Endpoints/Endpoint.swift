@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A module-like `enum` defining all possible `Endpoint`s.
 public enum Endpoint {
     /// An `Endpoint` allowing for a paginated request with a custom `Response` value.

@@ -8,8 +8,6 @@
 import CoreGraphics
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `UserTag`.
 public struct UserTag: ReflectedType {
     /// The debug description prefix.

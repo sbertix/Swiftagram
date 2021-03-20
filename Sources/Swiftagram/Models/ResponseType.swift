@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `protocol` describing a generic response returning an element of `Response`.
 public protocol ResponseType: Wrapped {
     /// An optional `ResponseError` message returned by a response.

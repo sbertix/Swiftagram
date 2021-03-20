@@ -7,7 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
 import Swiftagram
 
 /// An `enum` listing media-related error.

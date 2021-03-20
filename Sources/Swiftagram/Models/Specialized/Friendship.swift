@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `Friendship`.
 public struct Friendship: ReflectedType {
     /// The debug description prefix.

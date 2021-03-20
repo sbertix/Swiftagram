@@ -9,9 +9,6 @@
 import Foundation
 import WebKit
 
-import ComposableRequest
-import ComposableStorage
-
 /// A `class` holding reference to a specialized `WKWebView`.
 ///
 /// - note: This should **only** be used for Instagram authentication.

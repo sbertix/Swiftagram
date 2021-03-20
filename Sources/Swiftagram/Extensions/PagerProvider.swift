@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 public extension PagerProvider where Offset: RankedPage {
     /// Authenticate.
     ///

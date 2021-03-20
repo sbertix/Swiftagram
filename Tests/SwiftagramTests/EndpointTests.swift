@@ -21,7 +21,6 @@ import AppKit
 @testable import Swiftagram
 @testable import SwiftagramCrypto
 
-import ComposableRequest
 import SwCrypt
 
 /// The default request timeout.

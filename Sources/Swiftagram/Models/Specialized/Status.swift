@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `Status`.
 public struct Status: ResponseType, ReflectedType {
     /// The debug description prefix.

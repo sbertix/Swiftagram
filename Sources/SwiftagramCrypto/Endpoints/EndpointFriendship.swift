@@ -7,7 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
 import Swiftagram
 
 public extension Endpoint.Friendship {

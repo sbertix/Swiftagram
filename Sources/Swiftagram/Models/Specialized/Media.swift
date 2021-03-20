@@ -8,8 +8,6 @@
 import CoreGraphics
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `Media`.
 public struct Media: ReflectedType {
     /// A `struct` representing some content `Version`.

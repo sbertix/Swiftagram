@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// An `enum` holding reference to either a `User` or a `Conversation` instance.
 public enum Recipient: Wrapped {
     /// A valid `User`.

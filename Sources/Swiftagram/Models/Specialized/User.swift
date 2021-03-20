@@ -7,8 +7,6 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `User`.
 public struct User: ReflectedType {
     /// An `enum` representing an access status.

@@ -12,7 +12,6 @@ import AVFoundation
 import CoreGraphics
 #endif
 
-import ComposableRequest
 import Swiftagram
 
 /// An `internal` extension providing reusable code for media upload and configuration.
