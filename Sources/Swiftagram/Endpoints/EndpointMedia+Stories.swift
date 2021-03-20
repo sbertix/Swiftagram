@@ -64,13 +64,13 @@ public extension Endpoint.Media {
         ///     - identifier: A `String` holding reference to a valid post media identifier.
         ///     - page: An optional `String` holding reference to a valid cursor. Defaults to `nil`.
         public static func viewers(for identifier: String) -> Endpoint.Paginated<Swiftagram.User.Collection,
-                                                                                 RankedPageReference<String, String>?,
+                                                                                 RankedOffset<String?, String?>,
                                                                                  Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     base.path(appending: identifier)
                         .path(appending: "list_reel_media_viewer")
                         .header(appending: secret.header)
@@ -87,12 +87,12 @@ public extension Endpoint.Media {
         }
 
         /// Archived stories.
-        public static var archived: Endpoint.Paginated<TrayItem.Collection, RankedPageReference<String, String>?, Error> {
+        public static var archived: Endpoint.Paginated<TrayItem.Collection, RankedOffset<String?, String?>, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     Endpoint.version1
                         .archive
                         .reel

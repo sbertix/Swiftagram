@@ -21,13 +21,13 @@ public extension Endpoint {
         /// - note: This is equal to the user's **following**.
         public static func followed(by identifier: String,
                                     matching query: String? = nil) -> Paginated<Swiftagram.User.Collection,
-                                                                                RankedPageReference<String, String>?,
+                                                                                RankedOffset<String?, String?>,
                                                                                 Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     base.path(appending: identifier)
                         .following
                         .header(appending: secret.header)
@@ -53,13 +53,13 @@ public extension Endpoint {
         /// - note: This is equal to the user's **followers**.
         public static func following(_ identifier: String,
                                      matching query: String? = nil) -> Paginated<Swiftagram.User.Collection,
-                                                                                 RankedPageReference<String, String>?,
+                                                                                 RankedOffset<String?, String?>,
                                                                                  Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     base.path(appending: identifier)
                         .followers
                         .header(appending: secret.header)

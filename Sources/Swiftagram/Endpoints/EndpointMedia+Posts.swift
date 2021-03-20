@@ -36,13 +36,13 @@ public extension Endpoint.Media {
         ///
         /// - parameter identifier: A `String` holding reference to a valid post media identifier.
         public static func likers(for identifier: String) -> Endpoint.Paginated<Swiftagram.User.Collection,
-                                                                                RankedPageReference<String, String>?,
+                                                                                RankedOffset<String?, String?>,
                                                                                 Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     base.path(appending: identifier)
                         .likers
                         .header(appending: secret.header)
@@ -63,12 +63,12 @@ public extension Endpoint.Media {
         /// - parameter identifier: A `String` holding reference to a valid post media identifier.
         public static func comments(for identifier: String,
                                     startingAt page: String? = nil) -> Endpoint.Paginated<Comment.Collection,
-                                                                                          RankedPageReference<String, String>?, Error> {
+                                                                                          RankedOffset<String?, String?>, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     base.path(appending: identifier)
                         .comments
                         .header(appending: secret.header)
@@ -161,12 +161,12 @@ public extension Endpoint.Media {
         }
 
         /// Liked media.
-        public static var liked: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
+        public static var liked: Endpoint.Paginated<Swiftagram.Media.Collection, RankedOffset<String?, String?>, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     Endpoint.version1
                         .feed
                         .liked
@@ -185,12 +185,12 @@ public extension Endpoint.Media {
         }
 
         /// All saved media.
-        public static var saved: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
+        public static var saved: Endpoint.Paginated<Swiftagram.Media.Collection, RankedOffset<String?, String?>, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     Endpoint.version1
                         .feed
                         .saved
@@ -210,12 +210,12 @@ public extension Endpoint.Media {
         }
 
         /// All archived media.
-        public static var archived: Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
+        public static var archived: Endpoint.Paginated<Swiftagram.Media.Collection, RankedOffset<String?, String?>, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     Endpoint.version1
                         .feed
                         .path(appending: "only_me_feed/")
@@ -237,13 +237,13 @@ public extension Endpoint.Media {
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func owned(by identifier: String) -> Endpoint.Paginated<Swiftagram.Media.Collection,
-                                                                              RankedPageReference<String,
-                                                                                                  String>?, Error> {
+                                                                              RankedOffset<String?, String?>,
+                                                                              Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     Endpoint.version1
                         .feed
                         .user
@@ -266,13 +266,13 @@ public extension Endpoint.Media {
         ///
         /// - parameter identifier: A `String` holding reference to a valid user identifier.
         public static func including(_ identifier: String) -> Endpoint.Paginated<Swiftagram.Media.Collection,
-                                                                                 RankedPageReference<String, String>?,
+                                                                                 RankedOffset<String?, String?>,
                                                                                  Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     Endpoint.version1
                         .usertags
                         .path(appending: identifier)
@@ -294,12 +294,12 @@ public extension Endpoint.Media {
         /// All media matching `tag`.
         ///
         /// - parameter tag: A `String` holding reference to a valid _#tag_.
-        public static func tagged(with tag: String) -> Endpoint.Paginated<Swiftagram.Media.Collection, RankedPageReference<String, String>?, Error> {
+        public static func tagged(with tag: String) -> Endpoint.Paginated<Swiftagram.Media.Collection, RankedOffset<String?, String?>, Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     Endpoint.version1
                         .feed
                         .tag
@@ -319,12 +319,12 @@ public extension Endpoint.Media {
         }
 
         /// Timeline.
-        public static var timeline: Endpoint.Paginated<Wrapper, RankedPageReference<String, String>?, Error> {
-            .init { secret, session, pages in
+        public static var timeline: Endpoint.Paginated<Wrapper, RankedOffset<String?, String?>, Error> {
+            .init { secret, session, pages -> Endpoint.UnlockedDisposable<Wrapper, Error> in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages.count, offset: pages.offset.offset) {
                     Endpoint.version1
                         .feed
                         .path(appending: "timeline/")

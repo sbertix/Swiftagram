@@ -48,12 +48,14 @@ public extension Endpoint {
         /// All user matching `query`.
         ///
         /// - parameter query: A `String` holding reference to a valid user query.
-        public static func all(matching query: String) -> Paginated<Swiftagram.User.Collection, RankedPageReference<String, String>?, Error> {
+        public static func all(matching query: String) -> Paginated<Swiftagram.User.Collection,
+                                                                    RankedOffset<String?, String?>,
+                                                                    Error> {
             .init { secret, session, pages in
                 // Persist the rank token.
-                let rank = pages.offset?.rank ?? String(Int.random(in: 1_000..<10_000))
+                let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
                 // Prepare the actual pager.
-                return Pager(pages.count, offset: pages.offset?.offset) {
+                return Pager(pages) {
                     base.search
                         .header(appending: secret.header)
                         .header(appending: rank, forKey: "rank_token")
