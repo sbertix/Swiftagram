@@ -42,12 +42,12 @@ final class EndpointTests: XCTestCase {
 
     // MARK: Tests
 
-    /// Perform test on `Endpoint` returning a `Disposable` `Wrapper`.
+    /// Perform a test on `Endpoint` returning a `Disposable` `Wrappable`.
     @discardableResult
-    func performTest<E: Error>(on endpoint: Endpoint.Disposable<Wrapper, E>,
-                               _ identifier: String,
-                               logging level: Logger.Level? = nil,
-                               line: Int = #line) -> Wrapper? {
+    func performTest<W: Wrappable, E: Error>(on endpoint: Endpoint.Disposable<W, E>,
+                                             _ identifier: String,
+                                             logging level: Logger.Level? = nil,
+                                             line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -59,60 +59,9 @@ final class EndpointTests: XCTestCase {
                     completion.fulfill()
                 },
                 receiveValue: {
-                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0
-                }
-            )
-            .store(in: &bin)
-        wait(for: [completion], timeout: timeout)
-        return reference.value
-    }
-
-    /// Perform test on `Endpoint` returning a `Disposable` `Wrapped`.
-    @discardableResult
-    func performTest<T: Wrapped, E: Error>(on endpoint: Endpoint.Disposable<T, E>,
-                                           _ identifier: String,
-                                           logging level: Logger.Level? = nil,
-                                           line: Int = #line) -> Wrapper? {
-        // Perform the actual test.
-        let completion = XCTestExpectation()
-        let reference = ReferenceType<Wrapper>()
-        endpoint.unlock(with: secret)
-            .session(.instagram, logging: level)
-            .sink(
-                receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
-                    completion.fulfill()
-                },
-                receiveValue: {
-                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.wrapped
-                }
-            )
-            .store(in: &bin)
-        wait(for: [completion], timeout: timeout)
-        return reference.value
-    }
-
-    /// Perform a test on `Endpoint` returning a `Disposable` `ResponseType`.
-    @discardableResult
-    func performTest<T: ResponseType, E: Error>(on endpoint: Endpoint.Disposable<T, E>,
-                                                _ identifier: String,
-                                                logging level: Logger.Level? = nil,
-                                                line: Int = #line) -> Wrapper? {
-        // Perform the actual test.
-        let completion = XCTestExpectation()
-        let reference = ReferenceType<Wrapper>()
-        endpoint.unlock(with: secret)
-            .session(.instagram, logging: level)
-            .sink(
-                receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
-                    completion.fulfill()
-                },
-                receiveValue: {
-                    XCTAssert($0.error == nil || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.wrapped
+                    let wrapper = $0.wrapped
+                    XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = wrapper
                 }
             )
             .store(in: &bin)
@@ -145,13 +94,14 @@ final class EndpointTests: XCTestCase {
         return reference.value
     }
 
-    // Perform test on `Endpoint` returning a `Paginated` `Wrapper`.
+    // Perform test on `Endpoint` returning a `Ranked`-`Paginated` `Wrappable`.
     @discardableResult
-    func performTest<P, E: Error>(on endpoint: Endpoint.Paginated<Wrapper, P?, E>,
-                                  _ identifier: String,
-                                  pages: Int = 1,
-                                  logging level: Logger.Level? = nil,
-                                  line: Int = #line) -> Wrapper? {
+    func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
+                                                _ identifier: String,
+                                                pages: Int = 1,
+                                                logging level: Logger.Level? = nil,
+                                                line: Int = #line) -> Wrapper?
+    where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -164,8 +114,9 @@ final class EndpointTests: XCTestCase {
                     completion.fulfill()
                 },
                 receiveValue: {
-                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0
+                    let wrapper = $0.wrapped
+                    XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = wrapper
                 }
             )
             .store(in: &bin)
@@ -173,13 +124,14 @@ final class EndpointTests: XCTestCase {
         return reference.value
     }
 
-    /// Perform test on `Endpoint` returning a `Paginated` `Wrapped`.
+    // Perform test on `Endpoint` returning a `Paginated` `Wrappable`.
     @discardableResult
-    func performTest<P, T: Wrapped, E: Error>(on endpoint: Endpoint.Paginated<T, P?, E>,
-                                              _ identifier: String,
-                                              pages: Int = 1,
-                                              logging level: Logger.Level? = nil,
-                                              line: Int = #line) -> Wrapper? {
+    func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
+                                                _ identifier: String,
+                                                pages: Int = 1,
+                                                logging level: Logger.Level? = nil,
+                                                line: Int = #line) -> Wrapper?
+    where P: ComposableOptionalType {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = ReferenceType<Wrapper>()
@@ -192,36 +144,9 @@ final class EndpointTests: XCTestCase {
                     completion.fulfill()
                 },
                 receiveValue: {
-                    XCTAssert($0.status.string() == "ok" || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.wrapped
-                }
-            )
-            .store(in: &bin)
-        wait(for: [completion], timeout: timeout)
-        return reference.value
-    }
-
-    /// Perform a test on `Endpoint` returning a `Paginated` `ResponseType`.
-    @discardableResult
-    func performTest<P, T: ResponseType, E: Error>(on endpoint: Endpoint.Paginated<T, P?, E>,
-                                                   _ identifier: String,
-                                                   pages: Int = 1,
-                                                   logging level: Logger.Level? = nil,
-                                                   line: Int = #line) -> Wrapper? {
-        // Perform the actual test.
-        let completion = XCTestExpectation()
-        let reference = ReferenceType<Wrapper>()
-        endpoint.unlock(with: secret)
-            .session(.instagram, logging: level)
-            .pages(pages)
-            .sink(
-                receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
-                    completion.fulfill()
-                },
-                receiveValue: {
-                    XCTAssert($0.error == nil || $0.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = $0.wrapped
+                    let wrapper = $0.wrapped
+                    XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
+                    reference.value = wrapper
                 }
             )
             .store(in: &bin)
