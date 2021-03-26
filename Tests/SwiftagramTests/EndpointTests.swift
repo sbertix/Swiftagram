@@ -46,7 +46,7 @@ final class EndpointTests: XCTestCase {
     @discardableResult
     func performTest<W: Wrappable, E: Error>(on endpoint: Endpoint.Disposable<W, E>,
                                              _ identifier: String,
-                                             logging level: Logger.Level? = nil,
+                                             logging level: Logger = .default,
                                              line: Int = #line) -> Wrapper? {
         // Perform the actual test.
         let completion = XCTestExpectation()
@@ -74,7 +74,7 @@ final class EndpointTests: XCTestCase {
     func performTest<T: Equatable, E: Error>(on endpoint: Endpoint.UnlockedDisposable<T, E>,
                                              comparison: T,
                                              _ identifier: String,
-                                             logging level: Logger.Level? = nil,
+                                             logging level: Logger = .default,
                                              line: Int = #line) -> T? {
         // Perform the actual test.
         let completion = XCTestExpectation()
@@ -99,7 +99,7 @@ final class EndpointTests: XCTestCase {
     func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
                                                 _ identifier: String,
                                                 pages: Int = 1,
-                                                logging level: Logger.Level? = nil,
+                                                logging level: Logger = .default,
                                                 line: Int = #line) -> Wrapper?
     where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
         // Perform the actual test.
@@ -129,7 +129,7 @@ final class EndpointTests: XCTestCase {
     func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
                                                 _ identifier: String,
                                                 pages: Int = 1,
-                                                logging level: Logger.Level? = nil,
+                                                logging level: Logger = .default,
                                                 line: Int = #line) -> Wrapper?
     where P: ComposableOptionalType {
         // Perform the actual test.
@@ -156,14 +156,66 @@ final class EndpointTests: XCTestCase {
 
     // MARK: Endpoints
 
-    /// Test `Endpoint.Direct`.
+    /// Test `Endpoint.direct`.
     func testEndpointDirect() {
-        performTest(on: Endpoint.Direct.inbox, "Endpoint.Direct.Inbox")
-        performTest(on: Endpoint.Direct.pendingInbox, "Endpoint.Direct.pendingInbox")
-        performTest(on: Endpoint.Direct.presence, "Endpoint.Direct.presence")
-        performTest(on: Endpoint.Direct.recipients(), "Endpoint.Direct.recipients()")
-        performTest(on: Endpoint.Direct.conversation(matching: "340282366841710300949128174006150953754"),
-                    "Endpoint.Direct.conversation")
+        performTest(on: Endpoint.direct
+                        .conversations,
+                    "Endpoint.direct.inbox")
+        performTest(on: Endpoint.direct
+                        .requests,
+                    "Endpoint.direct.pendingInbox")
+        performTest(on: Endpoint.direct
+                        .activity,
+                    "Endpoint.direct.activity")
+        performTest(on: Endpoint.direct
+                        .recipients,
+                    "Endpoint.direct.recipients")
+        performTest(on: Endpoint.direct
+                        .recipients(matching: "Instagram"),
+                    "Endpoint.direct.recipientsQuery")
+        performTest(on: Endpoint.direct.conversation("340282366841710300949128174006150953754"),
+                    "Endpoint.direct.conversation")
+        performTest(on: Endpoint.direct
+                        .conversation("340282366841710300949128174006150953754")
+                        .mute(),
+                    "Endpoint.direct.Conversation.mute")
+        performTest(on: Endpoint.direct
+                        .conversation("340282366841710300949128174006150953754")
+                        .unmute(),
+                    "Endpoint.direct.Conversation.unmute")
+        performTest(on: Endpoint.direct
+                        .conversation("340282366841710300949128174006150953754")
+                        .message("29822631279915292661700891829600256")
+                        .open(),
+                    "Endpoint.direct.Conversation.Message.open")
+        performTest(on: Endpoint.direct
+                        .conversation("340282366841710300949128131067346707174")
+                        .invite("208803632"),
+                    "Endpoint.direct.Conversation.invite")
+        performTest(on: Endpoint.direct
+                        .conversation("340282366841710300949128131067346707174")
+                        .title("Tests"),
+                    "Endpoint.direct.Conversation.title")
+        if let identifier = performTest(on: Endpoint.direct
+                                            .conversation("340282366841710300949128131067346707174")
+                                            .send("This is an automated message."),
+                                        "Endpoint.direct.Conversation.send")?.payload.itemId.string() {
+            performTest(on: Endpoint.direct
+                            .conversation("340282366841710300949128131067346707174")
+                            .message(identifier)
+                            .delete(),
+                        "Endpoint.direct.Conversation.delete")
+        }
+        if let identifier = performTest(on: Endpoint.direct
+                                            .conversation("340282366841710300949128131067346707174")
+                                            .send("This is an automated message with links. https://google.com https://instagram.com"),
+                                        "Endpoint.direct.Conversation.sendLinks")?.payload.itemId.string() {
+            performTest(on: Endpoint.direct
+                            .conversation("340282366841710300949128131067346707174")
+                            .message(identifier)
+                            .delete(),
+                        "Endpoint.direct.Conversation.deleteLinks")
+        }
     }
 
     /// Test `Endpoint.Discover`.
@@ -250,7 +302,7 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.Media.Stories.owned(by: "25025320"), "Endpoint.Media.Stories.owned")
         performTest(on: Endpoint.Media.Stories.owned(by: ["25025320"]), "Endpoint.Media.Stories.ownedMultiple")
         if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
-                                                                       stickers: [Sticker.mention("25025320")
+                                                                       stickers: [Sticker.mention("208803632")
                                                                                     .position(.init(x: 0.0, y: 0.125)),
                                                                                   Sticker.tag("instagram")
                                                                                     .position(.init(x: 0.5, y: 0.125)),
@@ -271,7 +323,7 @@ final class EndpointTests: XCTestCase {
             performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteImage")
         }
 //        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
-//                                                                       stickers: [.mention("25025320")]),
+//                                                                       stickers: [.mention("208803632")]),
 //                                     "Endpoint.Media.Stories.uploadVideo"),
 //           let identifier = wrapper.media.id.string() {
 //            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteVideo")

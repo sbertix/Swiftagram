@@ -56,15 +56,15 @@ public extension Client {
                                    phoneIdentifier: UUID = .init(),
                                    adIdentifier: UUID = .init()) -> Device {
             .init(identifier: identifier,
-                         phoneIdentifier: phoneIdentifier,
-                         adIdentifier: adIdentifier,
-                         hardware: .init(model: model,
-                                         brand: brand,
-                                         boot: boot,
-                                         cpu: cpu,
-                                         manufacturer: manufacturer),
-                         software: .init(version: version, language: language),
-                         resolution: resolution)
+                  phoneIdentifier: phoneIdentifier,
+                  adIdentifier: adIdentifier,
+                  hardware: .init(model: model,
+                                  brand: brand,
+                                  boot: boot,
+                                  cpu: cpu,
+                                  manufacturer: manufacturer),
+                  software: .init(version: version, language: language),
+                  resolution: resolution)
         }
 
         /// Generate an iOS device.
@@ -85,11 +85,11 @@ public extension Client {
                                phoneIdentifier: UUID = .init(),
                                adIdentifier: UUID = .init()) -> Device {
             .init(identifier: identifier,
-                         phoneIdentifier: phoneIdentifier,
-                         adIdentifier: adIdentifier,
-                         hardware: .init(model: model, brand: nil, boot: nil, cpu: nil, manufacturer: nil),
-                         software: .init(version: version, language: language),
-                         resolution: resolution)
+                  phoneIdentifier: phoneIdentifier,
+                  adIdentifier: adIdentifier,
+                  hardware: .init(model: model, brand: nil, boot: nil, cpu: nil, manufacturer: nil),
+                  software: .init(version: version, language: language),
+                  resolution: resolution)
         }
 
         // MARK: Accessories
