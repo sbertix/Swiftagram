@@ -13,24 +13,6 @@ public extension Endpoint {
         /// The base endpoint.
         private static let base = Endpoint.version1.discover.appendingDefaultHeader()
 
-        /// Suggested users.
-        ///
-        /// - parameter identifier: A `String` holding reference to a valid user identifier.
-        public static func users(like identifier: String) -> Disposable<Swiftagram.User.Collection, Error> {
-            .init { secret, session in
-                Deferred {
-                    base.chaining
-                        .query(appending: identifier, forKey: "target_id")
-                        .header(appending: secret.header)
-                        .publish(with: session)
-                        .map(\.data)
-                        .wrap()
-                        .map(Swiftagram.User.Collection.init)
-                }
-                .eraseToAnyPublisher()
-            }
-        }
-
         /// The explore feed.
         public static var explore: Paginated<Wrapper, String?, Error> {
             .init { secret, session, pages in

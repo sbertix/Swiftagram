@@ -1,6 +1,6 @@
 //
 //  Direct.swift
-//  ComposableRequest
+//  Swiftagram
 //
 //  Created by Stefano Bertagno on 25/03/21.
 //
@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Endpoint {
-    /// A module-like `enum` defining `direct_v2` endpoints.
+    /// A `struct` defining `direct_v2` endpoints.
     struct Direct: Parent { }
 
     /// A wrapper for direct endpoints.

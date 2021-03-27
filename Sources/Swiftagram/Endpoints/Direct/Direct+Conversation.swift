@@ -11,7 +11,7 @@ public extension Endpoint.Direct {
     /// A `struct` defining a wrapper for a specific conversation.
     struct Conversation: Parent {
         /// The identifier.
-        let identifier: String
+        public let identifier: String
     }
 
     /// A wrapper for conversation endpoints.

@@ -220,32 +220,8 @@ final class EndpointTests: XCTestCase {
 
     /// Test `Endpoint.Discover`.
     func testEndpointDiscover() {
-        performTest(on: Endpoint.Discover.users(like: "25025320"),
-                    "Endpoint.Discover.usersLike")  // Instagram pk.
         performTest(on: Endpoint.Discover.explore, "Endpoint.Discover.explore")
         performTest(on: Endpoint.Discover.topics, "Endpoint.Discover.topics")
-    }
-
-    /// Test `Endpoint.Friendship`.
-    func testEndpointFriendship() {
-        performTest(on: Endpoint.Friendship.followed(by: "25025320"),
-                    "Endpoint.Friendship.followedBy")
-        performTest(on: Endpoint.Friendship.following("25025320"),
-                    "Endpoint.Friendship.following")
-        performTest(on: Endpoint.Friendship.followed(by: "25025320", matching: "a"),
-                    "Endpoint.Friendship.followedByMatching")
-        performTest(on: Endpoint.Friendship.following("25025320", matching: "a"),
-                    "Endpoint.Friendship.followingMatching")
-        performTest(on: Endpoint.Friendship.summary(for: "25025320"),
-                    "Endpoint.Friendship.summary")
-        performTest(on: Endpoint.Friendship.summary(for: ["25025320"]),
-                    "Endpoint.Friendship.summaryMultiple")
-        performTest(on: Endpoint.Friendship.pendingRequests,
-                    "Endpoint.Friendship.pendingRequests")
-        performTest(on: Endpoint.Friendship.follow("25025320"),
-                    "Endpoint.Friendship.follow")
-        performTest(on: Endpoint.Friendship.unfollow("25025320"),
-                    "Endpoint.Friendship.unfollow")
     }
 
     /// Test `Endpoint.Media`.
@@ -337,9 +313,51 @@ final class EndpointTests: XCTestCase {
 
     /// Test `Endpoint.User`.
     func testEndpointUser() {
-        performTest(on: Endpoint.User.blocked, "Endpoint.User.blocked")
-        performTest(on: Endpoint.User.summary(for: "25025320"), "Endpoint.User.summary")
-        performTest(on: Endpoint.User.all(matching: "instagram"), "Endpoint.User.all")
+        performTest(on: Endpoint.user("25025320"),
+                    "Endpoint.User.summary")
+        performTest(on: Endpoint.user("25025320")
+                        .followers,
+                    "Endpoint.User.followers")
+        performTest(on: Endpoint.user("25025320")
+                        .followers(matching: "a"),
+                    "Endpoint.User.followersQuery")
+        performTest(on: Endpoint.user("25025320")
+                        .following,
+                    "Endpoint.User.following")
+        performTest(on: Endpoint.user("25025320")
+                        .following(matching: "a"),
+                    "Endpoint.User.followingQuery")
+        performTest(on: Endpoint.user("25025320")
+                        .friendship,
+                    "Endpoint.User.friendship")
+        performTest(on: Endpoint.user("25025320")
+                        .similar,
+                    "Endpoint.User.similar")
+        performTest(on: Endpoint.user(matching: "instagram"),
+                    "Endpoint.userMatching")
+        performTest(on: Endpoint.users(matching: "instagram"),
+                    "Endpoint.usersMatching")
+        performTest(on: Endpoint.users
+                        .blocked,
+                    "Endpoint.Users.blocked")
+        performTest(on: Endpoint.users
+                        .requests,
+                    "Endpoint.Users.requests")
+        performTest(on: Endpoint.users(["25025320"])
+                        .friendships,
+                    "Endpoint.ManyUsers.friendships")
+        performTest(on: Endpoint.user("25025320")
+                        .follow(),
+                    "Endpoint.User.follow")
+        performTest(on: Endpoint.user("25025320")
+                        .unfollow(),
+                    "Endpoint.User.unfollow")
+        performTest(on: Endpoint.user("25025320")
+                        .block(),
+                    "Endpoint.User.block")
+        performTest(on: Endpoint.user("25025320")
+                        .unblock(),
+                    "Endpoint.User.unblock")
     }
 
     /// Test location endpoints.
