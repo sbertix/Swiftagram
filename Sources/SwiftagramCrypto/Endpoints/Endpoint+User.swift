@@ -11,7 +11,7 @@ public extension Endpoint.User {
     /// A `struct` defining user request-related endpoints.
     struct Request {
         /// The underlying user.
-        let user: Endpoint.User
+        public let user: Endpoint.User
     }
 
     /// A wrapper for request endpoints.

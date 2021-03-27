@@ -9,7 +9,7 @@ import Foundation
 
 public extension Endpoint.Direct {
     /// A `struct` defining a wrapper for a specific conversation.
-    struct Conversation: Parent {
+    struct Conversation {
         /// The identifier.
         public let identifier: String
     }
@@ -31,7 +31,7 @@ public extension Endpoint.Direct {
     }
 }
 
-extension Request {
+extension Swiftagram.Request {
     /// A specific thread bease request.
     ///
     /// - parameter conversation: A valid `Conversation`.
@@ -50,33 +50,21 @@ public extension Endpoint.Direct.Conversation {
 
     /// Paginate all messages in the conversation.
     var messages: Endpoint.Paginated<Conversation.Unit, String?, Error> {
-        paginated(at: .directThread(self)) {
-            $3.query(appending: ["visual_message_return_type": "unseen",
-                                 "direction": $2.flatMap { _ in "older" },
-                                 "cursor": $2,
-                                 "limit": "20"])
-        }
-    }
-
-    /// Approve the current conversation request.
-    ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func approve() -> Endpoint.Disposable<Status, Error> {
-        disposable(at: Request.directThread(self).path(appending: "approve/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString])
-        }
-    }
-
-    /// Decline the current conversation request.
-    ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func decline() -> Endpoint.Disposable<Status, Error> {
-        disposable(at: Request.directThread(self).path(appending: "reject/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString])
+        .init { secret, session, pages in
+            Pager(pages) {
+                Swiftagram.Request.directThread(self)
+                    .header(appending: secret.header)
+                    .query(appending: ["visual_message_return_type": "unseen",
+                                       "direction": $0.flatMap { _ in "older" },
+                                       "cursor": $0,
+                                       "limit": "20"])
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(Swiftagram.Conversation.Unit.init)
+                    .iterateFirst(stoppingAt: $0)
+            }
+            .eraseToAnyPublisher()
         }
     }
 
@@ -85,11 +73,7 @@ public extension Endpoint.Direct.Conversation {
     /// - returns: A valid `Endpoint.Disposable`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
     func delete() -> Endpoint.Disposable<Status, Error> {
-        disposable(at: Request.directThread(self).path(appending: "hide/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString,
-                                "use_unified_inbox": "true"])
-        }
+        edit("hide/", body: ["use_unified_inbox": "true"])
     }
 
     /// Invite users based on their identifier.
@@ -97,11 +81,7 @@ public extension Endpoint.Direct.Conversation {
     /// - parameter userIdentifiers: A collection of `String`s.
     /// - returns: A valid `Endpoint.Disposable`.
     func invite<C: Collection>(_ userIdentifiers: C) -> Endpoint.Disposable<Status, Error> where C.Element == String {
-        disposable(at: Request.directThread(self).path(appending: "add_user/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString,
-                                "user_ids": "["+userIdentifiers.joined(separator: ",")+"]"])
-        }
+        edit("add_user/", body: ["user_ids": "["+userIdentifiers.joined(separator: ",")+"]"])
     }
 
     /// Invite a user based on their identifier.
@@ -117,20 +97,14 @@ public extension Endpoint.Direct.Conversation {
     /// - returns: A valid `Endpoint.Disposable`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
     func leave() -> Endpoint.Disposable<Status, Error> {
-        disposable(at: Request.directThread(self).path(appending: "leave/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString])
-        }
+        edit("leave/")
     }
 
     /// Mute the current conversation.
     ///
     /// - returns: A valid `Endpoint.Disposable`.
     func mute() -> Endpoint.Disposable<Status, Error> {
-        disposable(at: Request.directThread(self).path(appending: "mute/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString])
-        }
+        edit("mute/")
     }
 
     /// Send a message in the current conversation.
@@ -155,14 +129,20 @@ public extension Endpoint.Direct.Conversation {
                     body["text"] = text
                 }
                 // Prepare the request.
-                return self.disposable(at: Request.directThreads.broadcast.path(appending: method).path(appending: "/")) {
-                    $2.body(appending: body)
-                        .body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                          "_uuid": $0.client.device.identifier.uuidString,
-                                          "device_id": $0.client.device.instagramIdentifier,
-                                          "client_context": UUID().uuidString,
-                                          "action": "send_item"])
-                }.unlock(with: secret).session(session).eraseToAnyPublisher()
+                return Swiftagram.Request.directThreads
+                    .broadcast.path(appending: method)
+                    .path(appending: "/")
+                    .header(appending: secret.header)
+                    .body(appending: body)
+                    .body(appending: ["_csrftoken": secret["csrftoken"]!,
+                                      "_uuid": secret.client.device.identifier.uuidString,
+                                      "device_id": secret.client.device.instagramIdentifier,
+                                      "client_context": UUID().uuidString,
+                                      "action": "send_item"])
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .eraseToAnyPublisher()
             } catch {
                 return Deferred { Fail(error: error) }.eraseToAnyPublisher()
             }
@@ -174,20 +154,39 @@ public extension Endpoint.Direct.Conversation {
     /// - parameter title: A valid `String`.
     /// - returns: A valid `Endpoint.Disposable`.
     func title(_ title: String) -> Endpoint.Disposable<Status, Error> {
-        disposable(at: Request.directThread(self).path(appending: "update_title/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString,
-                                "title": title])
-        }
+        edit("update_title/", body: ["title": title])
     }
 
     /// Unmute the current conversation.
     ///
     /// - returns: A valid `Endpoint.Disposable`.
     func unmute() -> Endpoint.Disposable<Status, Error> {
-        disposable(at: Request.directThread(self).path(appending: "unmute/")) {
-            $2.body(appending: ["_csrftoken": $0["csrftoken"]!,
-                                "_uuid": $0.client.device.identifier.uuidString])
+        edit("unmute/")
+    }
+}
+
+extension Endpoint.Direct.Conversation {
+    /// Edit the conversation.
+    ///
+    /// - parameters:
+    ///     - endpoint: A valid `String`.
+    ///     - body: A valid dictionary of `String`s.
+    /// - returns: A valid `Endpoint.Disposable`.
+    func edit(_ endpoint: String, body: [String: String] = [:]) -> Endpoint.Disposable<Status, Error> {
+        .init { secret, session in
+            Deferred {
+                Swiftagram.Request.directThread(self)
+                    .path(appending: endpoint)
+                    .header(appending: secret.header)
+                    .body(appending: ["_csrftoken": secret["csrftoken"]!,
+                                      "_uuid": secret.client.device.identifier.uuidString])
+                    .body(appending: body)
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(Status.init)
+            }
+            .eraseToAnyPublisher()
         }
     }
 }

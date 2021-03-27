@@ -49,7 +49,7 @@ public extension Endpoint.Users {
             Deferred {
                 Request.users
                     .blocked_list
-                    .header(secret.header)
+                    .header(appending: secret.header)
                     .publish(with: session)
                     .map(\.data)
                     .wrap()

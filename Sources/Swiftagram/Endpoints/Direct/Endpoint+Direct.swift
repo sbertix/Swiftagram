@@ -9,7 +9,7 @@ import Foundation
 
 public extension Endpoint {
     /// A `struct` defining `direct_v2` endpoints.
-    struct Direct: Parent { }
+    struct Direct { }
 
     /// A wrapper for direct endpoints.
     static let direct: Direct = .init()
@@ -17,15 +17,25 @@ public extension Endpoint {
 
 extension Request {
     /// The `direct_v2` base request.
-    static let direct = Endpoint.version1.direct_v2
+    static let direct = Endpoint.version1.direct_v2.appendingDefaultHeader()
     /// The threads base request.
-    static let directThreads = Request.direct.threads
+    static let directThreads = Request.direct.threads.appendingDefaultHeader()
 }
 
 public extension Endpoint.Direct {
     /// Get the user presence.
     var activity: Endpoint.Disposable<Wrapper, Error> {
-        disposable(at: Request.direct.path(appending: "get_presence/"))
+        .init { secret, session in
+            Deferred {
+                Request.direct
+                    .path(appending: "get_presence/")
+                    .header(appending: secret.header)
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+            }
+            .eraseToAnyPublisher()
+        }
     }
 
     /// Paginate all approved conversations in your inbox.
@@ -58,13 +68,24 @@ fileprivate extension Endpoint.Direct {
     /// - parameter isPending: A valid `Bool`.
     /// - returns: An `Endpoint.Paginated`.
     func inbox(isPending: Bool) -> Endpoint.Paginated<Swiftagram.Conversation.Collection, String?, Error> {
-        paginated(at: isPending ? Request.direct.path(appending: "pending_inbox") : Request.direct.inbox) {
-            $3.query(appending: ["visual_message_return_type": "unseen",
-                                 "direction": $2.flatMap { _ in "older" },
-                                 "cursor": $2,
-                                 "thread_message_limit": "10",
-                                 "persistent_badging": "true",
-                                 "limit": "20"])
+        .init { secret, session, pages in
+            Pager(pages) {
+                Request.direct
+                    .path(appending: isPending ? "pending_inbox" : "inbox")
+                    .header(appending: secret.header)
+                    .query(appending: ["visual_message_return_type": "unseen",
+                                       "direction": $0.flatMap { _ in "older" },
+                                       "cursor": $0,
+                                       "thread_message_limit": "10",
+                                       "persistent_badging": "true",
+                                       "limit": "20"])
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(Swiftagram.Conversation.Collection.init)
+                    .iterateFirst(stoppingAt: $0)
+            }
+            .eraseToAnyPublisher()
         }
     }
 
@@ -73,10 +94,20 @@ fileprivate extension Endpoint.Direct {
     /// - parameter query: An optional `String`. 
     /// - returns: An `Endpoint.Disposable`.
     func recipients(matching query: String?) -> Endpoint.Disposable<Recipient.Collection, Error> {
-        disposable(at: Request.direct.path(appending: "ranked_recipients/")) {
-            $2.header(appending: ["mode": "raven",
-                                  "query": query,
-                                  "show_threads": "true"])
+        .init { secret, session in
+            Deferred {
+                Request.direct
+                    .path(appending: "ranked_recipients/")
+                    .header(appending: secret.header)
+                    .header(appending: ["mode": "raven",
+                                        "query": query,
+                                        "show_threads": "true"])
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(Recipient.Collection.init)
+            }
+            .eraseToAnyPublisher()
         }
     }
 }

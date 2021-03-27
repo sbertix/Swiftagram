@@ -40,7 +40,7 @@ public extension Endpoint {
                 Request.users
                     .path(appending: username)
                     .path(appending: "usernameinfo/")
-                    .header(secret.header)
+                    .header(appending: secret.header)
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
@@ -87,7 +87,7 @@ public extension Endpoint.User {
             Deferred {
                 Request.user(self)
                     .info
-                    .header(secret.header)
+                    .header(appending: secret.header)
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
