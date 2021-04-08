@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E0066A0D261F3F9F00BB10A1 /* SwiftagramCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = E0066A0C261F3F9F00BB10A1 /* SwiftagramCrypto */; };
 		E028F0302418DFCC00F9C7F8 /* FollowersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F0212418DFCC00F9C7F8 /* FollowersView.swift */; };
 		E028F0312418DFCC00F9C7F8 /* FollowersModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F0222418DFCC00F9C7F8 /* FollowersModel.swift */; };
 		E028F0332418DFCC00F9C7F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E028F0242418DFCC00F9C7F8 /* Assets.xcassets */; };
@@ -17,14 +18,13 @@
 		E028F0392418DFCC00F9C7F8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02D2418DFCC00F9C7F8 /* ContentView.swift */; };
 		E028F03B2418DFCC00F9C7F8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02F2418DFCC00F9C7F8 /* SceneDelegate.swift */; };
 		E06D4F71244C7EA500C9AD05 /* FetchImage in Frameworks */ = {isa = PBXBuildFile; productRef = E06D4F70244C7EA500C9AD05 /* FetchImage */; };
-		E0A49C5A25E58B200065CAD2 /* SwiftagramCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = E0A49C5925E58B200065CAD2 /* SwiftagramCrypto */; };
-		E0A49C5C25E58B200065CAD2 /* Swiftagram in Frameworks */ = {isa = PBXBuildFile; productRef = E0A49C5B25E58B200065CAD2 /* Swiftagram */; };
 		E0B1314925D1794800317BEE /* AvatarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B1314825D1794800317BEE /* AvatarButton.swift */; };
 		E0B1315225D179EA00317BEE /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B1315125D179EA00317BEE /* RemoteImage.swift */; };
 		E0EA4715246DE2C700F409E6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0EA4714246DE2C700F409E6 /* LoginView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E0066A0B261F3F1C00BB10A1 /* Swiftagram */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Swiftagram; path = ../..; sourceTree = "<group>"; };
 		E028F0082418DFAD00F9C7F8 /* Followers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Followers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E028F0212418DFCC00F9C7F8 /* FollowersView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FollowersView.swift; sourceTree = "<group>"; };
 		E028F0222418DFCC00F9C7F8 /* FollowersModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FollowersModel.swift; sourceTree = "<group>"; };
@@ -46,8 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0A49C5C25E58B200065CAD2 /* Swiftagram in Frameworks */,
-				E0A49C5A25E58B200065CAD2 /* SwiftagramCrypto in Frameworks */,
+				E0066A0D261F3F9F00BB10A1 /* SwiftagramCrypto in Frameworks */,
 				E06D4F71244C7EA500C9AD05 /* FetchImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -55,10 +54,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E0066A04261E2C1A00BB10A1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E028EFFF2418DFAD00F9C7F8 = {
 			isa = PBXGroup;
 			children = (
+				E0066A0B261F3F1C00BB10A1 /* Swiftagram */,
 				E028F01F2418DFCC00F9C7F8 /* Followers */,
+				E0066A04261E2C1A00BB10A1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -134,8 +142,7 @@
 			name = Followers;
 			packageProductDependencies = (
 				E06D4F70244C7EA500C9AD05 /* FetchImage */,
-				E0A49C5925E58B200065CAD2 /* SwiftagramCrypto */,
-				E0A49C5B25E58B200065CAD2 /* Swiftagram */,
+				E0066A0C261F3F9F00BB10A1 /* SwiftagramCrypto */,
 			);
 			productName = Followers;
 			productReference = E028F0082418DFAD00F9C7F8 /* Followers.app */;
@@ -167,7 +174,6 @@
 			mainGroup = E028EFFF2418DFAD00F9C7F8;
 			packageReferences = (
 				E06D4F6F244C7EA500C9AD05 /* XCRemoteSwiftPackageReference "FetchImage" */,
-				E0A49C5825E58B200065CAD2 /* XCRemoteSwiftPackageReference "Swiftagram" */,
 			);
 			productRefGroup = E028F0092418DFAD00F9C7F8 /* Products */;
 			projectDirPath = "";
@@ -414,31 +420,17 @@
 				minimumVersion = 0.4.0;
 			};
 		};
-		E0A49C5825E58B200065CAD2 /* XCRemoteSwiftPackageReference "Swiftagram" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:sbertix/Swiftagram.git";
-			requirement = {
-				branch = development;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E0066A0C261F3F9F00BB10A1 /* SwiftagramCrypto */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftagramCrypto;
+		};
 		E06D4F70244C7EA500C9AD05 /* FetchImage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E06D4F6F244C7EA500C9AD05 /* XCRemoteSwiftPackageReference "FetchImage" */;
 			productName = FetchImage;
-		};
-		E0A49C5925E58B200065CAD2 /* SwiftagramCrypto */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E0A49C5825E58B200065CAD2 /* XCRemoteSwiftPackageReference "Swiftagram" */;
-			productName = SwiftagramCrypto;
-		};
-		E0A49C5B25E58B200065CAD2 /* Swiftagram */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E0A49C5825E58B200065CAD2 /* XCRemoteSwiftPackageReference "Swiftagram" */;
-			productName = Swiftagram;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

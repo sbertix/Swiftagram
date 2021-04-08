@@ -10,7 +10,6 @@ import Combine
 import Foundation
 import SwiftUI
 
-import Swiftagram
 import SwiftagramCrypto
 
 /// An `ObservableObject` dealing with requests.
@@ -33,7 +32,7 @@ final class FollowersModel: ObservableObject {
             .flatMap { secret -> AnyPublisher<User?, Never> in
                 guard let secret = secret else { return Just(nil).eraseToAnyPublisher() }
                 // Fetch the user.
-                return Endpoint.User.summary(for: secret.identifier)
+                return Endpoint.user(secret.identifier)
                     .unlock(with: secret)
                     .session(.instagram)
                     .map(\.user)
@@ -50,7 +49,8 @@ final class FollowersModel: ObservableObject {
             .flatMap { secret -> AnyPublisher<[User]?, Never> in
                 guard let secret = secret else { return Just(nil).eraseToAnyPublisher() }
                 // Fetch followers.
-                return Endpoint.Friendship.following(secret.identifier)
+                return Endpoint.user(secret.identifier)
+                    .followers
                     .unlock(with: secret)
                     .session(.instagram)
                     .pages(3)
