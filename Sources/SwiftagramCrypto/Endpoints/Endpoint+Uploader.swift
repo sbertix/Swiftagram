@@ -12,8 +12,8 @@ import AVKit
 #endif
 
 extension Endpoint.Group {
-    /// A `struct` defining shared code for the upload process.
-    struct Uploader { }
+    /// A `class` defining shared code for the upload process.
+    final class Uploader { }
 }
 
 extension Endpoint {
@@ -170,9 +170,9 @@ extension Endpoint.Group.Uploader {
                     guard output.error == nil else {
                         return Fail(error: Endpoint.Group.Media.Error.artifact(output.wrapper())).eraseToAnyPublisher()
                     }
-                    return upload(image: preview,
-                                  identifier: identifier,
-                                  waterfallIdentifier: waterfallIdentifier)
+                    return self.upload(image: preview,
+                                       identifier: identifier,
+                                       waterfallIdentifier: waterfallIdentifier)
                         .generator(input)
                         .eraseToAnyPublisher()
                 }
