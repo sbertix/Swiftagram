@@ -7,11 +7,11 @@
 
 import Foundation
 
-public extension Endpoint.Direct.Conversation {
+public extension Endpoint.Group.Direct.Conversation {
     /// A `struct` defining a wrapper for a specific message.
     struct Message {
         /// The conversation.
-        public let conversation: Endpoint.Direct.Conversation
+        public let conversation: Endpoint.Group.Direct.Conversation
         /// The identifier.
         public let identifier: String
     }
@@ -29,16 +29,16 @@ extension Swiftagram.Request {
     /// A specific message base request.
     ///
     /// - parameter message: A valid `Message`.
-    static func directMessage(_ message: Endpoint.Direct.Conversation.Message) -> Request {
-        Request.directThread(message.conversation).items.path(appending: message.identifier)
+    static func directMessage(_ message: Endpoint.Group.Direct.Conversation.Message) -> Request {
+        Swiftagram.Request.directThread(message.conversation).items.path(appending: message.identifier)
     }
 }
 
-public extension Endpoint.Direct.Conversation.Message {
+public extension Endpoint.Group.Direct.Conversation.Message {
     /// Delete the current message.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func delete() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func delete() -> Endpoint.Single<Status, Error> {
         .init { secret, session in
             Deferred {
                 Request.directMessage(self)
@@ -57,8 +57,8 @@ public extension Endpoint.Direct.Conversation.Message {
 
     /// Mark the current message as watched.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func open() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func open() -> Endpoint.Single<Status, Error> {
         .init { secret, session in
             Deferred {
                 Request.directMessage(self)

@@ -1,5 +1,5 @@
 //
-//  EndpointMediaComponents.swift
+//  Endpoint+Uploader.swift
 //  SwiftagramCrypto
 //
 //  Created by Stefano Bertagno on 29/08/20.
@@ -7,18 +7,21 @@
 
 import Foundation
 
-#if canImport(AVFoundation) && canImport(CoreGraphics)
-import AVFoundation
-import CoreGraphics
+#if canImport(AVKit)
+import AVKit
 #endif
 
-import Swiftagram
+extension Endpoint.Group {
+    /// A `struct` defining shared code for the upload process.
+    struct Uploader { }
+}
 
-/// An `internal` extension providing reusable code for media upload and configuration.
-extension Endpoint.Media {
-    /// The base endpoint.
-    private static var base: Request { Endpoint.version1.media.appendingDefaultHeader() }
+extension Endpoint {
+    /// A wrapper for uploader code.
+    static let uploader: Group.Uploader = .init()
+}
 
+extension Endpoint.Group.Uploader {
     /// Upload an image `data` with size `size`.
     ///
     /// - note: Make sure the `Future` generator is only ever called inside `Deferred`, otherwise it will fetch immediately.
@@ -27,9 +30,9 @@ extension Endpoint.Media {
     ///     - identifier: An optional `uploadId`. Defaults to `nil`.
     ///     - waterfallIdentifier: An optional `waterfallIdentifier`. Defaults to `nil`
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
-    static func upload(image data: Data,
-                       identifier: String? = nil,
-                       waterfallIdentifier: String? = nil) -> Upload.Image {
+    func upload(image data: Data,
+                identifier: String? = nil,
+                waterfallIdentifier: String? = nil) -> Upload.Image {
         /// Prepare upload parameters.
         let now = Date()
         let identifier = identifier ?? String(Int(now.timeIntervalSince1970*1_000))
@@ -56,7 +59,7 @@ extension Endpoint.Media {
         ]
         // Return.
         return .init(identifier: identifier, name: name, date: now) { input in
-            Endpoint.api
+            Request.api
                 .path(appending: "rupload_igphoto")
                 .path(appending: name)
                 .appendingDefaultHeader()
@@ -84,11 +87,11 @@ extension Endpoint.Media {
     ///     - isForAlbum: A `Bool`.
     /// - returns: A `Media.Unit` `Disposable`, `identifier`, `name` and `date`.
     /// - warning: Remember to set `Secret` specific headers in the request.
-    static func upload(video url: URL,
-                       preview data: Data?,
-                       previewSize: CGSize,
-                       sourceType: String,
-                       isForAlbum: Bool = false) -> Upload.Video {
+    func upload(video url: URL,
+                preview data: Data?,
+                previewSize: CGSize,
+                sourceType: String,
+                isForAlbum: Bool = false) -> Upload.Video {
         // Prepare upload parameters.
         let video = AVAsset(url: url)
         let now = Date()
@@ -123,7 +126,7 @@ extension Endpoint.Media {
         // Return the first endpoint.
         let duration = TimeInterval(video.duration.seconds)
         return .init(identifier: identifier, name: name, size: size, date: now, duration: duration) { input in
-            Endpoint.api
+            Request.api
                 .path(appending: "rupload_igvideo")
                 .path(appending: name)
                 .appendingDefaultHeader()
@@ -136,14 +139,14 @@ extension Endpoint.Media {
                 .flatMap { output -> AnyPublisher<Wrapper, Error> in
                     // Actually upload the video.
                     guard let offset = output.offset.int() else {
-                        return Fail(error: MediaError.artifact(output)).eraseToAnyPublisher()
+                        return Fail(error: Endpoint.Group.Media.Error.artifact(output)).eraseToAnyPublisher()
                     }
                     // Fetch the video and then upload it.
                     return Request(url)
                         .publish(with: input.session)
                         .map(\.data)
                         .flatMap {
-                            Endpoint.api
+                            Request.api
                                 .path(appending: "rupload_igvideo")
                                 .path(appending: name)
                                 .appendingDefaultHeader()
@@ -165,7 +168,7 @@ extension Endpoint.Media {
                 .flatMap { output -> AnyPublisher<Media.Unit, Error> in
                     // Upload the preview.
                     guard output.error == nil else {
-                        return Fail(error: MediaError.artifact(output.wrapper())).eraseToAnyPublisher()
+                        return Fail(error: Endpoint.Group.Media.Error.artifact(output.wrapper())).eraseToAnyPublisher()
                     }
                     return upload(image: preview,
                                   identifier: identifier,
@@ -176,9 +179,10 @@ extension Endpoint.Media {
                 .flatMap { output -> AnyPublisher<Media.Unit, Error> in
                     // Finish uploading process.
                     guard output.error == nil else {
-                        return Fail(error: MediaError.artifact(output.wrapper())).eraseToAnyPublisher()
+                        return Fail(error: Endpoint.Group.Media.Error.artifact(output.wrapper())).eraseToAnyPublisher()
                     }
-                    return base.path(appending: "upload_finish/")
+                    return Request.media
+                        .path(appending: "upload_finish/")
                         .header(appending: input.secret.header)
                         .header(appending: ["retry_context": #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#])
                         .query(appending: "1", forKey: "video")
@@ -207,7 +211,7 @@ extension Endpoint.Media {
     #endif
 }
 
-extension Endpoint.Media {
+extension Endpoint.Group.Uploader {
     /// A module-like `enum` listing upload media respones.
     enum Upload {
         /// An alias for the generator input type.

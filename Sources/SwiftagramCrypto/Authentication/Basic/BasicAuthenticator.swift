@@ -151,7 +151,7 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
     /// - parameter onChange: A block providing an array of `HTTPCookie`s.
     private func header(onComplete: @escaping (Result<[HTTPCookie], Error>) -> Void) {
         // Obtain cookies.
-        Endpoint.version1
+        Request.version1
             .accounts.read_msisdn_header
             .path(appending: "/")
             .appendingDefaultHeader()
@@ -181,7 +181,7 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
     ///     - onComplete: A block providing a `String`.
     private func encryptedPassword(with cookies: [HTTPCookie], onComplete: @escaping (Result<String, Error>) -> Void) {
         // Obtain password key.
-        Endpoint.version1.qe.sync
+        Request.version1.qe.sync
             .path(appending: "/")
             .appendingDefaultHeader()
             .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
@@ -221,7 +221,7 @@ public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authe
             return onChange(.failure(BasicAuthenticatorError.invalidCookies))
         }
         // Obtain the `ds_user_id` and the `sessionid`.
-        Endpoint.version1.accounts.login
+        Request.version1.accounts.login
             .path(appending: "/")
             .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
                                 "X-IG-Android-ID": client.device.instagramIdentifier,

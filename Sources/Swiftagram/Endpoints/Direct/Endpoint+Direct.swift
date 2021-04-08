@@ -7,24 +7,26 @@
 
 import Foundation
 
-public extension Endpoint {
+public extension Endpoint.Group {
     /// A `struct` defining `direct_v2` endpoints.
     struct Direct { }
+}
 
+public extension Endpoint {
     /// A wrapper for direct endpoints.
-    static let direct: Direct = .init()
+    static let direct: Group.Direct = .init()
 }
 
 extension Request {
     /// The `direct_v2` base request.
-    static let direct = Endpoint.version1.direct_v2.appendingDefaultHeader()
+    static let direct = Request.version1.direct_v2.appendingDefaultHeader()
     /// The threads base request.
     static let directThreads = Request.direct.threads.appendingDefaultHeader()
 }
 
-public extension Endpoint.Direct {
+public extension Endpoint.Group.Direct {
     /// Get the user presence.
-    var activity: Endpoint.Disposable<Wrapper, Error> {
+    var activity: Endpoint.Single<Wrapper, Error> {
         .init { secret, session in
             Deferred {
                 Request.direct
@@ -44,7 +46,7 @@ public extension Endpoint.Direct {
     }
 
     /// Fetch all suggested recipients.
-    var recipients: Endpoint.Disposable<Recipient.Collection, Error> {
+    var recipients: Endpoint.Single<Recipient.Collection, Error> {
         recipients(matching: nil)
     }
 
@@ -56,13 +58,13 @@ public extension Endpoint.Direct {
     /// Fetch all recipients, optinally matching a given query.
     ///
     /// - parameter query: A valid `String`.
-    /// - returns: An `Endpoint.Disposable`.
-    func recipients(matching query: String) -> Endpoint.Disposable<Recipient.Collection, Error> {
+    /// - returns: An `Endpoint.Single`.
+    func recipients(matching query: String) -> Endpoint.Single<Recipient.Collection, Error> {
         recipients(matching: .some(query))
     }
 }
 
-fileprivate extension Endpoint.Direct {
+fileprivate extension Endpoint.Group.Direct {
     /// Fetch the inbox.
     ///
     /// - parameter isPending: A valid `Bool`.
@@ -92,8 +94,8 @@ fileprivate extension Endpoint.Direct {
     /// Fetch all recipients, optinally matching a given query.
     ///
     /// - parameter query: An optional `String`. 
-    /// - returns: An `Endpoint.Disposable`.
-    func recipients(matching query: String?) -> Endpoint.Disposable<Recipient.Collection, Error> {
+    /// - returns: An `Endpoint.Single`.
+    func recipients(matching query: String?) -> Endpoint.Single<Recipient.Collection, Error> {
         .init { secret, session in
             Deferred {
                 Request.direct

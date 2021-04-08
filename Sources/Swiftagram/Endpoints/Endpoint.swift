@@ -9,6 +9,9 @@ import Foundation
 
 /// A module-like `enum` defining all possible `Endpoint`s.
 public enum Endpoint {
+    /// A module-like `enum` to hide away endpoint wrappers definitions.
+    public enum Group { }
+
     /// An `Endpoint` allowing for a paginated request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
@@ -16,28 +19,23 @@ public enum Endpoint {
                                Offset,
                                Failure: Error> = LockSessionPagerProvider<Secret,
                                                                           Offset,
-                                                                          UnlockedDisposable<Response, Failure>>
+                                                                          AnyPublisher<Response, Failure>>
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Disposable<Response,
-                                Failure: Error> = LockSessionProvider<Secret,
-                                                                      UnlockedDisposable<Response, Failure>>
+    public typealias Single<Response,
+                            Failure: Error> = LockSessionProvider<Secret,
+                                                                  AnyPublisher<Response, Failure>>
+}
 
-    /// An `Endpoint` allowing for a single request with a custom `Response` value.
-    ///
-    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias UnlockedDisposable<Response, Failure: Error> = AnyPublisher<Response, Failure>
-
-    // MARK: Composition
-
+public extension Request {
     /// An `Endpoint` pointing to `i.instagram.com`.
-    public static let api: Request = .init("https://i.instagram.com")
+    static let api: Request = .init("https://i.instagram.com")
 
     /// An `Endpoint` pointing to `api/v1`.
-    public static let version1: Request = api.path(appending: "/api/v1")
+    static let version1: Request = api.path(appending: "/api/v1")
 
     /// An `Endpoint` pointing to the Instagram homepage.
-    public static var generic: Request = .init("https://www.instagram.com")
+    static let generic: Request = .init("https://www.instagram.com")
 }

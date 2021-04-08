@@ -7,11 +7,11 @@
 
 import Foundation
 
-public extension Endpoint.User {
+public extension Endpoint.Group.User {
     /// A `struct` defining user request-related endpoints.
     struct Request {
         /// The underlying user.
-        public let user: Endpoint.User
+        public let user: Endpoint.Group.User
     }
 
     /// A wrapper for request endpoints.
@@ -21,68 +21,69 @@ public extension Endpoint.User {
 
     /// Block the given user.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func block() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func block() -> Endpoint.Single<Status, Error> {
         edit("block")
     }
 
     /// Follow the given user.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func follow() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func follow() -> Endpoint.Single<Status, Error> {
         edit("create")
     }
 
     /// Remove the given user from your followers.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
+    /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func remove() -> Endpoint.Disposable<Status, Error> {
+    func remove() -> Endpoint.Single<Status, Error> {
         edit("remove_follower")
     }
 
     /// Unblock the given user.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func unblock() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func unblock() -> Endpoint.Single<Status, Error> {
         edit("unblock")
     }
 
     /// Unfollow the given user.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func unfollow() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func unfollow() -> Endpoint.Single<Status, Error> {
         edit("destroy")
     }
 }
 
-public extension Endpoint.User.Request {
+public extension Endpoint.Group.User.Request {
     /// Accept the follow request.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
+    /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func approve() -> Endpoint.Disposable<Status, Error> {
+    func approve() -> Endpoint.Single<Status, Error> {
         user.edit("approve")
     }
 
     /// Decline the follow request.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
+    /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func decline() -> Endpoint.Disposable<Status, Error> {
+    func decline() -> Endpoint.Single<Status, Error> {
         user.edit("decline")
     }
 }
 
-fileprivate extension Endpoint.User {
+fileprivate extension Endpoint.Group.User {
     /// Perform an action involving the user matching `identifier`.
     ///
     /// - parameter endpoint: A valid `String`.
     /// - note: **SwiftagramCrypto** only.
-    func edit(_ endpoint: String) -> Endpoint.Disposable<Status, Error> {
+    func edit(_ endpoint: String) -> Endpoint.Single<Status, Error> {
         .init { secret, session in
             Deferred {
-                Endpoint.version1.friendships
+                Swiftagram.Request.version1
+                    .friendships
                     .path(appending: endpoint)
                     .path(appending: self.identifier)
                     .path(appending: "/")

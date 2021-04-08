@@ -7,12 +7,14 @@
 
 import Foundation
 
-public extension Endpoint {
+public extension Endpoint.Group {
     /// A `struct` defining users-related endpoints.
     struct Users { }
+}
 
+public extension Endpoint {
     /// A wrapper for users endpoints.
-    static let users: Users = .init()
+    static let users: Group.Users = .init()
 
     /// All user matching `query`.
     ///
@@ -42,9 +44,9 @@ public extension Endpoint {
     }
 }
 
-public extension Endpoint.Users {
+public extension Endpoint.Group.Users {
     /// A list of all profiles blocked by the logged in user.
-    var blocked: Endpoint.Disposable<Wrapper, Error> {
+    var blocked: Endpoint.Single<Wrapper, Error> {
         .init { secret, session in
             Deferred {
                 Request.users

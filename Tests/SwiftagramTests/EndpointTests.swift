@@ -42,15 +42,15 @@ final class EndpointTests: XCTestCase {
 
     // MARK: Tests
 
-    /// Perform a test on `Endpoint` returning a `Disposable` `Wrappable`.
+    /// Perform a test on `Endpoint` returning a `Single` `Wrappable`.
     @discardableResult
-    func performTest<W: Wrappable, E: Error>(on endpoint: Endpoint.Disposable<W, E>,
+    func performTest<W: Wrappable, E: Error>(on endpoint: Endpoint.Single<W, E>,
                                              _ identifier: String,
                                              logging level: Logger = .default,
-                                             line: Int = #line) -> Wrapper? {
+                                             line: Int = #line) -> W? {
         // Perform the actual test.
         let completion = XCTestExpectation()
-        let reference = Reference<Wrapper?>(nil)
+        let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .sink(
@@ -61,7 +61,7 @@ final class EndpointTests: XCTestCase {
                 receiveValue: {
                     let wrapper = $0.wrapped
                     XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = wrapper
+                    reference.value = $0
                 }
             )
             .store(in: &bin)
@@ -71,7 +71,7 @@ final class EndpointTests: XCTestCase {
 
     /// Perform a test on `Endpoint` returning an `Equatable`.
     @discardableResult
-    func performTest<T: Equatable, E: Error>(on endpoint: Endpoint.UnlockedDisposable<T, E>,
+    func performTest<T: Equatable, E: Error>(on endpoint: AnyPublisher<T, E>,
                                              comparison: T,
                                              _ identifier: String,
                                              logging level: Logger = .default,
@@ -80,16 +80,16 @@ final class EndpointTests: XCTestCase {
         let completion = XCTestExpectation()
         let reference = Reference<T?>(nil)
         endpoint.sink(
-                receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
-                    completion.fulfill()
-                },
-                receiveValue: {
-                    XCTAssert($0 == comparison, "\(identifier) #\(line)")
-                    reference.value = $0
-                }
-            )
-            .store(in: &bin)
+            receiveCompletion: {
+                if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+                completion.fulfill()
+            },
+            receiveValue: {
+                XCTAssert($0 == comparison, "\(identifier) #\(line)")
+                reference.value = $0
+            }
+        )
+        .store(in: &bin)
         wait(for: [completion], timeout: timeout)
         return reference.value
     }
@@ -100,11 +100,11 @@ final class EndpointTests: XCTestCase {
                                                 _ identifier: String,
                                                 pages: Int = 1,
                                                 logging level: Logger = .default,
-                                                line: Int = #line) -> Wrapper?
+                                                line: Int = #line) -> W?
     where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
         // Perform the actual test.
         let completion = XCTestExpectation()
-        let reference = Reference<Wrapper?>(nil)
+        let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .pages(pages)
@@ -116,7 +116,7 @@ final class EndpointTests: XCTestCase {
                 receiveValue: {
                     let wrapper = $0.wrapped
                     XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = wrapper
+                    reference.value = $0
                 }
             )
             .store(in: &bin)
@@ -130,11 +130,11 @@ final class EndpointTests: XCTestCase {
                                                 _ identifier: String,
                                                 pages: Int = 1,
                                                 logging level: Logger = .default,
-                                                line: Int = #line) -> Wrapper?
+                                                line: Int = #line) -> W?
     where P: ComposableOptionalType {
         // Perform the actual test.
         let completion = XCTestExpectation()
-        let reference = Reference<Wrapper?>(nil)
+        let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
             .pages(pages)
@@ -146,7 +146,7 @@ final class EndpointTests: XCTestCase {
                 receiveValue: {
                     let wrapper = $0.wrapped
                     XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
-                    reference.value = wrapper
+                    reference.value = $0
                 }
             )
             .store(in: &bin)
@@ -155,6 +155,16 @@ final class EndpointTests: XCTestCase {
     }
 
     // MARK: Endpoints
+
+    /// Test `Endpoint.Archive`.
+    func testEndpointArchive() {
+        performTest(on: Endpoint.archive
+                        .posts,
+                    "Endpoint.Archive.posts")
+        performTest(on: Endpoint.archive
+                        .stories,
+                    "Endpoint.Archive.stories")
+    }
 
     /// Test `Endpoint.direct`.
     func testEndpointDirect() {
@@ -218,97 +228,155 @@ final class EndpointTests: XCTestCase {
         }
     }
 
-    /// Test `Endpoint.Discover`.
-    func testEndpointDiscover() {
-        performTest(on: Endpoint.Discover.explore, "Endpoint.Discover.explore")
-        performTest(on: Endpoint.Discover.topics, "Endpoint.Discover.topics")
+    /// Test `Endpoint.Explore`.
+    func testEndpointExplore() {
+        performTest(on: Endpoint.explore
+                        .posts,
+                    "Endpoint.Explore.posts")
+        performTest(on: Endpoint.explore
+                        .topics,
+                    "Endpoint.Explore.topics")
+    }
+
+    /// Test location endpoints.
+    func testEndpointLocation() {
+        performTest(on: Endpoint.locations(around: .init(latitude: 45.434272, longitude: 12.338509)),
+                    "Endpoint.locationsAround")
+        performTest(on: Endpoint.location("189075947904164"),
+                    "Endpoint.Location.summary")
+        performTest(on: Endpoint.location("189075947904164")
+                        .stories,
+                    "Endpoint.Location.stories")
     }
 
     /// Test `Endpoint.Media`.
     func testEndpointMedia() {
-        performTest(on: Endpoint.Media.summary(for: "2345240077849019656"),
+        performTest(on: Endpoint.media("2345240077849019656"),
                     "Endpoint.Media.summary")
-        performTest(on: Endpoint.Media.permalink(for: "2345240077849019656"),
-                    "Endpoint.Media.permalink")
+        if let wrapper = performTest(on: Endpoint.media("2345240077849019656")
+                                        .link,
+                                     "Endpoint.Media.link"),
+           let url = wrapper.url {
+            performTest(on: Endpoint.media(at: url),
+                        "Endpoint.Media.urlSummary")
+        }
+        performTest(on: Endpoint.media("2345240077849019656")
+                        .save(),
+                    "Endpoint.Media.save")
+        performTest(on: Endpoint.media("2345240077849019656")
+                        .unsave(),
+                    "Endpoint.Media.unsave")
+        performTest(on: Endpoint.media("2503897884945303307")
+                        .likers,
+                    "Endpoint.Media.likers")
+        performTest(on: Endpoint.media("2503897884945303307")
+                        .comments,
+                    "Endpoint.Media.comments")
+        performTest(on: Endpoint.media("")
+                        .comment("18159034204108974")
+                        .like(),
+                    "Endpoint.Media.Comment.like")
+        performTest(on: Endpoint.media("")
+                        .comment("18159034204108974")
+                        .unlike(),
+                    "Endpoint.Media.Comment.unlike")
+        performTest(on: Endpoint.media("2503897884945303307")
+                        .like(),
+                    "Endpoint.Media.like")
+        performTest(on: Endpoint.media("2503897884945303307")
+                        .unlike(),
+                    "Endpoint.Media.unlike")
+        performTest(on: Endpoint.media("2503897884945303307")
+                        .archive(),
+                    "Endpoint.Media.archive")
+        performTest(on: Endpoint.media("2503897884945303307")
+                        .unarchive(),
+                    "Endpoint.Media.unarchive")
+        if let wrapper = performTest(on: Endpoint.media("2503897884945303307")
+                                        .comment(with: "Test."),
+                                     "Endpoint.Media.postComment"),
+           let identifier = wrapper.comment?.identifier {
+            performTest(on: Endpoint.media("2503897884945303307")
+                            .comment(identifier)
+                            .delete(),
+                        "Endpoint.Media.Comment.delete")
+        }
     }
 
     /// Test `Endpoint.Media.Posts`.
     func testEndpointPosts() {
-        performTest(on: Endpoint.Media.Posts.identifier(for: URL(string: "https://www.instagram.com/p/CK_odwyBEcL/")!),
-                    comparison: "2503897884945303307",
-                    "Endpoint.Media.Posts.identifier")
-        performTest(on: Endpoint.Media.Posts.timeline, "Endpoint.Media.Posts.timeline")
-        performTest(on: Endpoint.Media.Posts.liked, "Endpoint.Media.Posts.liked")
-        performTest(on: Endpoint.Media.Posts.saved, "Endpoint.Media.Posts.saved")
-        performTest(on: Endpoint.Media.Posts.owned(by: "25025320"), "Endpoint.Media.Posts.owned")
-        performTest(on: Endpoint.Media.Posts.including("25025320"), "Endpoint.Media.Posts.including")
-        performTest(on: Endpoint.Media.Posts.tagged(with: "instagram"), "Endpoint.Media.Posts.tagged")
-        performTest(on: Endpoint.Media.Posts.like("2503897884945303307"), "Endpoint.Media.Posts.like")
-        performTest(on: Endpoint.Media.Posts.likers(for: "2503897884945303307"), "Endpoint.Media.Posts.likers")
-        performTest(on: Endpoint.Media.Posts.unlike("2503897884945303307"), "Endpoint.Media.Posts.unlike")
-        performTest(on: Endpoint.Media.Posts.comments(for: "2503897884945303307"), "Endpoint.Media.Posts.comments")
-        performTest(on: Endpoint.Media.Posts.archive("2503897884945303307"), "Endpoint.Media.Posts.archive")
-        performTest(on: Endpoint.Media.Posts.unarchive("2503897884945303307"), "Endpoint.Media.Posts.unarchive")
-        performTest(on: Endpoint.Media.Posts.save("2503897884945303307"), "Endpoint.Media.Posts.save")
-        performTest(on: Endpoint.Media.Posts.unsave("2503897884945303307"), "Endpoint.Media.Posts.unsave")
-        performTest(on: Endpoint.Media.Posts.like(comment: "18159034204108974"), "Endpoint.Media.Posts.likeComment")
-        performTest(on: Endpoint.Media.Posts.unlike(comment: "18159034204108974"), "Endpoint.Media.Posts.unlikeComment")
-        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
-                                                                     captioned: nil,
-                                                                     tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
-                                     "Endpoint.Media.Posts.uploadImage"),
-           let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Posts.deleteImage")
+        performTest(on: Endpoint.posts
+                        .liked,
+                    "Endpoint.Media.Posts.liked")
+        performTest(on: Endpoint.posts
+                        .saved,
+                    "Endpoint.Media.Posts.saved")
+        if let wrapper = performTest(on: Endpoint.posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
+                                                               captioned: nil,
+                                                               tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
+                                     "Endpoint.Posts.uploadImage"),
+           let identifier = wrapper.media?.identifier {
+            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Posts.deleteImage")
         }
-        if let wrapper = performTest(on: Endpoint.Media.Posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
-                                                                     preview: Color.blue.image(sized: .init(width: 640, height: 360)),
-                                                                     captioned: nil,
-                                                                     tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
-                                     "Endpoint.Media.Posts.uploadVideo"),
-           let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Posts.deleteVideo")
+        if let wrapper = performTest(on: Endpoint.posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
+                                                               preview: Color.blue.image(sized: .init(width: 640, height: 360)),
+                                                               captioned: nil,
+                                                               tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
+                                     "Endpoint.Posts.uploadVideo"),
+           let identifier = wrapper.media?.identifier {
+            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Posts.deleteVideo")
         }
+    }
+
+    /// Test `Endpoint.Recent`.
+    func testEndpointRecent() {
+        performTest(on: Endpoint.recent
+                        .activity,
+                    "Endpoint.Recent.activity")
+        performTest(on: Endpoint.recent
+                        .posts,
+                    "Endpoint.Recent.posts")
+        performTest(on: Endpoint.recent
+                        .stories,
+                    "Endpoint.Recent.stories")
     }
 
     /// Test `Endpoint.Media.Stories`.
     func testEndpointStories() {
-        performTest(on: Endpoint.Media.Stories.followed, "Endpoint.Media.Stories.followed")
-        performTest(on: Endpoint.Media.Stories.archived, "Endpoint.Media.Stories.archived")
-        performTest(on: Endpoint.Media.Stories.highlights(for: "25025320"), "Endpoint.Media.Stories.highlights")
-        performTest(on: Endpoint.Media.Stories.owned(by: "25025320"), "Endpoint.Media.Stories.owned")
-        performTest(on: Endpoint.Media.Stories.owned(by: ["25025320"]), "Endpoint.Media.Stories.ownedMultiple")
-        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
-                                                                       stickers: [Sticker.mention("208803632")
-                                                                                    .position(.init(x: 0.0, y: 0.125)),
-                                                                                  Sticker.tag("instagram")
-                                                                                    .position(.init(x: 0.5, y: 0.125)),
-                                                                                  Sticker.location("189075947904164")
-                                                                                    .position(.init(x: 1.0, y: 0.125)),
-                                                                                  Sticker.slider("Test?", emoji: "😀")
-                                                                                    .position(.init(x: 0.5, y: 0.2)),
-                                                                                  Sticker.countdown(to: Date().addingTimeInterval(60*60*24),
-                                                                                                    event: "Event")
-                                                                                    .position(.init(x: 0.5, y: 0.4)),
-                                                                                  Sticker.question("Test?")
-                                                                                    .position(.init(x: 0.5, y: 0.6)),
-                                                                                  Sticker.poll("Test?", tallies: ["A", "B"])
-                                                                                    .position(.init(x: 0.5, y: 0.8))],
-                                                                       isCloseFriendsOnly: true),
-                                     "Endpoint.Media.Stories.uploadImage"),
-           let identifier = wrapper.media.id.string() {
-            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteImage")
+        if let wrapper = performTest(on: Endpoint.stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
+                                                                 stickers: [Sticker.mention("208803632")
+                                                                                .position(.init(x: 0.0, y: 0.125)),
+                                                                            Sticker.tag("instagram")
+                                                                                .position(.init(x: 0.5, y: 0.125)),
+                                                                            Sticker.location("189075947904164")
+                                                                                .position(.init(x: 1.0, y: 0.125)),
+                                                                            Sticker.slider("Test?", emoji: "😀")
+                                                                                .position(.init(x: 0.5, y: 0.2)),
+                                                                            Sticker.countdown(to: Date().addingTimeInterval(60*60*24),
+                                                                                              event: "Event")
+                                                                                .position(.init(x: 0.5, y: 0.4)),
+                                                                            Sticker.question("Test?")
+                                                                                .position(.init(x: 0.5, y: 0.6)),
+                                                                            Sticker.poll("Test?", tallies: ["A", "B"])
+                                                                                .position(.init(x: 0.5, y: 0.8))],
+                                                                 isCloseFriendsOnly: true),
+                                     "Endpoint.Stories.uploadImage"),
+           let identifier = wrapper.media?.identifier {
+            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteImage")
         }
-//        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
-//                                                                       stickers: [.mention("208803632")]),
-//                                     "Endpoint.Media.Stories.uploadVideo"),
-//           let identifier = wrapper.media.id.string() {
-//            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteVideo")
-//        }
+        //        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
+        //                                                                       stickers: [.mention("208803632")]),
+        //                                     "Endpoint.Media.Stories.uploadVideo"),
+        //           let identifier = wrapper.media.id.string() {
+        //            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteVideo")
+        //        }
     }
 
-    /// Test `Endpoint.News`.
-    func testEndpointNews() {
-        performTest(on: Endpoint.News.recent, "Endpoint.News.recent")
+    /// Test tag endpoints.
+    func testEndpointTag() {
+        performTest(on: Endpoint.tag("instagram")
+                        .posts,
+                    "Endpoint.Tag.posts")
     }
 
     /// Test `Endpoint.User`.
@@ -346,6 +414,9 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.users(["25025320"])
                         .friendships,
                     "Endpoint.ManyUsers.friendships")
+        performTest(on: Endpoint.users(["25025320"])
+                        .stories,
+                    "Endpoint.ManyUsers.stories")
         performTest(on: Endpoint.user("25025320")
                         .follow(),
                     "Endpoint.User.follow")
@@ -358,14 +429,18 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.user("25025320")
                         .unblock(),
                     "Endpoint.User.unblock")
-    }
-
-    /// Test location endpoints.
-    func testEndpointLocation() {
-        performTest(on: Endpoint.Location.around(coordinates: .init(latitude: 45.434272, longitude: 12.338509)),
-                    "Endpoint.Location.around")
-        performTest(on: Endpoint.Location.summary(for: "189075947904164"), "Endpoint.Location.summary")
-        performTest(on: Endpoint.Location.stories(at: "189075947904164"), "Endpoint.Location.stories")
+        performTest(on: Endpoint.user("25025320")
+                        .posts,
+                    "Endpoint.User.posts")
+        performTest(on: Endpoint.user("25025320")
+                        .tags,
+                    "Endpoint.User.tags")
+        performTest(on: Endpoint.user("25025320")
+                        .higlights,
+                    "Endpoint.User.highlights")
+        performTest(on: Endpoint.user("25025320")
+                        .stories,
+                    "Endpoint.User.stories")
     }
 }
 //swiftlint enable:line_length

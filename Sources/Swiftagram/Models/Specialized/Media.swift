@@ -215,4 +215,21 @@ public extension Media {
             self.wrapper = wrapper
         }
     }
+
+    /// A `struct` defining a media permalink.
+    struct Link: Specialized {
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
+
+        /// The actual url.
+        public var url: URL? {
+            self["permalink"].url()
+        }
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
+    }
 }

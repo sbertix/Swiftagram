@@ -1,5 +1,5 @@
 //
-//  Direct+Conversation.swift
+//  Endpoint+Conversation.swift
 //  Swiftagram
 //
 //  Created by Stefano Bertagno on 25/03/21.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension Endpoint.Direct {
+public extension Endpoint.Group.Direct {
     /// A `struct` defining a wrapper for a specific conversation.
     struct Conversation {
         /// The identifier.
@@ -25,8 +25,8 @@ public extension Endpoint.Direct {
     /// A summary for the current conversation.
     ///
     /// - parameter identifier: A valid `String`.
-    /// - returns: A valid `Endpoint.Disposable`.
-    func conversation(_ identifier: String) -> Endpoint.Disposable<Swiftagram.Conversation.Unit, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func conversation(_ identifier: String) -> Endpoint.Single<Swiftagram.Conversation.Unit, Error> {
         conversation(identifier).summary
     }
 }
@@ -35,16 +35,16 @@ extension Swiftagram.Request {
     /// A specific thread bease request.
     ///
     /// - parameter conversation: A valid `Conversation`.
-    static func directThread(_ conversation: Endpoint.Direct.Conversation) -> Request {
+    static func directThread(_ conversation: Endpoint.Group.Direct.Conversation) -> Request {
         Request.directThreads.path(appending: conversation.identifier)
     }
 }
 
-public extension Endpoint.Direct.Conversation {
+public extension Endpoint.Group.Direct.Conversation {
     /// A summary for the current conversation.
     ///
     /// - note: Use `Endpoint.Direct.conversation(_:)` instead.
-    internal var summary: Endpoint.Disposable<Conversation.Unit, Error> {
+    internal var summary: Endpoint.Single<Conversation.Unit, Error> {
         .init { secret, session in self.messages.unlock(with: secret).session(session).pages(1) }
     }
 
@@ -70,48 +70,48 @@ public extension Endpoint.Direct.Conversation {
 
     /// Delete the current conversation.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
+    /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func delete() -> Endpoint.Disposable<Status, Error> {
+    func delete() -> Endpoint.Single<Status, Error> {
         edit("hide/", body: ["use_unified_inbox": "true"])
     }
 
     /// Invite users based on their identifier.
     ///
     /// - parameter userIdentifiers: A collection of `String`s.
-    /// - returns: A valid `Endpoint.Disposable`.
-    func invite<C: Collection>(_ userIdentifiers: C) -> Endpoint.Disposable<Status, Error> where C.Element == String {
+    /// - returns: A valid `Endpoint.Single`.
+    func invite<C: Collection>(_ userIdentifiers: C) -> Endpoint.Single<Status, Error> where C.Element == String {
         edit("add_user/", body: ["user_ids": "["+userIdentifiers.joined(separator: ",")+"]"])
     }
 
     /// Invite a user based on their identifier.
     ///
     /// - parameter userIdentifier: A valid `String`.
-    /// - returns: A valid `Endpoint.Disposable`.
-    func invite(_ userIdentifier: String) -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func invite(_ userIdentifier: String) -> Endpoint.Single<Status, Error> {
         invite([userIdentifier])
     }
 
     /// Leave the current conversation.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
+    /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func leave() -> Endpoint.Disposable<Status, Error> {
+    func leave() -> Endpoint.Single<Status, Error> {
         edit("leave/")
     }
 
     /// Mute the current conversation.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func mute() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func mute() -> Endpoint.Single<Status, Error> {
         edit("mute/")
     }
 
     /// Send a message in the current conversation.
     ///
     /// - parameter text: A valid `String`.
-    /// - returns: A valid `Endpoint.Disposable`.
-    func send(_ text: String) -> Endpoint.Disposable<Wrapper, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func send(_ text: String) -> Endpoint.Single<Wrapper, Error> {
         .init { secret, session in
             do {
                 // Prepare the body.
@@ -152,27 +152,27 @@ public extension Endpoint.Direct.Conversation {
     /// Update the title for the current conversation.
     ///
     /// - parameter title: A valid `String`.
-    /// - returns: A valid `Endpoint.Disposable`.
-    func title(_ title: String) -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func title(_ title: String) -> Endpoint.Single<Status, Error> {
         edit("update_title/", body: ["title": title])
     }
 
     /// Unmute the current conversation.
     ///
-    /// - returns: A valid `Endpoint.Disposable`.
-    func unmute() -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func unmute() -> Endpoint.Single<Status, Error> {
         edit("unmute/")
     }
 }
 
-extension Endpoint.Direct.Conversation {
+extension Endpoint.Group.Direct.Conversation {
     /// Edit the conversation.
     ///
     /// - parameters:
     ///     - endpoint: A valid `String`.
     ///     - body: A valid dictionary of `String`s.
-    /// - returns: A valid `Endpoint.Disposable`.
-    func edit(_ endpoint: String, body: [String: String] = [:]) -> Endpoint.Disposable<Status, Error> {
+    /// - returns: A valid `Endpoint.Single`.
+    func edit(_ endpoint: String, body: [String: String] = [:]) -> Endpoint.Single<Status, Error> {
         .init { secret, session in
             Deferred {
                 Swiftagram.Request.directThread(self)

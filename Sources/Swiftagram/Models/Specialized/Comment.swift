@@ -53,4 +53,21 @@ public extension Comment {
             self.wrapper = wrapper
         }
     }
+
+    /// A `struct` representing a `Comment` unit.
+    struct Unit: Specialized {
+        /// The underlying `Wrapper`.
+        public var wrapper: () -> Wrapper
+
+        /// The comment.
+        public var comment: Comment? {
+            self["comment"].optional().flatMap(Comment.init)
+        }
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
+    }
 }

@@ -1,181 +1,23 @@
 //
-//  EndpointMedia+Posts.swift
+//  Endpoint+Posts.swift
 //  SwiftagramCrypto
 //
-//  Created by Stefano Bertagno on 06/02/21.
+//  Created by Stefano Bertagno on 08/04/21.
 //
 
 import Foundation
 
 #if canImport(UIKit)
 import UIKit
-#endif
-#if canImport(AppKit)
+#elseif canImport(AppKit) && !targetEnvironment(macCatalyst)
 import AppKit
 #endif
+
 #if canImport(AVKit)
 import AVKit
 #endif
 
-import Swiftagram
-
-public extension Endpoint.Media.Posts {
-    /// The base endpoint.
-    private static let base = Endpoint.version1.media.appendingDefaultHeader()
-
-    /// Perform an action involving the media matching `identifier`.
-    ///
-    /// - parameters:
-    ///     - transformation: A `KeyPath` defining the endpoint path.
-    ///     - identifier: A `String` holding reference to a valid user identifier.
-    /// - note: **SwiftagramCrypto** only.
-    private static func edit(_ keyPath: KeyPath<Request, Request>, _ identifier: String) -> Endpoint.Disposable<Status, Error> {
-        .init { secret, session in
-            Deferred {
-                base.path(appending: identifier)[keyPath: keyPath]
-                    .path(appending: "/")
-                    .header(appending: secret.header)
-                    .signing(body: ["_csrftoken": secret["csrftoken"]!,
-                                    "radio_type": "wifi-none",
-                                    "_uid": secret.identifier,
-                                    "device_id": secret.client.device.instagramIdentifier,
-                                    "_uuid": secret.client.device.identifier.uuidString,
-                                    "media_id": identifier])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Status.init)
-            }
-            .eraseToAnyPublisher()
-        }
-    }
-
-    /// Like the media matching `identifier`.
-    ///
-    /// - parameter identifier: A valid media identifier.
-    /// - note: **SwiftagramCrypto** only.
-    static func like(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
-        edit(\.like, identifier)
-    }
-
-    /// Unlike the media matching `identifier`.
-    ///
-    /// - parameter identifier: A valid media identifier.
-    /// - note: **SwiftagramCrypto** only.
-    static func unlike(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
-        edit(\.unlike, identifier)
-    }
-
-    /// Archive the media matching `identifier`.
-    ///
-    /// - parameter identifier: A valid media identifier.
-    /// - note: **SwiftagramCrypto** only.
-    static func archive(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
-        edit(\.only_me, identifier)
-    }
-
-    /// Unarchive the media matching `identifier`.
-    ///
-    /// - parameter identifier: A valid media identifier.
-    /// - note: **SwiftagramCrypto** only.
-    static func unarchive(_ identifier: String) -> Endpoint.Disposable<Status, Error> {
-        edit(\.undo_only_me, identifier)
-    }
-
-    /// Comment on the media matching `identifier`.
-    ///
-    /// - parameters:
-    ///     - text: A `String` holding the content of the comment.
-    ///     - identifier: A valid media identifier.
-    ///     - parentCommentIdentifier: An optional `String` representing the identifier for the comment you are replying to. Defaults to `nil`.
-    /// - note: **SwiftagramCrypto** only.
-    static func comment(_ text: String,
-                        on identifier: String,
-                        replyingTo parentCommentIdentifier: String? = nil) -> Endpoint.Disposable<Status, Error> {
-        .init { secret, session in
-            Deferred {
-                // Make sure the comment is not offensive and can actually
-                // be posted. This is a required check.
-                base.comment
-                    .path(appending: "check_offensive_comment/")
-                    .header(appending: secret.header)
-                    .signing(body: ["_csrftoken": secret["csrftoken"]!,
-                                    "_uid": secret.identifier,
-                                    "_uuid": secret.client.device.identifier.uuidString,
-                                    "media_id": identifier,
-                                    "comment_text": text])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .flatMap { output -> AnyPublisher<Status, Error> in
-                        guard output.isOffensive.bool() == false else {
-                            return Fail(error: MediaError.offensiveComment).eraseToAnyPublisher()
-                        }
-                        // Post the actual comment.
-                        return base.path(appending: identifier)
-                            .path(appending: "comment/")
-                            .header(appending: secret.header)
-                            .signing(body: (["user_breadcrumb": text.count.breadcrumb,
-                                             "_csrftoken": secret["csrftoken"]!,
-                                             "radio_type": "wifi-none",
-                                             "_uid": secret.identifier,
-                                             "device_id": secret.client.device.instagramIdentifier,
-                                             "_uuid": secret.client.device.identifier.uuidString,
-                                             "media_id": identifier,
-                                             "comment_text": text,
-                                             "containermodule": "self_comments_v2",
-                                             "replied_to_comment_id": parentCommentIdentifier] as [String: String?])
-                                        .compactMapValues { $0 })
-                            .publish(with: session)
-                            .map(\.data)
-                            .wrap()
-                            .map(Status.init)
-                            .eraseToAnyPublisher()
-                    }
-            }
-            .eraseToAnyPublisher()
-        }
-    }
-
-    /// Delete all matching comments in media matching `identifier`.
-    ///
-    /// - parameters:
-    ///     - commentIdentifiers: A collection of `String` representing comment identifiers.
-    ///     - identifier: A valid media identifier.
-    /// - note: **SwiftagramCrypto** only.
-    static func delete<C: Collection>(comments commentIdentifiers: C,
-                                      on identifier: String) -> Endpoint.Disposable<Status, Error> where C.Element == String {
-        .init { secret, session in
-            Deferred {
-                base.path(appending: identifier)
-                    .path(appending: "comment/bulk_delete/")
-                    .header(appending: secret.header)
-                    .signing(body: [
-                        "comment_ids_to_delete": commentIdentifiers.joined(separator: ","),
-                        "_csrftoken": secret["csrftoken"]!,
-                        "_uid": secret.identifier,
-                        "_uuid": secret.client.device.identifier.uuidString
-                    ])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Status.init)
-            }
-            .eraseToAnyPublisher()
-        }
-    }
-
-    /// Delete a single comment.
-    ///
-    /// - parameters:
-    ///     - commentIdentifier: A valid `String` representing a comment identifier.
-    ///     - identifier: A valid media identifier.
-    static func delete(comment commentIdentifier: String, on identifier: String) -> Endpoint.Disposable<Status, Error> {
-        delete(comments: [commentIdentifier], on: identifier)
-    }
-
-    // MARK: Image upload
-
+public extension Endpoint.Group.Posts {
     #if canImport(UIKit) || (canImport(AppKit) && !targetEnvironment(macCatalyst))
 
     /// Upload `image` to instagram.
@@ -186,10 +28,10 @@ public extension Endpoint.Media.Posts {
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
-    static func upload<U: Collection>(image: Agnostic.Image,
-                                      captioned caption: String?,
-                                      tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
+    func upload<U: Collection>(image: Agnostic.Image,
+                               captioned caption: String?,
+                               tagging users: U,
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(image: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -201,9 +43,9 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
-    static func upload(image: Agnostic.Image,
-                       captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
+    func upload(image: Agnostic.Image,
+                captioned caption: String?,
+                at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> {
         upload(image: image, captioned: caption, tagging: [], at: location)
     }
 
@@ -216,14 +58,14 @@ public extension Endpoint.Media.Posts {
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
-    internal static func upload<U: Collection>(image data: Data,
-                                               size: CGSize,
-                                               captioned caption: String?,
-                                               tagging users: U,
-                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
+    internal func upload<U: Collection>(image data: Data,
+                                        size: CGSize,
+                                        captioned caption: String?,
+                                        tagging users: U,
+                                        at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
-                let upload = Endpoint.Media.upload(image: data)
+                let upload = Endpoint.uploader.upload(image: data)
                 // Compose the future.
                 return upload.generator((secret, session))
                     .flatMap { output -> AnyPublisher<Media.Unit, Error> in
@@ -272,7 +114,8 @@ public extension Endpoint.Media.Posts {
                             body["exif_longitude"] = "0.0"
                         }
                         // Return the new future.
-                        return base.path(appending: "configure/")
+                        return Request.media
+                            .path(appending: "configure/")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
                             .publish(with: session)
@@ -295,10 +138,10 @@ public extension Endpoint.Media.Posts {
     ///     - users: A collection of `UserTag`s.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
-    static func upload<U: Collection>(image data: Data,
-                                      captioned caption: String?,
-                                      tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
+    func upload<U: Collection>(image data: Data,
+                               captioned caption: String?,
+                               tagging users: U,
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
         guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
         return upload(image: image, captioned: caption, tagging: users, at: location)
     }
@@ -310,15 +153,13 @@ public extension Endpoint.Media.Posts {
     ///     - caption: An optional `String`.
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
-    static func upload(image data: Data,
-                       captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
+    func upload(image data: Data,
+                captioned caption: String?,
+                at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> {
         upload(image: data, captioned: caption, tagging: [], at: location)
     }
 
     #if canImport(AVKit)
-
-    // MARK: Video upload
 
     /// Upload `video` to instagram.
     ///
@@ -330,11 +171,11 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
     @available(watchOS 6, *)
-    static func upload<U: Collection>(video url: URL,
-                                      preview image: Agnostic.Image,
-                                      captioned caption: String?,
-                                      tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
+    func upload<U: Collection>(video url: URL,
+                               preview image: Agnostic.Image,
+                               captioned caption: String?,
+                               tagging users: U,
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(video: url, preview: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -348,10 +189,10 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
     @available(watchOS 6, *)
-    static func upload(video url: URL,
-                       preview image: Agnostic.Image,
-                       captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
+    func upload(video url: URL,
+                preview image: Agnostic.Image,
+                captioned caption: String?,
+                at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> {
         upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
     }
 
@@ -366,20 +207,20 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
     @available(watchOS 6, *)
-    internal static func upload<U: Collection>(video url: URL,
-                                               preview data: Data,
-                                               size: CGSize,
-                                               captioned caption: String?,
-                                               tagging users: U,
-                                               at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
+    internal func upload<U: Collection>(video url: URL,
+                                        preview data: Data,
+                                        size: CGSize,
+                                        captioned caption: String?,
+                                        tagging users: U,
+                                        at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
-                let upload = Endpoint.Media.upload(video: url,
-                                                   preview: data,
-                                                   previewSize: size,
-                                                   sourceType: "4")
+                let upload = Endpoint.uploader.upload(video: url,
+                                                      preview: data,
+                                                      previewSize: size,
+                                                      sourceType: "4")
                 guard upload.duration < 60 else {
-                    return Fail(error: MediaError.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
+                    return Fail(error: Endpoint.Group.Media.Error.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
                 }
                 // Compose the future.
                 return upload.generator((secret, session))
@@ -432,7 +273,8 @@ public extension Endpoint.Media.Posts {
                             body["exif_longitude"] = "0.0"
                         }
                         // Return the new future.
-                        return base.path(appending: "configure/")
+                        return Request.media
+                            .path(appending: "configure/")
                             .query(appending: "1", forKey: "video")
                             .header(appending: secret.header)
                             .signing(body: body.wrapped)
@@ -458,11 +300,11 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
     @available(watchOS 6, *)
-    static func upload<U: Collection>(video url: URL,
-                                      preview data: Data,
-                                      captioned caption: String?,
-                                      tagging users: U,
-                                      at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> where U.Element == UserTag {
+    func upload<U: Collection>(video url: URL,
+                               preview data: Data,
+                               captioned caption: String?,
+                               tagging users: U,
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
         guard let image = Agnostic.Image(data: data) else {
             fatalError("Invalid `data`.")
         }
@@ -478,13 +320,14 @@ public extension Endpoint.Media.Posts {
     ///     - location: An optional `Location`. Defaults to `nil`.
     /// - note: **SwiftagramCrypto** only.
     @available(watchOS 6, *)
-    static func upload(video url: URL,
-                       preview data: Data,
-                       captioned caption: String?,
-                       at location: Location? = nil) -> Endpoint.Disposable<Media.Unit, Error> {
+    func upload(video url: URL,
+                preview data: Data,
+                captioned caption: String?,
+                at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> {
         upload(video: url, preview: data, captioned: caption, tagging: [], at: location)
     }
 
     #endif
     #endif
+
 }

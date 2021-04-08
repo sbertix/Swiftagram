@@ -51,7 +51,7 @@ public final class TwoFactor {
     ///
     /// - parameter code: A `String` containing the authentication code.
     public func send(code: String) {
-        Endpoint.version1.accounts
+        Request.version1.accounts
             .path(appending: "two_factor_login/")
             .appendingDefaultHeader()
             .header(appending: HTTPCookie.requestHeaderFields(with: [crossSiteRequestForgery]))
