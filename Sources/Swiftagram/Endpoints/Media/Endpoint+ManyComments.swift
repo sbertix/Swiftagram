@@ -8,12 +8,23 @@
 import Foundation
 
 public extension Endpoint.Group.Media {
-    /// A `struct` defining multiple comments endpoints.
-    struct ManyComments {
+    /// A `class` defining multiple comments endpoints.
+    final class ManyComments {
         /// The media.
         public let media: Endpoint.Group.Media
         /// A list of comment identifiers.
         public let identifiers: [String]
+
+        /// Init.
+        ///
+        /// - parameters:
+        ///     - media: A valid `Endpoint.Group.Media`.
+        ///     - identifiers: An array of `String`s.
+        init(media: Endpoint.Group.Media,
+             identifiers: [String]) {
+            self.media = media
+            self.identifiers = identifiers
+        }
     }
 
     /// A wrapper for comments-specific endpoints.

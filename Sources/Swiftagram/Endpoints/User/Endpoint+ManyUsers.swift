@@ -8,10 +8,17 @@
 import Foundation
 
 public extension Endpoint.Group {
-    /// A `struct` defining users-related endpoints.
-    struct ManyUsers {
+    /// A `class` defining users-related endpoints.
+    final class ManyUsers {
         /// The user identifiers.
         public let identifiers: [String]
+
+        /// Init.
+        ///
+        /// - parameter identifiers: An array of `String`s.
+        init(identifiers: [String]) {
+            self.identifiers = identifiers
+        }
     }
 }
 

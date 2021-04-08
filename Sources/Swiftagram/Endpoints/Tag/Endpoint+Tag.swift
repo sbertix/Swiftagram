@@ -8,10 +8,17 @@
 import Foundation
 
 public extension Endpoint.Group {
-    /// A `struct` defining tag endpoints.
-    struct Tag {
+    /// A `class` defining tag endpoints.
+    final class Tag {
         /// The tag name.
         public let name: String
+
+        /// Init.
+        ///
+        /// - parameter name: A valid `String`.
+        init(name: String) {
+            self.name = name
+        }
     }
 }
 

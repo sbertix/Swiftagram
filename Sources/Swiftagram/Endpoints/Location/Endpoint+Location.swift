@@ -8,10 +8,17 @@
 import Foundation
 
 public extension Endpoint.Group {
-    /// A `struct` defining location endpoints.
-    struct Location {
+    /// A `class` defining location endpoints.
+    final class Location {
         /// The location identifier.
         public let identifier: String
+
+        /// Init.
+        ///
+        /// - parameter identifier: A valid `String`.
+        init(identifier: String) {
+            self.identifier = identifier
+        }
     }
 }
 

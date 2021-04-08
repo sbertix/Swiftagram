@@ -8,8 +8,8 @@
 import Foundation
 
 public extension Endpoint.Group {
-    /// A `struct` defining `direct_v2` endpoints.
-    struct Direct { }
+    /// A `class` defining `direct_v2` endpoints.
+    final class Direct { }
 }
 
 public extension Endpoint {

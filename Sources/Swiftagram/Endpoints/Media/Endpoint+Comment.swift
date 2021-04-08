@@ -8,12 +8,23 @@
 import Foundation
 
 public extension Endpoint.Group.Media {
-    /// A `struct` defining comment endpoints.
-    struct Comment {
+    /// A `class` defining comment endpoints.
+    final class Comment {
         /// The media.
         public let media: Endpoint.Group.Media
         /// The comment identifier.
         public let identifier: String
+
+        /// Init.
+        ///
+        /// - parameters:
+        ///     - media: A valid `Endpoint.Group.Media`.
+        ///     - identifier: A valid `String`.
+        init(media: Endpoint.Group.Media,
+             identifier: String) {
+            self.media = media
+            self.identifier = identifier
+        }
     }
 
     /// A wrapper for comments endpoints.

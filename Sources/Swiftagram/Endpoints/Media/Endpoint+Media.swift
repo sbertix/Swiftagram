@@ -8,10 +8,17 @@
 import Foundation
 
 public extension Endpoint.Group {
-    /// A `struct` defining media endpoints.
-    struct Media {
+    /// A `class` defining media endpoints.
+    final class Media {
         /// The media identifier.
         public let identifier: String
+
+        /// Init.
+        ///
+        /// - parameter identifier: A valid `String`.
+        init(identifier: String) {
+            self.identifier = identifier
+        }
     }
 }
 

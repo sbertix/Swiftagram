@@ -9,7 +9,7 @@ import Foundation
 
 public extension Endpoint.Group {
     /// A `struct` defining `explore` endpoints.
-    struct Explore { }
+    final class Explore { }
 }
 
 public extension Endpoint {

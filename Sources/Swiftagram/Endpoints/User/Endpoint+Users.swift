@@ -8,8 +8,8 @@
 import Foundation
 
 public extension Endpoint.Group {
-    /// A `struct` defining users-related endpoints.
-    struct Users { }
+    /// A `class` defining users-related endpoints.
+    final class Users { }
 }
 
 public extension Endpoint {

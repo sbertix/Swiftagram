@@ -8,10 +8,17 @@
 import Foundation
 
 public extension Endpoint.Group.Direct.Conversation {
-    /// A `struct` defining a wrapper for a conversation request.
-    struct Request {
+    /// A `class` defining a wrapper for a conversation request.
+    final class Request {
         /// The conversation.
         public let conversation: Endpoint.Group.Direct.Conversation
+
+        /// Init.
+        ///
+        /// - parameter conversation: A valid `Endpoint.Group.Direct.Conversation`.
+        init(conversation: Endpoint.Group.Direct.Conversation) {
+            self.conversation = conversation
+        }
     }
 
     /// A wrapper for request endpoints.

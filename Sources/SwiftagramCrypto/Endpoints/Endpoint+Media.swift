@@ -77,7 +77,7 @@ public extension Endpoint.Group.Media {
                         .header(appending: secret.header)
                         .signing(body: [
                             "igtv_feed_preview": false.wrapped,
-                            "media_id": identifier.wrapped,
+                            "media_id": self.identifier.wrapped,
                             "_csrftoken": secret["csrftoken"]!.wrapped,
                             "_uid": secret.identifier.wrapped,
                             "_uuid": secret.client.device.identifier.uuidString.wrapped
@@ -131,7 +131,7 @@ extension Endpoint.Group.Media {
                                     "_uid": secret.identifier,
                                     "device_id": secret.client.device.instagramIdentifier,
                                     "_uuid": secret.client.device.identifier.uuidString,
-                                    "media_id": identifier])
+                                    "media_id": self.identifier])
                     .publish(with: session)
                     .map(\.data)
                     .wrap()

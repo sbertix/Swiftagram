@@ -8,12 +8,23 @@
 import Foundation
 
 public extension Endpoint.Group.Direct.Conversation {
-    /// A `struct` defining a wrapper for a specific message.
-    struct Message {
+    /// A `class` defining a wrapper for a specific message.
+    final class Message {
         /// The conversation.
         public let conversation: Endpoint.Group.Direct.Conversation
         /// The identifier.
         public let identifier: String
+
+        /// Init.
+        ///
+        /// - parameters:
+        ///     - conversation: A valid `Endpoint.Group.Direct.Conversation`.
+        ///     - identifier: A valid `String`.
+        init(conversation: Endpoint.Group.Direct.Conversation,
+             identifier: String) {
+            self.conversation = conversation
+            self.identifier = identifier
+        }
     }
 
     /// A wrapper for message endpoints.

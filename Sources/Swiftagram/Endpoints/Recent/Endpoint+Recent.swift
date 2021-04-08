@@ -8,8 +8,8 @@
 import Foundation
 
 public extension Endpoint.Group {
-    /// A `struct` defining a recent wrapper.
-    struct Recent { }
+    /// A `class` defining a recent wrapper.
+    final class Recent { }
 }
 
 public extension Endpoint {
