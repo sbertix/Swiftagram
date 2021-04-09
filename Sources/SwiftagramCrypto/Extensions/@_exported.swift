@@ -6,3 +6,4 @@
 //
 
 @_exported import ComposableStorageCrypto
+@_exported import Swiftagram

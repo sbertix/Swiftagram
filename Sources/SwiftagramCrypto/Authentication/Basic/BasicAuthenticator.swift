@@ -36,7 +36,7 @@ import Swiftagram
 ///
 /// - note: **SwiftagramCrypto** only.
 /// - warning: `Secret`s returned by `BasicAuthentciator` are bound to the `Client` passed in the initialization process.
-public final class BasicAuthenticator<Storage: ComposableStorage.Storage>: Authenticator where Storage.Item == Secret {
+public final class BasicAuthenticator<Storage: ComposableStorage.Storage> where Storage.Item == Secret {
     public typealias Error = Swift.Error
 
     /// A `Storage` instance used to store `Secret`s.

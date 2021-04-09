@@ -18,16 +18,16 @@ let package = Package(
                .library(name: "SwiftagramCrypto",
                         targets: ["SwiftagramCrypto"])],
     // Package dependencies.
-    dependencies: [.package(url: "https://github.com/sbertix/ComposableRequest", .upToNextMinor(from: "5.0.5")),
+    dependencies: [.package(url: "https://github.com/sbertix/ComposableRequest", .branch("development")),
                    .package(url: "https://github.com/sbertix/SwCrypt.git", .upToNextMinor(from: "5.1.0"))],
     // All targets.
     targets: [.target(name: "Swiftagram",
                       dependencies: [.product(name: "Requests", package: "ComposableRequest"),
                                      .product(name: "Storage", package: "ComposableRequest")]),
               .target(name: "SwiftagramCrypto",
-                      dependencies: [.product(name: "StorageCrypto", package: "ComposableRequest"),
-                                     .product(name: "SwCrypt", package: "SwCrypt"),
-                                    "Swiftagram"]),
+                      dependencies: ["Swiftagram",
+                                     .product(name: "StorageCrypto", package: "ComposableRequest"),
+                                     .product(name: "SwCrypt", package: "SwCrypt")]),
               .testTarget(name: "SwiftagramTests",
                           dependencies: ["Swiftagram", "SwiftagramCrypto"])]
 )

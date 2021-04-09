@@ -72,7 +72,7 @@ public struct Secret: Codable, Storable {
             print("`LegacyDevice` will lose support starting with `5.1.0`.")
             print("All your users will be logged out automatically.")
             print("At that point, by logging back in, they'll be migrated")
-            print("to the safer `Client`-based instance, added with `4.2.0`.")
+            print("to the safer `Client`-based instance, added with `4.2.0`")
             print("in October, 2020.")
             print("———————")
             #endif

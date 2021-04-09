@@ -39,7 +39,7 @@ struct FollowersView: View {
             }
         }
         .listStyle(PlainListStyle())
-        .sheet(isPresented: model.shouldPresentLoginView) { LoginView(didAuthenticate: model.authenticate) }
+        .sheet(isPresented: model.shouldPresentLoginView) { LoginView(didAuthenticate: model.authenticate).id("login") }
         .navigationTitle("Followers")
         .navigationBarItems(trailing: AvatarButton(user: model.current, action: model.logOut))
     }
