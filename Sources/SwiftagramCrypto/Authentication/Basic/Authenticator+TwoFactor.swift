@@ -13,8 +13,10 @@ public extension Authenticator.Group.Basic {
     /// A `struct` defining an instance capable of
     /// resolving a two factor authentication challenge.
     struct TwoFactor: Authentication {
-        /// The authenticator.
-        public let authenticator: Authenticator
+        /// The storage.
+        public let storage: AnyStorage<Secret>
+        /// The client.
+        public let client: Client
         /// The two factor authentication identfiier.
         private let identifier: String
         /// The code.
@@ -31,7 +33,8 @@ public extension Authenticator.Group.Basic {
         ///     - code: A valid `String`.
         fileprivate init(twoFactor: Authenticator.Error.TwoFactor,
                          code: String) {
-            self.authenticator = twoFactor.authenticator
+            self.storage = twoFactor.storage
+            self.client = twoFactor.client
             self.identifier = twoFactor.identifier
             self.code = code
             self.username = twoFactor.username
@@ -52,9 +55,9 @@ public extension Authenticator.Group.Basic {
                 .path(appending: "two_factor_login/")
                 .appendingDefaultHeader()
                 .header(appending: HTTPCookie.requestHeaderFields(with: [crossSiteRequestForgery]))
-                .header(appending: ["X-IG-Device-ID": authenticator.client.device.identifier.uuidString.lowercased(),
-                                    "X-IG-Android-ID": authenticator.client.device.instagramIdentifier,
-                                    "User-Agent": authenticator.client.description,
+                .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                    "X-IG-Android-ID": client.device.instagramIdentifier,
+                                    "User-Agent": client.description,
                                     "X-Csrf-Token": crossSiteRequestForgery.value])
                 .signing(body: [
                     "username": username,
@@ -62,8 +65,8 @@ public extension Authenticator.Group.Basic {
                     "_csrftoken": crossSiteRequestForgery.value,
                     "two_factor_identifier": identifier,
                     "trust_this_device": "1",
-                    "guid": authenticator.client.device.identifier.uuidString,
-                    "device_id": authenticator.client.device.instagramIdentifier,
+                    "guid": client.device.identifier.uuidString,
+                    "device_id": client.device.instagramIdentifier,
                     "verification_method": "1"
                 ])
                 .publish(session: .ephemeral)
@@ -79,10 +82,10 @@ public extension Authenticator.Group.Basic {
                               let url = URL(string: "https://instagram.com"),
                               let header = response.allHeaderFields as? [String: String] {
                         let cookies = HTTPCookie.cookies(withResponseHeaderFields: header, for: url)
-                        guard let secret = Secret(cookies: cookies, client: self.authenticator.client) else {
+                        guard let secret = Secret(cookies: cookies, client: self.client) else {
                             throw Authenticator.Error.invalidResponse(result.response)
                         }
-                        return try AnyStorage.store(secret, in: self.authenticator.storage)
+                        return try AnyStorage.store(secret, in: self.storage)
                     } else {
                         throw Authenticator.Error.invalidResponse(result.response)
                     }

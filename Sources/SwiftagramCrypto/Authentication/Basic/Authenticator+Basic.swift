@@ -14,7 +14,7 @@ public extension Authenticator.Group {
     /// A `struct` defining an authentication relying
     /// on username and password and supporting
     /// two factor authentication.
-    struct Basic: Authentication {
+    struct Basic: CustomClientAuthentication {
         /// The underlying authenticator.
         public let authenticator: Authenticator
         /// The username.
@@ -39,10 +39,11 @@ public extension Authenticator.Group {
 
         /// Authenticate the given user.
         ///
+        /// - parameter client: A valid `Client`.
         /// - returns: A valid `Publisher`.
-        public func authenticate() -> AnyPublisher<Secret, Swift.Error> {
+        public func authenticate(in client: Client) -> AnyPublisher<Secret, Swift.Error> {
             // Fetch unauthenticated header fields.
-            Self.unauthenticatedHeader(for: authenticator.client)
+            Self.unauthenticatedHeader(for: client)
                 .flatMap { cookies -> AnyPublisher<Secret, Swift.Error> in
                     // Make sure the CSRF token is set.
                     guard cookies.contains(where: { $0.name == "csrftoken" }) else {
@@ -51,11 +52,11 @@ public extension Authenticator.Group {
                     // Encrypt password.
                     return Self.encrypt(password: self.password,
                                         with: cookies,
-                                        for: self.authenticator.client)
+                                        for: client)
                         .flatMap { Self.authenticate(username: self.username,
                                                      encryptedPassword: $0,
                                                      with: cookies,
-                                                     for: self.authenticator.client,
+                                                     for: client,
                                                      storedIn: self.authenticator.storage) }
                         .eraseToAnyPublisher()
                 }
@@ -83,7 +84,7 @@ public extension Authenticator.Group {
                     if let headers = ($0.response as? HTTPURLResponse)?.allHeaderFields as? [String: String] { return headers }
                     throw Authenticator.Error.invalidResponse($0.response)
                 }
-                .map { HTTPCookie.cookies(withResponseHeaderFields: $0, for: .init(string: ".instagram.com")!) }
+                .map { HTTPCookie.cookies(withResponseHeaderFields: $0, for: URL(string: ".instagram.com")!) }
                 .eraseToAnyPublisher()
         }
 
@@ -215,7 +216,8 @@ public extension Authenticator.Group {
                     }
                     // Deal with two factor authentication.
                     if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
-                        throw Authenticator.Error.twoFactorChallenge(.init(authenticator: .init(storage: storage, client: client),
+                        throw Authenticator.Error.twoFactorChallenge(.init(storage: storage,
+                                                                           client: client,
                                                                            identifier: twoFactorIdentifier,
                                                                            username: username,
                                                                            crossSiteRequestForgery: crossSiteRequestForgery))

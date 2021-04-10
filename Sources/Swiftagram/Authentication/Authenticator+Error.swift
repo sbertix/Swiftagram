@@ -7,6 +7,8 @@
 
 import Foundation
 
+import ComposableStorage
+
 public extension Authenticator {
     /// An `enum` listing some authentication-specific errors.
     enum Error: Swift.Error {
@@ -31,8 +33,10 @@ public extension Authenticator.Error {
     /// A `struct` defining a list of properties used for
     /// resolving a two factor authentication challenge.
     struct TwoFactor {
-        /// The authenticator..
-        public let authenticator: Authenticator
+        /// The storage.
+        public let storage: AnyStorage<Secret>
+        /// The client.
+        public let client: Client
         /// The challenge identifier.
         public let identifier: String
         /// The username.
@@ -43,15 +47,18 @@ public extension Authenticator.Error {
         /// Init.
         ///
         /// - parameters:
-        ///     - authenticator: A valid `Authenticator`.
+        ///     - storage: Some `Storage`.
+        ///     - client: A valid `Client`.
         ///     - identifier: A valid `String`.
         ///     - username: A valid `String`.
         ///     - crossSiteRequestForgery: A valid `HTTPCookie`.
-        public init(authenticator: Authenticator,
-                    identifier: String,
-                    username: String,
-                    crossSiteRequestForgery: HTTPCookie) {
-            self.authenticator = authenticator
+        public init<S: Storage>(storage: S,
+                                client: Client,
+                                identifier: String,
+                                username: String,
+                                crossSiteRequestForgery: HTTPCookie) where S.Item == Secret {
+            self.storage = AnyStorage(storage)
+            self.client = client
             self.identifier = identifier
             self.username = username
             self.crossSiteRequestForgery = crossSiteRequestForgery

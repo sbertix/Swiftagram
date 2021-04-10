@@ -16,7 +16,7 @@ import ComposableStorage
 public extension Authenticator.Group {
     /// A `struct` defining an authenticator relying on `WKWebView`s to log in.
     @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
-    struct Visual: Authentication {
+    struct Visual: CustomClientAuthentication {
         /// The underlying authenticator.
         public let authenticator: Authenticator
         /// The web view transformer.
@@ -36,8 +36,9 @@ public extension Authenticator.Group {
 
         /// Authenticate the given user.
         ///
+        /// - parameter client: A valid `Client`.
         /// - returns: A valid `Publisher`.
-        public func authenticate() -> AnyPublisher<Secret, Swift.Error> {
+        public func authenticate(in client: Client) -> AnyPublisher<Secret, Swift.Error> {
             Deferred {
                 Future<Void, Never> { resolve in
                     // Delete all instagram records.
@@ -52,7 +53,7 @@ public extension Authenticator.Group {
                 .flatMap {
                     Future<AuthenticatorWebView, Swift.Error> { resolve in
                         // Prepare the actual `WebView`.
-                        let webView = AuthenticatorWebView(client: self.authenticator.client)
+                        let webView = AuthenticatorWebView(client: client)
                         self.transformer(webView) {
                             guard let url = URL(string: "https://www.instagram.com/accounts/login/") else {
                                 return resolve(.failure(Authenticator.Error.invalidURL))

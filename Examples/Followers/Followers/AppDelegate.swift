@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Delete persisted data on updated version.
         if UserDefaults.standard.string(forKey: "swiftagram.version") != "4.1.0" {
-            do { try KeychainStorage<Secret>().empty() } catch { print(error) }
+            do { try Authenticator.keychain.secrets.delete() } catch { print(error) }
             Bundle.main.bundleIdentifier.flatMap(UserDefaults.standard.removePersistentDomain)
             // Update version.
             UserDefaults.standard.set("4.1.0", forKey: "swiftagram.version")
@@ -42,5 +42,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
 }

@@ -38,7 +38,9 @@ class LoginViewController: UIViewController {
                 Authenticator.keychain
                     .visual(filling: self.view)
                     .authenticate()
-                    .sink(receiveCompletion: { _ in }, receiveValue: completion)
+                    .receive(on: RunLoop.main)
+                    .sink(receiveCompletion: { _ in self.dismiss(animated: true, completion: nil) }, 
+                          receiveValue: completion)
                     .store(in: &self.bin)
             }
         }

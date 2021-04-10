@@ -20,7 +20,7 @@ final class FollowersModel: ObservableObject {
     @Published private(set) var followers: [User]?
 
     /// The current secret.
-    private let secret: CurrentValueSubject<Secret?, Never> = .init(try? KeychainStorage<Secret>().items().first)
+    private let secret: CurrentValueSubject<Secret?, Never> = .init(try? Authenticator.keychain.secrets.get().first)
     /// The dispose bag.
     private var bin: Set<AnyCancellable> = []
 
@@ -87,7 +87,8 @@ final class FollowersModel: ObservableObject {
 
     /// Log out.
     func logOut() {
-        do { try KeychainStorage<Secret>().empty() } catch { print(error) }
-        secret.send(nil)
+        guard let secret = secret.value else { return }
+        do { try Authenticator.keychain.secret(secret.identifier).delete() } catch { print(error) }
+        self.secret.send(nil)
     }
 }

@@ -19,22 +19,18 @@ public typealias Keychain = ComposableStorageCrypto.Keychain
 public extension Authenticator {
     /// The default keychain-backed `Authenticator`.
     static var keychain: Authenticator {
-        keychain(with: .default)
+        keychain(.init())
     }
 
-    /// A keychain-backed `Authenticator` with a specific `Client`.
+    /// A keychain-backed `Authenticator`.
     ///
-    /// - parameters:
-    ///     - keychain: A valid `Keychain`. Defaults to `.init()`.
-    ///     - client: A valid `Client`.
+    /// - parameter keychain: A valid `Keychain`. Defaults to `.init()`.
     /// - returns: A valid `Authenticator.`
-    static func keychain(_ keychain: Keychain = .init(),
-                         with client: Client) -> Authenticator {
+    static func keychain(_ keychain: Keychain = .init()) -> Authenticator {
         .init(storage: KeychainStorage(service: keychain.service,
                                        group: keychain.group,
                                        accessibility: keychain.accessibility,
                                        authentication: keychain.authentication,
-                                       isSynchronizable: keychain.isSynchronizable),
-              client: client)
+                                       isSynchronizable: keychain.isSynchronizable))
     }
 }

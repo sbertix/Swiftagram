@@ -14,17 +14,14 @@ import ComposableStorage
 public struct Authenticator {
     /// The underlying storage.
     public let storage: AnyStorage<Secret>
-    /// The underlying client.
-    public let client: Client
 
     /// Init.
     ///
     /// - parameters:
     ///     - storage: A valid `Storage`.
     ///     - client: A valid `Client`. Defaults to `.default`.
-    public init<S: Storage>(storage: S, client: Client = .default) where S.Item == Secret {
+    public init<S: Storage>(storage: S) where S.Item == Secret {
         self.storage = AnyStorage(storage)
-        self.client = client
     }
 }
 
@@ -36,29 +33,19 @@ public extension Authenticator {
 public extension Authenticator {
     /// The default transient `Authenticator`.
     static var transient: Authenticator {
-        transient(with: .default)
-    }
-
-    /// A transient `Authenticator` with a specific `Client`.
-    ///
-    /// - parameter client: A valid `Client`.
-    /// - returns: A valid `Authenticator.`
-    static func transient(with client: Client) -> Authenticator {
-        .init(storage: TransientStorage<Secret>(), client: client)
+        .init(storage: TransientStorage())
     }
 
     /// The default user defaults-backed `Authenticator`.
     static var userDefaults: Authenticator {
-        userDefaults(with: .default)
+        userDefaults(.standard)
     }
 
     /// A user defaults-backed `Authenticator` with a specific `Client`.
     ///
-    /// - parameters:
-    ///     - userDefaults: A valid `UserDefaults`. Defaults to `.standard`.
-    ///     - client: A valid `Client`.
+    /// - parameter userDefaults: A valid `UserDefaults`.
     /// - returns: A valid `Authenticator.`
-    static func userDefaults(_ userDefaults: UserDefaults = .standard, with client: Client) -> Authenticator {
-        .init(storage: UserDefaultsStorage(userDefaults: userDefaults), client: client)
+    static func userDefaults(_ userDefaults: UserDefaults) -> Authenticator {
+        .init(storage: UserDefaultsStorage(userDefaults: userDefaults))
     }
 }
