@@ -99,23 +99,13 @@ final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
                     default:
                         // Only notify an error if we're on the home page.
                         guard webView.url?.absoluteString == "https://www.instagram.com/" else { break }
-                        self.subject.send(completion: .failure(Error.invalidCookies(cookies)))
+                        self.subject.send(completion: .failure(Authenticator.Error.invalidCookies(cookies)))
                         self.isAuthenticating = false
                     }
                     self.semaphore.signal()
                 }
             }
         }
-    }
-}
-
-extension AuthenticatorWebView {
-    /// An `enum` listing all visual authentication errors.
-    enum Error: Swift.Error {
-        /// Invalid cookies.
-        case invalidCookies([HTTPCookie])
-        /// Invalid URL.
-        case invalidURL
     }
 }
 

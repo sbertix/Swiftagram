@@ -7,6 +7,8 @@
 
 import Foundation
 
+import ComposableStorage
+
 /// A `struct` defining the logged in user authentication parameters.
 ///
 /// `cookies` and `client` are only ever valid as a pair: if you need to change the `Client`,

@@ -7,11 +7,13 @@
 
 import Foundation
 
+import ComposableStorage
+
 /// A `struct` defining an instance capable of
 /// starting the authentication flow for a given user.
-public struct Authenticator<Storage: ComposableStorage.Storage> where Storage.Item == Secret {
+public struct Authenticator {
     /// The underlying storage.
-    public let storage: Storage
+    public let storage: AnyStorage<Secret>
     /// The underlying client.
     public let client: Client
 
@@ -20,8 +22,8 @@ public struct Authenticator<Storage: ComposableStorage.Storage> where Storage.It
     /// - parameters:
     ///     - storage: A valid `Storage`.
     ///     - client: A valid `Client`. Defaults to `.default`.
-    public init(storage: Storage, client: Client) {
-        self.storage = storage
+    public init<S: Storage>(storage: S, client: Client = .default) where S.Item == Secret {
+        self.storage = AnyStorage(storage)
         self.client = client
     }
 }
@@ -31,7 +33,7 @@ public extension Authenticator {
     enum Group { }
 }
 
-public extension Authenticator where Storage == TransientStorage<Secret> {
+public extension Authenticator {
     /// The default transient `Authenticator`.
     static var transient: Authenticator {
         transient(with: .default)
@@ -42,18 +44,9 @@ public extension Authenticator where Storage == TransientStorage<Secret> {
     /// - parameter client: A valid `Client`.
     /// - returns: A valid `Authenticator.`
     static func transient(with client: Client) -> Authenticator {
-        .init(client: client)
+        .init(storage: TransientStorage<Secret>(), client: client)
     }
 
-    /// Init.
-    ///
-    /// - parameter client: A valid `Client`. Defualts to `nil`.
-    init(client: Client = .default) {
-        self.init(storage: .init(), client: client)
-    }
-}
-
-public extension Authenticator where Storage == UserDefaultsStorage<Secret> {
     /// The default user defaults-backed `Authenticator`.
     static var userDefaults: Authenticator {
         userDefaults(with: .default)
@@ -61,9 +54,11 @@ public extension Authenticator where Storage == UserDefaultsStorage<Secret> {
 
     /// A user defaults-backed `Authenticator` with a specific `Client`.
     ///
-    /// - parameter client: A valid `Client`.
+    /// - parameters:
+    ///     - userDefaults: A valid `UserDefaults`. Defaults to `.standard`.
+    ///     - client: A valid `Client`.
     /// - returns: A valid `Authenticator.`
-    static func userDefaults(with client: Client) -> Authenticator {
-        .init(storage: .init(), client: client)
+    static func userDefaults(_ userDefaults: UserDefaults = .standard, with client: Client) -> Authenticator {
+        .init(storage: UserDefaultsStorage(userDefaults: userDefaults), client: client)
     }
 }

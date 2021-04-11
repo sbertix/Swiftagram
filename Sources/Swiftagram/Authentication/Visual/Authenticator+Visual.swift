@@ -11,14 +11,16 @@ import Foundation
 import UIKit
 import WebKit
 
+import ComposableStorage
+
 public extension Authenticator.Group {
     /// A `struct` defining an authenticator relying on `WKWebView`s to log in.
     @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
     struct Visual: Authentication {
         /// The underlying authenticator.
-        let authenticator: Authenticator
+        public let authenticator: Authenticator
         /// The web view transformer.
-        let transformer: (_ webView: WKWebView, _ completion: @escaping () -> Void) -> Void
+        private let transformer: (_ webView: WKWebView, _ completion: @escaping () -> Void) -> Void
 
         /// Init.
         ///
@@ -35,7 +37,7 @@ public extension Authenticator.Group {
         /// Authenticate the given user.
         ///
         /// - returns: A valid `Publisher`.
-        public func authenticate() -> AnyPublisher<Secret, Error> {
+        public func authenticate() -> AnyPublisher<Secret, Swift.Error> {
             Deferred {
                 Future<Void, Never> { resolve in
                     // Delete all instagram records.
@@ -48,12 +50,12 @@ public extension Authenticator.Group {
                     }
                 }
                 .flatMap {
-                    Future<AuthenticatorWebView, Error> { resolve in
+                    Future<AuthenticatorWebView, Swift.Error> { resolve in
                         // Prepare the actual `WebView`.
                         let webView = AuthenticatorWebView(client: self.authenticator.client)
                         self.transformer(webView) {
                             guard let url = URL(string: "https://www.instagram.com/accounts/login/") else {
-                                return resolve(.failure(AuthenticatorWebView.Error.invalidURL))
+                                return resolve(.failure(Authenticator.Error.invalidURL))
                             }
                             webView.load(.init(url: url))
                             resolve(.success(webView))
@@ -61,7 +63,7 @@ public extension Authenticator.Group {
                     }
                 }
                 .flatMap(\.secret)
-                .tryMap { try Storage.store($0, in: self.authenticator.storage) }
+                .tryMap { try AnyStorage<Secret>.store($0, in: self.authenticator.storage) }
             }
             .subscribe(on: RunLoop.main)
             .receive(on: RunLoop.main)

@@ -39,38 +39,31 @@ final class AuthenticatorTests: XCTestCase {
 
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
-        // removed implementation.
-        let invalidUsername = XCTestExpectation()
-        // Authenticate and checkpoint.
-        let authenticator = BasicAuthenticator(username: "···",
-                                               password: "···")
-        authenticator.authenticate {
-            switch $0 {
-            case .failure(let error): print(error)
-            case .success(let secret):
-                if let data = try? JSONEncoder().encode(secret) {
-                    XCTFail(data.base64EncodedString())
-                } else {
-                    XCTFail("It should not succeed")
-                }
-            }
-            invalidUsername.fulfill()
-        }
-        wait(for: [invalidUsername], timeout: 60)
-    }
-
-    /// Test `TwoFactor`.
-    func testTwoFactor() {
-        HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         let expectation = XCTestExpectation()
-        TwoFactor(username: "A",
-                  client: .default,
-                  identifier: "A",
-                  crossSiteRequestForgery: HTTPCookie(properties: [.name: "_csrftoken", .value: "A", .path: "", .domain: ""])!) {
-                    XCTAssert((try? $0.get()) == nil)
+        Authenticator.userDefaults
+            .basic(username: "swiftagram.tests",
+                   password: ProcessInfo.processInfo.environment["PASSWORD"]!.trimmingCharacters(in: .whitespacesAndNewlines))
+            .authenticate()
+            .ignoreOutput()
+            .sink(
+                receiveCompletion: {
+                    switch $0 {
+                    case .failure(let error):
+                        switch error {
+                        case Authenticator.Error.twoFactorChallenge(_):
+                            break
+                        default:
+                            XCTFail(error.localizedDescription)
+                        }
+                    default:
+                        XCTFail("This should never be called.")
+                    }
                     expectation.fulfill()
-        }.send(code: "123456")
-        wait(for: [expectation], timeout: 3)
+                },
+                receiveValue: { _ in }
+            )
+            .store(in: &bin)
+        wait(for: [expectation], timeout: 60)
     }
 
     #if canImport(UIKit) && canImport(WebKit)

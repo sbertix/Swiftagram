@@ -96,9 +96,9 @@ Authentication is provided through conformance to the `Authenticator` protocol, 
 
 The library comes with two concrete implementations.
 
-#### WebViewAuthenticator
+#### WebView-based
 
-`WebViewAuthenticator` is a visual based `Authenticator`, relying on a `WKWebView` in order to log in the user.
+`Authenticator.Group.Visual` is a visual based `Authenticator`, relying on a `WKWebView` in order to log in the user.
 As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 10.13 (and above).
 
 <details><summary><strong>Example</strong></summary>
@@ -106,78 +106,85 @@ As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 
 
 ```swift
 import UIKit
-import WebKit
 
 import Swiftagram
 
-/// A `class` defining a `UIViewController` displaying a `WKWebView` used for authentication.
-final class LoginViewController: UIViewController {
-    /// Any `ComposableRequest.Storage` used to cache `Secret`s.
-    /// We're using `KeychainStorage` as it's the safest option.
-    let storage = KeychainStorage<Secret>()
-    /// A valid `Client`. We're relying on the `default` one.
-    let client = Client.default
-
-    /// The web view.
-    var webView: WKWebView? {
+/// A `class` defining a view controller capable of displaying the authentication web view.
+class LoginViewController: UIViewController {
+    /// The completion handler.
+    var completion: ((Secret) -> Void)? {
         didSet {
-            oldValue?.removeFromSuperview() // Just in case.
-            guard let webView = webView else { return }
-            webView.frame = view.bounds     // Fill the parent view.
-            // You should also deal with layout constraints or similar here…
-            view.addSubview(webView)        // Add it to the parent view.
-        }
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Authenticate using any `Storage` you want (`KeychainStorage` is used as an example).
-        // `storage` can be omitted if you don't require `Secret`s caching.
-        // `client` can be omitted and the default once will be used.
-        WebViewAuthenticator(storage: storage,
-                             client: client) { self.webView = $0 }
-            .authenticate {
-                switch $0 {
-                    case .failure(let error): print(error.localizedDescription)
-                    default: print("Login succesful.")
-                }
+            guard oldValue == nil, let completion = completion else { return }
+            // Authenticate.
+            DispatchQueue.main.asyncAfter(deadline: .now()) {
+                // We're using `Authentication.keyhcain`, being encrypted,
+                // but you can rely on different ones.
+                Authenticator.keychain
+                    .visual(filling: self.view)
+                    .authenticate()
+                    .sink(receiveCompletion: { _ in }, receiveValue: completion)
+                    .store(in: &self.bin)
             }
         }
     }
+
+    /// The dispose bag.
+    private var bin: Set<AnyCancellable> = []
 }
+```
+
+And then you can use it simply by initiating it and assining a `completion` handler.
+
+```swift
+let controller = LoginViewController()
+controller.completion = { _ in /* do something */ }
+// Present/push the controller.
 ```
 
 </p></details>
 
-#### BasicAuthenticator
+#### Basic
 
-`BasicAuthenticator` is a code based `Authenticator`, supporting 2FA, defined in **SwiftagramCrypto**: all you need is a _username_ and _password_ and you're ready to go.
+`Authenticator.Group.Basic` is a code based `Authenticator`, supporting 2FA, defined in **SwiftagramCrypto**: all you need is a _username_ and _password_ and you're ready to go.
 
 <details><summary><strong>Example</strong></summary>
     <p>
 
 ```swift
-import Swiftagram
+import SwiftagramCrypto
 
-/// Any `ComposableRequest.Storage` used to cache `Secret`s.
-/// We're using `KeychainStorage` as it's the safest option.
-let storage = KeychainStorage<Secret>()
-/// A valid `Client`. We're relying on the `default` one.
-let client = Client.default
+/// A retained dispose bag.
+/// **You need to retain this.**
+private var bin: Set<AnyCancellable> = []
 
-/// Authenticate.
-BasicAuthenticator(storage: storage,    // Optional. No storage will be used if omitted.
-                   client: client,      // Optional. Default client will be used if omitted.
-                   username: /* username */,
-                   password: /* password */)
-    .authenticate {
-        switch $0 {
-        case .failure(let error):
-            // Please check out the docs to find out how to deal with 2FA.
-            print(error.localizedDescription)
-        default: print("Login successful.")
-        }
-    }
+// We're using `Authentication.keyhcain`, being encrypted,
+// but you can rely on different ones.
+Authenticator.keychain
+    .basic(username: /* username */,
+           password: /* password */)
+    .authenticate()
+    .sink(receiveCompletion: {
+            switch $0 {
+            case .failure(let error):
+                // Deal with two factor authentication.
+                switch error {
+                case Authenticator.Error.twoFactorChallenge(let challenge):
+                    // Once you receive the challenge,
+                    // ask the user for the 2FA code
+                    // then just call:
+                    // `challenge.code(/* the code */).authenticate()`
+                    // and deal with the publisher.
+                    break
+                default:
+                    break
+                }
+            default:
+                break
+            }
+          }, 
+          receiveValue: { _ in /* do something */ })
+    .store(in: &self.bin)
+}
 ```
 
 </p></details>
@@ -208,7 +215,7 @@ var bin: Set<AnyCancellable> = []
 
 // We're using a random endpoint to demonstrate 
 // how `URLSession` is exposed in code. 
-Endpoint.User.Summary(for: secret.identifier)
+Endpoint.user(secret.identifier)
     .unlock(with: secret)
     .session(.instagram)    // `URLSession.instagram` 
     .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
@@ -227,7 +234,7 @@ var bin: Set<AnyCancellable> = []
 
 // We're using a random endpoint to demonstrate 
 // how `Deferrable` is exposed in code. 
-Endpoint.User.Summary(for: secret.identifier)
+Endpoint.user(secret.identifier)
     .unlock(with: secret)
     .session(.instagram) 
     .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
@@ -250,7 +257,7 @@ var bin: Set<AnyCancellable> = []
 
 // We're using a random endpoint to demonstrate 
 // how `PagerProvider` is exposed in code. 
-Endpoint.Media.owned(by: secret.identifier)
+Endpoint.media(secret.identifier)
     .unlock(with: secret)
     .session(.instagram)
     .pages(.max)    // Exhaust all with `.max`
