@@ -7,8 +7,12 @@
 
 import Foundation
 
-#if canImport(AVKit)
-import AVKit
+#if canImport(AVFoundation)
+import AVFoundation
+#endif
+
+#if canImport(CoreGraphics)
+import CoreGraphics
 #endif
 
 extension Endpoint.Group {

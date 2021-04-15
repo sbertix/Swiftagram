@@ -22,14 +22,14 @@ public extension Endpoint.Group.User {
     /// Block the given user.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func block() -> Endpoint.Single<Status, Error> {
+    func block() -> Endpoint.Single<Friendship.Unit, Error> {
         edit("block")
     }
 
     /// Follow the given user.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func follow() -> Endpoint.Single<Status, Error> {
+    func follow() -> Endpoint.Single<Friendship.Unit, Error> {
         edit("create")
     }
 
@@ -37,21 +37,21 @@ public extension Endpoint.Group.User {
     ///
     /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func remove() -> Endpoint.Single<Status, Error> {
+    func remove() -> Endpoint.Single<Friendship.Unit, Error> {
         edit("remove_follower")
     }
 
     /// Unblock the given user.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func unblock() -> Endpoint.Single<Status, Error> {
+    func unblock() -> Endpoint.Single<Friendship.Unit, Error> {
         edit("unblock")
     }
 
     /// Unfollow the given user.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func unfollow() -> Endpoint.Single<Status, Error> {
+    func unfollow() -> Endpoint.Single<Friendship.Unit, Error> {
         edit("destroy")
     }
 }
@@ -61,7 +61,7 @@ public extension Endpoint.Group.User.Request {
     ///
     /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func approve() -> Endpoint.Single<Status, Error> {
+    func approve() -> Endpoint.Single<Friendship.Unit, Error> {
         user.edit("approve")
     }
 
@@ -69,7 +69,7 @@ public extension Endpoint.Group.User.Request {
     ///
     /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func decline() -> Endpoint.Single<Status, Error> {
+    func decline() -> Endpoint.Single<Friendship.Unit, Error> {
         user.edit("decline")
     }
 }
@@ -79,7 +79,7 @@ fileprivate extension Endpoint.Group.User {
     ///
     /// - parameter endpoint: A valid `String`.
     /// - note: **SwiftagramCrypto** only.
-    func edit(_ endpoint: String) -> Endpoint.Single<Status, Error> {
+    func edit(_ endpoint: String) -> Endpoint.Single<Friendship.Unit, Error> {
         .init { secret, session in
             Deferred {
                 Swiftagram.Request.version1
@@ -98,7 +98,7 @@ fileprivate extension Endpoint.Group.User {
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
-                    .map(Status.init)
+                    .map(Friendship.Unit.init)
             }
             .eraseToAnyPublisher()
         }

@@ -13,8 +13,8 @@ import UIKit
 import AppKit
 #endif
 
-#if canImport(AVKit)
-import AVKit
+#if canImport(AVFoundation)
+import AVFoundation
 #endif
 
 public extension Endpoint.Group.Stories {
@@ -132,7 +132,7 @@ public extension Endpoint.Group.Stories {
         upload(image: data, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
-    #if canImport(AVKit)
+    #if canImport(AVFoundation)
 
     /// Upload story `video` to instagram.
     ///

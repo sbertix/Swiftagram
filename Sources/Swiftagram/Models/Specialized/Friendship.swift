@@ -52,4 +52,21 @@ public extension Friendship {
             self.wrapper = wrapper
         }
     }
+
+    /// A `struct` representing a single `Friendship` value.
+    struct Unit: Specialized {
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
+
+        /// The friendship.
+        public var friendship: Friendship? {
+            self["friendshipStatus"].optional().flatMap(Friendship.init)
+        }
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
+    }
 }

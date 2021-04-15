@@ -13,8 +13,8 @@ import UIKit
 import AppKit
 #endif
 
-#if canImport(AVKit)
-import AVKit
+#if canImport(AVFoundation)
+import AVFoundation
 #endif
 
 public extension Endpoint.Group.Posts {
@@ -159,7 +159,7 @@ public extension Endpoint.Group.Posts {
         upload(image: data, captioned: caption, tagging: [], at: location)
     }
 
-    #if canImport(AVKit)
+    #if canImport(AVFoundation)
 
     /// Upload `video` to instagram.
     ///
