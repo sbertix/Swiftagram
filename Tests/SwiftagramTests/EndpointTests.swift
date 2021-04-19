@@ -156,6 +156,16 @@ final class EndpointTests: XCTestCase {
 
     // MARK: Endpoints
 
+    /// Test `Endpoint.archived`.
+    func testEndpointArchived() {
+        performTest(on: Endpoint.posts
+                        .archived,
+                    "Endpoint.Archived.posts")
+        performTest(on: Endpoint.stories
+                        .archived,
+                    "Endpoint.Archived.stories")
+    }
+
     /// Test `Endpoint.direct`.
     func testEndpointDirect() {
         performTest(on: Endpoint.direct
@@ -296,9 +306,6 @@ final class EndpointTests: XCTestCase {
     /// Test `Endpoint.Media.Posts`.
     func testEndpointPosts() {
         performTest(on: Endpoint.posts
-                        .archived,
-                    "Endpoint.Posts.archived")
-        performTest(on: Endpoint.posts
                         .liked,
                     "Endpoint.Posts.liked")
         if let wrapper = performTest(on: Endpoint.posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
@@ -333,8 +340,8 @@ final class EndpointTests: XCTestCase {
 
     /// Test `Endpoint.Saved`.
     func testEndpointSaved() {
-        performTest(on: Endpoint.saved
-                        .posts,
+        performTest(on: Endpoint.posts
+                        .saved,
                     "Endpoint.Saved.posts")
         if let collection = performTest(on: Endpoint.saved
                                             .collections,
@@ -350,17 +357,13 @@ final class EndpointTests: XCTestCase {
                            "Endpoint.Media.saveIn") != nil {
                 performTest(on: Endpoint.media("2345240077849019656")
                                 .unsave(),
-                            "Endpoint.Media.unsave",
-                            logging: .init(level: .all))
+                            "Endpoint.Media.unsave")
             }
         }
     }
 
     /// Test `Endpoint.Media.Stories`.
     func testEndpointStories() {
-        performTest(on: Endpoint.stories
-                        .archived,
-                    "Endpoint.Stories.archived")
         if let wrapper = performTest(on: Endpoint.stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
                                                                  stickers: [Sticker.mention("208803632")
                                                                                 .position(.init(x: 0.0, y: 0.125)),
