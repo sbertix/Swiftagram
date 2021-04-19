@@ -65,30 +65,4 @@ public extension Endpoint.Group.Posts {
             .eraseToAnyPublisher()
         }
     }
-
-    /// A list of posts saved by the logged in user.
-    var saved: Endpoint.Paginated<Swiftagram.Media.Collection,
-                                  RankedOffset<String?, String?>,
-                                  Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
-            // Prepare the actual pager.
-            return Pager(pages) {
-                Request.feed
-                    .saved
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .header(appending: ["rank_token": rank,
-                                        "include_igtv_preview": "false"])
-                    .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Media.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
-            }
-            .eraseToAnyPublisher()
-        }
-    }
 }

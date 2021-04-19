@@ -147,6 +147,22 @@ final class ModelTests: XCTestCase {
         //performTest(on: ["media": [dictionary.wrapped].wrapped], to: Media.Collection.self)
     }
 
+    /// Test `SavedCollection`.
+    func testSavedCollection() {
+        let dictionary: [String: Wrapper] = ["collectionId": "123",
+                                             "collectionName": "Test",
+                                             "collectionMediaType": "MEDIA",
+                                             "collectionMediaCount": 12,
+                                             "coverMediaList": [],
+                                             "items": []]
+        performTest(on: dictionary,
+                    to: SavedCollection.self)
+        performTest(on: ["saveMediaResponse": dictionary.wrapped],
+                    to: SavedCollection.Unit.self)
+        performTest(on: ["items": [dictionary.wrapped]],
+                    to: SavedCollection.Collection.self)
+    }
+
     /// Test `Status`.
     func testStatus() {
         performTest(on: ["status": "ok"],

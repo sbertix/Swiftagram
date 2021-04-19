@@ -99,6 +99,14 @@ public extension Endpoint.Group.Media {
         edit("like")
     }
 
+    /// Save in a specific collection.
+    ///
+    /// - parameter collectionIdentifier: A valid `String`.
+    /// - returns: A valid `Endpoint.Single`.
+    func save(in collectionIdentifier: String) -> Endpoint.Single<Status, Swift.Error> {
+        edit("save", body: ["added_collection_ids": "[\(collectionIdentifier)]"])
+    }
+
     /// Unarchive the current post.
     ///
     /// - returns: A valid `Endpoint.Single`.
@@ -117,9 +125,11 @@ public extension Endpoint.Group.Media {
 extension Endpoint.Group.Media {
     /// Perform an action involving the media matching `identifier`.
     ///
-    /// - parameter endpoint: A valid `String`.
+    /// - parameters:
+    ///     - endpoint: A valid `String`.
+    ///     - body: A dictionary of `String`s. Defaults to empty.
     /// - returns: A valid `Endpoint.Single`.
-    func edit(_ endpoint: String) -> Endpoint.Single<Status, Swift.Error> {
+    func edit(_ endpoint: String, body: [String: String] = [:]) -> Endpoint.Single<Status, Swift.Error> {
         .init { secret, session in
             Deferred {
                 Request.media(self.identifier)
@@ -131,7 +141,7 @@ extension Endpoint.Group.Media {
                                     "_uid": secret.identifier,
                                     "device_id": secret.client.device.instagramIdentifier,
                                     "_uuid": secret.client.device.identifier.uuidString,
-                                    "media_id": self.identifier])
+                                    "media_id": self.identifier].merging(body) { lhs, _ in lhs })
                     .publish(with: session)
                     .map(\.data)
                     .wrap()

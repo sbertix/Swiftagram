@@ -301,9 +301,6 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.posts
                         .liked,
                     "Endpoint.Posts.liked")
-        performTest(on: Endpoint.posts
-                        .saved,
-                    "Endpoint.Posts.saved")
         if let wrapper = performTest(on: Endpoint.posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
                                                                captioned: nil,
                                                                tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
@@ -332,6 +329,31 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.recent
                         .stories,
                     "Endpoint.Recent.stories")
+    }
+
+    /// Test `Endpoint.Saved`.
+    func testEndpointSaved() {
+        performTest(on: Endpoint.saved
+                        .posts,
+                    "Endpoint.Saved.posts")
+        if let collection = performTest(on: Endpoint.saved
+                                            .collections,
+                                        "Endpoint.Saved.collections")?.collections?.last {
+            performTest(on: Endpoint.saved
+                            .collection(collection),
+                        "Endpoint.Saved.Collection.summary")
+            performTest(on: Endpoint.saved
+                            .collection(collection.identifier),
+                        "Endpoint.Saved.Collection.summary")
+            if performTest(on: Endpoint.media("2345240077849019656")
+                            .save(in: collection.identifier),
+                           "Endpoint.Media.saveIn") != nil {
+                performTest(on: Endpoint.media("2345240077849019656")
+                                .unsave(),
+                            "Endpoint.Media.unsave",
+                            logging: .init(level: .all))
+            }
+        }
     }
 
     /// Test `Endpoint.Media.Stories`.
