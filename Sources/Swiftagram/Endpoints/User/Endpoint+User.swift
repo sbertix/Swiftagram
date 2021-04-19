@@ -169,18 +169,16 @@ public extension Endpoint.Group.User {
 
     /// A list of posts uploaded by the user.
     var posts: Endpoint.Paginated<Swiftagram.Media.Collection,
-                                  RankedOffset<String?, String?>,
+                                  String?,
                                   Error> {
         .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
-            // Prepare the actual pager.
-            return Pager(pages) {
+            Pager(pages) {
                 Request.version1.feed
                     .user
                     .path(appending: self.identifier)
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
+                    .query(appending: ["exclude_comment": "false",
+                                       "only_fetch_first_carousel_media": "false"])
                     .query(appending: $0, forKey: "max_id")
                     .publish(with: session)
                     .map(\.data)

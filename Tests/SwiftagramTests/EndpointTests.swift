@@ -245,8 +245,13 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.location("189075947904164"),
                     "Endpoint.Location.summary")
         performTest(on: Endpoint.location("189075947904164")
-                        .stories,
-                    "Endpoint.Location.stories")
+                        .posts
+                        .recent,
+                    "Endpoint.Location.Posts.recent")
+        performTest(on: Endpoint.location("189075947904164")
+                        .posts
+                        .top,
+                    "Endpoint.Location.Posts.top")
     }
 
     /// Test `Endpoint.Media`.
@@ -395,9 +400,26 @@ final class EndpointTests: XCTestCase {
 
     /// Test tag endpoints.
     func testEndpointTag() {
+        performTest(on: Endpoint.tag("instagram"),
+                    "Endpoint.Tag.summary")
         performTest(on: Endpoint.tag("instagram")
-                        .posts,
-                    "Endpoint.Tag.posts")
+                        .posts
+                        .recent,
+                    "Endpoint.Tag.Posts.recent")
+        performTest(on: Endpoint.tag("instagram")
+                        .posts
+                        .top,
+                    "Endpoint.Tag.Posts.top")
+        performTest(on: Endpoint.tag("instagram")
+                        .stories,
+                    "Endpoint.Tag.Stories")
+        if performTest(on: Endpoint.tag("instagram")
+                        .follow(),
+                       "Endpoint.Tag.follow") != nil {
+            performTest(on: Endpoint.tag("instagram")
+                            .unfollow(),
+                        "Endpoint.Tag.unfollow")
+        }
     }
 
     /// Test `Endpoint.User`.
