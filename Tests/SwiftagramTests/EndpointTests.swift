@@ -23,6 +23,8 @@ import AppKit
 
 import SwCrypt
 
+/// The default delay.
+let delay: TimeInterval = 1
 /// The default request timeout.
 let timeout: TimeInterval = 30
 
@@ -48,6 +50,10 @@ final class EndpointTests: XCTestCase {
                                              _ identifier: String,
                                              logging level: Logger = .default,
                                              line: Int = #line) -> W? {
+        // Make sure you're waiting a bit before performing the next test.
+        let delayExpectation = XCTestExpectation(description: "delay")
+        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = Reference<W?>(nil)
@@ -76,6 +82,10 @@ final class EndpointTests: XCTestCase {
                                              _ identifier: String,
                                              logging level: Logger = .default,
                                              line: Int = #line) -> T? {
+        // Make sure you're waiting a bit before performing the next test.
+        let delayExpectation = XCTestExpectation(description: "delay")
+        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = Reference<T?>(nil)
@@ -102,6 +112,10 @@ final class EndpointTests: XCTestCase {
                                                 logging level: Logger = .default,
                                                 line: Int = #line) -> W?
     where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
+        // Make sure you're waiting a bit before performing the next test.
+        let delayExpectation = XCTestExpectation(description: "delay")
+        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = Reference<W?>(nil)
@@ -132,6 +146,10 @@ final class EndpointTests: XCTestCase {
                                                 logging level: Logger = .default,
                                                 line: Int = #line) -> W?
     where P: ComposableOptionalType {
+        // Make sure you're waiting a bit before performing the next test.
+        let delayExpectation = XCTestExpectation(description: "delay")
+        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = Reference<W?>(nil)
@@ -209,7 +227,8 @@ final class EndpointTests: XCTestCase {
         if let identifier = performTest(on: Endpoint.direct
                                             .conversation("340282366841710300949128131067346707174")
                                             .send("This is an automated message."),
-                                        "Endpoint.direct.Conversation.send")?.payload.itemId.string() {
+                                        "Endpoint.direct.Conversation.send",
+                                        logging: .init(level: .all))?.payload.itemId.string() {
             performTest(on: Endpoint.direct
                             .conversation("340282366841710300949128131067346707174")
                             .message(identifier)

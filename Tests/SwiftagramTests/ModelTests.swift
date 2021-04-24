@@ -171,6 +171,17 @@ final class ModelTests: XCTestCase {
                     wrapper: { status, _ in status.error == nil ? "ok".wrapped : .empty })
     }
 
+    /// Test `Tag`.
+    func testTag() {
+        let dictionary: [String: Wrapper] = ["id": "123",
+                                             "name": "tag",
+                                             "mediaCount": 3,
+                                             "following": 0]
+
+        performTest(on: dictionary,
+                    to: Tag.self)
+    }
+
     /// Test `Conversation`.
     func testThread() {
         let dictionary: [String: Wrapper] = ["threadId": "123_123",
