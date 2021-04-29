@@ -50,11 +50,16 @@ final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
             .addUserScript(
                 .init(
                     source: """
-                    const googlePlay = document.getElementsByClassName('MFkQJ ABLKx VhasA _1-msldsad')[0]
-                        || document.getElementsByClassName('MFkQJ ABLKx VhasA _1-msl')[0];
-                    if (googlePlay) googlePlay.remove();
-                    const cookies = document.getElementsByClassName('lOPC8 DPEif')[0];
-                    if (cookies) cookies.remove();
+                    // Remove "download from Google Play" header.
+                    const googlePlay = document.getElementsByClassName('MFkQJ ABLKx VhasA _1-msldsad')?.[0]
+                        || document.getElementsByClassName('MFkQJ ABLKx VhasA _1-msl')?.[0];
+                    if (googlePlay) googlePlay.remove()
+                    // Remove cookie bar.
+                    const cookieBar = document.getElementsByClassName('lOPC8 DPEif')?.[0];
+                    if (cookieBar) cookieBar.remove();
+                    // Remove FB unsupported browser.
+                    const headerNotice = document.getElementById('header-notices');
+                    if (headerNotice) headerNotice.remove();
                     """,
                     injectionTime: .atDocumentEnd,
                     forMainFrameOnly: true)
@@ -84,6 +89,15 @@ final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
     ///     - navigation: An optional `WKNavigation`.
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         guard isAuthenticating else { return }
+        // Auto-accept cookies.
+        if webView.url?.absoluteString.contains("https://www.instagram.com/accounts/login") ?? false {
+            webView.evaluateJavaScript("""
+                // Allow all cookies.
+                const cookieAlert = document.getElementsByClassName("aOOlW  bIiDR  ")?.[0];
+                if (cookieAlert) cookieAlert.click();
+            """) { _, _ in }
+        }
+        // Deal with authentication-related logic.
         DispatchQueue.global(qos: .userInitiated).async { [self] in
             self.semaphore.wait() // Wait for a signal.
             guard self.isAuthenticating else { self.semaphore.signal(); return }
