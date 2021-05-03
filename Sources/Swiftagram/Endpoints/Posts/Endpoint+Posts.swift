@@ -52,7 +52,7 @@ public extension Endpoint.Group.Posts {
                     .map(Swiftagram.Media.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

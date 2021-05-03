@@ -62,7 +62,7 @@ public extension Endpoint.Group.Direct.Conversation.Message {
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -86,7 +86,7 @@ public extension Endpoint.Group.Direct.Conversation.Message {
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

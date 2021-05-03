@@ -82,7 +82,7 @@ public extension Endpoint.Group.Saved.Collection {
                     .map(SavedCollection.Unit.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

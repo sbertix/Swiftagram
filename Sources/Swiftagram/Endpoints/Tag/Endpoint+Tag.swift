@@ -69,7 +69,7 @@ public extension Endpoint.Group.Tag {
                     .wrap()
                     .map(Swiftagram.Tag.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -86,7 +86,7 @@ public extension Endpoint.Group.Tag {
                     .wrap()
                     .map(TrayItem.Unit.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

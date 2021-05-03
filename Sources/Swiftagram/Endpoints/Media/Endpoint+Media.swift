@@ -129,7 +129,7 @@ public extension Endpoint.Group.Media {
                     .wrap()
                     .map(Swiftagram.Media.Unit.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -153,7 +153,7 @@ public extension Endpoint.Group.Media {
                     .map(Swiftagram.Comment.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -177,7 +177,7 @@ public extension Endpoint.Group.Media {
                     .map(Swiftagram.User.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -193,7 +193,7 @@ public extension Endpoint.Group.Media {
                     .wrap()
                     .map(Swiftagram.Media.Link.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -217,7 +217,7 @@ public extension Endpoint.Group.Media {
                     .map(Swiftagram.User.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -253,7 +253,7 @@ extension Endpoint.Group.Media {
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

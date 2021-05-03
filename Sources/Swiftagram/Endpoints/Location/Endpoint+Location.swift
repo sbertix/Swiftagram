@@ -102,7 +102,7 @@ public extension Endpoint.Group.Location {
                     .wrap()
                     .map(Swiftagram.Location.Unit.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -119,7 +119,7 @@ public extension Endpoint.Group.Location {
                     .wrap()
                     .map(TrayItem.Unit.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

@@ -71,7 +71,7 @@ public extension Endpoint.Group.Direct.Conversation {
                     .map(Swiftagram.Conversation.Unit.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -193,7 +193,7 @@ extension Endpoint.Group.Direct.Conversation {
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

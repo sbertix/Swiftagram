@@ -147,7 +147,7 @@ extension Endpoint.Group.Media {
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

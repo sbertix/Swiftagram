@@ -39,7 +39,7 @@ public extension Endpoint {
                     .map(Swiftagram.User.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }
@@ -74,7 +74,7 @@ public extension Endpoint.Group.Users {
                     .map(Swiftagram.User.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

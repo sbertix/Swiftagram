@@ -38,7 +38,7 @@ public extension Endpoint.Group.Archived {
                     .map(Swiftagram.Media.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -65,7 +65,7 @@ public extension Endpoint.Group.Archived {
                     .map(TrayItem.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

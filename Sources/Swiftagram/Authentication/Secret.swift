@@ -55,7 +55,7 @@ public struct Secret: Codable, Storable {
         let cookies = try container.decode([CodableHTTPCookie].self, forKey: .cookies)
         // Check for identifier.
         guard let identifier = cookies.first(where: { $0.name == "ds_user_id" })?.value else {
-            throw ResponseError.generic("Identifier for `Secret` not found.")
+            throw Authenticator.Error.generic("Identifier for `Secret` not found.")
         }
         self.identifier = identifier
         // If `client` is non-`nil`, we do not need to upgrade the device.
@@ -80,7 +80,7 @@ public struct Secret: Codable, Storable {
             #endif
         } else {
             // Otherwise we just raise an error.
-            throw ResponseError.generic("Invalid cached `Secret`.")
+            throw Authenticator.Error.generic("Invalid cached `Secret`.")
         }
     }
 

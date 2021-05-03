@@ -87,7 +87,7 @@ fileprivate extension Endpoint.Group.Direct {
                     .map(Swiftagram.Conversation.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -109,7 +109,7 @@ fileprivate extension Endpoint.Group.Direct {
                     .wrap()
                     .map(Recipient.Collection.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

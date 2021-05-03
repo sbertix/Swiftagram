@@ -39,7 +39,7 @@ public extension Endpoint.Group.Saved {
                     .map(Swiftagram.Media.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -69,7 +69,7 @@ public extension Endpoint.Group.Saved {
                     .map(SavedCollection.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

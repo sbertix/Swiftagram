@@ -56,7 +56,7 @@ public extension Endpoint.Group.ManyUsers {
                     .wrap()
                     .map(Swiftagram.Friendship.Dictionary.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -75,7 +75,7 @@ public extension Endpoint.Group.ManyUsers {
                     .wrap()
                     .map(TrayItem.Dictionary.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

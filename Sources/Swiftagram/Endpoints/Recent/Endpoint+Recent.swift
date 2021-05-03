@@ -121,7 +121,7 @@ public extension Endpoint.Group.Recent {
                     .wrap()
                     .map(TrayItem.Collection.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

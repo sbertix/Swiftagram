@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `struct` defining a tag instance.
-public struct Tag: Wrapped {
+public struct Tag: Specialized {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 

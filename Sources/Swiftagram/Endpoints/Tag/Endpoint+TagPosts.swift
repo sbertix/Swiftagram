@@ -49,7 +49,7 @@ public extension Endpoint.Group.Tag.Posts {
                     .map(Section.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -74,7 +74,7 @@ public extension Endpoint.Group.Tag.Posts {
                     .map(Section.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

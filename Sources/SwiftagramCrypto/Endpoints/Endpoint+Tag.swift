@@ -29,7 +29,7 @@ public extension Endpoint.Group.Tag {
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -54,7 +54,7 @@ public extension Endpoint.Group.Tag {
                     .wrap()
                     .map(Status.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

@@ -107,7 +107,7 @@ public extension Endpoint.Group.User {
                     .wrap()
                     .map(Swiftagram.User.Unit.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -163,7 +163,7 @@ public extension Endpoint.Group.User {
                     .wrap()
                     .map(TrayItem.Collection.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -186,7 +186,7 @@ public extension Endpoint.Group.User {
                     .map(Swiftagram.Media.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -203,7 +203,7 @@ public extension Endpoint.Group.User {
                     .wrap()
                     .map(Swiftagram.User.Collection.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -223,7 +223,7 @@ public extension Endpoint.Group.User {
                     .wrap()
                     .map(TrayItem.Unit.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -250,7 +250,7 @@ public extension Endpoint.Group.User {
                     .map(Swiftagram.Media.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 
@@ -296,7 +296,7 @@ fileprivate extension Endpoint.Group.User {
                     .map(Swiftagram.User.Collection.init)
                     .iterateFirst(stoppingAt: $0)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }

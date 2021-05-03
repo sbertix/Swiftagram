@@ -100,7 +100,7 @@ fileprivate extension Endpoint.Group.User {
                     .wrap()
                     .map(Friendship.Unit.init)
             }
-            .eraseToAnyPublisher()
+            .replaceFailingWithError()
         }
     }
 }
