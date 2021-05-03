@@ -242,6 +242,9 @@ final class ModelTests: XCTestCase {
                                              "items": [],
                                              "expiringAt": 0,
                                              "seen": 0,
+                                             "muted": true,
+                                             "hasVideo": true,
+                                             "hasBestiesMedia": true,
                                              "user": ["username": "Test"]]
         performTest(on: dictionary,
                     to: TrayItem.self,
@@ -250,9 +253,12 @@ final class ModelTests: XCTestCase {
                              "seenRankedPosition": "seenPosition",
                              "mediaCount": "availableCount",
                              "prefetchCount": "fetchedCount",
-                             "latestReelMedia": "latestMediaPrimaryKey",
                              "coverMedia": "cover",
-                             "seen": "lastSeenOn"])
+                             "latestReelMedia": "publishedAt",
+                             "seen": "seenAt",
+                             "muted": "isMuted",
+                             "hasVideo": "containsVideos",
+                             "hasBestiesMedia": "containsCloseFriendsExclusives"])
         performTest(on: ["story": dictionary.wrapped], to: TrayItem.Unit.self, mapper: ["story": "item"])
         performTest(on: ["items": [dictionary.wrapped]], to: TrayItem.Collection.self)
         performTest(on: ["reels": ["123_123": dictionary.wrapped]],

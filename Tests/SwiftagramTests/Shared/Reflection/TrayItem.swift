@@ -19,12 +19,14 @@ extension TrayItem: Reflected {
                                                                     "availableCount": \Self.availableCount,
                                                                     "fetchedCount": \Self.fetchedCount,
                                                                     "title": \Self.title,
-                                                                    "latestMediaPrimaryKey": \Self.latestMediaPrimaryKey,
                                                                     "cover": \Self.cover,
                                                                     "items": \Self.items,
                                                                     "expiringAt": \Self.expiringAt,
-                                                                    "lastSeenOn": \Self.lastSeenOn,
+                                                                    "publishedAt": \Self.publishedAt,
+                                                                    "seenAt": \Self.seenAt,
                                                                     "user": \Self.user,
+                                                                    "isMuted": \Self.isMuted,
+                                                                    "containsVideos": \Self.containsVideos,
                                                                     "containsCloseFriendsExclusives": \Self.containsCloseFriendsExclusives]
 }
 

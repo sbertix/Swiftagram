@@ -19,6 +19,7 @@ public struct TrayItem: Wrapped {
     public var position: Int? { self["rankedPosition"].int() }
     /// The seen ranked position.
     public var seenPosition: Int? { self["seenRankedPosition"].int() }
+
     /// The media count.
     public var availableCount: Int? { self["mediaCount"].int() }
     /// The count of media that have actually been fetched.
@@ -30,27 +31,47 @@ public struct TrayItem: Wrapped {
             ?? self["timestamp"].string(converting: true)
             ?? user?.username
     }
-    /// The last media primary key.
-    public var latestMediaPrimaryKey: Int? { self["latestReelMedia"].int() }
+
     /// The cover media.
     public var cover: Media? { self["coverMedia"].optional().flatMap(Media.init) }
+
     /// The actual content.
     public var items: [Media]? { self["items"].array()?.map(Media.init) }
 
-    /// The expiration date of the tray item.
+    /// The expiration date of the tray element, if it exists.
     public var expiringAt: Date? {
-        self["expiringAt"].date()
+        self["expiringAt"].int() == 0 ? nil : self["expiringAt"].date()
     }
-    /// The date the tray was last seen on.
-    public var lastSeenOn: Date? {
-        self["seen"].date()
+
+    /// The latest reel media date, if it exists.
+    public var publishedAt: Date? {
+        self["latestReelMedia"].int() == 0 ? nil : self["latestReelMedia"].date()
+    }
+
+    /// The date you last opened the tray element, if it exists.
+    public var seenAt: Date? {
+        self["seen"].int() == 0 ? nil : self["seen"].date()
     }
 
     /// The user.
-    public var user: User? { self["user"].optional().flatMap { User(wrapper: $0) }}
+    public var user: User? {
+        self["user"].optional().flatMap { User(wrapper: $0) }
+    }
+
+    /// Whether it's muted or not.
+    public var isMuted: Bool? {
+        self["muted"].bool()
+    }
+
+    /// Whether the tray has video content.
+    public var containsVideos: Bool? {
+        self["hasVideo"].bool()
+    }
 
     /// Whether the tray has content the logged in user can see being a close friend.
-    public var containsCloseFriendsExclusives: Bool? { self["hasBestiesMedia"].bool() }
+    public var containsCloseFriendsExclusives: Bool? {
+        self["hasBestiesMedia"].bool()
+    }
 
     /// Init.
     /// - parameter wrapper: A valid `Wrapper`.
