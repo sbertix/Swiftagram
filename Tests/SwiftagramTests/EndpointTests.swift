@@ -483,6 +483,12 @@ final class EndpointTests: XCTestCase {
                         .follow(),
                     "Endpoint.User.follow")
         performTest(on: Endpoint.user("25025320")
+                        .mute(.all),
+                    "Endpoint.User.mute")
+        performTest(on: Endpoint.user("25025320")
+                        .unmute(.all),
+                    "Endpoint.User.unmute")
+        performTest(on: Endpoint.user("25025320")
                         .unfollow(),
                     "Endpoint.User.unfollow")
         performTest(on: Endpoint.user("25025320")

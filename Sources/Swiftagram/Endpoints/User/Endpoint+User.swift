@@ -147,17 +147,6 @@ public extension Endpoint.Group.User {
                     .highlights_tray
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
-                    .query(appending: [
-                        "supported_capabilities_new": try? SupportedCapabilities
-                            .default
-                            .map { ["name": $0.key, "value": $0.value] }
-                            .wrapped
-                            .jsonRepresentation(),
-                        "phone_id": secret.client.device.phoneIdentifier.uuidString,
-                        "battery_level": "72",
-                        "is_charging": "0",
-                        "will_sound_on": "0"
-                    ])
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
@@ -215,9 +204,16 @@ public extension Endpoint.Group.User {
                     .feed
                     .user
                     .path(appending: self.identifier)
-                    .reel_media
+                    .story
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
+                    .query(appending: [
+                        "supported_capabilities_new": try? SupportedCapabilities
+                            .default
+                            .map { ["name": $0.key, "value": $0.value] }
+                            .wrapped
+                            .jsonRepresentation()
+                    ])
                     .publish(with: session)
                     .map(\.data)
                     .wrap()

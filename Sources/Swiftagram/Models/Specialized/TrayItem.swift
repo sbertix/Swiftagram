@@ -89,6 +89,7 @@ public extension TrayItem {
         /// The tray item.
         public var item: TrayItem? {
             (wrapper()["story"].optional()
+                ?? wrapper()["reel"].optional()
                 ?? wrapper()["item"].optional()
                 ?? wrapper().optional())
                 .flatMap(TrayItem.init)

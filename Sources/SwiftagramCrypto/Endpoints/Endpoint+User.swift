@@ -14,6 +14,16 @@ public extension Endpoint.Group.User {
         public let user: Endpoint.Group.User
     }
 
+    /// An `enum` listing all possible muting actions.
+    enum Muting: Equatable {
+        /// Posts and stories.
+        case all
+        /// Posts.
+        case posts
+        /// Stories.
+        case stories
+    }
+
     /// A wrapper for request endpoints.
     var request: Request {
         .init(user: self)
@@ -31,6 +41,34 @@ public extension Endpoint.Group.User {
     /// - returns: A valid `Endpoint.Single`.
     func follow() -> Endpoint.Single<Friendship.Unit, Error> {
         edit("create")
+    }
+
+    /// Mute the given user.
+    ///
+    /// - parameter action: A valid `Muting`.
+    /// - returns: A valid `Endpoint.Single`.
+    func mute(_ action: Muting) -> Endpoint.Single<Friendship.Unit, Error> {
+        .init { secret, session in
+            Deferred {
+                Swiftagram.Request.version1
+                    .friendships
+                    .path(appending: "mute_posts_or_story_from_follow/")
+                    .appendingDefaultHeader()
+                    .header(appending: secret.header)
+                    .signing(body: ["_csrftoken": secret["csrftoken"],
+                                    "_uid": secret.identifier,
+                                    "_uuid": secret.client.device.identifier.uuidString,
+                                    "container_module": "feed_timeline",
+                                    "target_reel_author_id": action != .posts ? self.identifier : nil,
+                                    "target_posts_author_id": action != .stories ? self.identifier : nil]
+                                .compactMapValues { $0 })
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(Friendship.Unit.init)
+            }
+            .replaceFailingWithError()
+        }
     }
 
     /// Remove the given user from your followers.
@@ -53,6 +91,34 @@ public extension Endpoint.Group.User {
     /// - returns: A valid `Endpoint.Single`.
     func unfollow() -> Endpoint.Single<Friendship.Unit, Error> {
         edit("destroy")
+    }
+
+    /// Unmute the given user.
+    ///
+    /// - parameter action: A valid `Muting`.
+    /// - returns: A valid `Endpoint.Single`.
+    func unmute(_ action: Muting) -> Endpoint.Single<Friendship.Unit, Error> {
+        .init { secret, session in
+            Deferred {
+                Swiftagram.Request.version1
+                    .friendships
+                    .path(appending: "unmute_posts_or_story_from_follow/")
+                    .appendingDefaultHeader()
+                    .header(appending: secret.header)
+                    .signing(body: ["_csrftoken": secret["csrftoken"],
+                                    "_uid": secret.identifier,
+                                    "_uuid": secret.client.device.identifier.uuidString,
+                                    "container_module": "feed_timeline",
+                                    "target_reel_author_id": action != .posts ? self.identifier : nil,
+                                    "target_posts_author_id": action != .stories ? self.identifier : nil]
+                                .compactMapValues { $0 })
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(Friendship.Unit.init)
+            }
+            .replaceFailingWithError()
+        }
     }
 }
 
