@@ -60,7 +60,7 @@ public struct TrayItem: Wrapped {
 
     /// Whether it's muted or not.
     public var isMuted: Bool? {
-        self["muted"].bool()
+        self["muted"].bool() ?? user?.friendship?.isMutingStories
     }
 
     /// Whether the tray has video content.

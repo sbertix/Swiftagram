@@ -10,13 +10,21 @@ import Foundation
 /// A `struct` representing a `User`.
 public struct User: Wrapped {
     /// An `enum` representing an access status.
-    public enum Access: Int, Hashable, Codable {
-        /// Default.
-        case `default`
-        /// Private.
-        case `private`
-        /// Verified.
-        case verified
+    public struct Access: OptionSet, Hashable, Codable {
+        /// The underlying raw value.
+        public let rawValue: Int
+
+        /// Init.
+        ///
+        /// - parameter rawValue: A valid `Int`.
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+
+        /// A private account.
+        public static let `private`: Access = .init(rawValue: 1 << 0)
+        /// A verified account.
+        public static let verified: Access = .init(rawValue: 1 << 1)
     }
     /// A `struct` representing a profile's `Counter`s.
     public struct Counter: Hashable, Codable {
@@ -62,14 +70,26 @@ public struct User: Wrapped {
 
     /// The current access status.
     public var access: Access? {
-        if self["isPrivate"].bool() == nil && self["isVerified"].bool() == nil {
-            return nil
-        } else if self["isPrivate"].bool() ?? false {
+        let isPrivate = self["isPrivate"].bool()
+        let isVerified = self["isVerified"].bool()
+        // Deal with condition.
+        if isPrivate == true && isVerified == true {
+            return [.private, .verified]
+        } else if isPrivate == true {
             return .private
-        } else if self["isVerified"].bool() ?? false {
+        } else if isVerified == true {
             return .verified
+        } else if isPrivate == nil && isVerified == nil {
+            return nil
+        } else {
+            return []
         }
-        return .default
+    }
+
+    /// An optional friendship status.
+    public var friendship: Friendship? {
+        self["friendship"].optional().flatMap(Friendship.init)
+            ?? self["friendshipStatus"].optional().flatMap(Friendship.init)
     }
 
     /// The counter.
