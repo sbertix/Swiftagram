@@ -25,6 +25,11 @@ public extension Endpoint.Group.Posts {
         Endpoint.archived.posts
     }
 
+    /// The logged in user's timeline.
+    var recent: Endpoint.Paginated<Wrapper, RankedOffset<String?, String?>, Error> {
+        Endpoint.recent.posts
+    }
+
     /// A list of all saved posts.
     ///
     /// - note: Use `Endpoint.saved` accessories to deal with specific collections.

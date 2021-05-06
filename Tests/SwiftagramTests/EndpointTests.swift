@@ -227,8 +227,7 @@ final class EndpointTests: XCTestCase {
         if let identifier = performTest(on: Endpoint.direct
                                             .conversation("340282366841710300949128131067346707174")
                                             .send("This is an automated message."),
-                                        "Endpoint.direct.Conversation.send",
-                                        logging: .init(level: .all))?.payload.itemId.string() {
+                                        "Endpoint.direct.Conversation.send")?.payload.itemId.string() {
             performTest(on: Endpoint.direct
                             .conversation("340282366841710300949128131067346707174")
                             .message(identifier)
@@ -354,11 +353,9 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.recent
                         .activity,
                     "Endpoint.Recent.activity")
-        performTest(on: Endpoint.recent
-                        .posts,
+        performTest(on: Endpoint.posts.recent,
                     "Endpoint.Recent.posts")
-        performTest(on: Endpoint.recent
-                        .stories,
+        performTest(on: Endpoint.stories.recent,
                     "Endpoint.Recent.stories")
     }
 
@@ -409,12 +406,12 @@ final class EndpointTests: XCTestCase {
            let identifier = wrapper.media?.identifier {
             performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteImage")
         }
-        //        if let wrapper = performTest(on: Endpoint.Media.Stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
-        //                                                                       stickers: [.mention("208803632")]),
-        //                                     "Endpoint.Media.Stories.uploadVideo"),
-        //           let identifier = wrapper.media.id.string() {
-        //            performTest(on: Endpoint.Media.delete(identifier), "Endpoint.Media.Stories.deleteVideo")
-        //        }
+//        if let wrapper = performTest(on: Endpoint.stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
+//                                                                 stickers: [.mention("208803632")]),
+//                                     "Endpoint.Media.Stories.uploadVideo"),
+//           let identifier = wrapper.media?.identifier {
+//            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteVideo")
+//        }
     }
 
     /// Test tag endpoints.

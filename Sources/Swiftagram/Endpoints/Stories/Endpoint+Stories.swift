@@ -32,4 +32,9 @@ public extension Endpoint.Group.Stories {
                                      Error> {
         Endpoint.archived.stories
     }
+
+    /// The logged in user stories tray.
+    var recent: Endpoint.Single<TrayItem.Collection, Error> {
+        Endpoint.recent.stories
+    }
 }

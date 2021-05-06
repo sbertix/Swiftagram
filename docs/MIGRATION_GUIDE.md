@@ -10,6 +10,8 @@ We wanted all of you relying on this repo to immediately feel the gap with previ
 to leave out deprecations and availability declarations for all `4.*` definitions and just remove them completely,
 also allowing us to get rid of thousands of lines of legacy code. 
 
+**Make sure you've read `README.md`, before approaching this guide.** 
+
 ### Authentication
 
 #### WebView-based
@@ -106,10 +108,6 @@ Authenticator.keychain
 ```
 
 </p></details>
-
-### Requests and responses
-
-*Work in progress.*
 
 ### `Endpoint`s list
 
