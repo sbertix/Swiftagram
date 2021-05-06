@@ -39,10 +39,11 @@ final class AuthenticatorTests: XCTestCase {
 
     /// Test `BasicAuthenticator` login flow.
     func testBasicAuthenticator() {
+        guard let password = ProcessInfo.processInfo.environment["PASSWORD"] else { return }
         let expectation = XCTestExpectation()
         Authenticator.userDefaults
             .basic(username: "swiftagram.tests",
-                   password: ProcessInfo.processInfo.environment["PASSWORD"]!.trimmingCharacters(in: .whitespacesAndNewlines))
+                   password: password.trimmingCharacters(in: .whitespacesAndNewlines))
             .authenticate()
             .ignoreOutput()
             .sink(

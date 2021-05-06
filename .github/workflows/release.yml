@@ -66,8 +66,7 @@ jobs:
       - name:              Test
         env:
           SECRET:          ${{ secrets.SECRET }}
-          IV:              ${{ secrets.IV }}
-          KEY:             ${{ secrets.KEY }}
+          PASSWORD:        ${{ secrets.PASSWORD }}
         run:               swift test --parallel --enable-test-discovery --enable-code-coverage
       # merge into `main`.
       - name:              Merge
