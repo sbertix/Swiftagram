@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E0066A0D261F3F9F00BB10A1 /* SwiftagramCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = E0066A0C261F3F9F00BB10A1 /* SwiftagramCrypto */; };
 		E028F0302418DFCC00F9C7F8 /* FollowersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F0212418DFCC00F9C7F8 /* FollowersView.swift */; };
 		E028F0312418DFCC00F9C7F8 /* FollowersModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F0222418DFCC00F9C7F8 /* FollowersModel.swift */; };
 		E028F0332418DFCC00F9C7F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E028F0242418DFCC00F9C7F8 /* Assets.xcassets */; };
@@ -17,12 +18,13 @@
 		E028F0392418DFCC00F9C7F8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02D2418DFCC00F9C7F8 /* ContentView.swift */; };
 		E028F03B2418DFCC00F9C7F8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E028F02F2418DFCC00F9C7F8 /* SceneDelegate.swift */; };
 		E06D4F71244C7EA500C9AD05 /* FetchImage in Frameworks */ = {isa = PBXBuildFile; productRef = E06D4F70244C7EA500C9AD05 /* FetchImage */; };
+		E0B1314925D1794800317BEE /* AvatarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B1314825D1794800317BEE /* AvatarButton.swift */; };
+		E0B1315225D179EA00317BEE /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B1315125D179EA00317BEE /* RemoteImage.swift */; };
 		E0EA4715246DE2C700F409E6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0EA4714246DE2C700F409E6 /* LoginView.swift */; };
-		E0F7C5D024C8810D00831751 /* SwiftagramCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = E0F7C5CF24C8810D00831751 /* SwiftagramCrypto */; };
-		E0F7C5D224C8810D00831751 /* Swiftagram in Frameworks */ = {isa = PBXBuildFile; productRef = E0F7C5D124C8810D00831751 /* Swiftagram */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E0066A0B261F3F1C00BB10A1 /* Swiftagram */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Swiftagram; path = ../..; sourceTree = "<group>"; };
 		E028F0082418DFAD00F9C7F8 /* Followers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Followers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E028F0212418DFCC00F9C7F8 /* FollowersView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FollowersView.swift; sourceTree = "<group>"; };
 		E028F0222418DFCC00F9C7F8 /* FollowersModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FollowersModel.swift; sourceTree = "<group>"; };
@@ -34,6 +36,8 @@
 		E028F02D2418DFCC00F9C7F8 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E028F02E2418DFCC00F9C7F8 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E028F02F2418DFCC00F9C7F8 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		E0B1314825D1794800317BEE /* AvatarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarButton.swift; sourceTree = "<group>"; };
+		E0B1315125D179EA00317BEE /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
 		E0EA4714246DE2C700F409E6 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -42,8 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0F7C5D224C8810D00831751 /* Swiftagram in Frameworks */,
-				E0F7C5D024C8810D00831751 /* SwiftagramCrypto in Frameworks */,
+				E0066A0D261F3F9F00BB10A1 /* SwiftagramCrypto in Frameworks */,
 				E06D4F71244C7EA500C9AD05 /* FetchImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -51,10 +54,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E0066A04261E2C1A00BB10A1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E028EFFF2418DFAD00F9C7F8 = {
 			isa = PBXGroup;
 			children = (
+				E0066A0B261F3F1C00BB10A1 /* Swiftagram */,
 				E028F01F2418DFCC00F9C7F8 /* Followers */,
+				E0066A04261E2C1A00BB10A1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -71,11 +83,12 @@
 			isa = PBXGroup;
 			children = (
 				E028F02C2418DFCC00F9C7F8 /* AppDelegate.swift */,
-				E028F02D2418DFCC00F9C7F8 /* ContentView.swift */,
 				E028F02F2418DFCC00F9C7F8 /* SceneDelegate.swift */,
-				E059DA6B2458CA830016294D /* Login */,
-				E028F0252418DFCC00F9C7F8 /* User */,
-				E028F0202418DFCC00F9C7F8 /* Followers */,
+				E028F02D2418DFCC00F9C7F8 /* ContentView.swift */,
+				E028F0212418DFCC00F9C7F8 /* FollowersView.swift */,
+				E0EA4714246DE2C700F409E6 /* LoginView.swift */,
+				E028F0252418DFCC00F9C7F8 /* Reusables */,
+				E028F0202418DFCC00F9C7F8 /* Models */,
 				E028F02A2418DFCC00F9C7F8 /* LaunchScreen.storyboard */,
 				E028F02E2418DFCC00F9C7F8 /* Info.plist */,
 				E028F0242418DFCC00F9C7F8 /* Assets.xcassets */,
@@ -85,21 +98,22 @@
 			path = Followers;
 			sourceTree = "<group>";
 		};
-		E028F0202418DFCC00F9C7F8 /* Followers */ = {
+		E028F0202418DFCC00F9C7F8 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				E028F0212418DFCC00F9C7F8 /* FollowersView.swift */,
 				E028F0222418DFCC00F9C7F8 /* FollowersModel.swift */,
 			);
-			path = Followers;
+			path = Models;
 			sourceTree = "<group>";
 		};
-		E028F0252418DFCC00F9C7F8 /* User */ = {
+		E028F0252418DFCC00F9C7F8 /* Reusables */ = {
 			isa = PBXGroup;
 			children = (
+				E0B1315125D179EA00317BEE /* RemoteImage.swift */,
+				E0B1314825D1794800317BEE /* AvatarButton.swift */,
 				E028F0272418DFCC00F9C7F8 /* UserCell.swift */,
 			);
-			path = User;
+			path = Reusables;
 			sourceTree = "<group>";
 		};
 		E028F0282418DFCC00F9C7F8 /* Preview Content */ = {
@@ -108,14 +122,6 @@
 				E028F0292418DFCC00F9C7F8 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		E059DA6B2458CA830016294D /* Login */ = {
-			isa = PBXGroup;
-			children = (
-				E0EA4714246DE2C700F409E6 /* LoginView.swift */,
-			);
-			path = Login;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,8 +142,7 @@
 			name = Followers;
 			packageProductDependencies = (
 				E06D4F70244C7EA500C9AD05 /* FetchImage */,
-				E0F7C5CF24C8810D00831751 /* SwiftagramCrypto */,
-				E0F7C5D124C8810D00831751 /* Swiftagram */,
+				E0066A0C261F3F9F00BB10A1 /* SwiftagramCrypto */,
 			);
 			productName = Followers;
 			productReference = E028F0082418DFAD00F9C7F8 /* Followers.app */;
@@ -150,7 +155,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1140;
-				LastUpgradeCheck = 1140;
+				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = "Stefano Bertagno";
 				TargetAttributes = {
 					E028F0072418DFAD00F9C7F8 = {
@@ -169,7 +174,6 @@
 			mainGroup = E028EFFF2418DFAD00F9C7F8;
 			packageReferences = (
 				E06D4F6F244C7EA500C9AD05 /* XCRemoteSwiftPackageReference "FetchImage" */,
-				E0F7C5CE24C8810D00831751 /* XCRemoteSwiftPackageReference "Swiftagram" */,
 			);
 			productRefGroup = E028F0092418DFAD00F9C7F8 /* Products */;
 			projectDirPath = "";
@@ -198,11 +202,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0B1315225D179EA00317BEE /* RemoteImage.swift in Sources */,
 				E028F0382418DFCC00F9C7F8 /* AppDelegate.swift in Sources */,
 				E028F0392418DFCC00F9C7F8 /* ContentView.swift in Sources */,
 				E028F0302418DFCC00F9C7F8 /* FollowersView.swift in Sources */,
 				E028F0352418DFCC00F9C7F8 /* UserCell.swift in Sources */,
 				E028F0312418DFCC00F9C7F8 /* FollowersModel.swift in Sources */,
+				E0B1314925D1794800317BEE /* AvatarButton.swift in Sources */,
 				E0EA4715246DE2C700F409E6 /* LoginView.swift in Sources */,
 				E028F03B2418DFCC00F9C7F8 /* SceneDelegate.swift in Sources */,
 			);
@@ -248,6 +254,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -272,7 +279,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -308,6 +315,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -326,7 +334,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -341,9 +349,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Followers/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6YNCRQZ25E;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Followers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -363,9 +371,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Followers/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6YNCRQZ25E;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Followers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -408,35 +416,21 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:kean/FetchImage.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.0;
-			};
-		};
-		E0F7C5CE24C8810D00831751 /* XCRemoteSwiftPackageReference "Swiftagram" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:sbertix/Swiftagram.git";
-			requirement = {
 				kind = upToNextMinorVersion;
-				minimumVersion = 4.2.0;
+				minimumVersion = 0.4.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E0066A0C261F3F9F00BB10A1 /* SwiftagramCrypto */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftagramCrypto;
+		};
 		E06D4F70244C7EA500C9AD05 /* FetchImage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E06D4F6F244C7EA500C9AD05 /* XCRemoteSwiftPackageReference "FetchImage" */;
 			productName = FetchImage;
-		};
-		E0F7C5CF24C8810D00831751 /* SwiftagramCrypto */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E0F7C5CE24C8810D00831751 /* XCRemoteSwiftPackageReference "Swiftagram" */;
-			productName = SwiftagramCrypto;
-		};
-		E0F7C5D124C8810D00831751 /* Swiftagram */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E0F7C5CE24C8810D00831751 /* XCRemoteSwiftPackageReference "Swiftagram" */;
-			productName = Swiftagram;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

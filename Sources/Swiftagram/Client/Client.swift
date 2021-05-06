@@ -15,11 +15,19 @@ import UIKit
 ///
 /// -  warning: `Client.default` is not guaranteed to remain the same.
 public struct Client: Equatable, Codable, CustomStringConvertible {
-    /// The default `Client`. Defaults to a **Samsung Galaxy S10**.
+    #if canImport(UIKit) && !canImport(WatchKit)
+    /// The default `Client`. Defaults to `current`, if available, otherwise `iPhone11ProMax`.
     ///
     /// - note: Replace it with your own for custom `Device` management.
     /// -  warning: `Client.default` is not guaranteed to remain the same.
-    public static var `default` = Client.samsungGalaxyS20
+    public static var `default`: Client = .current ?? .iPhone11ProMax
+    #else
+    /// The default `Client`. Defaults to `iPhone11ProMax`.
+    ///
+    /// - note: Replace it with your own for custom `Device` management.
+    /// -  warning: `Client.default` is not guaranteed to remain the same.
+    public static var `default`: Client = .iPhone11ProMax
+    #endif
 
     /// The application info.
     public let application: Application

@@ -7,26 +7,8 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `TrayItem`.
-public struct TrayItem: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "position": \Self.position,
-                                                                    "seenPosition": \Self.seenPosition,
-                                                                    "availableCount": \Self.availableCount,
-                                                                    "fetchedCount": \Self.fetchedCount,
-                                                                    "title": \Self.title,
-                                                                    "latestMediaPrimaryKey": \Self.latestMediaPrimaryKey,
-                                                                    "cover": \Self.cover,
-                                                                    "items": \Self.items,
-                                                                    "expiringAt": \Self.expiringAt,
-                                                                    "lastSeenOn": \Self.lastSeenOn,
-                                                                    "user": \Self.user,
-                                                                    "containsCloseFriendsExclusives": \Self.containsCloseFriendsExclusives]
+public struct TrayItem: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -37,6 +19,7 @@ public struct TrayItem: ReflectedType {
     public var position: Int? { self["rankedPosition"].int() }
     /// The seen ranked position.
     public var seenPosition: Int? { self["seenRankedPosition"].int() }
+
     /// The media count.
     public var availableCount: Int? { self["mediaCount"].int() }
     /// The count of media that have actually been fetched.
@@ -48,27 +31,47 @@ public struct TrayItem: ReflectedType {
             ?? self["timestamp"].string(converting: true)
             ?? user?.username
     }
-    /// The last media primary key.
-    public var latestMediaPrimaryKey: Int? { self["latestReelMedia"].int() }
+
     /// The cover media.
     public var cover: Media? { self["coverMedia"].optional().flatMap(Media.init) }
+
     /// The actual content.
     public var items: [Media]? { self["items"].array()?.map(Media.init) }
 
-    /// The expiration date of the tray item.
+    /// The expiration date of the tray element, if it exists.
     public var expiringAt: Date? {
-        self["expiringAt"].date()
+        self["expiringAt"].int() == 0 ? nil : self["expiringAt"].date()
     }
-    /// The date the tray was last seen on.
-    public var lastSeenOn: Date? {
-        self["seen"].date()
+
+    /// The latest reel media date, if it exists.
+    public var publishedAt: Date? {
+        self["latestReelMedia"].int() == 0 ? nil : self["latestReelMedia"].date()
+    }
+
+    /// The date you last opened the tray element, if it exists.
+    public var seenAt: Date? {
+        self["seen"].int() == 0 ? nil : self["seen"].date()
     }
 
     /// The user.
-    public var user: User? { self["user"].optional().flatMap { User(wrapper: $0) }}
+    public var user: User? {
+        self["user"].optional().flatMap { User(wrapper: $0) }
+    }
+
+    /// Whether it's muted or not.
+    public var isMuted: Bool? {
+        self["muted"].bool() ?? user?.friendship?.isMutingStories
+    }
+
+    /// Whether the tray has video content.
+    public var containsVideos: Bool? {
+        self["hasVideo"].bool()
+    }
 
     /// Whether the tray has content the logged in user can see being a close friend.
-    public var containsCloseFriendsExclusives: Bool? { self["hasBestiesMedia"].bool() }
+    public var containsCloseFriendsExclusives: Bool? {
+        self["hasBestiesMedia"].bool()
+    }
 
     /// Init.
     /// - parameter wrapper: A valid `Wrapper`.
@@ -79,18 +82,14 @@ public struct TrayItem: ReflectedType {
 
 public extension TrayItem {
     /// A `struct` representing a `TrayItem` single response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "TrayItem." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["item": \Self.item,
-                                                                        "error": \Self.error]
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
         /// The tray item.
         public var item: TrayItem? {
             (wrapper()["story"].optional()
+                ?? wrapper()["reel"].optional()
                 ?? wrapper()["item"].optional()
                 ?? wrapper().optional())
                 .flatMap(TrayItem.init)
@@ -104,13 +103,10 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` collection.
-    struct Collection: ResponseType, ReflectedType, PaginatedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "TrayItem." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["items": \Self.items,
-                                                                        "pagination": \Self.pagination,
-                                                                        "error": \Self.error]
+    struct Collection: Specialized, Paginatable {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -127,12 +123,7 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` dictionary.
-    struct Dictionary: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "TrayItem." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["items": \Self.items,
-                                                                        "error": \Self.error]
+    struct Dictionary: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

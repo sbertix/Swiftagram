@@ -7,18 +7,24 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `User`.
-public struct User: ReflectedType {
+public struct User: Wrapped {
     /// An `enum` representing an access status.
-    public enum Access: Int, Hashable, Codable {
-        /// Default.
-        case `default`
-        /// Private.
-        case `private`
-        /// Verified.
-        case verified
+    public struct Access: OptionSet, Hashable, Codable {
+        /// The underlying raw value.
+        public let rawValue: Int
+
+        /// Init.
+        ///
+        /// - parameter rawValue: A valid `Int`.
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+
+        /// A private account.
+        public static let `private`: Access = .init(rawValue: 1 << 0)
+        /// A verified account.
+        public static let verified: Access = .init(rawValue: 1 << 1)
     }
     /// A `struct` representing a profile's `Counter`s.
     public struct Counter: Hashable, Codable {
@@ -37,19 +43,6 @@ public struct User: ReflectedType {
         /// IGTV.
         public var igtv: Int
     }
-
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "username": \Self.username,
-                                                                    "name": \Self.name,
-                                                                    "biography": \Self.biography,
-                                                                    "thumbnail": \Self.thumbnail,
-                                                                    "avatar": \Self.avatar,
-                                                                    "access": \Self.access,
-                                                                    "counter": \Self.counter,
-                                                                    "friendship": \Self.friendship]
 
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
@@ -77,14 +70,26 @@ public struct User: ReflectedType {
 
     /// The current access status.
     public var access: Access? {
-        if self["isPrivate"].bool() == nil && self["isVerified"].bool() == nil {
-            return nil
-        } else if self["isPrivate"].bool() ?? false {
+        let isPrivate = self["isPrivate"].bool()
+        let isVerified = self["isVerified"].bool()
+        // Deal with condition.
+        if isPrivate == true && isVerified == true {
+            return [.private, .verified]
+        } else if isPrivate == true {
             return .private
-        } else if self["isVerified"].bool() ?? false {
+        } else if isVerified == true {
             return .verified
+        } else if isPrivate == nil && isVerified == nil {
+            return nil
+        } else {
+            return []
         }
-        return .default
+    }
+
+    /// An optional friendship status.
+    public var friendship: Friendship? {
+        self["friendship"].optional().flatMap(Friendship.init)
+            ?? self["friendshipStatus"].optional().flatMap(Friendship.init)
     }
 
     /// The counter.
@@ -110,13 +115,7 @@ public struct User: ReflectedType {
 
 public extension User {
     /// A `struct` representing a `User` single response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Comment." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["user": \Self.user,
-                                                                        "error": \Self.error]
-
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -131,13 +130,10 @@ public extension User {
     }
 
     /// A `struct` representing a `User` collection.
-    struct Collection: ResponseType, ReflectedType, PaginatedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "User." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["users": \Self.users,
-                                                                        "pagination": \Self.pagination,
-                                                                        "error": \Self.error]
+    struct Collection: Specialized, Paginatable {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

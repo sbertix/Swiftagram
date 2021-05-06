@@ -7,7 +7,7 @@ That said, we require some guidelines to be followed, in order for PRs to be mer
 
 - **Bugfixes** should always refer to a `bug` **issue**. Open one before (or when) you submit your pull request.
   - Do not close your issue manually, instead write `Fix #123`, replacing "123" with the reference number. It will be closed automatically on completion.
-- If you are planning **bigger changes**, always open an `enhancement` **issue** before spending a lot of time writing code.
+- If you are planning **bigger changes**, always open a **discussion** before spending a lot of time writing code.
 - All changes are made by submitting a pull request.
 - Ask for a review as soon as you are done with your changes.
 - PRs merged into `development` will be then considered for the next release, and merged into `main` with a new PR.
@@ -23,5 +23,5 @@ That said, we require some guidelines to be followed, in order for PRs to be mer
 
 ## Setup
 
-Write your code so that it runs on `Swift 5.1`.\
+Write your code so that it runs on `Swift 5.2`.\
 If you are using a newer version of Xcode, download the appropriate toolchains [here](https://swift.org/download/)

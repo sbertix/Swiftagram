@@ -8,17 +8,8 @@
 import CoreGraphics
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `UserTag`.
-public struct UserTag: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "x": \Self.x,
-                                                                    "y": \Self.y]
-
+public struct UserTag: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 

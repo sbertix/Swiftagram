@@ -5,10 +5,11 @@
 //  Created by Stefano Bertagno on 17/08/2020.
 //
 
+#if !os(watchOS) && canImport(XCTest)
+
 import Foundation
 import XCTest
 
-import ComposableRequest
 @testable import Swiftagram
 
 final class ModelTests: XCTestCase {
@@ -17,15 +18,15 @@ final class ModelTests: XCTestCase {
     /// 
     /// - parameters:
     ///     - dictionary: A valid dictionary of `Wrapper`s.
-    ///     - type: A `ReflectedType` concrete implementation.
-    ///     - mapper: An association between the original dictionary `key` and the `ReflectedType` `properties`'. Defaults to empty.
+    ///     - type: A `Reflected` concrete implementation.
+    ///     - mapper: An association between the original dictionary `key` and the `Reflected` `properties`'. Defaults to empty.
     ///     - forcingWrapper: Whether you should bypass mapping or not. Defaults to `false`.
     ///     - wrapper: A custom fallback implementation for non 1-to-1 `mapper` keys, starting from the unmapped key.
-    func performTest<T: ReflectedType>(on dictionary: [String: Wrapper],
-                                       to type: T.Type,
-                                       mapper: [String: String] = [:],
-                                       forcingWrapper: Bool = false,
-                                       wrapper: (T, String) -> Wrapper = { _, _ in .empty }) {
+    func performTest<T: Reflected>(on dictionary: [String: Wrapper],
+                                   to type: T.Type,
+                                   mapper: [String: String] = [:],
+                                   forcingWrapper: Bool = false,
+                                   wrapper: (T, String) -> Wrapper = { _, _ in .empty }) {
         let response = T(wrapper: dictionary.wrapped)
         let name = String(describing: type)
         dictionary.forEach { key, value in
@@ -143,7 +144,23 @@ final class ModelTests: XCTestCase {
                         }
                     })
         performTest(on: ["media": dictionary.wrapped], to: Media.Unit.self)
-        performTest(on: ["media": [dictionary.wrapped].wrapped], to: Media.Collection.self)
+        //performTest(on: ["media": [dictionary.wrapped].wrapped], to: Media.Collection.self)
+    }
+
+    /// Test `SavedCollection`.
+    func testSavedCollection() {
+        let dictionary: [String: Wrapper] = ["collectionId": "123",
+                                             "collectionName": "Test",
+                                             "collectionMediaType": "MEDIA",
+                                             "collectionMediaCount": 12,
+                                             "coverMediaList": [],
+                                             "items": []]
+        performTest(on: dictionary,
+                    to: SavedCollection.self)
+        performTest(on: ["saveMediaResponse": dictionary.wrapped],
+                    to: SavedCollection.Unit.self)
+        performTest(on: ["items": [dictionary.wrapped]],
+                    to: SavedCollection.Collection.self)
     }
 
     /// Test `Status`.
@@ -152,6 +169,17 @@ final class ModelTests: XCTestCase {
                     to: Status.self,
                     forcingWrapper: true,
                     wrapper: { status, _ in status.error == nil ? "ok".wrapped : .empty })
+    }
+
+    /// Test `Tag`.
+    func testTag() {
+        let dictionary: [String: Wrapper] = ["id": "123",
+                                             "name": "tag",
+                                             "mediaCount": 3,
+                                             "following": 0]
+
+        performTest(on: dictionary,
+                    to: Tag.self)
     }
 
     /// Test `Conversation`.
@@ -181,7 +209,7 @@ final class ModelTests: XCTestCase {
         performTest(on: ["thread": dictionary.wrapped], to: Conversation.Unit.self)
         performTest(on: ["inbox": ["threads": [dictionary.wrapped].wrapped]],
                     to: Conversation.Collection.self,
-                    wrapper: { response, _ in ["threads": (response.threads?.map { $0.wrapper() }).wrapped] })
+                    wrapper: { response, _ in ["threads": (response.conversations?.map { $0.wrapper() }).wrapped] })
     }
 
     /// Test `Recipient`.
@@ -194,7 +222,7 @@ final class ModelTests: XCTestCase {
                         (response.recipients?.map { recipient -> [String: Wrapper] in
                             switch recipient {
                             case .user(let user): return ["user": user.wrapper()]
-                            case .thread(let thread): return ["thread": thread.wrapper()]
+                            case .thread(let conversation): return ["thread": conversation.wrapper()]
                             default: return ["error": .empty]
                             }
                         }).wrapped
@@ -214,6 +242,9 @@ final class ModelTests: XCTestCase {
                                              "items": [],
                                              "expiringAt": 0,
                                              "seen": 0,
+                                             "muted": true,
+                                             "hasVideo": true,
+                                             "hasBestiesMedia": true,
                                              "user": ["username": "Test"]]
         performTest(on: dictionary,
                     to: TrayItem.self,
@@ -222,9 +253,12 @@ final class ModelTests: XCTestCase {
                              "seenRankedPosition": "seenPosition",
                              "mediaCount": "availableCount",
                              "prefetchCount": "fetchedCount",
-                             "latestReelMedia": "latestMediaPrimaryKey",
                              "coverMedia": "cover",
-                             "seen": "lastSeenOn"])
+                             "latestReelMedia": "publishedAt",
+                             "seen": "seenAt",
+                             "muted": "isMuted",
+                             "hasVideo": "containsVideos",
+                             "hasBestiesMedia": "containsCloseFriendsExclusives"])
         performTest(on: ["story": dictionary.wrapped], to: TrayItem.Unit.self, mapper: ["story": "item"])
         performTest(on: ["items": [dictionary.wrapped]], to: TrayItem.Collection.self)
         performTest(on: ["reels": ["123_123": dictionary.wrapped]],
@@ -284,3 +318,5 @@ final class ModelTests: XCTestCase {
                     wrapper: { response, _ in [response.x.flatMap(Double.init), response.y.flatMap(Double.init)].wrapped })
     }
 }
+
+#endif

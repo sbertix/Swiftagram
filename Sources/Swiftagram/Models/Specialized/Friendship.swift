@@ -7,22 +7,8 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `Friendship`.
-public struct Friendship: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["isFollowedByYou": \Self.isFollowedByYou,
-                                                                    "isFollowingYou": \Self.isFollowingYou,
-                                                                    "isBlockedByYou": \Self.isBlockedByYou,
-                                                                    "isCloseFriend": \Self.isCloseFriend,
-                                                                    "didRequestToFollowYou": \Self.didRequestToFollowYou,
-                                                                    "didRequestToFollow": \Self.didRequestToFollow,
-                                                                    "isMutingStories": \Self.isMutingStories,
-                                                                    "isMutingPosts": \Self.isMutingPosts]
-
+public struct Friendship: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -53,18 +39,29 @@ public struct Friendship: ReflectedType {
 
 public extension Friendship {
     /// A `struct` representing a `Friendship` collection.
-    struct Dictionary: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Friendship." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["friendships": \Self.friendships,
-                                                                        "error": \Self.error]
-
+    struct Dictionary: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
         /// The friendships.
         public var friendships: [String: Friendship]! { self["friendshipStatuses"].dictionary()?.mapValues { Friendship(wrapper: $0) }}
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
+    }
+
+    /// A `struct` representing a single `Friendship` value.
+    struct Unit: Specialized {
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
+
+        /// The friendship.
+        public var friendship: Friendship? {
+            self["friendshipStatus"].optional().flatMap(Friendship.init)
+        }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.

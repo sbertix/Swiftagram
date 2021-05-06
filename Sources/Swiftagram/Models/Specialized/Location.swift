@@ -8,10 +8,8 @@
 import CoreGraphics
 import Foundation
 
-import ComposableRequest
-
 /// A `class` representing a `Location`
-public struct Location: ReflectedType {
+public struct Location: Wrapped {
     /// A `struct` holding reference to longitude and latitude.
     public struct Coordinates: Equatable {
         /// The longitude.
@@ -28,16 +26,6 @@ public struct Location: ReflectedType {
             self.longitude = longitude
         }
     }
-
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["coordinates": \Self.coordinates,
-                                                                    "name": \Self.name,
-                                                                    "shortName": \Self.shortName,
-                                                                    "address": \Self.address,
-                                                                    "city": \Self.city,
-                                                                    "identifier": \Self.identifier]
 
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
@@ -78,13 +66,7 @@ public struct Location: ReflectedType {
 
 public extension Location {
     /// A `struct` representing a single `Location` response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Location." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["location": \Self.location,
-                                                                        "error": \Self.error]
-
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -99,13 +81,10 @@ public extension Location {
     }
 
     /// A `struct` representing a `Location` collection.
-    struct Collection: ResponseType, PaginatedType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Location." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["venues": \Self.venues,
-                                                                        "pagination": \Self.pagination,
-                                                                        "error": \Self.error]
+    struct Collection: Specialized, Paginatable {
+        /// The associated offset type.
+        public typealias Offset = String?
+
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

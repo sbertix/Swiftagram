@@ -7,22 +7,8 @@
 
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `Conversation`.
-public struct Conversation: ReflectedType {
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "title": \Self.title,
-                                                                    "updatedAt": \Self.updatedAt,
-                                                                    "openedAt": \Self.openedAt,
-                                                                    "hasMutedMessages": \Self.hasMutedMessages,
-                                                                    "hasMutedVideocalls": \Self.hasMutedVideocalls,
-                                                                    "users": \Self.users,
-                                                                    "messages": \Self.messages]
-
+public struct Conversation: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -55,18 +41,15 @@ public struct Conversation: ReflectedType {
 
 public extension Conversation {
     /// A `struct` representing a `Conversation` single response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Conversation." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["thread": \Self.thread,
-                                                                        "error": \Self.error]
-
+    struct Unit: Specialized, Paginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
         /// The thread.
-        public var thread: Conversation? { self["thread"].optional().flatMap(Conversation.init) }
+        public var conversation: Conversation? { self["thread"].optional().flatMap(Conversation.init) }
+
+        /// The pagination parameters.
+        public var offset: String? { self["thread"]["oldestCursor"].string() }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
@@ -76,27 +59,17 @@ public extension Conversation {
     }
 
     /// A `struct` representing a `Conversation` collection.
-    struct Collection: ResponseType, PaginatedType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Conversation." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["threads": \Self.threads,
-                                                                        "viewer": \Self.viewer,
-                                                                        "error": \Self.error]
-
+    struct Collection: Specialized, Paginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
         /// The threads.
-        public var threads: [Conversation]? { self["inbox"].threads.array()?.map(Conversation.init) }
+        public var conversations: [Conversation]? { self["inbox"].threads.array()?.map(Conversation.init) }
         /// The logged in user.
         public var viewer: User? { self["viewer"].optional().flatMap(User.init) }
 
         /// The pagination parameters.
-        public var pagination: Pagination {
-            /// The current cursor is always `nil` for inboxes.
-            .init(current: nil, next: self["inbox"]["oldestCursor"].string())
-        }
+        public var offset: String? { self["inbox"]["oldestCursor"].string() }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.

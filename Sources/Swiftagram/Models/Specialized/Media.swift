@@ -8,20 +8,10 @@
 import CoreGraphics
 import Foundation
 
-import ComposableRequest
-
 /// A `struct` representing a `Media`.
-public struct Media: ReflectedType {
+public struct Media: Wrapped {
     /// A `struct` representing some content `Version`.
-    public struct Version: ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Media." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["url": \Self.url,
-                                                                        "size": \Self.size,
-                                                                        "aspectRatio": \Self.aspectRatio,
-                                                                        "resolution": \Self.resolution]
-
+    public struct Version: Wrapped {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -47,12 +37,7 @@ public struct Media: ReflectedType {
     }
 
     /// A `struct` representing a `Picture`.
-    public struct Picture: ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Media." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["images": \Self.images]
-
+    public struct Picture: Wrapped {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -72,14 +57,7 @@ public struct Media: ReflectedType {
     }
 
     /// A `struct` representing a `Video`.
-    public struct Video: ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Media." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["duration": \Self.duration,
-                                                                        "images": \Self.images,
-                                                                        "clips": \Self.clips]
-
+    public struct Video: Wrapped {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -147,25 +125,6 @@ public struct Media: ReflectedType {
         }
     }
 
-    /// The debug description prefix.
-    public static let debugDescriptionPrefix: String = ""
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["identifier": \Self.identifier,
-                                                                    "primaryKey": \Self.primaryKey,
-                                                                    "code": \Self.code,
-                                                                    "wasLikedByYou": \Self.wasLikedByYou,
-                                                                    "expiringAt": \Self.expiringAt,
-                                                                    "takenAt": \Self.takenAt,
-                                                                    "size": \Self.size,
-                                                                    "aspectRatio": \Self.aspectRatio,
-                                                                    "resolution": \Self.resolution,
-                                                                    "caption": \Self.caption,
-                                                                    "comments": \Self.comments,
-                                                                    "likes": \Self.likes,
-                                                                    "content": \Self.content,
-                                                                    "user": \Self.user,
-                                                                    "location": \Self.location]
-
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper
 
@@ -220,12 +179,7 @@ public struct Media: ReflectedType {
 
 public extension Media {
     /// A `struct` representing a `Media` single response.
-    struct Unit: ResponseType, ReflectedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Media." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["media": \Self.media,
-                                                                        "error": \Self.error]
+    struct Unit: Specialized {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -242,19 +196,35 @@ public extension Media {
     }
 
     /// A `struct` representing a `Media` collection.
-    struct Collection: ResponseType, ReflectedType, PaginatedType {
-        /// The prefix.
-        public static var debugDescriptionPrefix: String { "Media." }
-        /// A list of to-be-reflected properties.
-        public static let properties: [String: PartialKeyPath<Self>] = ["media": \Self.media,
-                                                                        "pagination": \Self.pagination,
-                                                                        "error": \Self.error]
+    struct Collection: Specialized, Paginatable {
+        /// The associated offset type.
+        public typealias Offset = String?
 
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
         /// The media.
-        public var media: [Media]? { self["items"].array()?.map(Media.init) }
+        public var media: [Media]? {
+            self["items"].array()?.map(Media.init)
+                ?? self["media"].array()?.map(Media.init)
+        }
+
+        /// Init.
+        /// - parameter wrapper: A valid `Wrapper`.
+        public init(wrapper: @escaping () -> Wrapper) {
+            self.wrapper = wrapper
+        }
+    }
+
+    /// A `struct` defining a media permalink.
+    struct Link: Specialized {
+        /// The underlying `Response`.
+        public var wrapper: () -> Wrapper
+
+        /// The actual url.
+        public var url: URL? {
+            self["permalink"].url()
+        }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
