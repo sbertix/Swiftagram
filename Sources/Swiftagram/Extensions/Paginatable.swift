@@ -9,5 +9,5 @@ import Foundation
 
 public extension Paginatable where Self: Wrappable, Offset == String? {
     /// The pagination parameters.
-    var offset: Offset { wrapped.nextMaxId.string() }
+    var offset: Offset { wrapped.nextMaxId.string(converting: true) }
 }

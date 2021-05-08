@@ -215,7 +215,7 @@ public extension Authenticator.Group {
                         throw Authenticator.Error.invalidResponse(result.response)
                     }
                     // Deal with two factor authentication.
-                    if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string() {
+                    if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string(converting: true) {
                         throw Authenticator.Error.twoFactorChallenge(.init(storage: storage,
                                                                            client: client,
                                                                            identifier: twoFactorIdentifier,

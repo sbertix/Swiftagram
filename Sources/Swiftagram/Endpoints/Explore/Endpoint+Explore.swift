@@ -34,7 +34,7 @@ public extension Endpoint.Group.Explore {
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
-                    .iterateFirst(stoppingAt: $0) { $0?.nextMaxId.string() }
+                    .iterateFirst(stoppingAt: $0) { $0?.nextMaxId.string(converting: true) }
             }
             .eraseToAnyPublisher()
         }
@@ -57,7 +57,7 @@ public extension Endpoint.Group.Explore {
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
-                    .iterateFirst(stoppingAt: $0) { $0?.nextMaxId.string() }
+                    .iterateFirst(stoppingAt: $0) { $0?.nextMaxId.string(converting: true) }
             }
             .eraseToAnyPublisher()
         }

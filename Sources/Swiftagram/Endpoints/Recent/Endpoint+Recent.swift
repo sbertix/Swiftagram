@@ -80,7 +80,7 @@ public extension Endpoint.Group.Recent {
                     .map(\.data)
                     .wrap()
                     .iterateFirst(stoppingAt: $0) {
-                        switch $0?.nextMaxId.string() {
+                        switch $0?.nextMaxId.string(converting: true) {
                         case .none:
                             return nil
                         case "feed_recs_head_load":
@@ -91,7 +91,7 @@ public extension Endpoint.Group.Recent {
                                 .groupSet
                                 .groups
                                 .array()?
-                                .first(where: { $0.id.string() == "past_posts" })?
+                                .first(where: { $0.id.string(converting: true) == "past_posts" })?
                                 .nextMaxId
                                 .string()
                         case let cursor?:

@@ -133,7 +133,7 @@ public struct Media: Wrapped {
     /// The primary key.
     public var primaryKey: Int! { self["pk"].int() }
     /// The code (for media URL).
-    public var code: String? { self["code"].string() }
+    public var code: String? { self["code"].string(converting: true) }
 
     /// The expiration date (if it exists).
     public var expiringAt: Date? { self["expiringAt"].date() }

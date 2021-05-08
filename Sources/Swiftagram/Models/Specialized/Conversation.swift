@@ -49,7 +49,7 @@ public extension Conversation {
         public var conversation: Conversation? { self["thread"].optional().flatMap(Conversation.init) }
 
         /// The pagination parameters.
-        public var offset: String? { self["thread"]["oldestCursor"].string() }
+        public var offset: String? { self["thread"]["oldestCursor"].string(converting: true) }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
@@ -69,7 +69,7 @@ public extension Conversation {
         public var viewer: User? { self["viewer"].optional().flatMap(User.init) }
 
         /// The pagination parameters.
-        public var offset: String? { self["inbox"]["oldestCursor"].string() }
+        public var offset: String? { self["inbox"]["oldestCursor"].string(converting: true) }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
