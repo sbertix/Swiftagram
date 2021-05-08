@@ -13,7 +13,16 @@ public struct Section: Wrapped {
     public var wrapper: () -> Wrapper
 
     /// Media in the response.
-    public var items: [Media]? { self["layoutContent"].medias.array()?.compactMap(Media.init) }
+    public var items: [Media]? {
+        self["layoutContent"]
+            .fillItems
+            .array()?
+            .compactMap { $0.media.optional().flatMap(Media.init) }
+        ?? self["layoutContent"]
+            .medias
+            .array()?
+            .compactMap { $0.media.optional().flatMap(Media.init) }
+    }
 
     /// Init.
     /// - parameter wrapper: A valid `Wrapper`.
