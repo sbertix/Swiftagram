@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftagram - Endpoint.Group.Direct.Conversation</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/Swiftagram/Swiftagram/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/Swiftagram/Swiftagram/">
+            <strong>
+                Swiftagram
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.group.direct.conversation.request">request</a></li><li class="variable"><a href="#endpoint.group.direct.conversation.messages">messages</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.group.direct.conversation.message(_:)">message(_:​)</a></li><li class="function"><a href="#endpoint.group.direct.conversation.delete()">delete()</a></li><li class="function"><a href="#endpoint.group.direct.conversation.invite(_:)">invite(_:​)</a></li><li class="function"><a href="#endpoint.group.direct.conversation.invite(_:)">invite(_:​)</a></li><li class="function"><a href="#endpoint.group.direct.conversation.leave()">leave()</a></li><li class="function"><a href="#endpoint.group.direct.conversation.mute()">mute()</a></li><li class="function"><a href="#endpoint.group.direct.conversation.send(_:)">send(_:​)</a></li><li class="function"><a href="#endpoint.group.direct.conversation.title(_:)">title(_:​)</a></li><li class="function"><a href="#endpoint.group.direct.conversation.unmute()">unmute()</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Extensions on</small>
+    <code class="name">Endpoint.Group.Direct.Conversation</code>
+</h1>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="endpoint.group.direct.conversation.request">
+    <h3>
+        <code>request</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">request</span>: <span class="type">Request</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A wrapper for request endpoints.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.direct.conversation.messages">
+    <h3>
+        <code>messages</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">messages</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Conversation</span>.<span class="type">Unit</span>, <span class="type">String</span>?, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Paginate all messages in the conversation.</p>
+
+</div>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="endpoint.group.direct.conversation.message(_:)">
+    <h3>
+        <code>message(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">message</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Message</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A wrapper for message endpoints.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Message</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.delete()">
+    <h3>
+        <code>delete()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">delete</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Delete the current conversation.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Warning">
+    <p>This is not tested in <code>SwiftagramTests</code>, so it might not work in the future. Open an <code>issue</code> if that happens.</p>
+
+</aside>
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.invite(_:)">
+    <h3>
+        <code>invite(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">invite</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">userIdentifiers</span>: <span class="type">C</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Invite users based on their identifier.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>user​Identifiers</th>
+    <td><code class="type">C</code></td>
+    <td><p>A collection of <code>String</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.invite(_:)">
+    <h3>
+        <code>invite(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">invite</span>(<span class="keyword">_</span> <span class="variable">userIdentifier</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Invite a user based on their identifier.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>user​Identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.leave()">
+    <h3>
+        <code>leave()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">leave</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Leave the current conversation.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Warning">
+    <p>This is not tested in <code>SwiftagramTests</code>, so it might not work in the future. Open an <code>issue</code> if that happens.</p>
+
+</aside>
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.mute()">
+    <h3>
+        <code>mute()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">mute</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Mute the current conversation.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.send(_:)">
+    <h3>
+        <code>send(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">send</span>(<span class="keyword">_</span> <span class="variable">text</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Wrapper</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Send a message in the current conversation.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>text</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.title(_:)">
+    <h3>
+        <code>title(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">title</span>(<span class="keyword">_</span> <span class="variable">title</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Update the title for the current conversation.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>title</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.direct.conversation.unmute()">
+    <h3>
+        <code>unmute()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unmute</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unmute the current conversation.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-08T12:43:43+0000">May 8, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

@@ -2,14 +2,14 @@
 <img alt="Header" src="https://github.com/sbertix/Swiftagram/blob/main/Resources/header.png" height="72" />
 <br />
 
-[![Swift](https://img.shields.io/badge/Swift-5.1-%23DE5C43?style=flat&logo=swift)](https://swift.org)
+[![Swift](https://img.shields.io/badge/Swift-5.2-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 [![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
 <br />
-![iOS](https://img.shields.io/badge/iOS-9.0-ff69b4)
-![macOS](https://img.shields.io/badge/macOS-10.12-ff69b4)
-![tvOS](https://img.shields.io/badge/tvOS-11.0-ff69b4)
-![watchOS](https://img.shields.io/badge/watchOS-3.0-ff69b4)
+![iOS](https://img.shields.io/badge/iOS-9.0-DD5D43)
+![macOS](https://img.shields.io/badge/macOS-10.12-DD5D43)
+![tvOS](https://img.shields.io/badge/tvOS-11.0-DD5D43)
+![watchOS](https://img.shields.io/badge/watchOS-3.0-DD5D43)
 
 <br />
 
@@ -32,6 +32,22 @@ Keep in mind features like `BasicAuthenticator`, a non-visual `Authenticator`, o
 Please check out the _docs_ to find out more.
 
 <p />
+
+## Supporting older platform versions
+
+**Swiftagram** relies on [**CombineX**](https://github.com/cx-org/CombineX/)'s [**CXShim**](https://github.com/cx-org/CombineX/wiki/Combine-Compatible-Package) to provide a **Combine** runtime on all platforms and versions. 
+
+However, Apple's **Combine** is used by default, meaning, without any configuration, your minimum deployment target will be limited to **iOS 13**, **macOS 10.15**, **tvOS 13** and **watchOS 6**. 
+If you're developing apps with **SwiftUI** or supporting recent versions alone, we suggest sticking with this default runtime, as it's supported out-of-the-box and no external libraries will be packaged inside your release archive. 
+
+If you need to support older versions, though, all you have to do, is make sure you're running your **Xcode** process specifying the custom **Combine** implementation through an environmental variable. 
+Something as simple as the code below is enough.
+
+```bash
+export CX_COMBINE_IMPLEMENTATION="combinex"
+killall Xcode
+open *.xcodeproj
+```
 
 ## Status
 ![push](https://github.com/sbertix/Swiftagram/workflows/push/badge.svg)
@@ -63,10 +79,10 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 <details><summary><strong>Targets</strong></summary>
     <p>
 
-- **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**., and it's the core library.\
-It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s out of the box.
+- **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**.\
+It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s and caching `Secret`s, through **ComposableStorage**, out-of-the-box.
 
-- **SwiftagramCrypto**, depending on **ComposableRequestCrypto** and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
+- **SwiftagramCrypto**, depending on [**Swiftchain**](https//github.com/sbertix/Swiftchain) and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
     </p>
 </details>
 
@@ -80,9 +96,9 @@ Authentication is provided through conformance to the `Authenticator` protocol, 
 
 The library comes with two concrete implementations.
 
-#### WebViewAuthenticator
+#### WebView-based
 
-`WebViewAuthenticator` is a visual based `Authenticator`, relying on a `WKWebView` in order to log in the user.
+`Authenticator.Group.Visual` is a visual based `Authenticator`, relying on a `WKWebView` in order to log in the user.
 As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 10.13 (and above).
 
 <details><summary><strong>Example</strong></summary>
@@ -90,91 +106,93 @@ As it's based on `WebKit`, it's only available for iOS 11 (and above) and macOS 
 
 ```swift
 import UIKit
-import WebKit
 
-import ComposableRequest
-import ComposableRequestCrypto
 import Swiftagram
 
-/// A `class` defining a `UIViewController` displaying a `WKWebView` used for authentication.
-final class LoginViewController: UIViewController {
-    /// Any `ComposableRequest.Storage` used to cache `Secret`s.
-    /// We're using `KeychainStorage` as it's the safest option.
-    let storage = KeychainStorage()
-    /// A valid `Client`. We're relying on the `default` one.
-    let client = Client.default
-
-    /// The web view.
-    var webView: WKWebView? {
+/// A `class` defining a view controller capable of displaying the authentication web view.
+class LoginViewController: UIViewController {
+    /// The completion handler.
+    var completion: ((Secret) -> Void)? {
         didSet {
-            oldValue?.removeFromSuperview() // Just in case.
-            guard let webView = webView else { return }
-            webView.frame = view.bounds     // Fill the parent view.
-            // You should also deal with layout constraints or similar here…
-            view.addSubview(webView)        // Add it to the parent view.
-        }
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Authenticate using any `Storage` you want (`KeychainStorage` is used as an example).
-        // `storage` can be omitted if you don't require `Secret`s caching.
-        // `client` can be omitted and the default once will be used.
-        WebViewAuthenticator(storage: storage,
-                             client: client) { self.webView = $0 }
-            .authenticate {
-                switch $0 {
-                    case .failure(let error): print(error.localizedDescription)
-                    default: print("Login succesful.")
-                }
+            guard oldValue == nil, let completion = completion else { return }
+            // Authenticate.
+            DispatchQueue.main.asyncAfter(deadline: .now()) {
+                // We're using `Authentication.keyhcain`, being encrypted,
+                // but you can rely on different ones.
+                Authenticator.keychain
+                    .visual(filling: self.view)
+                    .authenticate()
+                    .sink(receiveCompletion: { _ in }, receiveValue: completion)
+                    .store(in: &self.bin)
             }
         }
     }
+
+    /// The dispose bag.
+    private var bin: Set<AnyCancellable> = []
 }
+```
+
+And then you can use it simply by initiating it and assining a `completion` handler.
+
+```swift
+let controller = LoginViewController()
+controller.completion = { _ in /* do something */ }
+// Present/push the controller.
 ```
 
 </p></details>
 
-#### BasicAuthenticator
+#### Basic
 
-`BasicAuthenticator` is a code based `Authenticator`, supporting 2FA, defined in **SwiftagramCrypto**: all you need is a _username_ and _password_ and you're ready to go.
+`Authenticator.Group.Basic` is a code based `Authenticator`, supporting 2FA, defined in **SwiftagramCrypto**: all you need is a _username_ and _password_ and you're ready to go.
 
 <details><summary><strong>Example</strong></summary>
     <p>
 
 ```swift
-import ComposableRequest
-import ComposableRequestCrypto
-import Swiftagram
 import SwiftagramCrypto
 
-/// Any `ComposableRequest.Storage` used to cache `Secret`s.
-/// We're using `KeychainStorage` as it's the safest option.
-let storage = KeychainStorage()
-/// A valid `Client`. We're relying on the `default` one.
-let client = Client.default
+/// A retained dispose bag.
+/// **You need to retain this.**
+private var bin: Set<AnyCancellable> = []
 
-/// Authenticate.
-BasicAuthenticator(storage: storage,    // Optional. No storage will be used if omitted.
-                   client: client,      // Optional. Default client will be used if omitted.
-                   username: /* username */,
-                   password: /* password */)
-    .authenticate {
-        switch $0 {
-        case .failure(let error):
-            // Please check out the docs to find out how to deal with 2FA.
-            print(error.localizedDescription)
-        default: print("Login successful.")
-        }
-    }
+// We're using `Authentication.keyhcain`, being encrypted,
+// but you can rely on different ones.
+Authenticator.keychain
+    .basic(username: /* username */,
+           password: /* password */)
+    .authenticate()
+    .sink(receiveCompletion: {
+            switch $0 {
+            case .failure(let error):
+                // Deal with two factor authentication.
+                switch error {
+                case Authenticator.Error.twoFactorChallenge(let challenge):
+                    // Once you receive the challenge,
+                    // ask the user for the 2FA code
+                    // then just call:
+                    // `challenge.code(/* the code */).authenticate()`
+                    // and deal with the publisher.
+                    break
+                default:
+                    break
+                }
+            default:
+                break
+            }
+          }, 
+          receiveValue: { _ in /* do something */ })
+    .store(in: &self.bin)
+}
 ```
 
 </p></details>
 
 ### Caching
-Caching of `Secret`s is provided through conformance to the `Storage` protocol in [**ComposableRequest**](https://github.com/sbertix/ComposableRequest).  
+Caching of `Secret`s is provided through its conformacy to [**ComopsableStorage**](https://github.com/sbertix/ComposableRequest)'s `Storable` protocol.  
 
-The library comes with several concrete implementations.  
+The library comes with several concrete implementations of `Storage`.  
 - `TransientStorage` should be used when no caching is necessary, and it's what `Authenticator`s default to when no `Storage` is provided.  
 - `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encrypted.  
 - `KeychainStorage`, part of **ComposableRequestCrypto**, (**preferred**) stores them safely in the user's keychain.  
@@ -182,63 +200,74 @@ The library comes with several concrete implementations.
 ### Request
 > How can I bypass Instagram "spam" filter, and make them believe I'm not actually a bot?
 
-Just set the default `waiting` time in the `Requester` to something greater than `0`.
+In older versions of **Swiftagram** we let the user set a delay between the firing of a request, and its actual dispatch. 
+This would eventually just slow down implementations, doing close to nothing to prevent misuse. 
+
+Starting with `5.0`, we're now directly exposing `URLSession`s to final users, so you can build your own implementation.  
+
+**Swiftagram** defines a `static` `URLSession` (`URLSession.instagram`) fetching one resource at a time. Relying on this is the preferred way to deal with Instagram "spam" filter.
 
 ```swift
-import ComposableRequest
-import Swiftagram
-import SwiftagramCrypto
-
-// Somewhere in your code, for instance in your `AppDelegate`, set a new `default` `Requester`.
-// `O.5` to `1.5` seconds is a long enough time, usually.
-// `Requester.instagram` deals about it for you.
-Requester.default = .instagram
-```
-
-Or just create a custom `Requester` and pass it to every single request you make.  
-
-> What if I wanna know the basic info about a profile?
-
-All you need is the user identifier and a valid `Secret`.
-
-```swift
-let identifier: String = /* the profile identifier */
+// A valid secret.
 let secret: Secret = /* the authentication response */
+// A **retained** collection of cancellables.
+var bin: Set<AnyCancellable> = []
 
-// Perform the request.
-Endpoint.User.summary(for: identifier)
-    .unlocking(with: secret)
-    .task {
-        // Do something here.
-    })
-    .resume() // Strongly referenced by default, no need to worry about it.
+// We're using a random endpoint to demonstrate 
+// how `URLSession` is exposed in code. 
+Endpoint.user(secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram)    // `URLSession.instagram` 
+    .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
+    .store(in: &bin)
 ```
 
 > What about cancelling an ongoing request?
 
-Easy!
+Once you have a stream `Cancellable`, just call `cancel` on it or empty `bin`.
 
 ```swift
+// A valid secret.
 let secret: Secret = /* the authentication response */
+// A **retained** collection of cancellables.
+var bin: Set<AnyCancellable> = []
 
-// Perform the request.
-let task = Endpoint.Friendship.following(secret.id)
-    .unlocking(with: secret)
-    .task(maxLength: 10,
-          onComplete: { _ in },
-          onChange: { _ in  
-            // Do something here.
-    })
-    .resume() // Exhaust 10 pages of followers.
-
+// We're using a random endpoint to demonstrate 
+// how `Deferrable` is exposed in code. 
+Endpoint.user(secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram) 
+    .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
+    .store(in: &bin)
+    
 // Cancel it.
-task?.cancel()
+bin.removeAll()
 ```
 
->  What about loading the next page?
+> How do I deal with pagination and pagination offsets? 
 
-Just `resume` it once more.
-If it's still fetching, nothing's gonna happen. But if it's not and there are still more pages to be fetched, a new one will be requested.  
+Easy. 
+Assuming you're fetching a resource that can actually be paginated… 
+
+```swift
+// A valid secret.
+let secret: Secret = /* the authentication response */
+// A **retained** collection of cancellables.
+var bin: Set<AnyCancellable> = []
+
+// We're using a random endpoint to demonstrate 
+// how `PagerProvider` is exposed in code. 
+Endpoint.media(secret.identifier)
+    .unlock(with: secret)
+    .session(.instagram)
+    .pages(.max)    // Exhaust all with `.max`
+                    // or pass any `Int` to limit
+                    // pages.
+    .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
+    .store(in: &bin)
+```
+
+`PagerProvider` also supports an `offset`, i.e. the value passed to its first iteration, and a `rank` (token) in same cases, both as optional parameters in the `pages(_:offset:)`/`pages(_:offset:rank:)` method above.  
 
 <p />
 

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftagram - Authenticator</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/Swiftagram/Swiftagram/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/Swiftagram/Swiftagram/">
+            <strong>
+                Swiftagram
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Nested Types</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#authenticator.init(storage:)">init(storage:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#authenticator.secrets">secrets</a></li><li class="variable"><a href="#authenticator.storage">storage</a></li><li class="variable"><a href="#authenticator.transient">transient</a></li><li class="variable"><a href="#authenticator.userdefaults">user​Defaults</a></li><li class="variable"><a href="#authenticator.keychain">keychain</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#authenticator.secret(_:)">secret(_:​)</a></li><li class="function"><a href="#authenticator.secret(_:)">secret(_:​)</a></li><li class="function"><a href="#authenticator.secrets(_:)">secrets(_:​)</a></li><li class="function"><a href="#authenticator.secrets(_:)">secrets(_:​)</a></li><li class="function"><a href="#authenticator.userdefaults(_:)">user​Defaults(_:​)</a></li><li class="function"><a href="#authenticator.visual(_:)">visual(_:​)</a></li><li class="function"><a href="#authenticator.visual(_:)">visual(_:​)</a></li><li class="function"><a href="#authenticator.visual(filling:)">visual(filling:​)</a></li><li class="function"><a href="#authenticator.keychain(_:)">keychain(_:​)</a></li><li class="function"><a href="#authenticator.basic(username:password:)">basic(username:​password:​)</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Structure</small>
+    <code class="name">Authenticator</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">Authenticator</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>struct</code> defining an instance capable of
+starting the authentication flow for a given user.</p>
+
+</div>
+<section id="relationships">
+    <h2 hidden>Relationships</h2>
+        
+        <h3>Nested Types</h3>
+<dl>
+    <dt class="enumeration"><code><a href="https://sbertix.github.io/Swiftagram/Swiftagram/Authenticator_Error">Authenticator.Error</a></code></dt>
+<dd><p>An <code>enum</code> listing some authentication-specific errors.</p>
+</dd>
+<dt class="class"><code><a href="https://sbertix.github.io/Swiftagram/Swiftagram/Authenticator_Key">Authenticator.Key</a></code></dt>
+<dd><p>A <code>class</code> defining an instance used for <code>Secret</code> management.</p>
+</dd>
+<dt class="class"><code><a href="https://sbertix.github.io/Swiftagram/Swiftagram/Authenticator_Keys">Authenticator.Keys</a></code></dt>
+<dd><p>A <code>class</code> defining an instance used for <code>Secret</code>s management.</p>
+</dd>
+<dt class="enumeration"><code><a href="https://sbertix.github.io/Swiftagram/Swiftagram/Authenticator_Group">Authenticator.Group</a></code></dt>
+<dd><p>An <code>enum</code> listing all authentication implementations.</p>
+</dd>
+</dl>
+</section>
+    <section id="initializers">
+        <h2>Initializers</h2>
+
+        <div role="article" class="initializer" id="authenticator.init(storage:)">
+    <h3>
+        <code>init(storage:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>&lt;<span class="variable">S</span>: <span class="type">Storage</span>&gt;(<span class="variable">storage</span>: <span class="type">S</span>) <span class="keyword">where</span> <span class="type">S</span>.<span class="type">Item</span> == <span class="type">Secret</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Init.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>storage</th>
+    <td><code class="type">S</code></td>
+    <td><p>A valid <code>Storage</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>client</th>
+    <td></td>
+    <td><p>A valid <code>Client</code>. Defaults to <code>.default</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+    </section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="authenticator.secrets">
+    <h3>
+        <code>secrets</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">secrets</span>: <span class="type">Keys</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Return a manager for all <code>Secret</code>s.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="authenticator.storage">
+    <h3>
+        <code>storage</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">storage</span>: <span class="type">AnyStorage</span>&lt;<span class="type">Secret</span>&gt;</code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The underlying storage.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="authenticator.transient">
+    <h3>
+        <code>transient</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">transient</span>: <span class="type">Authenticator</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The default transient <code>Authenticator</code>.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="authenticator.userdefaults">
+    <h3>
+        <code>user​Defaults</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">userDefaults</span>: <span class="type">Authenticator</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The default user defaults-backed <code>Authenticator</code>.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="authenticator.keychain">
+    <h3>
+        <code>keychain</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">keychain</span>: <span class="type">Authenticator</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The default keychain-backed <code>Authenticator</code>.</p>
+
+</div>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="authenticator.secret(_:)">
+    <h3>
+        <code>secret(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secret</span>(<span class="keyword">_</span> <span class="variable">label</span>: <span class="type">String</span>) -&gt; <span class="type">Key</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Return a specific <code>Secret</code> manager.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>label</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Key</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.secret(_:)">
+    <h3>
+        <code>secret(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secret</span>(<span class="keyword">_</span> <span class="variable">secret</span>: <span class="type">Secret</span>) -&gt; <span class="type">Key</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Return a specific <code>Secret</code> manager.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>secret</th>
+    <td><code class="type">Secret</code></td>
+    <td><p>A valid <code>Secret</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Key</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.secrets(_:)">
+    <h3>
+        <code>secrets(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secrets</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">labels</span>: <span class="type">C</span>) -&gt; <span class="type">Keys</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Return some specific <code>Secret</code>s manager.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>labels</th>
+    <td><code class="type">C</code></td>
+    <td><p>A collection of <code>String</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>Some valid <code>Keys</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.secrets(_:)">
+    <h3>
+        <code>secrets(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secrets</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">secrets</span>: <span class="type">C</span>) -&gt; <span class="type">Keys</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">Secret</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Return some specific <code>Secret</code>s manager.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>secrets</th>
+    <td><code class="type">C</code></td>
+    <td><p>A collection of <code>Secret</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>Some valid <code>Keys</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.userdefaults(_:)">
+    <h3>
+        <code>user​Defaults(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">userDefaults</span>(<span class="keyword">_</span> <span class="variable">userDefaults</span>: <span class="type">UserDefaults</span>) -&gt; <span class="type">Authenticator</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A user defaults-backed <code>Authenticator</code> with a specific <code>Client</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>user​Defaults</th>
+    <td><code class="type">User​Defaults</code></td>
+    <td><p>A valid <code>UserDefaults</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Authenticator.</code></p>
+
+</div>
+<div role="article" class="function" id="authenticator.visual(_:)">
+    <h3>
+        <code>visual(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">visual</span>(<span class="keyword">_</span> <span class="variable">transformer</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">webView</span>: <span class="type">WKWebView</span>, <span class="keyword">_</span> <span class="variable">completion</span>: <span class="attribute">@</span><span class="attribute">escaping</span> () -&gt; <span class="type">Void</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Authenticate using a <code>WKWebView</code>.
+You're responsibile for adding the web view to your view hierarchy and
+calling the completion handler.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>transformer</th>
+    <td><code class="type">@escaping (_ web​View:​ WKWeb​View, _ completion:​ @escaping () -&gt; Void) -&gt; Void</code></td>
+    <td><p>A valid web view transformer.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Group.Visual</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.visual(_:)">
+    <h3>
+        <code>visual(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">visual</span>(<span class="keyword">_</span> <span class="variable">transformer</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">webView</span>: <span class="type">WKWebView</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Authenticate using a <code>WKWebView</code>.
+You're responsible for adding the web view to your view hierarchy.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>transformer</th>
+    <td><code class="type">@escaping (_ web​View:​ WKWeb​View) -&gt; Void</code></td>
+    <td><p>A valid web view transformer.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Group.Visual</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.visual(filling:)">
+    <h3>
+        <code>visual(filling:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">visual</span>(<span class="variable">filling</span> <span class="variable">superview</span>: <span class="type">UIView</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Authenticate using a <code>WKWebView</code>.
+The web view will be added as a child of <code>superview</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>superview</th>
+    <td><code class="type">UIView</code></td>
+    <td><p>A valid <code>UIView</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Group.Visual</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.keychain(_:)">
+    <h3>
+        <code>keychain(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">keychain</span>(<span class="keyword">_</span> <span class="variable">keychain</span>: <span class="type">Keychain</span> = .<span class="variable">init</span>()) -&gt; <span class="type">Authenticator</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A keychain-backed <code>Authenticator</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>keychain</th>
+    <td><code class="type">Keychain</code></td>
+    <td><p>A valid <code>Keychain</code>. Defaults to <code>.init()</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Authenticator.</code></p>
+
+</div>
+<div role="article" class="function" id="authenticator.basic(username:password:)">
+    <h3>
+        <code>basic(username:​password:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">basic</span>(<span class="variable">username</span>: <span class="type">String</span>, <span class="variable">password</span>: <span class="type">String</span>) -&gt; <span class="type">Group</span>.<span class="type">Basic</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Authenticate using username and password.</p>
+
+</div>
+<div class="discussion">
+    <p>2FA is supported in code and it will be handled as an <code>Error</code>
+in the authentication stream, returning a <code>TwoFactorComposer</code>
+authenticator.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>username</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>password</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Group.Basic</code>.</p>
+
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-08T12:43:44+0000">May 8, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

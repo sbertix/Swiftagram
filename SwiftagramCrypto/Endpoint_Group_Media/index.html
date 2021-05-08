@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftagramCrypto - Endpoint.Group.Media</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/">
+            <strong>
+                SwiftagramCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.group.media.summary">summary</a></li><li class="variable"><a href="#endpoint.group.media.comments">comments</a></li><li class="variable"><a href="#endpoint.group.media.likers">likers</a></li><li class="variable"><a href="#endpoint.group.media.link">link</a></li><li class="variable"><a href="#endpoint.group.media.viewers">viewers</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.group.media.comment(_:)">comment(_:​)</a></li><li class="function"><a href="#endpoint.group.media.comments(_:)">comments(_:​)</a></li><li class="function"><a href="#endpoint.group.media.save()">save()</a></li><li class="function"><a href="#endpoint.group.media.unsave()">unsave()</a></li><li class="function"><a href="#endpoint.group.media.archive()">archive()</a></li><li class="function"><a href="#endpoint.group.media.comment(with:under:)">comment(with:​under:​)</a></li><li class="function"><a href="#endpoint.group.media.delete()">delete()</a></li><li class="function"><a href="#endpoint.group.media.like()">like()</a></li><li class="function"><a href="#endpoint.group.media.save(in:)">save(in:​)</a></li><li class="function"><a href="#endpoint.group.media.unarchive()">unarchive()</a></li><li class="function"><a href="#endpoint.group.media.unlike()">unlike()</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Extensions on</small>
+    <code class="name">Endpoint.Group.Media</code>
+</h1>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="endpoint.group.media.summary">
+    <h3>
+        <code>summary</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">summary</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Media</span>.<span class="type">Unit</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A summary for the current media.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Note">
+    <p>Prefer <code>Endpoint.media(_:)</code> instead.</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.media.comments">
+    <h3>
+        <code>comments</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">comments</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Comment</span>.<span class="type">Collection</span>,
+                                     <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;,
+                                     <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of comments for the current media.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.media.likers">
+    <h3>
+        <code>likers</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">likers</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>,
+                                   <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;,
+                                   <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of likers for the current media.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.media.link">
+    <h3>
+        <code>link</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">link</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Media</span>.<span class="type">Link</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Fetch the permalink for the current media.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.media.viewers">
+    <h3>
+        <code>viewers</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">viewers</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>,
+                                    <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;,
+                                    <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Fetch all viewers for the current story.</p>
+
+</div>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="endpoint.group.media.comment(_:)">
+    <h3>
+        <code>comment(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">comment</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Comment</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A wrapper for comments endpoints.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Comment</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.comments(_:)">
+    <h3>
+        <code>comments(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">comments</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">identifiers</span>: <span class="type">C</span>) -&gt; <span class="type">ManyComments</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A wrapper for comments-specific endpoints.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>identifiers</th>
+    <td><code class="type">C</code></td>
+    <td><p>A collection of <code>String</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.ManyComments</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.save()">
+    <h3>
+        <code>save()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">save</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Save the current media.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.unsave()">
+    <h3>
+        <code>unsave()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unsave</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unsave the current media.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.archive()">
+    <h3>
+        <code>archive()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">archive</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Archive the current post.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.comment(with:under:)">
+    <h3>
+        <code>comment(with:​under:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">comment</span>(<span class="variable">with</span> <span class="variable">text</span>: <span class="type">String</span>,
+                 <span class="variable">under</span> <span class="variable">parentCommentIdentifier</span>: <span class="type">String</span>? = <span class="keyword">nil</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Comment</span>.<span class="type">Unit</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Post a comment under the current post, and optionally under a given comment.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>text</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>parent​Comment​Identifier</th>
+    <td><code class="type">String?</code></td>
+    <td><p>An optional <code>String</code>. Defaults to <code>nil</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.delete()">
+    <h3>
+        <code>delete()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">delete</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Delete the current media.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.like()">
+    <h3>
+        <code>like()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">like</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Like the current post.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.save(in:)">
+    <h3>
+        <code>save(in:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">save</span>(<span class="variable">in</span> <span class="variable">collectionIdentifier</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Save in a specific collection.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>collection​Identifier</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.unarchive()">
+    <h3>
+        <code>unarchive()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unarchive</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unarchive the current post.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.unlike()">
+    <h3>
+        <code>unlike()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unlike</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unlike the current post.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-08T12:43:45+0000">May 8, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

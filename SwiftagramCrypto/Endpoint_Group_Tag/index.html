@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftagramCrypto - Endpoint.Group.Tag</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/">
+            <strong>
+                SwiftagramCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.group.tag.summary">summary</a></li><li class="variable"><a href="#endpoint.group.tag.stories">stories</a></li><li class="variable"><a href="#endpoint.group.tag.posts">posts</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.group.tag.follow()">follow()</a></li><li class="function"><a href="#endpoint.group.tag.unfollow()">unfollow()</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Extensions on</small>
+    <code class="name">Endpoint.Group.Tag</code>
+</h1>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="endpoint.group.tag.summary">
+    <h3>
+        <code>summary</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">summary</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Tag</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A summary for the current tag.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Note">
+    <p>Prefer <code>Endpoint.tag(_:)</code> instead.</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.tag.stories">
+    <h3>
+        <code>stories</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">stories</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">TrayItem</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of some recent stories for the current tag.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.tag.posts">
+    <h3>
+        <code>posts</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">posts</span>: <span class="type">Posts</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A wrapper for tag-related posts edpoints.</p>
+
+</div>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="endpoint.group.tag.follow()">
+    <h3>
+        <code>follow()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">follow</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Follow the current tag.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.tag.unfollow()">
+    <h3>
+        <code>unfollow()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unfollow</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unfollow the current tag.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-08T12:43:45+0000">May 8, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftagramCrypto - Endpoint.Group.User</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/">
+            <strong>
+                SwiftagramCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.group.user.summary">summary</a></li><li class="variable"><a href="#endpoint.group.user.followers">followers</a></li><li class="variable"><a href="#endpoint.group.user.following">following</a></li><li class="variable"><a href="#endpoint.group.user.friendship">friendship</a></li><li class="variable"><a href="#endpoint.group.user.higlights">higlights</a></li><li class="variable"><a href="#endpoint.group.user.posts">posts</a></li><li class="variable"><a href="#endpoint.group.user.similar">similar</a></li><li class="variable"><a href="#endpoint.group.user.stories">stories</a></li><li class="variable"><a href="#endpoint.group.user.tags">tags</a></li><li class="variable"><a href="#endpoint.group.user.request">request</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.group.user.followers(matching:)">followers(matching:​)</a></li><li class="function"><a href="#endpoint.group.user.following(matching:)">following(matching:​)</a></li><li class="function"><a href="#endpoint.group.user.block()">block()</a></li><li class="function"><a href="#endpoint.group.user.follow()">follow()</a></li><li class="function"><a href="#endpoint.group.user.mute(_:)">mute(_:​)</a></li><li class="function"><a href="#endpoint.group.user.remove()">remove()</a></li><li class="function"><a href="#endpoint.group.user.unblock()">unblock()</a></li><li class="function"><a href="#endpoint.group.user.unfollow()">unfollow()</a></li><li class="function"><a href="#endpoint.group.user.unmute(_:)">unmute(_:​)</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Extensions on</small>
+    <code class="name">Endpoint.Group.User</code>
+</h1>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="endpoint.group.user.summary">
+    <h3>
+        <code>summary</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">summary</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A summary for the current user.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Note">
+    <p>Prefer <code>Endpoint.user(_:)</code> instead.</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.followers">
+    <h3>
+        <code>followers</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">followers</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>, <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of profiles following the user.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.following">
+    <h3>
+        <code>following</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">following</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>, <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of profiles followed by the user.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.friendship">
+    <h3>
+        <code>friendship</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">friendship</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Friendship</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The current friendship status between the given user and the logged in one.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.higlights">
+    <h3>
+        <code>higlights</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">higlights</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">TrayItem</span>.<span class="type">Collection</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of highlights uploaded by the user.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.posts">
+    <h3>
+        <code>posts</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">posts</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Media</span>.<span class="type">Collection</span>,
+                                  <span class="type">String</span>?,
+                                  <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of posts uploaded by the user.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.similar">
+    <h3>
+        <code>similar</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">similar</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of similar/suggested users.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.stories">
+    <h3>
+        <code>stories</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">stories</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">TrayItem</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of all recent stories by the user.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.tags">
+    <h3>
+        <code>tags</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">tags</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Media</span>.<span class="type">Collection</span>,
+                                 <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;,
+                                 <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of posts the user was tagged in.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.user.request">
+    <h3>
+        <code>request</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">request</span>: <span class="type">Request</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A wrapper for request endpoints.</p>
+
+</div>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="endpoint.group.user.followers(matching:)">
+    <h3>
+        <code>followers(matching:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">followers</span>(<span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>, <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of profiles following the user.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Paginated</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.following(matching:)">
+    <h3>
+        <code>following(matching:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">following</span>(<span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>, <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of profiles followed by the user.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Paginated</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.block()">
+    <h3>
+        <code>block()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">block</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Friendship</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Block the given user.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.follow()">
+    <h3>
+        <code>follow()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">follow</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Friendship</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Follow the given user.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.mute(_:)">
+    <h3>
+        <code>mute(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">mute</span>(<span class="keyword">_</span> <span class="variable">action</span>: <span class="type">Muting</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Friendship</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Mute the given user.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>action</th>
+    <td><code class="type">Muting</code></td>
+    <td><p>A valid <code>Muting</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.remove()">
+    <h3>
+        <code>remove()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">remove</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Friendship</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Remove the given user from your followers.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Warning">
+    <p>This is not tested in <code>SwiftagramTests</code>, so it might not work in the future. Open an <code>issue</code> if that happens.</p>
+
+</aside>
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.unblock()">
+    <h3>
+        <code>unblock()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unblock</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Friendship</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unblock the given user.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.unfollow()">
+    <h3>
+        <code>unfollow()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unfollow</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Friendship</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unfollow the given user.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.user.unmute(_:)">
+    <h3>
+        <code>unmute(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">unmute</span>(<span class="keyword">_</span> <span class="variable">action</span>: <span class="type">Muting</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Friendship</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Unmute the given user.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>action</th>
+    <td><code class="type">Muting</code></td>
+    <td><p>A valid <code>Muting</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-08T12:43:46+0000">May 8, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

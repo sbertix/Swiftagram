@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftagramCrypto - Authenticator.Key</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/">
+            <strong>
+                SwiftagramCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Member Of</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#authenticator.key.label">label</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#authenticator.key.get()">get()</a></li><li class="function"><a href="#authenticator.key.delete()">delete()</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Class</small>
+    <code class="name">Authenticator.​Key</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="attribute">final</span> <span class="keyword">class</span> <span class="type">Key</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>class</code> defining an instance used for <code>Secret</code> management.</p>
+
+</div>
+<section id="relationships">
+    <h2 hidden>Relationships</h2>
+        
+        <h3>Member Of</h3>
+<dl>
+    <dt class="structure"><code><a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Authenticator">Authenticator</a></code></dt>
+<dd><p>A <code>struct</code> defining an instance capable of
+starting the authentication flow for a given user.</p>
+</dd>
+</dl>
+</section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="authenticator.key.label">
+    <h3>
+        <code>label</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">label</span>: <span class="type">String</span></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The <code>Secret</code> label.</p>
+
+</div>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="authenticator.key.get()">
+    <h3>
+        <code>get()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">get</span>() <span class="keyword">throws</span> -&gt; <span class="type">Secret</span>? </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Try fetching a <code>Secret</code> matching the given <code>label</code>.</p>
+
+</div>
+  <h4>Throws</h4>
+  <p>Some <code>Error</code>.</p>
+
+  <h4>Returns</h4>
+  <p>An optional <code>Secret</code>.</p>
+
+</div>
+<div role="article" class="function" id="authenticator.key.delete()">
+    <h3>
+        <code>delete()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="attribute">@</span><span class="attribute">discardableResult</span>
+    <span class="keyword">func</span> <span class="function">delete</span>() <span class="keyword">throws</span> -&gt; <span class="type">Secret</span>? </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Delete the selected <code>Secret</code>.</p>
+
+</div>
+  <h4>Throws</h4>
+  <p>Some <code>Error</code>.</p>
+
+  <h4>Returns</h4>
+  <p>An optional <code>Secret</code>.</p>
+
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-08T12:43:45+0000">May 8, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

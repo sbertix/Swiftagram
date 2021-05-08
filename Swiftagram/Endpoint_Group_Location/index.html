@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftagram - Endpoint.Group.Location</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/Swiftagram/Swiftagram/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/Swiftagram/Swiftagram/">
+            <strong>
+                Swiftagram
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.group.location.posts">posts</a></li><li class="variable"><a href="#endpoint.group.location.summary">summary</a></li><li class="variable"><a href="#endpoint.group.location.stories">stories</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Extensions on</small>
+    <code class="name">Endpoint.Group.Location</code>
+</h1>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="endpoint.group.location.posts">
+    <h3>
+        <code>posts</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">posts</span>: <span class="type">Posts</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A wrapper for location-related posts endpoints.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.location.summary">
+    <h3>
+        <code>summary</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">summary</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Location</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A summary for the current location.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Note">
+    <p>Prefer <code>Endpoint.location(_:)</code> instead.</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.location.stories">
+    <h3>
+        <code>stories</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">stories</span>: <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">TrayItem</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A list of some recent stories at the current location.</p>
+
+</div>
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-08T12:43:43+0000">May 8, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>
