@@ -214,14 +214,24 @@ jobs:
         uses:              actions/checkout@v2
         with:
           ref:             main
-      # create documentation.
-      - name:              Docs
+      # create documentation for `Swiftagram`.
+      - name:              Docs (Swiftagram)
         uses:              SwiftDocOrg/swift-doc@master
         with:
-          inputs:          "Sources"
+          base-url:        "https://sbertix.github.io/Swiftagram/Swiftagram/"
           format:          "html"
+          inputs:          "Sources"
           module-name:     Swiftagram
-          output:          docs
+          output:          docs/Swiftagram
+      # create documentation for `SwiftagramCrypto`.
+      - name:              Docs (SwiftagramCrypto)
+        uses:              SwiftDocOrg/swift-doc@master
+        with:
+          base-url:        "https://sbertix.github.io/Swiftagram/SwiftagramCrypto/"
+          format:          "html"
+          inputs:          "Sources"
+          module-name:     SwiftagramCrypto
+          output:          docs/SwiftagramCrypto
       # update permissions.
       - name:              Update Permissions
         run:               'sudo chown --recursive $USER docs'
