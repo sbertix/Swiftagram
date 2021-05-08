@@ -1,4 +1,4 @@
-name:           push
+name:                              push
 
 on:
   push:
@@ -13,22 +13,36 @@ on:
 jobs:
   # lint the code.
   lint:
-    runs-on:    ubuntu-latest
+    runs-on:                       ubuntu-latest
 
     steps:
-      - name:   Checkout
-        uses:   actions/checkout@v2
-      - name:   Lint
-        uses:   norio-nomura/action-swiftlint@3.1.0
+      - name:                      Checkout
+        uses:                      actions/checkout@v2
+      - name:                      Lint
+        uses:                      norio-nomura/action-swiftlint@3.1.0
         with:
-          args: --strict
+          args:                    --strict
+
   # build the library.
-  build:
-    needs:      lint
-    runs-on:    macos-latest
+  build-combine:
+    needs:                         lint
+    runs-on:                       macos-latest
 
     steps:
-    - name:     Checkout
-      uses:     actions/checkout@v2
-    - name:     Build
-      run:      swift build
+    - name:                        Checkout
+      uses:                        actions/checkout@v2
+    - name:                        Build
+      run:                         swift build
+      
+  # build the library using `Combine X`.
+  build-combine-x:
+    needs:                         lint
+    runs-on:                       macos-latest
+
+    steps:
+    - name:                        Checkout
+      uses:                        actions/checkout@v2
+    - name:                        Build
+      env:
+        CX_COMBINE_IMPLEMENTATION: combinex
+      run:                         swift build
