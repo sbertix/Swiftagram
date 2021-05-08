@@ -1,44 +1,33 @@
-name:                    test
+name:                              test
 
 on:
   repository_dispatch:
-    types:               [test-command]
+    types:                         [test-command]
 
 jobs:
   test:
-    runs-on:             macos-latest
+    name:                          Test
+    runs-on:                       macos-latest
 
     steps:
-    # checkout the current PR of `Swiftagram`.
-    - name:              Checkout
-      uses:              actions/checkout@v2
+    # checkout the current PR of `ComposableRequest`.
+    - name:                        Checkout
+      uses:                        actions/checkout@v2
       with:
-          token:         ${{ secrets.GITHUB_TOKEN }}
-          repository:    ${{ github.event.client_payload.pull_request.head.repo.full_name }}
-          ref:           ${{ github.event.client_payload.pull_request.head.ref }}
+          token:                   ${{ secrets.GITHUB_TOKEN }}
+          repository:              ${{ github.event.client_payload.pull_request.head.repo.full_name }}
+          ref:                     ${{ github.event.client_payload.pull_request.head.ref }}
     # run all tests.
-    - name:              Test
+    - name:                        Test (Combine)
+      run:                         swift test --parallel --enable-test-discovery
+    # run all tests.
+    - name:                        Test (CombineX)
       env:
-        SECRET:          ${{ secrets.SECRET }}
-        PASSWORD:        ${{ secrets.PASSWORD }}
-      run:               swift test --parallel --enable-test-discovery
-    # notify success with a reaction.
-    - name:              Reply (Success)
-      uses:              peter-evans/create-or-update-comment@v1
+        CX_COMBINE_IMPLEMENTATION: combinex
+      run:                         swift test --parallel --enable-test-discovery
+    # notify.
+    - name:                        Notify
+      uses:                        peter-evans/create-or-update-comment@v1
       with:
-        comment-id:      ${{ github.event.client_payload.github.payload.comment.id }}
-        reaction-type:   hooray
-    # notify failure with a comment.
-    - name:              Reply (Failure)
-      uses:              peter-evans/create-or-update-comment@v1
-      if:                ${{ failure() }}
-      with:
-        issue-number:    ${{ github.event.client_payload.github.payload.issue.number }}
-        body:            |
-          Hey @${{ github.event.client_payload.github.actor }} :muscle:
-
-          Unfortunately, some of the tests required failed.\
-          This might be related to Instagram anti-spam measures (as we're using a single account to test all requests).\
-          If that's the case consider testing this commit again in a couple hours.
-
-          Either way, a maintener will get to you soon.
+        comment-id:                ${{ github.event.client_payload.github.payload.comment.id }}
+        reaction-type:             +1

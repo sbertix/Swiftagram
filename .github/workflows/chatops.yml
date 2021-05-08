@@ -6,6 +6,7 @@ on:
 
 jobs:
   chatops:
+    name:                ChatOps
     runs-on:             ubuntu-latest
 
     steps:
