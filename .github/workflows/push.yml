@@ -25,8 +25,8 @@ jobs:
           args:                    --strict
 
   # build the library.
-  build-combine:
-    name:                          Build (Combine)
+  build:
+    name:                          Build
     needs:                         lint
     runs-on:                       macos-latest
 
@@ -34,18 +34,4 @@ jobs:
     - name:                        Checkout
       uses:                        actions/checkout@v2
     - name:                        Build
-      run:                         swift build
-
-  # build the library using `Combine X`.
-  build-combine-x:
-    name:                          Build (CombineX)
-    needs:                         lint
-    runs-on:                       macos-latest
-
-    steps:
-    - name:                        Checkout
-      uses:                        actions/checkout@v2
-    - name:                        Build
-      env:
-        CX_COMBINE_IMPLEMENTATION: combinex
       run:                         swift build

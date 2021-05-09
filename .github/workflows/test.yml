@@ -1,33 +1,31 @@
-name:                              test
+name:                  test
 
 on:
   repository_dispatch:
-    types:                         [test-command]
+    types:             [test-command]
 
 jobs:
   test:
-    name:                          Test
-    runs-on:                       macos-latest
+    name:              Test
+    runs-on:           macos-latest
 
     steps:
     # checkout the current PR of `ComposableRequest`.
-    - name:                        Checkout
-      uses:                        actions/checkout@v2
+    - name:            Checkout
+      uses:            actions/checkout@v2
       with:
-          token:                   ${{ secrets.GITHUB_TOKEN }}
-          repository:              ${{ github.event.client_payload.pull_request.head.repo.full_name }}
-          ref:                     ${{ github.event.client_payload.pull_request.head.ref }}
+          token:       ${{ secrets.GITHUB_TOKEN }}
+          repository:  ${{ github.event.client_payload.pull_request.head.repo.full_name }}
+          ref:         ${{ github.event.client_payload.pull_request.head.ref }}
     # run all tests.
-    - name:                        Test (Combine)
-      run:                         swift test --parallel --enable-test-discovery
-    # run all tests.
-    - name:                        Test (CombineX)
+    - name:            Test
+      run:             swift test --parallel --enable-test-discovery
       env:
-        CX_COMBINE_IMPLEMENTATION: combinex
-      run:                         swift test --parallel --enable-test-discovery
+        SECRET:        ${{ secrets.SECRET }}
+        PASSWORD:      ${{ secrets.PASSWORD }}
     # notify.
-    - name:                        Notify
-      uses:                        peter-evans/create-or-update-comment@v1
+    - name:            Notify
+      uses:            peter-evans/create-or-update-comment@v1
       with:
-        comment-id:                ${{ github.event.client_payload.github.payload.comment.id }}
-        reaction-type:             +1
+        comment-id:    ${{ github.event.client_payload.github.payload.comment.id }}
+        reaction-type: +1
