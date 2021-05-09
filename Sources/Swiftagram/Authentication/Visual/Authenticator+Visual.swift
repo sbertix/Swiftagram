@@ -50,6 +50,7 @@ public extension Authenticator.Group {
                         }
                     }
                 }
+                .setFailureType(to: Swift.Error.self)
                 .flatMap {
                     Future<AuthenticatorWebView, Swift.Error> { resolve in
                         // Prepare the actual `WebView`.

@@ -6,10 +6,10 @@
 [![codecov](https://codecov.io/gh/sbertix/Swiftagram/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 [![Telegram](https://img.shields.io/badge/Telegram-Swiftagram-blue?style=flat&logo=telegram)](https://t.me/swiftagram)
 <br />
-![iOS](https://img.shields.io/badge/iOS-9.0-DD5D43)
-![macOS](https://img.shields.io/badge/macOS-10.12-DD5D43)
-![tvOS](https://img.shields.io/badge/tvOS-11.0-DD5D43)
-![watchOS](https://img.shields.io/badge/watchOS-3.0-DD5D43)
+![iOS](https://img.shields.io/badge/iOS-13.0-DD5D43)
+![macOS](https://img.shields.io/badge/macOS-10.15-DD5D43)
+![tvOS](https://img.shields.io/badge/tvOS-13.0-DD5D43)
+![watchOS](https://img.shields.io/badge/watchOS-6.0-DD5D43)
 
 <br />
 
@@ -32,22 +32,6 @@ Keep in mind features like `BasicAuthenticator`, a non-visual `Authenticator`, o
 Please check out the _docs_ to find out more.
 
 <p />
-
-## Supporting older platform versions
-
-**Swiftagram** relies on [**CombineX**](https://github.com/cx-org/CombineX/)'s [**CXShim**](https://github.com/cx-org/CombineX/wiki/Combine-Compatible-Package) to provide a **Combine** runtime on all platforms and versions. 
-
-However, Apple's **Combine** is used by default, meaning, without any configuration, your minimum deployment target will be limited to **iOS 13**, **macOS 10.15**, **tvOS 13** and **watchOS 6**. 
-If you're developing apps with **SwiftUI** or supporting recent versions alone, we suggest sticking with this default runtime, as it's supported out-of-the-box and no external libraries will be packaged inside your release archive. 
-
-If you need to support older versions, though, all you have to do, is make sure you're running your **Xcode** process specifying the custom **Combine** implementation through an environmental variable. 
-Something as simple as the code below is enough.
-
-```bash
-export CX_COMBINE_IMPLEMENTATION="combinex"
-killall Xcode
-open *.xcodeproj
-```
 
 ## Status
 ![push](https://github.com/sbertix/Swiftagram/workflows/push/badge.svg)
@@ -257,7 +241,8 @@ var bin: Set<AnyCancellable> = []
 
 // We're using a random endpoint to demonstrate 
 // how `PagerProvider` is exposed in code. 
-Endpoint.media(secret.identifier)
+Endpoint.user(secret.identifier)
+    .posts
     .unlock(with: secret)
     .session(.instagram)
     .pages(.max)    // Exhaust all with `.max`
