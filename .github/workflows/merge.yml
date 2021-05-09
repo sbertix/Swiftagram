@@ -1,92 +1,35 @@
-name:                      merge
+name:                  merge
 
 on:
-  repository_dispatch:
-    types:                 [merge-command]
+  pull_request:
+    barnches:
+      - main
+    types:             [closed]
 
 jobs:
-  # lint the code.
-  lint:
-    name:                  Lint
-    runs-on:               ubuntu-latest
-
-    steps:
-      - name:              Checkout
-        uses:              actions/checkout@v2
-      - name:              Lint
-        uses:              norio-nomura/action-swiftlint@3.1.0
-        with:
-          args:            --strict
-
-  # merge the current library after testing it.
-  merge:
-    name:                  Merge
-    needs:                 lint
-    runs-on:               macos-latest
-
-    steps:
-      # checkout.
-      - name:              Checkout
-        uses:              actions/checkout@v2
-        with:
-          fetch-depth:     0
-          token:           ${{ secrets.GITHUB_TOKEN }}
-          repository:      ${{ github.event.client_payload.pull_request.head.repo.full_name }}
-          ref:             ${{ github.event.client_payload.pull_request.head.ref }}
-      # rebase `main` into the current commit.
-      - name:              Rebase
-        run:               |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions"
-          git checkout -b test
-          git rebase origin/${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
-      # test library.
-      - name:              Test
-        run:               swift test --parallel --enable-test-discovery --enable-code-coverage
-        env:
-          SECRET:          ${{ secrets.SECRET }}
-          PASSWORD:        ${{ secrets.PASSWORD }}
-      # merge.
-      - name:              Merge
-        run:               |
-          git checkout -b ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} origin/${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
-          git merge test -m "chore(merge): merge #${{ github.event.client_payload.pull_request.number }} into \`${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}\`" --no-ff
-          git push origin ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} --force-with-lease
-      # check for coverage.
-      - name:              Coverage (Export)
-        run:               xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
-        continue-on-error: true
-      # upload coverage.
-      - name:              Coverage (Upload)
-        uses:              codecov/codecov-action@v1
-        with:
-          token:           ${{ secrets.CODECOV_TOKEN }}
-        timeout-minutes:   1
-        continue-on-error: true
-
   # rebase `bugfixes` and `development`.
   rebase:
-    name:                  rebase
-    needs:                 release
-    runs-on:               ubuntu-latest
-    if:                    ${{ github.event.client_payload.slash_command.args.unnamed.arg1 === "main" }}
+    name:              rebase
+    needs:             merge
+    runs-on:           ubuntu-latest
+    if:                ${{ github.event.pull_request.merged == true }}
 
     steps:
       # checkout.
-      - name:              Checkout
-        uses:              actions/checkout@v2
+      - name:          Checkout
+        uses:          actions/checkout@v2
         with:
-          fetch-depth:     0
-          token:           ${{ secrets.GITHUB_TOKEN }}
-          ref:             main
+          fetch-depth: 0
+          token:       ${{ secrets.GITHUB_TOKEN }}
+          ref:         main
       # config author.
-      - name:              Config
-        run:               |
+      - name:          Config
+        run:           |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions"
       # rebase `bugfixes` and `development`.
-      - name:              Rebase
-        run:               |
+      - name:          Rebase
+        run:           |
           git checkout -b bugfixes origin/bugfixes
           git rebase origin/main
           git push origin bugfixes --force-with-lease

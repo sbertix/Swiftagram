@@ -18,6 +18,5 @@ jobs:
           dispatch_type: workflow
           commands:      |
             docs
-            merge
             release
             test
