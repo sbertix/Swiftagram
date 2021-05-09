@@ -57,7 +57,13 @@ public extension Authenticator.Keys {
     /// - throws: Some `Error`.
     /// - returns: An array of `Secret`s.
     func get() throws -> [Secret] {
-        try AnyStorage.items(in: authenticator.storage)
+        switch labels {
+        case let labels?:
+            return try AnyStorage.items(in: authenticator.storage)
+                .filter { labels.contains($0.label) }
+        default:
+            return try AnyStorage.items(in: authenticator.storage)
+        }
     }
 
     /// Delete selected `Secret`s.
@@ -70,9 +76,7 @@ public extension Authenticator.Keys {
         case let labels?:
             return try labels.compactMap { try authenticator.secret($0).delete() }
         default:
-            let secrets = try? authenticator.secrets.get()
-            try AnyStorage.empty(authenticator.storage)
-            return secrets ?? []
+            return try authenticator.secrets.get().compactMap { try authenticator.secret($0).delete() }
         }
     }
 }
