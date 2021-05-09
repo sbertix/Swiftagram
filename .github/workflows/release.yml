@@ -1,185 +1,104 @@
-name:                      release
+name:                        release
 
 on:
   repository_dispatch:
-    types:                 [release-command]
+    types:                   [release-command]
 
 jobs:
-  # lint the code.
-  lint:
-    name:                  Lint
-    runs-on:               ubuntu-latest
-
-    steps:
-      - name:              Checkout
-        uses:              actions/checkout@v2
-      - name:              Lint
-        uses:              norio-nomura/action-swiftlint@3.1.0
-        with:
-          args:            --strict
-
-  # merge the current library after testing it.
-  merge:
-    name:                  Merge
-    needs:                 lint
-    runs-on:               macos-latest
-
-    steps:
-      # checkout.
-      - name:              Checkout
-        uses:              actions/checkout@v2
-        with:
-          fetch-depth:     0
-          token:           ${{ secrets.GITHUB_TOKEN }}
-          repository:      ${{ github.event.client_payload.pull_request.head.repo.full_name }}
-          ref:             ${{ github.event.client_payload.pull_request.head.ref }}
-      # rebase `main` into the current commit.
-      - name:              Rebase
-        run:               |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions"
-          git checkout -b test
-          git rebase origin/main
-      # test library.
-      - name:              Test
-        run:               swift test --parallel --enable-test-discovery --enable-code-coverage
-        env:
-          SECRET:          ${{ secrets.SECRET }}
-          PASSWORD:        ${{ secrets.PASSWORD }}
-      # merge into `main`.
-      - name:              Merge
-        run:               |
-          git checkout -b main origin/main
-          git merge test -m "chore(merge): merge #${{ github.event.client_payload.pull_request.number }} into \`main\`" --no-ff
-          git push origin main --force-with-lease
-      # check for coverage.
-      - name:              Coverage (Export)
-        run:               xcrun llvm-cov export -format="lcov" .build/debug/SwiftagramPackageTests.xctest/Contents/MacOS/SwiftagramPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
-        continue-on-error: true
-      # upload coverage.
-      - name:              Coverage (Upload)
-        uses:              codecov/codecov-action@v1
-        with:
-          token:           ${{ secrets.CODECOV_TOKEN }}
-        timeout-minutes:   1
-        continue-on-error: true
-
   # release a new version.
   release:
-    name:                  Release
-    needs:                 merge
-    runs-on:               macos-latest
+    name:                    Release
+    runs-on:                 macos-latest
 
     steps:
+      # checkout `main`.
+      - name:                Checkout
+        uses:                actions/checkout@v2
+        with:
+          fetch-depth:       0
+          token:             ${{ secrets.GITHUB_TOKEN }}
+          ref:               main
       # create the changelog.
-      - name:              Changelog
-        id:                changelog
-        uses:              TriPSs/conventional-changelog-action@v3
+      - name:                Changelog
+        id:                  changelog
+        uses:                TriPSs/conventional-changelog-action@v3
         with:
-          git-message:               "chore(release): relase \'v{version}\'"
-          git-user-name:   "github-actions"
-          git-user-email:  "41898282+github-actions[bot]@users.noreply.github.com"
-          github-token:    ${{ secrets.GITHUB_TOKEN }}
-          tag-prefix:      ''
-          output-file:     'false'
+          git-message:       "chore(release): relase \'v{version}\'"
+          git-user-name:     "github-actions"
+          git-user-email:    "41898282+github-actions[bot]@users.noreply.github.com"
+          github-token:      ${{ secrets.GITHUB_TOKEN }}
+          tag-prefix:        ''
+          output-file:       'false'
+          skip-commit:       'true'
+          skip-version-file: 'true'
       # release the new version.
-      - name:              Release
-        id:                release
-        uses:              actions/create-release@v1
-        if:                ${{ steps.changelog.outputs.skipped == 'false' }}
+      - name:                Release
+        id:                  release
+        uses:                actions/create-release@v1
+        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
         env:
-          GITHUB_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name:        ${{ steps.changelog.outputs.tag }}
-          release_name:    v${{ steps.changelog.outputs.tag }}
-          body:            ${{ steps.changelog.outputs.clean_changelog }}
+          tag_name:          ${{ steps.changelog.outputs.tag }}
+          release_name:      v${{ steps.changelog.outputs.tag }}
+          body:              ${{ steps.changelog.outputs.clean_changelog }}
       # notify.
-      - name:              Notify
-        uses:              peter-evans/create-or-update-comment@v1
+      - name:                Notify
+        uses:                peter-evans/create-or-update-comment@v1
         with:
-          comment-id:      ${{ github.event.client_payload.github.payload.comment.id }}
-          reaction-type:   +1
+          comment-id:        ${{ github.event.client_payload.github.payload.comment.id }}
+          reaction-type:     +1
       # notify on telegram.
-      - name:              Telegram
-        if:                ${{ steps.changelog.outputs.skipped == 'false' }}
-        uses:              appleboy/telegram-action@master
+      - name:                Telegram
+        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        uses:                appleboy/telegram-action@master
         with:
-          to:              ${{ secrets.TELEGRAM_TO }}
-          token:           ${{ secrets.TELEGRAM_TOKEN }}
-          format:          markdown
-          args:            |
+          to:                ${{ secrets.TELEGRAM_TO }}
+          token:             ${{ secrets.TELEGRAM_TOKEN }}
+          format:            markdown
+          args:              |
             A [new version](${{ steps.release.outputs.html_url }}) of **Swiftagram** was just released.
             Please consider updating your code.
-        continue-on-error: true
-
-  # rebase `bugfixes` and `development`.
-  rebase:
-    name:                  rebase
-    needs:                 release
-    runs-on:               ubuntu-latest
-
-    steps:
-      # checkout.
-      - name:              Checkout
-        uses:              actions/checkout@v2
-        with:
-          fetch-depth:     0
-          token:           ${{ secrets.GITHUB_TOKEN }}
-          ref:             main
-      # config author.
-      - name:              Config
-        run:               |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions"
-      # rebase `bugfixes` and `development`.
-      - name:              Rebase
-        run:               |
-          git checkout -b bugfixes origin/bugfixes
-          git rebase origin/main
-          git push origin bugfixes --force-with-lease
-          git checkout -b development origin/development
-          git rebase origin/main
-          git push origin development --force-with-lease
+        continue-on-error:   true
 
   # create docs.
   docs:
-    name:                  docs
-    needs:                 release
-    runs-on:               ubuntu-latest
+    name:                    docs
+    needs:                   release
+    runs-on:                 ubuntu-latest
 
     steps:
       # checkout the `main` branch.
-      - name:              Checkout
-        uses:              actions/checkout@v2
+      - name:                Checkout
+        uses:                actions/checkout@v2
         with:
-          token:           ${{ secrets.GITHUB_TOKEN }}
-          repository:      ${{ github.event.client_payload.pull_request.head.repo.full_name }}
-          ref:             ${{ github.event.client_payload.pull_request.head.ref }}
+          token:             ${{ secrets.GITHUB_TOKEN }}
+          ref:               main
       # create documentation for `Swiftagram`.
-      - name:              Docs (Swiftagram)
-        uses:              SwiftDocOrg/swift-doc@master
+      - name:                Docs (Swiftagram)
+        uses:                SwiftDocOrg/swift-doc@master
         with:
-          base-url:        "https://sbertix.github.io/Swiftagram/Swiftagram/"
-          format:          "html"
-          inputs:          "Sources"
-          module-name:     Swiftagram
-          output:          docs/Swiftagram
+          base-url:          "https://sbertix.github.io/Swiftagram/Swiftagram/"
+          format:            "html"
+          inputs:            "Sources"
+          module-name:       Swiftagram
+          output:            docs/Swiftagram
       # create documentation for `SwiftagramCrypto`.
-      - name:              Docs (SwiftagramCrypto)
-        uses:              SwiftDocOrg/swift-doc@master
+      - name:                Docs (SwiftagramCrypto)
+        uses:                SwiftDocOrg/swift-doc@master
         with:
-          base-url:        "https://sbertix.github.io/Swiftagram/SwiftagramCrypto/"
-          format:          "html"
-          inputs:          "Sources"
-          module-name:     SwiftagramCrypto
-          output:          docs/SwiftagramCrypto
+          base-url:          "https://sbertix.github.io/Swiftagram/SwiftagramCrypto/"
+          format:            "html"
+          inputs:            "Sources"
+          module-name:       SwiftagramCrypto
+          output:            docs/SwiftagramCrypto
       # update permissions.
-      - name:              Update Permissions
-        run:               'sudo chown --recursive $USER docs'
+      - name:                Update Permissions
+        run:                 'sudo chown --recursive $USER docs'
       # publish to GitHub pages.
-      - name:              Publish
-        uses:              JamesIves/github-pages-deploy-action@releases/v3
+      - name:                Publish
+        uses:                JamesIves/github-pages-deploy-action@releases/v3
         with:
-          ACCESS_TOKEN:    ${{ secrets.CHATOPS_PAT }}
-          BRANCH:          gh-pages
-          FOLDER:          docs
+          ACCESS_TOKEN:      ${{ secrets.CHATOPS_PAT }}
+          BRANCH:            gh-pages
+          FOLDER:            docs
