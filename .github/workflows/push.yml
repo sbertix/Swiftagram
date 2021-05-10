@@ -1,4 +1,4 @@
-name:                              push
+name:              push
 
 on:
   push:
@@ -6,32 +6,43 @@ on:
       - main
       - bugfixes
       - development
-    paths:
-      - '**/*.swift'
-      - '**/push.yaml'
 
 jobs:
-  # lint the code.
+  # lint code.
   lint:
-    name:                          Lint
-    runs-on:                       ubuntu-latest
+    name:          Lint
+    runs-on:       ubuntu-latest
 
     steps:
-      - name:                      Checkout
-        uses:                      actions/checkout@v2
-      - name:                      Lint
-        uses:                      norio-nomura/action-swiftlint@3.1.0
+      - name:      Checkout
+        uses:      actions/checkout@v2
+      - uses:      dorny/paths-filter@v2
+        id:        changes
         with:
-          args:                    --strict
+          filters: |
+            src:
+              - '**/*.swift'
+      - name:      Lint
+        if:        steps.changes.outputs.src == 'true'
+        uses:      norio-nomura/action-swiftlint@3.1.0
+        with:
+          args:    --strict
 
   # build the library.
   build:
-    name:                          Build
-    needs:                         lint
-    runs-on:                       macos-latest
+    name:          Build
+    needs:         lint
+    runs-on:       macos-latest
 
     steps:
-    - name:                        Checkout
-      uses:                        actions/checkout@v2
-    - name:                        Build
-      run:                         swift build
+      - name:      Checkout
+        uses:      actions/checkout@v2
+      - uses:      dorny/paths-filter@v2
+        id:        changes
+        with:
+          filters: |
+            src:
+              - '**/*.swift'
+      - name:      Build
+        if:        steps.changes.outputs.src == 'true'
+        run:       swift build
