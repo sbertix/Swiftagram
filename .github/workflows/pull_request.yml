@@ -1,0 +1,24 @@
+name:                   pull_request
+
+on:
+  pull_request:
+      types:
+        - opened
+        - edited
+        - synchronize
+        - reopened
+
+jobs:
+  # validate commits.
+  validate-commits:
+    name:               Conventional Commits
+    runs-on:            ubuntu-latest
+
+    steps:
+      - name:           Checkout
+        uses:           actions/checkout@v2
+      - name:           Commisery
+        uses:           KevinDeJong-TomTom/commisery-action@master
+        with:
+          token:        ${{ secrets.GITHUB_TOKEN }}
+          pull_request: ${{ github.event.number }}
