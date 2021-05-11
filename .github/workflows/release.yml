@@ -1,4 +1,4 @@
-name:                        merge
+name:                        release
 
 on:
   push:
@@ -10,7 +10,6 @@ jobs:
   rebase:
     name:                    Rebase
     runs-on:                 ubuntu-latest
-    if:                      ${{ github.event.pull_request.merged == true }}
 
     steps:
       # checkout.
@@ -26,18 +25,19 @@ jobs:
         run:                 |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions"
+          git fetch --all
       # rebase `bugfixes`.
       - name:                Rebase `bugfixes`
         run:                 |
-          git checkout -b bugfixes origin/bugfixes
-          git rebase origin/main
+          git checkout bugfixes
+          git rebase main
           git push origin bugfixes --force-with-lease
         continue-on-error:   true
       # rebase `development`.
       - name:                Rebase `development`
         run:                 |
-          git checkout -b development origin/development
-          git rebase origin/main
+          git checkout development
+          git rebase main
           git push origin development --force-with-lease
         continue-on-error:   true
 
@@ -45,7 +45,6 @@ jobs:
   release:
     name:                    Release
     runs-on:                 ubuntu-latest
-    if:                      ${{ github.event.pull_request.merged == true }}
 
     steps:
       # checkout `main`.
