@@ -2,7 +2,8 @@ name:                  test
 
 on:
   repository_dispatch:
-    types:             [test-command]
+    types:
+      - test-command
 
 jobs:
   test:
@@ -17,15 +18,17 @@ jobs:
           token:       ${{ secrets.GITHUB_TOKEN }}
           repository:  ${{ github.event.client_payload.pull_request.head.repo.full_name }}
           ref:         ${{ github.event.client_payload.pull_request.head.ref }}
+    # filter updates.
+    - uses:            dorny/paths-filter@v2
+      id:              changes
+      with:
+        filters:       |
+          src:
+            - '**/*.swift'
     # run all tests.
     - name:            Test
+      if:              steps.changes.outputs.src == 'true'
       run:             swift test --parallel --enable-test-discovery
       env:
         SECRET:        ${{ secrets.SECRET }}
         PASSWORD:      ${{ secrets.PASSWORD }}
-    # notify.
-    - name:            Notify
-      uses:            peter-evans/create-or-update-comment@v1
-      with:
-        comment-id:    ${{ github.event.client_payload.github.payload.comment.id }}
-        reaction-type: +1

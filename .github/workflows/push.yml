@@ -1,48 +1,67 @@
-name:              push
+name:                   checks
 
 on:
   push:
     branches:
       - main
-      - bugfixes
-      - development
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
 
 jobs:
-  # lint code.
-  lint:
-    name:          Lint
-    runs-on:       ubuntu-latest
+  # validate commits.
+  validate-commits:
+    name:               Conventional Commits
+    runs-on:            ubuntu-latest
+    if:                 ${{ github.event.number }}
 
     steps:
-      - name:      Checkout
-        uses:      actions/checkout@v2
-      - uses:      dorny/paths-filter@v2
-        id:        changes
+      - name:           Checkout
+        uses:           actions/checkout@v2
+      - name:           Commisery
+        uses:           KevinDeJong-TomTom/commisery-action@master
         with:
-          filters: |
+          token:        ${{ secrets.GITHUB_TOKEN }}
+          pull_request: ${{ github.event.number }}
+
+  # lint code.
+  lint:
+    name:               Lint
+    runs-on:            ubuntu-latest
+
+    steps:
+      - name:           Checkout
+        uses:           actions/checkout@v2
+      - uses:           dorny/paths-filter@v2
+        id:             changes
+        with:
+          filters:      |
             src:
               - '**/*.swift'
-      - name:      Lint
-        if:        steps.changes.outputs.src == 'true'
-        uses:      norio-nomura/action-swiftlint@3.1.0
+      - name:           Lint
+        if:             steps.changes.outputs.src == 'true'
+        uses:           norio-nomura/action-swiftlint@3.1.0
         with:
-          args:    --strict
+          args:         --strict
 
   # build the library.
   build:
-    name:          Build
-    needs:         lint
-    runs-on:       macos-latest
+    name:               Build
+    needs:              lint
+    runs-on:            macos-latest
 
     steps:
-      - name:      Checkout
-        uses:      actions/checkout@v2
-      - uses:      dorny/paths-filter@v2
-        id:        changes
+      - name:           Checkout
+        uses:           actions/checkout@v2
+      - uses:           dorny/paths-filter@v2
+        id:             changes
         with:
-          filters: |
+          filters:      |
             src:
               - '**/*.swift'
-      - name:      Build
-        if:        steps.changes.outputs.src == 'true'
-        run:       swift build
+      - name:           Build
+        if:             steps.changes.outputs.src == 'true'
+        run:            swift build
