@@ -2,7 +2,7 @@ name:                        merge
 
 on:
   push:
-    barnches:
+    branches:
       - main
 
 jobs:
