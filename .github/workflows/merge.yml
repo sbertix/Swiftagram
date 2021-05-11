@@ -1,37 +1,47 @@
-name:                  merge
+name:                      merge
 
 on:
   pull_request:
     barnches:
       - main
-    types:             [closed]
+    types:                 [closed]
 
 jobs:
   # rebase `bugfixes` and `development`.
   rebase:
-    name:              rebase
-    runs-on:           ubuntu-latest
-    if:                ${{ github.event.pull_request.merged == true }}
+    name:                  rebase
+    runs-on:               ubuntu-latest
+    if:                    ${{ github.event.pull_request.merged == true }}
 
     steps:
       # checkout.
-      - name:          Checkout
-        uses:          actions/checkout@v2
+      - name:              Checkout
+        id:                checkout
+        uses:              actions/checkout@v2
         with:
-          fetch-depth: 0
-          token:       ${{ secrets.GITHUB_TOKEN }}
-          ref:         main
+          fetch-depth:     0
+          token:           ${{ secrets.GITHUB_TOKEN }}
+          ref:             main
       # config author.
-      - name:          Config
-        run:           |
+      - name:              Config
+        id:                config
+        needs:             checkout
+        run:               |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions"
-      # rebase `bugfixes` and `development`.
-      - name:          Rebase
-        run:           |
+      # rebase `bugfixes`.
+      - name:              Rebase `bugfixes`
+        needs:             config
+        run:               |
           git checkout -b bugfixes origin/bugfixes
           git rebase origin/main
           git push origin bugfixes --force-with-lease
+        continue-on-error: true
+      # rebase `development`.
+      - name:              Rebase `development`
+        needs:             config
+        run:               |
           git checkout -b development origin/development
           git rebase origin/main
           git push origin development --force-with-lease
+        continue-on-error: true
