@@ -1,4 +1,4 @@
-name:                        merge
+name:                        release
 
 on:
   push:
@@ -10,7 +10,6 @@ jobs:
   rebase:
     name:                    Rebase
     runs-on:                 ubuntu-latest
-    if:                      ${{ github.event.pull_request.merged == true }}
 
     steps:
       # checkout.
@@ -45,7 +44,6 @@ jobs:
   release:
     name:                    Release
     runs-on:                 ubuntu-latest
-    if:                      ${{ github.event.pull_request.merged == true }}
 
     steps:
       # checkout `main`.
