@@ -38,8 +38,8 @@ jobs:
       - uses:           dorny/paths-filter@v2
         id:             changes
         with:
-          base:         ${{ github.event.pull_request.base.sha ?? github.event.push.before }}
-          ref:          ${{ github.event.pull_request.head.sha ?? github.event.push.head }}
+          base:         ${{ github.event.pull_request.base.sha || github.event.push.before }}
+          ref:          ${{ github.event.pull_request.head.sha || github.event.push.head }}
           filters:      |
             src:
               - '**/*.swift'
@@ -61,8 +61,8 @@ jobs:
       - uses:           dorny/paths-filter@v2
         id:             changes
         with:
-          base:         ${{ github.event.pull_request.base.sha ?? github.event.push.before }}
-          ref:          ${{ github.event.pull_request.head.sha ?? github.event.push.head }}
+          base:         ${{ github.event.pull_request.base.sha || github.event.push.before }}
+          ref:          ${{ github.event.pull_request.head.sha || github.event.push.head }}
           filters:      |
             src:
               - '**/*.swift'
