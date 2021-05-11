@@ -5,17 +5,29 @@ on:
     types:               [created]
 
 jobs:
-  chatops:
-    name:                ChatOps
+  workflows:
+    name:                ChatOps (Workflows)
     runs-on:             ubuntu-latest
+    if:                  ${{ github.event.pull_request }}
 
     steps:
       # launch workflows with specific instructions.
-      - name:            ChatOps
+      - name:            ChatOps (Repository)
         uses:            peter-evans/slash-command-dispatch@v2
         with:
           token:         ${{ secrets.CHATOPS_PAT }}
-          dispatch_type: workflow
           commands:      |
-            merge
             test
+          static-args:   |
+            repo=${{ github.pull_request.head.repo.full_name }}
+            head=${{ github.pull_request.head.sha }}
+            base=${{ github.pull_request.base.sha }}
+          dispatch-type: workflow
+      # append error message.
+      - name:            Edit comment with error message
+        if:              steps.scd.outputs.error-message
+        uses:            peter-evans/create-or-update-comment@v1
+        with:
+          comment-id:    ${{ github.event.comment.id }}
+          body:          |
+            > ${{ steps.scd.outputs.error-message }}

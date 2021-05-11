@@ -2,13 +2,13 @@ name:                        merge
 
 on:
   push:
-    barnches:
+    branches:
       - main
 
 jobs:
   # rebase `bugfixes` and `development` on merged PRs.
   rebase:
-    name:                    rebase
+    name:                    Rebase
     runs-on:                 ubuntu-latest
     if:                      ${{ github.event.pull_request.merged == true }}
 
@@ -43,7 +43,7 @@ jobs:
 
   # release a new version.
   release:
-    name:                    release
+    name:                    Release
     runs-on:                 ubuntu-latest
     if:                      ${{ github.event.pull_request.merged == true }}
 
@@ -95,7 +95,7 @@ jobs:
 
   # create docs.
   docs:
-    name:                    docs
+    name:                    Docs
     needs:                   release
     runs-on:                 ubuntu-latest
 
