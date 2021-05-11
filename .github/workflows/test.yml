@@ -2,7 +2,8 @@ name:                  test
 
 on:
   repository_dispatch:
-    types:             [test-command]
+    types:
+      - test-command
 
 jobs:
   test:
@@ -23,6 +24,12 @@ jobs:
       env:
         SECRET:        ${{ secrets.SECRET }}
         PASSWORD:      ${{ secrets.PASSWORD }}
+    # notify failure.
+    - name:            Notify (failure)
+      uses:            peter-evans/create-or-update-comment@v1
+      with:
+        comment-id:    ${{ github.event.client_payload.github.payload.comment.id }}
+        reaction-type: +1
     # notify.
     - name:            Notify
       uses:            peter-evans/create-or-update-comment@v1

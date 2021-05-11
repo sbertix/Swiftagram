@@ -1,47 +1,149 @@
-name:                      merge
+name:                        merge
 
 on:
   pull_request:
     barnches:
       - main
-    types:                 [closed]
+    types:
+      - closed
 
 jobs:
-  # rebase `bugfixes` and `development`.
+  # rebase `bugfixes` and `development` on merged PRs.
   rebase:
-    name:                  rebase
-    runs-on:               ubuntu-latest
-    if:                    ${{ github.event.pull_request.merged == true }}
+    name:                    rebase
+    runs-on:                 ubuntu-latest
+    if:                      ${{ github.event.pull_request.merged == true }}
 
     steps:
       # checkout.
-      - name:              Checkout
-        id:                checkout
-        uses:              actions/checkout@v2
+      - name:                Checkout
+        id:                  checkout
+        uses:                actions/checkout@v2
         with:
-          fetch-depth:     0
-          token:           ${{ secrets.GITHUB_TOKEN }}
-          ref:             main
+          token:             ${{ secrets.GITHUB_TOKEN }}
+          ref:               main
       # config author.
-      - name:              Config
-        id:                config
-        needs:             checkout
-        run:               |
+      - name:                Config
+        id:                  config
+        needs:               checkout
+        run:                 |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions"
       # rebase `bugfixes`.
-      - name:              Rebase `bugfixes`
-        needs:             config
-        run:               |
+      - name:                Rebase `bugfixes`
+        needs:               config
+        run:                 |
           git checkout -b bugfixes origin/bugfixes
           git rebase origin/main
           git push origin bugfixes --force-with-lease
-        continue-on-error: true
+        continue-on-error:   true
       # rebase `development`.
-      - name:              Rebase `development`
-        needs:             config
-        run:               |
+      - name:                Rebase `development`
+        needs:               config
+        run:                 |
           git checkout -b development origin/development
           git rebase origin/main
           git push origin development --force-with-lease
-        continue-on-error: true
+        continue-on-error:   true
+
+  # release a new version.
+  release:
+    name:                    release
+    runs-on:                 ubuntu-latest
+    if:                      ${{ github.event.pull_request.merged == true }}
+
+    steps:
+      # checkout `main`.
+      - name:                Checkout
+        id:                  checkout
+        uses:                actions/checkout@v2
+        with:
+          fetch-depth:       0
+          token:             ${{ secrets.GITHUB_TOKEN }}
+          ref:               main
+      # create the changelog.
+      - name:                Changelog
+        id:                  changelog
+        needs:               checkout
+        uses:                TriPSs/conventional-changelog-action@v3
+        with:
+          git-message:       "chore(release): relase \'v{version}\'"
+          git-user-name:     "github-actions"
+          git-user-email:    "41898282+github-actions[bot]@users.noreply.github.com"
+          github-token:      ${{ secrets.GITHUB_TOKEN }}
+          tag-prefix:        ''
+          output-file:       'false'
+          skip-commit:       'true'
+          skip-version-file: 'true'
+      # release the new version.
+      - name:                Release
+        id:                  release
+        needs:               changelog
+        uses:                actions/create-release@v1
+        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        env:
+          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name:          ${{ steps.changelog.outputs.tag }}
+          release_name:      v${{ steps.changelog.outputs.tag }}
+          body:              ${{ steps.changelog.outputs.clean_changelog }}
+      # notify on telegram.
+      - name:                Telegram
+        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        needs:               release
+        uses:                appleboy/telegram-action@master
+        with:
+          to:                ${{ secrets.TELEGRAM_TO }}
+          token:             ${{ secrets.TELEGRAM_TOKEN }}
+          format:            markdown
+          args:              |
+            A [new version](${{ steps.release.outputs.html_url }}) of **Swiftagram** was just released.
+            Please consider updating your code.
+        continue-on-error:   true
+
+  # create docs.
+  docs:
+    name:                    docs
+    needs:                   release
+    runs-on:                 ubuntu-latest
+
+    steps:
+      # checkout the `main` branch.
+      - name:                Checkout
+        id:                  checkout
+        uses:                actions/checkout@v2
+        with:
+          token:             ${{ secrets.GITHUB_TOKEN }}
+          ref:               main
+      # create documentation for `Swiftagram`.
+      - name:                Docs (Swiftagram)
+        needs:               checkout
+        uses:                SwiftDocOrg/swift-doc@master
+        with:
+          base-url:          "https://sbertix.github.io/Swiftagram/Swiftagram/"
+          format:            "html"
+          inputs:            "Sources"
+          module-name:       Swiftagram
+          output:            docs/Swiftagram
+      # create documentation for `SwiftagramCrypto`.
+      - name:                Docs (SwiftagramCrypto)
+        needs:               checkout
+        uses:                SwiftDocOrg/swift-doc@master
+        with:
+          base-url:          "https://sbertix.github.io/Swiftagram/SwiftagramCrypto/"
+          format:            "html"
+          inputs:            "Sources"
+          module-name:       SwiftagramCrypto
+          output:            docs/SwiftagramCrypto
+      # update permissions.
+      - name:                Update Permissions
+        needs:               checkout
+        run:                 'sudo chown --recursive $USER docs'
+      # publish to GitHub pages.
+      - name:                Publish
+        needs:               checkout
+        uses:                JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN:      ${{ secrets.CHATOPS_PAT }}
+          BRANCH:            gh-pages
+          FOLDER:            docs
