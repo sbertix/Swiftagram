@@ -63,17 +63,17 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 <details><summary><strong>Targets</strong></summary>
     <p>
 
-- **Swiftagram** depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**.\
+- [**Swiftagram**](https://sbertix.github.io/Swiftagram/Swiftagram) depends on [**ComposableRequest**](https://github.com/sbertix/ComposableRequest), an HTTP client originally integrated in **Swiftagram**.\
 It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s and caching `Secret`s, through **ComposableStorage**, out-of-the-box.
 
-- **SwiftagramCrypto**, depending on [**Swiftchain**](https//github.com/sbertix/Swiftchain) and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
+- [**SwiftagramCrypto**](https://sbertix.github.io/Swiftagram/SwiftagramCrypto), depending on [**Swiftchain**](https//github.com/sbertix/Swiftchain) and a fork of [**SwCrypt**](https://github.com/sbertix/SwCrypt), can be imported together with **Swiftagram** to extend its functionality, accessing the safer `KeychainStorage` and encrypted `Endpoint`s (e.g. `Endpoint.Friendship.follow`, `Endpoint.Friendship.unfollow`).
     </p>
 </details>
 
 <p />
 
 ## Usage
-Check out our [Examples](Examples) or visit the (_auto-generated_) [Documentation](https://sbertix.github.io/Swiftagram) to learn about use cases.  
+Check out our [Examples](Examples) or visit the (_auto-generated_) documentation for [**Swiftagram**](https://sbertix.github.io/Swiftagram/Swiftagram) and [**SwiftagramCrypto**](https://sbertix.github.io/Swiftagram/SwiftagramCrypto) to learn about use cases.   
 
 ### Authentication
 Authentication is provided through conformance to the `Authenticator` protocol, which, on success, returns a `Secret` containing all the cookies needed to sign an `Endpoint`'s request.
