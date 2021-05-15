@@ -25,7 +25,12 @@ public struct User: Wrapped {
         public static let `private`: Access = .init(rawValue: 1 << 0)
         /// A verified account.
         public static let verified: Access = .init(rawValue: 1 << 1)
+        /// A business account.
+        public static let business: Access = .init(rawValue: 1 << 2)
+        /// A creator account.
+        public static let creator: Access = .init(rawValue: 1 << 3)
     }
+
     /// A `struct` representing a profile's `Counter`s.
     public struct Counter: Hashable, Codable {
         /// Posts.
@@ -55,6 +60,8 @@ public struct User: Wrapped {
     public var name: String? { self["fullName"].string() }
     /// The biography.
     public var biography: String? { self["biography"].string() }
+    /// The category.
+    public var category: String? { self["category"].string() }
     /// A lower quality avatar.
     public var thumbnail: URL? { self["profilePicUrl"].url() }
     /// An higher quality avatar.
@@ -72,18 +79,16 @@ public struct User: Wrapped {
     public var access: Access? {
         let isPrivate = self["isPrivate"].bool()
         let isVerified = self["isVerified"].bool()
+        let isBusiness = self["isBusiness"].bool()
+        let account = self["accountType"].int()
         // Deal with condition.
-        if isPrivate == true && isVerified == true {
-            return [.private, .verified]
-        } else if isPrivate == true {
-            return .private
-        } else if isVerified == true {
-            return .verified
-        } else if isPrivate == nil && isVerified == nil {
-            return nil
-        } else {
-            return []
-        }
+        guard isPrivate != nil || isVerified != nil || isBusiness != nil || account != nil else { return nil }
+        var access: Access = []
+        if isPrivate ?? false { access.formUnion(.private) }
+        if isVerified ?? false { access.formUnion(.verified) }
+        if (isBusiness ?? false) || account == 2 { access.formUnion(.business) }
+        if account == 3 { access.formUnion(.creator) }
+        return access
     }
 
     /// An optional friendship status.
