@@ -25,7 +25,7 @@ public extension Endpoint {
                                                                     Error> {
         .init { secret, session, pages in
             // Persist the rank token.
-            let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
+            let rank = pages.rank ?? UUID().uuidString
             // Prepare the actual pager.
             return Pager(pages) {
                 Request.users

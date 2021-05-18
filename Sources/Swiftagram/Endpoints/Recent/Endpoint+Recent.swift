@@ -44,7 +44,7 @@ public extension Endpoint.Group.Recent {
     var posts: Endpoint.Paginated<Wrapper, RankedOffset<String?, String?>, Error> {
         .init { secret, session, pages -> AnyPublisher<Wrapper, Error> in
             // Persist the rank token.
-            let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
+            let rank = pages.rank ?? UUID().uuidString
             // Prepare the actual pager.
             return Pager(pages.count, offset: pages.offset.offset) {
                 Request.feed
