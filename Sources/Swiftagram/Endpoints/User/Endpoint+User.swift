@@ -229,7 +229,7 @@ public extension Endpoint.Group.User {
                                  Error> {
         .init { secret, session, pages in
             // Persist the rank token.
-            let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
+            let rank = pages.rank ?? UUID().uuidString
             // Prepare the actual pager.
             return Pager(pages) {
                 Request.version1
@@ -278,7 +278,7 @@ fileprivate extension Endpoint.Group.User {
                    matching query: String?) -> Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
         .init { secret, session, pages in
             // Persist the rank token.
-            let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
+            let rank = pages.rank ?? UUID().uuidString
             // Prepare the actual pager.
             return Pager(pages) {
                 Request.friendship(self)

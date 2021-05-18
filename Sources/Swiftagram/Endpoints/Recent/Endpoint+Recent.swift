@@ -44,7 +44,7 @@ public extension Endpoint.Group.Recent {
     var posts: Endpoint.Paginated<Wrapper, RankedOffset<String?, String?>, Error> {
         .init { secret, session, pages -> AnyPublisher<Wrapper, Error> in
             // Persist the rank token.
-            let rank = pages.rank ?? String(Int.random(in: 1_000..<10_000))
+            let rank = pages.rank ?? UUID().uuidString
             // Prepare the actual pager.
             return Pager(pages.count, offset: pages.offset.offset) {
                 Request.feed
@@ -82,20 +82,21 @@ public extension Endpoint.Group.Recent {
                     .iterateFirst(stoppingAt: $0) {
                         switch $0?.nextMaxId.string(converting: true) {
                         case .none:
-                            return nil
+                            return .stop
                         case "feed_recs_head_load":
-                            return $0?.feedItems
-                                .array()?
-                                .last?
-                                .endOfFeedDemarcator
-                                .groupSet
-                                .groups
-                                .array()?
-                                .first(where: { $0.id.string(converting: true) == "past_posts" })?
-                                .nextMaxId
-                                .string()
+                            return ($0?.feedItems
+                                        .array()?
+                                        .last?
+                                        .endOfFeedDemarcator
+                                        .groupSet
+                                        .groups
+                                        .array()?
+                                        .first(where: { $0.id.string(converting: true) == "past_posts" })?
+                                        .nextMaxId
+                                        .string())
+                                .flatMap(Instruction.load) ?? .stop
                         case let cursor?:
-                            return cursor
+                            return .load(cursor)
                         }
                     }
             }
