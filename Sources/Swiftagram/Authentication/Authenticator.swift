@@ -9,6 +9,13 @@ import Foundation
 
 import ComposableStorage
 
+/// A `typealias` for `ComposableStorage.UserDefaultsStorage`.
+///
+/// - note:
+///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
+///     to stick with future versions of **Swift**.
+public typealias UserDefaultsStorage = ComposableStorage.UserDefaultsStorage
+
 /// A `struct` defining an instance capable of
 /// starting the authentication flow for a given user.
 public struct Authenticator {
@@ -38,14 +45,14 @@ public extension Authenticator {
 
     /// The default user defaults-backed `Authenticator`.
     static var userDefaults: Authenticator {
-        userDefaults(.standard)
+        userDefaults(.init(userDefaults: .standard))
     }
 
     /// A user defaults-backed `Authenticator` with a specific `Client`.
     ///
-    /// - parameter userDefaults: A valid `UserDefaults`.
+    /// - parameter userDefaultsStorage: A valid `UserDefaultsStorage`.
     /// - returns: A valid `Authenticator.`
-    static func userDefaults(_ userDefaults: UserDefaults) -> Authenticator {
-        .init(storage: UserDefaultsStorage(userDefaults: userDefaults))
+    static func userDefaults(_ userDefaultsStorage: UserDefaultsStorage<Secret>) -> Authenticator {
+        self.init(storage: userDefaultsStorage)
     }
 }

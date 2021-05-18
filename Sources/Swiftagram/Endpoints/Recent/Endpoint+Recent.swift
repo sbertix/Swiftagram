@@ -82,20 +82,21 @@ public extension Endpoint.Group.Recent {
                     .iterateFirst(stoppingAt: $0) {
                         switch $0?.nextMaxId.string(converting: true) {
                         case .none:
-                            return nil
+                            return .stop
                         case "feed_recs_head_load":
-                            return $0?.feedItems
-                                .array()?
-                                .last?
-                                .endOfFeedDemarcator
-                                .groupSet
-                                .groups
-                                .array()?
-                                .first(where: { $0.id.string(converting: true) == "past_posts" })?
-                                .nextMaxId
-                                .string()
+                            return ($0?.feedItems
+                                        .array()?
+                                        .last?
+                                        .endOfFeedDemarcator
+                                        .groupSet
+                                        .groups
+                                        .array()?
+                                        .first(where: { $0.id.string(converting: true) == "past_posts" })?
+                                        .nextMaxId
+                                        .string())
+                                .flatMap(Instruction.load) ?? .stop
                         case let cursor?:
-                            return cursor
+                            return .load(cursor)
                         }
                     }
             }
