@@ -313,7 +313,7 @@ starting the authentication flow for a given user.</p>
         <code>user​Defaults(_:​)</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">userDefaults</span>(<span class="keyword">_</span> <span class="variable">userDefaults</span>: <span class="type">UserDefaults</span>) -&gt; <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">userDefaults</span>(<span class="keyword">_</span> <span class="variable">userDefaultsStorage</span>: <span class="type">UserDefaultsStorage</span>&lt;<span class="type">Secret</span>&gt;) -&gt; <span class="type">Authenticator</span> </code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A user defaults-backed <code>Authenticator</code> with a specific <code>Client</code>.</p>
@@ -331,9 +331,9 @@ starting the authentication flow for a given user.</p>
   </thead>
   <tbody>
     <tr>
-    <th>user​Defaults</th>
-    <td><code class="type">User​Defaults</code></td>
-    <td><p>A valid <code>UserDefaults</code>.</p>
+    <th>user​Defaults​Storage</th>
+    <td><code class="type">User​Defaults​Storage&lt;Secret&gt;</code></td>
+    <td><p>A valid <code>UserDefaultsStorage</code>.</p>
 </td>
 </tr>
   </tbody>
@@ -453,7 +453,7 @@ The web view will be added as a child of <code>superview</code>.</p>
         <code>keychain(_:​)</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">keychain</span>(<span class="keyword">_</span> <span class="variable">keychain</span>: <span class="type">Keychain</span> = .<span class="variable">init</span>()) -&gt; <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">keychain</span>(<span class="keyword">_</span> <span class="variable">keychainStorage</span>: <span class="type">KeychainStorage</span>&lt;<span class="type">Secret</span>&gt;) -&gt; <span class="type">Authenticator</span> </code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A keychain-backed <code>Authenticator</code>.</p>
@@ -472,8 +472,8 @@ The web view will be added as a child of <code>superview</code>.</p>
   <tbody>
     <tr>
     <th>keychain</th>
-    <td><code class="type">Keychain</code></td>
-    <td><p>A valid <code>Keychain</code>. Defaults to <code>.init()</code>.</p>
+    <td></td>
+    <td><p>A valid <code>KeychainStorage</code>.</p>
 </td>
 </tr>
   </tbody>
@@ -537,7 +537,7 @@ authenticator.</p>
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-15T18:00:09+0000">May 15, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-05-18T16:58:38+0000">May 18, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
 </p>
     </footer>
 </body>
