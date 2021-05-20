@@ -3,7 +3,6 @@
 //  Followers
 //
 //  Created by Stefano Bertagno on 10/03/2020.
-//  Copyright © 2020 Stefano Bertagno. All rights reserved.
 //
 
 import UIKit
@@ -12,7 +11,7 @@ import Swiftagram
 import SwiftagramCrypto
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+internal class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Delete persisted data on updated version.
         if UserDefaults.standard.string(forKey: "swiftagram.version") != "4.1.0" {

@@ -57,9 +57,9 @@ public extension Endpoint {
                         "rank_token": "",
                         "latitude": "\(coordinates.latitude)",
                         "longitude": "\(coordinates.longitude)",
-                        "timestamp": query == nil ? "\(Int(Date().timeIntervalSince1970*1_000))" : nil,
+                        "timestamp": query == nil ? "\(Int(Date().timeIntervalSince1970 * 1_000))" : nil,
                         "search_query": query,
-                        "_csrftoken": secret["csrftoken"]!,
+                        "_csrftoken": secret["csrftoken"],
                         "_uid": secret.identifier,
                         "_uuid": secret.client.device.identifier.uuidString
                     ])

@@ -59,9 +59,6 @@ public extension Section {
 
     /// A `struct` defining a collection of `Section`s.
     struct Collection: Specialized, Paginatable {
-        /// The associated offset.
-        public typealias Offset = Section.Offset?
-
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -88,4 +85,9 @@ public extension Section {
             self.wrapper = wrapper
         }
     }
+}
+
+public extension Section.Collection {
+    /// The associated offset.
+    typealias Offset = Section.Offset?
 }

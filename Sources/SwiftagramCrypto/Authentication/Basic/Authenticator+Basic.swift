@@ -57,7 +57,8 @@ public extension Authenticator.Group {
                                                      encryptedPassword: $0,
                                                      with: cookies,
                                                      for: client,
-                                                     storedIn: self.authenticator.storage) }
+                                                     storedIn: self.authenticator.storage)
+                        }
                         .eraseToAnyPublisher()
                 }
                 .eraseToAnyPublisher()
@@ -80,14 +81,21 @@ public extension Authenticator.Group {
                 .signing(body: ["mobile_subno_usage": "default",
                                 "device_id": client.device.identifier.uuidString])
                 .publish(session: .ephemeral)
-                .tryMap {
-                    if let headers = ($0.response as? HTTPURLResponse)?.allHeaderFields as? [String: String] { return headers }
-                    throw Authenticator.Error.invalidResponse($0.response)
+                .tryMap { result -> [String: String] in
+                    guard let headers = (result.response as? HTTPURLResponse)?
+                            .allHeaderFields as? [String: String] else {
+                        throw Authenticator.Error.invalidResponse(result.response)
+                    }
+                    return headers
                 }
-                .map { HTTPCookie.cookies(withResponseHeaderFields: $0, for: URL(string: ".instagram.com")!) }
+                .tryMap {
+                    guard let url = URL(string: ".instagram.com") else { throw Authenticator.Error.invalidURL }
+                    return HTTPCookie.cookies(withResponseHeaderFields: $0, for: url)
+                }
                 .eraseToAnyPublisher()
         }
 
+        // swiftlint:disable function_body_length
         /// Encrypt the user's password.
         ///
         /// - parameters:
@@ -129,20 +137,24 @@ public extension Authenticator.Group {
                     guard let passwordKeyId = header["ig-set-password-encryption-key-id"].flatMap(UInt8.init),
                           let passwordPublicKey = header["ig-set-password-encryption-pub-key"]
                             .flatMap({ Data(base64Encoded: $0) })
-                            .flatMap({ String(data: $0, encoding: .utf8) }) else {
+                            .flatMap({ String(data: $0, encoding: .utf8) }),
+                          let passwordData = password.data(using: .utf8) else {
                         throw SigningError.invalidRepresentation
                     }
                     // Encrypt password.
                     let randomKey = Data((0..<32).map { _ in UInt8.random(in: 0...255) })
                     let iv = Data((0..<12).map { _ in UInt8.random(in: 0...255) })
                     let time = "\(Int(Date().timeIntervalSince1970))"
+                    guard let timeData = time.data(using: .utf8) else {
+                        throw SigningError.invalidRepresentation
+                    }
                     // AES-GCM-256.
                     let (aesEncrypted, authenticationTag) = try CC.GCM.crypt(.encrypt,
                                                                              algorithm: .aes,
-                                                                             data: password.data(using: .utf8)!,
+                                                                             data: passwordData,
                                                                              key: randomKey,
                                                                              iv: iv,
-                                                                             aData: time.data(using: .utf8)!,
+                                                                             aData: timeData,
                                                                              tagLength: 16)
                     // RSA.
                     let publicKey = try SwKeyConvert.PublicKey.pemToPKCS1DER(passwordPublicKey)
@@ -166,7 +178,9 @@ public extension Authenticator.Group {
                 }
                 .eraseToAnyPublisher()
         }
+        // swiftlint:enable function_body_length
 
+        // swiftlint:disable function_body_length
         /// Authenticate the given user.
         ///
         /// - parameters:
@@ -180,9 +194,15 @@ public extension Authenticator.Group {
                                                      encryptedPassword: String,
                                                      with cookies: [HTTPCookie],
                                                      for client: Client,
-                                                     storedIn storage: S) -> AnyPublisher<Secret, Swift.Error> where S.Item == Secret {
+                                                     storedIn storage: S) -> AnyPublisher<Secret, Swift.Error>
+        where S.Item == Secret {
             // Check for cross site request forgery token.
-            guard let crossSiteRequestForgery = cookies.first(where: { $0.name == "csrftoken" }) else {
+            guard let crossSiteRequestForgery = cookies.first(where: { $0.name == "csrftoken" }),
+                  let jazoest = client.device
+                    .phoneIdentifier
+                    .uuidString
+                    .data(using: .ascii)?
+                    .reduce(into: 0, { $0 += Int($1) }) else {
                 return Fail(error: Authenticator.Error.invalidCookies(cookies)).eraseToAnyPublisher()
             }
             // Obtain authenticated cookies.
@@ -205,7 +225,7 @@ public extension Authenticator.Group {
                     "google_tokens": "[]",
                     "country_codes": #"[{"country_code":"1","source": "default"}]"#,
                     "login_attempt_count": "0",
-                    "jazoest": "2\(client.device.phoneIdentifier.uuidString.data(using: .ascii)!.reduce(0) { $0+Int($1) })"
+                    "jazoest": "2\(jazoest)"
                 ])
                 .publish(session: .ephemeral)
                 .tryMap { result throws -> Secret in
@@ -216,11 +236,13 @@ public extension Authenticator.Group {
                     }
                     // Deal with two factor authentication.
                     if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string(converting: true) {
-                        throw Authenticator.Error.twoFactorChallenge(.init(storage: storage,
-                                                                           client: client,
-                                                                           identifier: twoFactorIdentifier,
-                                                                           username: username,
-                                                                           crossSiteRequestForgery: crossSiteRequestForgery))
+                        throw Authenticator.Error.twoFactorChallenge(
+                            .init(storage: storage,
+                                  client: client,
+                                  identifier: twoFactorIdentifier,
+                                  username: username,
+                                  crossSiteRequestForgery: crossSiteRequestForgery)
+                        )
                     } else if let error = value.errorType.string() {
                         switch error {
                         case "bad_password":
@@ -231,9 +253,11 @@ public extension Authenticator.Group {
                             throw Authenticator.Error.generic(error)
                         }
                     } else if value.loggedInUser.pk.int() != nil, let url = URL(string: "https://instagram.com") {
-                        let cookies = HTTPCookie.cookies(withResponseHeaderFields: (response.allHeaderFields as? [String: String]) ?? [:],
-                                                         for: url)
-                        guard let secret = Secret(cookies: cookies, client: client) else { throw Authenticator.Error.invalidCookies(cookies) }
+                        let headers = (response.allHeaderFields as? [String: String]) ?? [:]
+                        let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: url)
+                        guard let secret = Secret(cookies: cookies, client: client) else {
+                            throw Authenticator.Error.invalidCookies(cookies)
+                        }
                         return try S.store(secret, in: storage)
                     } else {
                         throw Authenticator.Error.invalidResponse(response)
@@ -241,6 +265,7 @@ public extension Authenticator.Group {
                 }
                 .eraseToAnyPublisher()
         }
+        // swiftlint:enable function_body_length
     }
 }
 

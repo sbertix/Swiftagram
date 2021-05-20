@@ -55,7 +55,7 @@ public extension Endpoint.Group.Direct.Conversation.Message {
                 Request.directMessage(self)
                     .path(appending: "delete/")
                     .header(appending: secret.header)
-                    .body(appending: ["_csrftoken": secret["csrftoken"]!,
+                    .body(appending: ["_csrftoken": secret["csrftoken"],
                                       "_uuid": secret.client.device.identifier.uuidString])
                     .publish(with: session)
                     .map(\.data)
@@ -75,7 +75,7 @@ public extension Endpoint.Group.Direct.Conversation.Message {
                 Request.directMessage(self)
                     .path(appending: "seen/")
                     .header(appending: secret.header)
-                    .body(appending: ["_csrftoken": secret["csrftoken"]!,
+                    .body(appending: ["_csrftoken": secret["csrftoken"],
                                       "_uuid": secret.client.device.identifier.uuidString,
                                       "use_unified_inbox": "true",
                                       "action": "mark_seen",

@@ -28,72 +28,6 @@ public extension Client {
         /// The resolution of the screen.
         public let resolution: Resolution
 
-        // MARK: Lifecycle
-
-        /// Generate a generic/Android device.
-        ///
-        /// - parameters:
-        ///     - version: A valid `String`, like *"29/10"*.
-        ///     - language: A valid `String`, like *"en_US"*.
-        ///     - model: A valid `String`.
-        ///     - brand: A valid `String`.
-        ///     - boot: A valid `String`.
-        ///     - cpu: A valid `String`.
-        ///     - manufacturer: An optional `String`.
-        ///     - resolution: A valid `Resolution`.
-        ///     - identifier: A valid `UUID`. Defaults to a random one.
-        ///     - phoneIdentifier: A valid `UUID`. Defaults to a random one.
-        ///     - adIdentifier: A valid `UUID`. Defaults to a random one.
-        public static func android(_ version: String,
-                                   language: String,
-                                   model: String,
-                                   brand: String,
-                                   boot: String,
-                                   cpu: String,
-                                   manufacturer: String?,
-                                   resolution: Resolution,
-                                   identifier: UUID = .init(),
-                                   phoneIdentifier: UUID = .init(),
-                                   adIdentifier: UUID = .init()) -> Device {
-            .init(identifier: identifier,
-                  phoneIdentifier: phoneIdentifier,
-                  adIdentifier: adIdentifier,
-                  hardware: .init(model: model,
-                                  brand: brand,
-                                  boot: boot,
-                                  cpu: cpu,
-                                  manufacturer: manufacturer),
-                  software: .init(version: version, language: language),
-                  resolution: resolution)
-        }
-
-        /// Generate an iOS device.
-        ///
-        /// - parameters:
-        ///     - version: A valid `String`, like _"iOS 13_3"_.
-        ///     - language: A valid `String`, like *"en_US"*.
-        ///     - model: A valid `String`, like _"iPhone 9,1"_.
-        ///     - resolution: A valid `Resolution`.
-        ///     - identifier: A valid `UUID`. Defaults to a random one.
-        ///     - phoneIdentifier: A valid `UUID`. Defaults to a random one.
-        ///     - adIdentifier: A valid `UUID`. Defaults to a random one.
-        public static func iOS(_ version: String,
-                               language: String,
-                               model: String,
-                               resolution: Resolution,
-                               identifier: UUID = .init(),
-                               phoneIdentifier: UUID = .init(),
-                               adIdentifier: UUID = .init()) -> Device {
-            .init(identifier: identifier,
-                  phoneIdentifier: phoneIdentifier,
-                  adIdentifier: adIdentifier,
-                  hardware: .init(model: model, brand: nil, boot: nil, cpu: nil, manufacturer: nil),
-                  software: .init(version: version, language: language),
-                  resolution: resolution)
-        }
-
-        // MARK: Accessories
-
         /// The Instagram device identifier.
         ///
         /// - note: Importing **SwiftagramCrypto** allows for actual `md5` computation, otherwise a dummy value is set instead.
@@ -105,7 +39,7 @@ public extension Client {
             }
             // Prepare encoded value.
             let encoded = CC.digest(data, alg: .md5).hexadecimalString().prefix(16).lowercased()
-            return (hardware.brand == nil ? "iOS-" : "android-")+encoded
+            return (hardware.brand == nil ? "iOS-" : "android-") + encoded
             #else
             return [hardware.brand == nil ? "iOS-" : "android-",
                     identifier.uuidString.replacingOccurrences(of: "-", with: "").prefix(16).lowercased()].joined()
@@ -160,6 +94,70 @@ public extension Client {
             } else {
                 fatalError("Invalid device browser user agent.")
             }
+        }
+
+        // swiftlint:disable function_parameter_count
+        /// Generate a generic/Android device.
+        ///
+        /// - parameters:
+        ///     - version: A valid `String`, like *"29/10"*.
+        ///     - language: A valid `String`, like *"en_US"*.
+        ///     - model: A valid `String`.
+        ///     - brand: A valid `String`.
+        ///     - boot: A valid `String`.
+        ///     - cpu: A valid `String`.
+        ///     - manufacturer: An optional `String`.
+        ///     - resolution: A valid `Resolution`.
+        ///     - identifier: A valid `UUID`. Defaults to a random one.
+        ///     - phoneIdentifier: A valid `UUID`. Defaults to a random one.
+        ///     - adIdentifier: A valid `UUID`. Defaults to a random one.
+        public static func android(_ version: String,
+                                   language: String,
+                                   model: String,
+                                   brand: String,
+                                   boot: String,
+                                   cpu: String,
+                                   manufacturer: String?,
+                                   resolution: Resolution,
+                                   identifier: UUID = .init(),
+                                   phoneIdentifier: UUID = .init(),
+                                   adIdentifier: UUID = .init()) -> Device {
+            .init(identifier: identifier,
+                  phoneIdentifier: phoneIdentifier,
+                  adIdentifier: adIdentifier,
+                  hardware: .init(model: model,
+                                  brand: brand,
+                                  boot: boot,
+                                  cpu: cpu,
+                                  manufacturer: manufacturer),
+                  software: .init(version: version, language: language),
+                  resolution: resolution)
+        }
+        // swiftlint:enable function_parameter_count
+
+        /// Generate an iOS device.
+        ///
+        /// - parameters:
+        ///     - version: A valid `String`, like _"iOS 13_3"_.
+        ///     - language: A valid `String`, like *"en_US"*.
+        ///     - model: A valid `String`, like _"iPhone 9,1"_.
+        ///     - resolution: A valid `Resolution`.
+        ///     - identifier: A valid `UUID`. Defaults to a random one.
+        ///     - phoneIdentifier: A valid `UUID`. Defaults to a random one.
+        ///     - adIdentifier: A valid `UUID`. Defaults to a random one.
+        public static func iOS(_ version: String,
+                               language: String,
+                               model: String,
+                               resolution: Resolution,
+                               identifier: UUID = .init(),
+                               phoneIdentifier: UUID = .init(),
+                               adIdentifier: UUID = .init()) -> Device {
+            .init(identifier: identifier,
+                  phoneIdentifier: phoneIdentifier,
+                  adIdentifier: adIdentifier,
+                  hardware: .init(model: model, brand: nil, boot: nil, cpu: nil, manufacturer: nil),
+                  software: .init(version: version, language: language),
+                  resolution: resolution)
         }
     }
 }

@@ -19,7 +19,7 @@ public extension Endpoint {
 
 public extension Endpoint.Group.Posts {
     /// A list of archived posts.
-    var archived: Endpoint.Paginated<Swiftagram.Media.Collection,
+    var archived: Endpoint.Paginated < Swiftagram.Media.Collection,
                                      RankedOffset<String?, String?>,
                                      Error> {
         Endpoint.archived.posts
@@ -38,7 +38,7 @@ public extension Endpoint.Group.Posts {
     }
 
     /// A list of posts liked by the logged in user.
-    var liked: Endpoint.Paginated<Swiftagram.Media.Collection,
+    var liked: Endpoint.Paginated < Swiftagram.Media.Collection,
                                   RankedOffset<String?, String?>,
                                   Error> {
         .init { secret, session, pages in

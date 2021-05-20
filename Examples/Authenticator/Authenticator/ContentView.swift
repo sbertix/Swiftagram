@@ -9,7 +9,7 @@ import SwiftUI
 
 import Swiftagram
 
-struct ContentView: View {
+internal struct ContentView: View {
     /// Whether it should present the login view or not.
     @State var isPresentingLoginView: Bool = false
     /// The current secret.
@@ -45,7 +45,9 @@ struct ContentView: View {
                 )
                 .fixedSize(horizontal: false, vertical: true)
                 // Login.
-                Button(action: { isPresentingLoginView = true }) {
+                Button {
+                    isPresentingLoginView = true
+                } label: {
                     Text("Authenticate").font(.headline)
                 }.foregroundColor(.accentColor)
             }
@@ -59,7 +61,7 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+internal struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }

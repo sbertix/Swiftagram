@@ -7,8 +7,9 @@
 
 import Foundation
 
-/// A `struct` defining some API constants.
-public struct Constants {
+// swiftlint:disable file_types_order
+/// A module-like `enum` listing some API constants.
+public enum Constants {
     /// The login experiments.
     public static let loginExperiments = ["ig_android_fci_onboarding_friend_search",
                                           "ig_android_device_detection_info_upload",
@@ -101,8 +102,8 @@ public struct Constants {
         .joined()
 }
 
-/// A `struct` defining API supported capabilities.
-public struct SupportedCapabilities {
+/// A module-like `enum` listing API supported capabilities.
+public enum SupportedCapabilities {
     /// A shared `Dictionary` of `String`s.
     public static let `default` = [
         "SUPPORTED_SDK_VERSIONS": ["13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0",
@@ -119,3 +120,4 @@ public struct SupportedCapabilities {
         "gyroscope": "gyroscope_enabled"
     ]
 }
+// swiftlint:enable file_types_order

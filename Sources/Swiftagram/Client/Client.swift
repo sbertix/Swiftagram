@@ -34,7 +34,12 @@ public struct Client: Equatable, Codable, CustomStringConvertible {
     /// The device info.
     public let device: Device
 
-    // MARK: Lifecycle
+    /// The user agent.
+    public var description: String {
+        "\(application.description) (\(device.description); \(application.code))"
+    }
+    /// The browser user agent.
+    public var browserDescription: String { device.browserDescription }
 
     /// Init.
     ///
@@ -45,16 +50,6 @@ public struct Client: Equatable, Codable, CustomStringConvertible {
         self.application = application
         self.device = device
     }
-
-    // MARK: Accessories
-
-    /// The user agent.
-    public var description: String {
-        "\(application.description) (\(device.description); \(application.code))"
-    }
-
-    /// The browser user agent.
-    public var browserDescription: String { device.browserDescription }
 }
 
 /// Extend `Client` to save custom implementations.
@@ -68,8 +63,8 @@ public extension Client {
                                                           boot: "x1s",
                                                           cpu: "exynos990",
                                                           manufacturer: nil,
-                                                          resolution: .init(width: 1080,
-                                                                            height: 2277,
+                                                          resolution: .init(width: 1_080,
+                                                                            height: 2_277,
                                                                             scale: 2,
                                                                             dpi: 480)))
 
@@ -78,8 +73,8 @@ public extension Client {
                                        device: .iOS("iOS 14_0",
                                                     language: "en_US",
                                                     model: "iPhone12,5",
-                                                    resolution: .init(width: 1242,
-                                                                      height: 2688,
+                                                    resolution: .init(width: 1_242,
+                                                                      height: 2_688,
                                                                       scale: 3,
                                                                       dpi: 458)))
 
@@ -91,7 +86,8 @@ public extension Client {
         // Prepare identifier for current model.
         let identifier: String
         #if targetEnvironment(simulator)
-        identifier = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]!
+        guard let simulator = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] else { return nil }
+        identifier = simulator
         #else
         var systemInfo = utsname()
         uname(&systemInfo)
@@ -103,7 +99,7 @@ public extension Client {
         #endif
         guard identifier.contains("iPhone") else { return nil }
         return .init(application: .iOS(),
-                     device: .iOS("iOS "+UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_"),
+                     device: .iOS("iOS " + UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_"),
                                   language: NSLocale.current.languageCode ?? "en_US",
                                   model: identifier,
                                   resolution: .init(width: Int(UIScreen.main.nativeBounds.width),

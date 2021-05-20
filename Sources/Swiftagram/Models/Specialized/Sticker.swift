@@ -26,6 +26,7 @@ public struct Sticker: Wrapped {
     public var wrapper: () -> Wrapper
 
     /// Init.
+    ///
     /// - parameter wrapper: A valid `Wrapper`.
     public init(wrapper: @escaping () -> Wrapper) {
         self.wrapper = wrapper
@@ -33,6 +34,7 @@ public struct Sticker: Wrapped {
     }
 
     /// Init.
+    ///
     /// - parameters:
     ///     - identifier: A valid `String`.
     ///     - wrapper: A valid `Wrapper`.
@@ -42,9 +44,9 @@ public struct Sticker: Wrapped {
     }
 }
 
-// MARK: Constructors.
 public extension Sticker {
     /// Create a mension sticker for a given user.
+    ///
     /// - parameter identifier: A valid user identifier.
     /// - returns: A valid `Sticker`.
     /// - note: This only creates a tappable area linking to the appropriate profile. Picture editing is done client side.
@@ -57,6 +59,7 @@ public extension Sticker {
     }
 
     /// Create an hashtag sticker.
+    ///
     /// - parameter tag: A valid tag.
     /// - returns: A valid `Sticker`.
     /// - note: This only creates a tappable area linking to the appropriate profile. Picture editing is done client side.
@@ -69,6 +72,7 @@ public extension Sticker {
     }
 
     /// Create a location sticker.
+    ///
     /// - parameter identifier: A valid location identfiier.
     /// - returns: A valid `Sticker`.
     /// - note: This only creates a tappable area linking to the appropriate profile. Picture editing is done client side.
@@ -81,6 +85,7 @@ public extension Sticker {
     }
 
     /// Create a slider sticker.
+    ///
     /// - parameters:
     ///     - question: A valid `String`.
     ///     - emoji: A valid `String` containing a single emoji.
@@ -103,6 +108,7 @@ public extension Sticker {
     }
 
     /// Create a countdown sticker.
+    ///
     /// - parameters:
     ///     - date: A valid `Date`.
     ///     - event: A valid `String`
@@ -126,6 +132,7 @@ public extension Sticker {
     }
 
     /// Create a question sticker.
+    ///
     /// - parameter question: A valid `String`.
     /// - returns: A valid `Sticker`.
     /// - note: This does not edit the original image, unlike the Instagram client app: it only adds the interactive sticker.
@@ -144,6 +151,7 @@ public extension Sticker {
     }
 
     /// Create a poll sticker.
+    ///
     /// - parameters:
     ///     - question: A valid `String`.
     ///     - tallies: A sequence of `String`s. **Only the last two will be used.**
@@ -171,9 +179,9 @@ public extension Sticker {
     }
 }
 
-// MARK: Layout.
 public extension Sticker {
     /// Set all initial values.
+    ///
     /// - parameters:
     ///     - isSticker: A valid `Bool`. Defaults to `false`.
     ///     - useCustomTitle: A valid `Bool`. Defaults to `false`.
@@ -184,86 +192,96 @@ public extension Sticker {
             .scale(by: 1)
             .zIndex(0)
             .wrapper()
-            .dictionary()!
+            .dictionary() ?? [:]
         copy["isSticker"] = isSticker.wrapped
         copy["useCustomTitle"] = useCustomTitle.wrapped
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 
     /// Set a new `zIndex` to `self`.
+    ///
     /// - parameter index: A valid `Int`.
     /// - returns: A valid `Sticker`.
     func zIndex(_ index: Int) -> Sticker {
-        var copy = wrapper().dictionary()!
-        copy["z"] = index.wrapped
+        var copy = wrapper().dictionary()
+        copy?["z"] = index.wrapped
         return .init(wrapper: copy.wrapped)
     }
 
     /// Set a relative position for `self`.
+    ///
     /// - parameter position: A valid `CGPoint`.
     /// - returns: A valid `Sticker`.
     func position(_ position: CGPoint) -> Sticker {
-        var copy = wrapper().dictionary()!
-        copy["x"] = Double(position.x).wrapped
-        copy["y"] = Double(position.y).wrapped
+        var copy = wrapper().dictionary()
+        copy?["x"] = Double(position.x).wrapped
+        copy?["y"] = Double(position.y).wrapped
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 
     /// Set a relative position for `self`.
+    ///
     /// - parameters:
     ///     - x: An optional `CGFloat`. Defaults to `nil`, meaning `x` is not changed.
     ///     - y: An optional `CGFloat`. Defaults to `nil`, meaning `y` is not changed.
     /// - returns: A valid `Sticker`.
     func position(x: CGFloat? = nil, y: CGFloat? = nil) -> Sticker {
-        var copy = wrapper().dictionary()!
-        if let x = x { copy["x"] = x.wrapped }
-        if let y = y { copy["y"] = y.wrapped }
+        var copy = wrapper().dictionary()
+        if let x = x { copy?["x"] = x.wrapped }
+        if let y = y { copy?["y"] = y.wrapped }
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 
     /// Center `self` in the middle of the canvas.
+    ///
     /// - returns: A valid `Sticker`.
     func center() -> Sticker {
-        var copy = wrapper().dictionary()!
-        copy["x"] = 0.5
-        copy["y"] = 0.5
+        var copy = wrapper().dictionary()
+        copy?["x"] = 0.5
+        copy?["y"] = 0.5
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 
     /// Rotate `self` by `angle` in degrees.
+    ///
     /// - parameter angle: A valid `CGFloat`.
     /// - returns: A valid `Sticker`.
     func rotate(by angle: CGFloat) -> Sticker {
-        var copy = wrapper().dictionary()!
-        copy["rotation"] = Double(angle.truncatingRemainder(dividingBy: 360)).wrapped
+        var copy = wrapper().dictionary()
+        copy?["rotation"] = Double(angle.truncatingRemainder(dividingBy: 360)).wrapped
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 
     /// Scale `self` by `factor`.
+    ///
     /// - parameter factor: A valid `CGFloat`.
     /// - returns: A valid `Sticker`.
     func scale(by factor: CGFloat) -> Sticker {
-        var copy = wrapper().dictionary()!
-        copy["width"] = (Double(factor)*(copy["width"]?.double() ?? 0.5)).wrapped
-        copy["height"] = (Double(factor)*(copy["height"]?.double() ?? 0.5)).wrapped
+        var copy = wrapper().dictionary()
+        let width = copy?["width"]?.double() ?? 0.5
+        let height = copy?["height"]?.double() ?? 0.5
+        copy?["width"] = (Double(factor) * width).wrapped
+        copy?["height"] = (Double(factor) * height).wrapped
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 
     /// Set relative size.
+    ///
     /// - parameters:
     ///     - width: An optional `CGFloat`. Defaults to `nil`, meaning `width` is not changed.
     ///     - height: An optional `CGFloat`. Defaults to `nil`, meaning `height` is not changed.
     /// - returns: A valid `Sticker`.
     func size(width: CGFloat? = nil, height: CGFloat? = nil) -> Sticker {
-        var copy = wrapper().dictionary()!
-        if let width = width { copy["width"] = width.wrapped }
-        if let height = height { copy["height"] = height.wrapped }
+        var copy = wrapper().dictionary()
+        if let width = width { copy?["width"] = width.wrapped }
+        if let height = height { copy?["height"] = height.wrapped }
         return .init(identifier: identifier, wrapper: copy.wrapped)
     }
 }
 
 public extension Sequence where Element == Sticker {
     /// Transform into a dictionary of `Wrapper`s.
+    /// 
     /// - returns: A valid `Dictionary`.
     func request() -> [String: Wrapper] {
         var ids: [String] = []
@@ -271,40 +289,54 @@ public extension Sequence where Element == Sticker {
         let split = Dictionary(grouping: self) { $0.identifier }
         // Check for mentions.
         if let mentions = split["mention"] {
-            response["reel_mentions"] = (try? mentions.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            response["reel_mentions"] = (try? mentions.compactMap { $0.wrapper().camelCased().optional() }
+                                            .wrapped
+                                            .jsonRepresentation())?.wrapped
             response["mentions"] = response["reel_mentions"]
             response["caption"] = ""
             response["mas_opt_in"] = "NOT_PROMPTED"
         }
         // Add tags.
         if let tags = split["tag"] {
-            response["story_hashtags"] = (try? tags.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            response["story_hashtags"] = (try? tags.compactMap { $0.wrapper().camelCased().optional() }
+                                            .wrapped
+                                            .jsonRepresentation())?.wrapped
             response["caption"] = tags.compactMap { $0["tagName"].string() }.joined(separator: " ").wrapped
             response["mas_opt_in"] = "NOT_PROMPTED"
         }
         // Add locations.
         if let locations = split["location"] {
-            response["story_locations"] = (try? locations.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            response["story_locations"] = (try? locations.compactMap { $0.wrapper().camelCased().optional() }
+                                            .wrapped
+                                            .jsonRepresentation())?.wrapped
             response["mas_opt_in"] = "NOT_PROMPTED"
         }
         // Add only the last slider.
         if let sliders = split["slider"]?.suffix(1), !sliders.isEmpty {
-            response["story_sliders"] = (try? sliders.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
-            ids += sliders.compactMap { $0["emoji"].string().flatMap { "emoji_slider_"+$0 }}
+            response["story_sliders"] = (try? sliders.compactMap { $0.wrapper().camelCased().optional() }
+                                            .wrapped
+                                            .jsonRepresentation())?.wrapped
+            ids += sliders.compactMap { $0["emoji"].string().flatMap { "emoji_slider_"+$0 } }
         }
         // Add only the last countdown.
         if let countdowns = split["countdown"]?.suffix(1), !countdowns.isEmpty {
-            response["story_countdowns"] = (try? countdowns.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            response["story_countdowns"] = (try? countdowns.compactMap { $0.wrapper().camelCased().optional() }
+                                                .wrapped
+                                                .jsonRepresentation())?.wrapped
             ids.append("countdown_sticker_time")
         }
         // Add only the last question.
         if let questions = split["question"]?.suffix(1), !questions.isEmpty {
-            response["story_questions"] = (try? questions.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            response["story_questions"] = (try? questions.compactMap { $0.wrapper().camelCased().optional() }
+                                            .wrapped
+                                            .jsonRepresentation())?.wrapped
             ids.append("question_sticker_ama")
         }
         // Add only the last poll.
         if let polls = split["poll"]?.suffix(1), !polls.isEmpty {
-            response["story_polls"] = (try? polls.compactMap { $0.wrapper().camelCased().optional() }.wrapped.jsonRepresentation())?.wrapped
+            response["story_polls"] = (try? polls.compactMap { $0.wrapper().camelCased().optional() }
+                                        .wrapped
+                                        .jsonRepresentation())?.wrapped
             response["internal_features"] = "polling_sticker"
             response["mas_opt_in"] = "NOT_PROMPTED"
         }

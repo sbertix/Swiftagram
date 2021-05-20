@@ -13,14 +13,16 @@ extension Friendship: Reflected {
     /// The debug description prefix.
     public static let debugDescriptionPrefix: String = ""
     /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["isFollowedByYou": \Self.isFollowedByYou,
-                                                                    "isFollowingYou": \Self.isFollowingYou,
-                                                                    "isBlockedByYou": \Self.isBlockedByYou,
-                                                                    "isCloseFriend": \Self.isCloseFriend,
-                                                                    "didRequestToFollowYou": \Self.didRequestToFollowYou,
-                                                                    "didRequestToFollow": \Self.didRequestToFollow,
-                                                                    "isMutingStories": \Self.isMutingStories,
-                                                                    "isMutingPosts": \Self.isMutingPosts]
+    public static let properties: [String: PartialKeyPath<Self>] = [
+        "isFollowedByYou": \Self.isFollowedByYou,
+        "isFollowingYou": \Self.isFollowingYou,
+        "isBlockedByYou": \Self.isBlockedByYou,
+        "isCloseFriend": \Self.isCloseFriend,
+        "didRequestToFollowYou": \Self.didRequestToFollowYou,
+        "didRequestToFollow": \Self.didRequestToFollow,
+        "isMutingStories": \Self.isMutingStories,
+        "isMutingPosts": \Self.isMutingPosts
+    ]
 }
 
 extension Friendship.Dictionary: Reflected {

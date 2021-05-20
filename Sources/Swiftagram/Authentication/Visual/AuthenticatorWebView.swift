@@ -14,7 +14,7 @@ import WebKit
 ///
 /// - note: This should **only** be used for Instagram authentication.
 @available(iOS 11, macOS 10.13, macCatalyst 13, *)
-final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
+internal final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
     /// The underlying client.
     private let client: Client
     /// Whether it's still authenticating or not.

@@ -44,7 +44,9 @@ public extension Friendship {
         public var wrapper: () -> Wrapper
 
         /// The friendships.
-        public var friendships: [String: Friendship]! { self["friendshipStatuses"].dictionary()?.mapValues { Friendship(wrapper: $0) }}
+        public var friendships: [String: Friendship]! {
+            self["friendshipStatuses"].dictionary()?.mapValues { Friendship(wrapper: $0) }
+        }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.

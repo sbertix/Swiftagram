@@ -24,35 +24,41 @@ import AppKit
 import SwCrypt
 
 /// The default delay.
-let delay: TimeInterval = 1
+private let delay: TimeInterval = 1
 /// The default request timeout.
-let timeout: TimeInterval = 30
+private let timeout: TimeInterval = 30
 
-//swiftlint:disable line_length
+// swiftlint:disable file_length
+// swiftlint:disable type_body_length
 /// A `class` dealing with testing all available `Endpoint`s.
-final class EndpointTests: XCTestCase {
+internal final class EndpointTests: XCTestCase {
     /// The underlying dispose bag.
     private var bin: Set<AnyCancellable> = []
 
-    //swiftlint:disable force_try
     /// Read the `Secret`.
-    lazy var secret: Secret = {
-        let data = Data(base64Encoded: ProcessInfo.processInfo.environment["SECRET"]!.trimmingCharacters(in: .whitespacesAndNewlines))!
-        return try! JSONDecoder().decode(Secret.self, from: data)
+    private lazy var secret: Secret = {
+        guard let environment = ProcessInfo.processInfo.environment["SECRET"]?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+              let data = Data(base64Encoded: environment) else {
+            fatalError("No `SECRET` environment variable.")
+        }
+        guard let secret = try? JSONDecoder().decode(Secret.self, from: data) else {
+            fatalError("Invalid `Secret`.")
+        }
+        return secret
     }()
-    //swiftlint:enable force_try
 
     // MARK: Tests
 
     /// Perform a test on `Endpoint` returning a `Single` `Wrappable`.
     @discardableResult
-    func performTest<W: Wrappable, E: Error>(on endpoint: Endpoint.Single<W, E>,
-                                             _ identifier: String,
-                                             logging level: Logger = .default,
-                                             line: Int = #line) -> W? {
+    private func performTest<W: Wrappable, E: Error>(on endpoint: Endpoint.Single<W, E>,
+                                                     _ identifier: String,
+                                                     logging level: Logger = .default,
+                                                     line: Int = #line) -> W? {
         // Make sure you're waiting a bit before performing the next test.
         let delayExpectation = XCTestExpectation(description: "delay")
-        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
         wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
@@ -61,7 +67,7 @@ final class EndpointTests: XCTestCase {
             .session(.instagram, logging: level)
             .sink(
                 receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
                     completion.fulfill()
                 },
                 receiveValue: {
@@ -77,21 +83,21 @@ final class EndpointTests: XCTestCase {
 
     /// Perform a test on `Endpoint` returning an `Equatable`.
     @discardableResult
-    func performTest<T: Equatable, E: Error>(on endpoint: AnyPublisher<T, E>,
-                                             comparison: T,
-                                             _ identifier: String,
-                                             logging level: Logger = .default,
-                                             line: Int = #line) -> T? {
+    private func performTest<T: Equatable, E: Error>(on endpoint: AnyPublisher<T, E>,
+                                                     comparison: T,
+                                                     _ identifier: String,
+                                                     logging level: Logger = .default,
+                                                     line: Int = #line) -> T? {
         // Make sure you're waiting a bit before performing the next test.
         let delayExpectation = XCTestExpectation(description: "delay")
-        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
         wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = Reference<T?>(nil)
         endpoint.sink(
             receiveCompletion: {
-                if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+                if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
                 completion.fulfill()
             },
             receiveValue: {
@@ -106,15 +112,15 @@ final class EndpointTests: XCTestCase {
 
     // Perform test on `Endpoint` returning a `Ranked`-`Paginated` `Wrappable`.
     @discardableResult
-    func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
-                                                _ identifier: String,
-                                                pages: Int = 1,
-                                                logging level: Logger = .default,
-                                                line: Int = #line) -> W?
+    private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
+                                                        _ identifier: String,
+                                                        pages: Int = 1,
+                                                        logging level: Logger = .default,
+                                                        line: Int = #line) -> W?
     where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
         // Make sure you're waiting a bit before performing the next test.
         let delayExpectation = XCTestExpectation(description: "delay")
-        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
         wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
@@ -124,7 +130,7 @@ final class EndpointTests: XCTestCase {
             .pages(pages)
             .sink(
                 receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
                     completion.fulfill()
                 },
                 receiveValue: {
@@ -140,15 +146,15 @@ final class EndpointTests: XCTestCase {
 
     // Perform test on `Endpoint` returning a `Paginated` `Wrappable`.
     @discardableResult
-    func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
-                                                _ identifier: String,
-                                                pages: Int = 1,
-                                                logging level: Logger = .default,
-                                                line: Int = #line) -> W?
+    private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
+                                                        _ identifier: String,
+                                                        pages: Int = 1,
+                                                        logging level: Logger = .default,
+                                                        line: Int = #line) -> W?
     where P: ComposableOptionalType {
         // Make sure you're waiting a bit before performing the next test.
         let delayExpectation = XCTestExpectation(description: "delay")
-        DispatchQueue.main.asyncAfter(deadline: .now()+delay) { delayExpectation.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
         wait(for: [delayExpectation], timeout: 10)
         // Perform the actual test.
         let completion = XCTestExpectation()
@@ -158,7 +164,7 @@ final class EndpointTests: XCTestCase {
             .pages(pages)
             .sink(
                 receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription+" \(identifier) #\(line)") }
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
                     completion.fulfill()
                 },
                 receiveValue: {
@@ -184,6 +190,7 @@ final class EndpointTests: XCTestCase {
                     "Endpoint.Archived.stories")
     }
 
+    // swiftlint:disable function_body_length
     /// Test `Endpoint.direct`.
     func testEndpointDirect() {
         performTest(on: Endpoint.direct
@@ -245,6 +252,7 @@ final class EndpointTests: XCTestCase {
                         "Endpoint.direct.Conversation.deleteLinks")
         }
     }
+    // swiftlint:enable function_body_length
 
     /// Test `Endpoint.Explore`.
     func testEndpointExplore() {
@@ -258,7 +266,7 @@ final class EndpointTests: XCTestCase {
 
     /// Test location endpoints.
     func testEndpointLocation() {
-        performTest(on: Endpoint.locations(around: .init(latitude: 45.434272, longitude: 12.338509)),
+        performTest(on: Endpoint.locations(around: .init(latitude: 45.434_272, longitude: 12.338_509)),
                     "Endpoint.locationsAround")
         performTest(on: Endpoint.location("189075947904164"),
                     "Endpoint.Location.summary")
@@ -331,17 +339,20 @@ final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.posts
                         .liked,
                     "Endpoint.Posts.liked")
-        if let wrapper = performTest(on: Endpoint.posts.upload(image: Color.red.image(sized: .init(width: 640, height: 640)),
+        if let image = Agnostic.Color.red.image(size: .init(width: 640, height: 640)),
+           let wrapper = performTest(on: Endpoint.posts.upload(image: image,
                                                                captioned: nil,
-                                                               tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
+                                                               tagging: []),
                                      "Endpoint.Posts.uploadImage"),
            let identifier = wrapper.media?.identifier {
             performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Posts.deleteImage")
         }
-        if let wrapper = performTest(on: Endpoint.posts.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4")!,
-                                                               preview: Color.blue.image(sized: .init(width: 640, height: 360)),
+        if let image = Agnostic.Color.blue.image(size: .init(width: 640, height: 360)),
+           let url = URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4"),
+           let wrapper = performTest(on: Endpoint.posts.upload(video: url,
+                                                               preview: image,
                                                                captioned: nil,
-                                                               tagging: [/*.init(x: 0.5, y: 0.5, identifier: "25025320")*/]),
+                                                               tagging: []),
                                      "Endpoint.Posts.uploadVideo"),
            let identifier = wrapper.media?.identifier {
             performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Posts.deleteVideo")
@@ -385,7 +396,9 @@ final class EndpointTests: XCTestCase {
 
     /// Test `Endpoint.Media.Stories`.
     func testEndpointStories() {
-        if let wrapper = performTest(on: Endpoint.stories.upload(image: Color.black.image(sized: .init(width: 810, height: 1440)),
+        let countdownDate = Date(timeIntervalSinceNow: 60 * 60 * 24)
+        if let image = Agnostic.Color.black.image(size: .init(width: 810, height: 1_440)),
+           let wrapper = performTest(on: Endpoint.stories.upload(image: image,
                                                                  stickers: [Sticker.mention("208803632")
                                                                                 .position(.init(x: 0.0, y: 0.125)),
                                                                             Sticker.tag("instagram")
@@ -394,7 +407,7 @@ final class EndpointTests: XCTestCase {
                                                                                 .position(.init(x: 1.0, y: 0.125)),
                                                                             Sticker.slider("Test?", emoji: "😀")
                                                                                 .position(.init(x: 0.5, y: 0.2)),
-                                                                            Sticker.countdown(to: Date().addingTimeInterval(60*60*24),
+                                                                            Sticker.countdown(to: countdownDate,
                                                                                               event: "Event")
                                                                                 .position(.init(x: 0.5, y: 0.4)),
                                                                             Sticker.question("Test?")
@@ -406,12 +419,12 @@ final class EndpointTests: XCTestCase {
            let identifier = wrapper.media?.identifier {
             performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteImage")
         }
-//        if let wrapper = performTest(on: Endpoint.stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
-//                                                                 stickers: [.mention("208803632")]),
-//                                     "Endpoint.Media.Stories.uploadVideo"),
-//           let identifier = wrapper.media?.identifier {
-//            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteVideo")
-//        }
+        //        if let wrapper = performTest(on: Endpoint.stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
+        //                                                                 stickers: [.mention("208803632")]),
+        //                                     "Endpoint.Media.Stories.uploadVideo"),
+        //           let identifier = wrapper.media?.identifier {
+        //            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteVideo")
+        //        }
     }
 
     /// Test tag endpoints.
@@ -438,6 +451,7 @@ final class EndpointTests: XCTestCase {
         }
     }
 
+    // swiftlint:disable function_body_length
     /// Test `Endpoint.User`.
     func testEndpointUser() {
         performTest(on: Endpoint.user("25025320"),
@@ -507,7 +521,9 @@ final class EndpointTests: XCTestCase {
                         .stories,
                     "Endpoint.User.stories")
     }
+    // swiftlint:enable function_body_length
 }
-//swiftlint enable:line_length
+// swiftlint:enable file_length
+// swiftlint:enable type_body_length
 
 #endif

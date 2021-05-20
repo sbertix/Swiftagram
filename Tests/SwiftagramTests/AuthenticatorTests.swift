@@ -18,7 +18,7 @@ import WebKit
 @testable import Swiftagram
 @testable import SwiftagramCrypto
 
-final class AuthenticatorTests: XCTestCase {
+internal final class AuthenticatorTests: XCTestCase {
     /// The dispose bag.
     private var bin: Set<AnyCancellable> = []
 
@@ -83,7 +83,7 @@ final class AuthenticatorTests: XCTestCase {
                 .catch { _ in Just(()) }
                 .sink { XCTFail("This should never be called.") }
                 .store(in: &bin)
-            DispatchQueue.main.asyncAfter(deadline: .now()+8) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
                 self.bin.removeAll()
                 expectation.fulfill()
             }

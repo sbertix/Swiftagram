@@ -9,32 +9,6 @@ import Foundation
 
 import Swiftagram
 
-extension Media.Version: Reflected {
-    /// The prefix.
-    public static var debugDescriptionPrefix: String { "Media." }
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["url": \Self.url,
-                                                                    "size": \Self.size,
-                                                                    "aspectRatio": \Self.aspectRatio,
-                                                                    "resolution": \Self.resolution]
-}
-
-extension Media.Picture: Reflected {
-    /// The prefix.
-    public static var debugDescriptionPrefix: String { "Media." }
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["images": \Self.images]
-}
-
-extension Media.Video: Reflected {
-    /// The prefix.
-    public static var debugDescriptionPrefix: String { "Media." }
-    /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["duration": \Self.duration,
-                                                                    "images": \Self.images,
-                                                                    "clips": \Self.clips]
-}
-
 extension Media: Reflected {
     /// The debug description prefix.
     public static let debugDescriptionPrefix: String = ""
@@ -56,6 +30,21 @@ extension Media: Reflected {
                                                                     "location": \Self.location]
 }
 
+extension Media.Collection: Reflected {
+    /// The prefix.
+    public static var debugDescriptionPrefix: String { "Media." }
+    /// A list of to-be-reflected properties.
+    public static let properties: [String: PartialKeyPath<Self>] = ["media": \Self.media,
+                                                                    "error": \Self.error]
+}
+
+extension Media.Picture: Reflected {
+    /// The prefix.
+    public static var debugDescriptionPrefix: String { "Media." }
+    /// A list of to-be-reflected properties.
+    public static let properties: [String: PartialKeyPath<Self>] = ["images": \Self.images]
+}
+
 extension Media.Unit: Reflected {
     /// The prefix.
     public static var debugDescriptionPrefix: String { "Media." }
@@ -64,10 +53,21 @@ extension Media.Unit: Reflected {
                                                                     "error": \Self.error]
 }
 
-extension Media.Collection: Reflected {
+extension Media.Version: Reflected {
     /// The prefix.
     public static var debugDescriptionPrefix: String { "Media." }
     /// A list of to-be-reflected properties.
-    public static let properties: [String: PartialKeyPath<Self>] = ["media": \Self.media,
-                                                                    "error": \Self.error]
+    public static let properties: [String: PartialKeyPath<Self>] = ["url": \Self.url,
+                                                                    "size": \Self.size,
+                                                                    "aspectRatio": \Self.aspectRatio,
+                                                                    "resolution": \Self.resolution]
+}
+
+extension Media.Video: Reflected {
+    /// The prefix.
+    public static var debugDescriptionPrefix: String { "Media." }
+    /// A list of to-be-reflected properties.
+    public static let properties: [String: PartialKeyPath<Self>] = ["duration": \Self.duration,
+                                                                    "images": \Self.images,
+                                                                    "clips": \Self.clips]
 }

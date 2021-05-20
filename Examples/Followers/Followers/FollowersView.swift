@@ -3,13 +3,12 @@
 //  Followers
 //
 //  Created by Stefano Bertagno on 10/03/2020.
-//  Copyright © 2020 Stefano Bertagno. All rights reserved.
 //
 
 import SwiftUI
 import UIKit
 
-struct FollowersView: View {
+internal struct FollowersView: View {
     /// The model.
     @ObservedObject var model: FollowersModel
 
@@ -23,13 +22,13 @@ struct FollowersView: View {
                     Text("No followers.").padding(.vertical)
                 } else {
                     ForEach(followers, id: \.identifier) { user in
-                        Button(action: {
+                        Button {
                             // Open their profile on tap.
                             guard let url = URL(string: "https://instagram.com/"+user.username) else { return }
                             UIApplication.shared.open(url,
                                                       options: [:],
                                                       completionHandler: nil)
-                        }) {
+                        } label: {
                             UserCell(user: user).padding(.vertical)
                         }
                     }

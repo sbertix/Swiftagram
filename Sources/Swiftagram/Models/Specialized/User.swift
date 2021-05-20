@@ -68,10 +68,10 @@ public struct User: Wrapped {
     public var avatar: URL? {
         self["hdProfilePicVersions"]
             .array()?
-            .max(by: {
+            .max {
                 ($0.width.double() ?? 0) < ($1.width.double() ?? 0)
                     && ($0.height.double() ?? 0) < ($1.height.double() ?? 0)
-            })?["url"]
+            }?["url"]
             .url() ?? self["hdProfilePicUrlInfo"]["url"].url()
     }
 
@@ -135,10 +135,7 @@ public extension User {
     }
 
     /// A `struct` representing a `User` collection.
-    struct Collection: Specialized, Paginatable {
-        /// The associated offset type.
-        public typealias Offset = String?
-
+    struct Collection: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

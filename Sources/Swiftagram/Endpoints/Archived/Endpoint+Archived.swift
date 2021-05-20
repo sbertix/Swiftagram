@@ -19,7 +19,7 @@ public extension Endpoint {
 
 public extension Endpoint.Group.Archived {
     /// All archived posts.
-    var posts: Endpoint.Paginated<Swiftagram.Media.Collection,
+    var posts: Endpoint.Paginated < Swiftagram.Media.Collection,
                                      RankedOffset<String?, String?>,
                                      Error> {
         .init { secret, session, pages in
@@ -43,7 +43,7 @@ public extension Endpoint.Group.Archived {
     }
 
     /// All archived stories.
-    var stories: Endpoint.Paginated<TrayItem.Collection,
+    var stories: Endpoint.Paginated < TrayItem.Collection,
                                      RankedOffset<String?, String?>,
                                      Error> {
         .init { secret, session, pages in

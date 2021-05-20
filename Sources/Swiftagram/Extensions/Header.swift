@@ -21,7 +21,7 @@ public extension Header {
             "X-IG-Device-Locale": "en_US",
             "X-Pigeon-Session-Id": UUID().uuidString.lowercased(),
             "X-Pigeon-Rawclienttime": "\(Int(Date().timeIntervalSince1970)).000",
-            "X-IG-Connection-Speed": "\(Int.random(in: 1000...3700))kbps",
+            "X-IG-Connection-Speed": "\(Int.random(in: 1_000...3_700))kbps",
             "X-IG-Bandwidth-Speed-KBPS": "-1.000",
             "X-IG-Bandwidth-TotalBytes-B": "0",
             "X-IG-Bandwidth-TotalTime-MS": "0",

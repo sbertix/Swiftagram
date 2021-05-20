@@ -19,9 +19,12 @@ public enum Recipient: Wrapped {
     /// The underlying `Response`.
     public var wrapper: () -> Wrapper {
         switch self {
-        case .user(let user): return user.wrapper
-        case .thread(let thread): return thread.wrapper
-        case .error(let error): return { error }
+        case .user(let user):
+            return user.wrapper
+        case .thread(let thread):
+            return thread.wrapper
+        case .error(let error):
+            return { error }
         }
     }
 
@@ -30,19 +33,19 @@ public enum Recipient: Wrapped {
     public init(wrapper: @escaping () -> Wrapper) {
         let response = wrapper()
         switch response.dictionary()?.keys.first {
-        case "thread": self = .thread(.init(wrapper: response["thread"]))
-        case "user": self = .user(.init(wrapper: response["user"]))
-        default: self = .error(response)
+        case "thread":
+            self = .thread(.init(wrapper: response["thread"]))
+        case "user":
+            self = .user(.init(wrapper: response["user"]))
+        default:
+            self = .error(response)
         }
     }
 }
 
 public extension Recipient {
     /// A `struct` representing a `Recipient` collection.
-    struct Collection: Specialized, Paginatable {
-        /// The associated offset type.
-        public typealias Offset = String?
-
+    struct Collection: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

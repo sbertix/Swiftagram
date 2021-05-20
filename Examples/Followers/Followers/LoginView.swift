@@ -3,8 +3,8 @@
 //  Followers
 //
 //  Created by Stefano Bertagno on 10/03/2020.
-//  Copyright © 2020 Stefano Bertagno. All rights reserved.
 //
+
 import SwiftUI
 import UIKit
 import WebKit
@@ -13,7 +13,7 @@ import Swiftagram
 import SwiftagramCrypto
 
 /// A `class` defining a view controller capable of displaying the authentication web view.
-class LoginViewController: UIViewController {
+private class LoginViewController: UIViewController {
     /// The completion handler.
     var completion: ((Secret) -> Void)? {
         didSet {
@@ -36,7 +36,7 @@ class LoginViewController: UIViewController {
 }
 
 /// A `struct` defining a `View` used for logging in.
-struct LoginView: UIViewControllerRepresentable {
+internal struct LoginView: UIViewControllerRepresentable {
     /// A completion handler.
     let didAuthenticate: (Secret) -> Void
 

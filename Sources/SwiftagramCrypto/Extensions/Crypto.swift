@@ -21,15 +21,19 @@ public enum SigningError: Error {
 extension Int {
     /// Breadcrumb.
     var breadcrumb: String {
-        let term = Int.random(in: 2...3)*1000+self+Int.random(in: 15...20)*1000
-        var textChangeEventCount = round(Double(self)/Double.random(in: 2...3))
+        let term = Int.random(in: 2...3) * 1_000 + self + Int.random(in: 15...20) * 1_000
+        var textChangeEventCount = round(Double(self) / Double.random(in: 2...3))
         if textChangeEventCount == 0 { textChangeEventCount = 1 }
-        let data = "\(self) \(term) \(textChangeEventCount) \(Int(Date().timeIntervalSince1970*1000))"
-        let hash = CC.HMAC(data.data(using: .utf8)!,
+        let text = "\(self) \(term) \(textChangeEventCount) \(Int(Date().timeIntervalSince1970 * 1_000))"
+        guard let data = text.data(using: .utf8),
+              let instagramData = "iN4$aGr0m".data(using: .utf8) else {
+            fatalError("Invalid breadcrumb for \(self)")
+        }
+        let hash = CC.HMAC(data,
                            alg: .sha256,
-                           key: "iN4$aGr0m".data(using: .utf8)!)
+                           key: instagramData)
             .base64EncodedString()
-        let body = data.data(using: .utf8)!.base64EncodedString()
+        let body = data.base64EncodedString()
         return "\(hash)\n\(body)\n"
     }
 }
@@ -43,13 +47,16 @@ extension Body {
         do {
             // Encode parameters.
             guard let encoded = try? body.encode(),
-                  let description = String(data: encoded, encoding: .utf8) else {
+                  let description = String(data: encoded, encoding: .utf8),
+                  let data = description.data(using: .utf8),
+                  let hex = "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc"
+                    .dataFromHexadecimalString() else {
                 throw SigningError.invalidRepresentation
             }
             // Compute hash.
-            let hash = CC.HMAC(description.data(using: .utf8)!,
+            let hash = CC.HMAC(data,
                                alg: .sha256,
-                               key: "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc".dataFromHexadecimalString()!)
+                               key: hex)
                 .base64EncodedString()
             // Sign body.
             return self.body(appending: [
@@ -67,5 +74,7 @@ extension Body {
     ///
     /// - parameter body: A valid `Wrappable`.
     /// - returns: An updated copy of `self`.
-    func signing<W: Wrappable>(body: W) -> Self { signing(body: body.wrapped) }
+    func signing<W: Wrappable>(body: W) -> Self {
+        signing(body: body.wrapped)
+    }
 }

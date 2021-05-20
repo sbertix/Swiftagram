@@ -27,7 +27,7 @@ public extension Endpoint {
 
 public extension Endpoint.Group.Stories {
     /// A list of archived stories.
-    var archived: Endpoint.Paginated<TrayItem.Collection,
+    var archived: Endpoint.Paginated < TrayItem.Collection,
                                      RankedOffset<String?, String?>,
                                      Error> {
         Endpoint.archived.stories

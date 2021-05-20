@@ -29,7 +29,8 @@ public extension Endpoint.Group.Stories {
     /// - note: **SwiftagramCrypto** only.
     func upload<S: Sequence>(image: Agnostic.Image,
                              stickers: S,
-                             isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error> where S.Element == Sticker {
+                             isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error>
+    where S.Element == Sticker {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(image: data, size: image.size, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
@@ -55,7 +56,8 @@ public extension Endpoint.Group.Stories {
     internal func upload<S: Sequence>(image data: Data,
                                       size: CGSize,
                                       stickers: S,
-                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error> where S.Element == Sticker {
+                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error>
+    where S.Element == Sticker {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
                 let upload = Endpoint.uploader.upload(image: data)
@@ -72,8 +74,8 @@ public extension Endpoint.Group.Stories {
                         var body: [String: Wrapper] = [
                             "source_type": "4",
                             "upload_id": upload.identifier.wrapped,
-                            "story_media_creation_date": String(seconds-Int.random(in: 11...20)).wrapped,
-                            "client_shared_at": String(seconds-Int.random(in: 3...10)).wrapped,
+                            "story_media_creation_date": String(seconds - Int.random(in: 11...20)).wrapped,
+                            "client_shared_at": String(seconds - Int.random(in: 3...10)).wrapped,
                             "client_timestamp": String(seconds).wrapped,
                             "configure_mode": 1,
                             "edits": ["crop_original_size": [size.width.wrapped, size.height.wrapped],
@@ -81,7 +83,7 @@ public extension Endpoint.Group.Stories {
                                       "crop_zoom": 1.0],
                             "extra": ["source_width": size.width.wrapped,
                                       "source_height": size.height.wrapped],
-                            "_csrftoken": secret["csrftoken"]!.wrapped,
+                            "_csrftoken": secret["csrftoken"].wrapped,
                             "user_id": upload.identifier.wrapped,
                             "_uid": secret.identifier.wrapped,
                             "device_id": secret.client.device.instagramIdentifier.wrapped,
@@ -117,7 +119,8 @@ public extension Endpoint.Group.Stories {
     /// - note: **SwiftagramCrypto** only.
     func upload<S: Collection>(image data: Data,
                                stickers: S,
-                               isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error> where S.Element == Sticker {
+                               isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error>
+    where S.Element == Sticker {
         guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
         return upload(image: image, stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
     }
@@ -146,7 +149,8 @@ public extension Endpoint.Group.Stories {
     func upload<S: Sequence>(video url: URL,
                              preview image: Agnostic.Image? = nil,
                              stickers: S,
-                             isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error> where S.Element == Sticker {
+                             isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error>
+    where S.Element == Sticker {
         upload(video: url,
                preview: image?.jpegRepresentation(),
                size: image?.size ?? .zero,
@@ -168,6 +172,7 @@ public extension Endpoint.Group.Stories {
         upload(video: url, preview: image, stickers: [], isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
+    // swiftlint:disable function_body_length
     /// Upload story `video` to instagram.
     ///
     /// - parameters:
@@ -182,7 +187,8 @@ public extension Endpoint.Group.Stories {
                                       preview data: Data?,
                                       size: CGSize,
                                       stickers: S,
-                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error> where S.Element == Sticker {
+                                      isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error>
+    where S.Element == Sticker {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
                 let upload = Endpoint.uploader.upload(video: url,
@@ -190,7 +196,8 @@ public extension Endpoint.Group.Stories {
                                                       previewSize: size,
                                                       sourceType: "3")
                 guard upload.duration < 15 else {
-                    return Fail(error: Endpoint.Group.Media.Error.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
+                    return Fail(error: Endpoint.Group.Media.Error.videoTooLong(seconds: upload.duration))
+                        .eraseToAnyPublisher()
                 }
                 // Compose the future.
                 return upload.generator((secret, session))
@@ -210,14 +217,14 @@ public extension Endpoint.Group.Stories {
                             "timezone_offset": "43200",
                             "source_type": "3",
                             "upload_id": upload.identifier.wrapped,
-                            "story_media_creation_date": String(seconds-Int.random(in: 11...20)).wrapped,
-                            "client_shared_at": String(seconds-Int.random(in: 3...10)).wrapped,
+                            "story_media_creation_date": String(seconds - Int.random(in: 11...20)).wrapped,
+                            "client_shared_at": String(seconds - Int.random(in: 3...10)).wrapped,
                             "client_timestamp": String(seconds).wrapped,
                             "configure_mode": 1,
                             "clips": [["length": upload.duration.wrapped, "source_type": "3"]],
                             "extra": ["source_width": upload.size.width.wrapped,
                                       "source_height": upload.size.height.wrapped],
-                            "_csrftoken": secret["csrftoken"]!.wrapped,
+                            "_csrftoken": secret["csrftoken"].wrapped,
                             "user_id": upload.identifier.wrapped,
                             "_uid": secret.identifier.wrapped,
                             "device_id": secret.client.device.instagramIdentifier.wrapped,
@@ -247,6 +254,7 @@ public extension Endpoint.Group.Stories {
             .eraseToAnyPublisher()
         }
     }
+    // swiftlint:enable function_body_length
 
     /// Upload story `video` to instagram.
     ///
@@ -260,8 +268,12 @@ public extension Endpoint.Group.Stories {
     func upload<S: Collection>(video url: URL,
                                preview data: Data,
                                stickers: S,
-                               isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error> where S.Element == Sticker {
-        upload(video: url, preview: Agnostic.Image(data: data), stickers: stickers, isCloseFriendsOnly: isCloseFriendsOnly)
+                               isCloseFriendsOnly: Bool = false) -> Endpoint.Single<Media.Unit, Error>
+    where S.Element == Sticker {
+        upload(video: url,
+               preview: Agnostic.Image(data: data),
+               stickers: stickers,
+               isCloseFriendsOnly: isCloseFriendsOnly)
     }
 
     /// Upload story `video` to instagram.

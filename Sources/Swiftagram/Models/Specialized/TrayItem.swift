@@ -103,10 +103,7 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` collection.
-    struct Collection: Specialized, Paginatable {
-        /// The associated offset type.
-        public typealias Offset = String?
-
+    struct Collection: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

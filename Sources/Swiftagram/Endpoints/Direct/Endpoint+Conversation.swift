@@ -88,7 +88,7 @@ public extension Endpoint.Group.Direct.Conversation {
     /// - parameter userIdentifiers: A collection of `String`s.
     /// - returns: A valid `Endpoint.Single`.
     func invite<C: Collection>(_ userIdentifiers: C) -> Endpoint.Single<Status, Error> where C.Element == String {
-        edit("add_user/", body: ["user_ids": "["+userIdentifiers.joined(separator: ",")+"]"])
+        edit("add_user/", body: ["user_ids": "[" + userIdentifiers.joined(separator: ",") + "]"])
     }
 
     /// Invite a user based on their identifier.
@@ -123,15 +123,17 @@ public extension Endpoint.Group.Direct.Conversation {
             do {
                 // Prepare the body.
                 var method = "text"
-                var body: [String: String] = ["thread_ids": "["+self.identifier+"]"]
+                var body: [String: String] = ["thread_ids": "[" + self.identifier + "]"]
                 // Prepare the detector.
                 let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-                let matches = detector.matches(in: text, options: [], range: .init(location: 0, length: text.utf16.count))
-                    .compactMap { Range($0.range, in: text).flatMap { "\""+text[$0]+"\"" }}
+                let matches = detector.matches(in: text,
+                                               options: [],
+                                               range: .init(location: 0, length: text.utf16.count))
+                    .compactMap { Range($0.range, in: text).flatMap { "\"" + text[$0] + "\"" } }
                 if !matches.isEmpty {
                     method = "link"
                     body["link_text"] = text
-                    body["link_urls"] = "["+matches.joined(separator: ",")+"]"
+                    body["link_urls"] = "[" + matches.joined(separator: ",") + "]"
                 } else {
                     body["text"] = text
                 }
@@ -141,7 +143,7 @@ public extension Endpoint.Group.Direct.Conversation {
                     .path(appending: "/")
                     .header(appending: secret.header)
                     .body(appending: body)
-                    .body(appending: ["_csrftoken": secret["csrftoken"]!,
+                    .body(appending: ["_csrftoken": secret["csrftoken"],
                                       "_uuid": secret.client.device.identifier.uuidString,
                                       "device_id": secret.client.device.instagramIdentifier,
                                       "client_context": UUID().uuidString,
@@ -185,7 +187,7 @@ extension Endpoint.Group.Direct.Conversation {
                 Swiftagram.Request.directThread(self)
                     .path(appending: endpoint)
                     .header(appending: secret.header)
-                    .body(appending: ["_csrftoken": secret["csrftoken"]!,
+                    .body(appending: ["_csrftoken": secret["csrftoken"],
                                       "_uuid": secret.client.device.identifier.uuidString])
                     .body(appending: body)
                     .publish(with: session)

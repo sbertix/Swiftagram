@@ -38,7 +38,7 @@ public extension Authenticator.Group.Basic {
             self.identifier = twoFactor.identifier
             self.code = code
             self.username = twoFactor.username
-            self.crossSiteRequestForgery =  twoFactor.crossSiteRequestForgery
+            self.crossSiteRequestForgery = twoFactor.crossSiteRequestForgery
         }
 
         /// Authenticate the given user.

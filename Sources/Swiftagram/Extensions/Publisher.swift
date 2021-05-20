@@ -17,8 +17,10 @@ public extension Publisher where Output: Specialized {
         self.catch { Fail(error: $0 as Error) }
             .flatMap { output -> AnyPublisher<Output, Error> in
                 switch output.error {
-                case let error?: return Fail(error: error).eraseToAnyPublisher()
-                case .none: return Just(output).setFailureType(to: Error.self).eraseToAnyPublisher()
+                case let error?:
+                    return Fail(error: error).eraseToAnyPublisher()
+                case .none:
+                    return Just(output).setFailureType(to: Error.self).eraseToAnyPublisher()
                 }
             }
             .eraseToAnyPublisher()

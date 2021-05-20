@@ -35,7 +35,6 @@ public struct Location: Wrapped {
         guard let latitude = self["lat"].double().flatMap(CGFloat.init),
               let longitude = self["lng"].double().flatMap(CGFloat.init) else { return nil }
         return .init(latitude: latitude, longitude: longitude)
-
     }
     /// The name.
     public var name: String? { self["name"].string() }
@@ -51,7 +50,7 @@ public struct Location: Wrapped {
             let identifier = self["externalId"].int() {
             return [source: identifier]
         } else if let source = self["externalSource"].string() {
-            return [source: self[source.camelCased+"Id"].int()].compactMapValues { $0 }
+            return [source: self[source.camelCased + "Id"].int()].compactMapValues { $0 }
         } else {
             return nil
         }
@@ -81,10 +80,7 @@ public extension Location {
     }
 
     /// A `struct` representing a `Location` collection.
-    struct Collection: Specialized, Paginatable {
-        /// The associated offset type.
-        public typealias Offset = String?
-
+    struct Collection: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
