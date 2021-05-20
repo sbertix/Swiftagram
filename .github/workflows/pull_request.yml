@@ -5,6 +5,10 @@ on:
     types:
       - opened
       - synchronize
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
 
 jobs:
   # pull request-sepcific steps.
@@ -38,8 +42,8 @@ jobs:
         uses:           metcalfc/changelog-generator@v1.0.0
         with:
           mytoken:      ${{ secrets.GITHUB_TOKEN }}
-          head-ref:     ${{ github.event.pull_request.head.sha }}
-          base-ref:     ${{ github.event.pull_request.base.sha }}
+          head-ref:     ${{ github.event.pull_request_target.head.sha || github.event.pull_request.head.sha }}
+          base-ref:     ${{ github.event.pull_request_target.base.sha || github.event.pull_request.head.sha }}
       # update the pull request message body.
       - name:           Update Pull Request Description
         uses:           riskledger/update-pr-description@v2
