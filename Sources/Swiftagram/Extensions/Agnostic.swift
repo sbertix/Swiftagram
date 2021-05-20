@@ -11,8 +11,8 @@ import UIKit
 import AppKit
 #endif
 
-/// A `struct` defining some platform agnostic commonly-used definitions.
-public struct Agnostic {
+/// A module-like `enum` listing some platform agnostic commonly-used definitions.
+public enum Agnostic {
     #if canImport(UIKit)
     /// `UIImage`.
     public typealias Image = UIImage
@@ -30,14 +30,14 @@ public struct Agnostic {
 /// An extension for `UIImage` generation from `UIColor`.
 public extension UIColor {
     /// Create a solid color `UIImage`.
-    func image(size: CGSize) -> UIImage {
+    func image(size: CGSize) -> UIImage? {
         let rect = CGRect(origin: .zero, size: size)
         UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
         self.setFill()
         UIRectFill(rect)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return UIImage(cgImage: image!.cgImage!)
+        return image?.cgImage.flatMap(UIImage.init)
     }
 }
 /// An extension for `UIImage`s.
@@ -49,7 +49,7 @@ public extension UIImage {
 /// An extension for `NSImage` generation from `NSColor`.
 public extension NSColor {
     /// Create a solid color `NSImage`.
-    func image(size: CGSize) -> NSImage {
+    func image(size: CGSize) -> NSImage? {
         let image = NSImage(size: size)
         image.lockFocus()
         drawSwatch(in: .init(origin: .zero, size: size))

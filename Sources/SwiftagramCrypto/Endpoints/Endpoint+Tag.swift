@@ -21,7 +21,7 @@ public extension Endpoint.Group.Tag {
                     .path(appending: "/")
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
-                    .signing(body: ["_csrftoken": secret["csrftoken"]!,
+                    .signing(body: ["_csrftoken": secret["csrftoken"],
                                     "_uid": secret.identifier,
                                     "_uuid": secret.client.device.identifier.uuidString])
                     .publish(with: session)
@@ -46,7 +46,7 @@ public extension Endpoint.Group.Tag {
                     .path(appending: "/")
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
-                    .signing(body: ["_csrftoken": secret["csrftoken"]!,
+                    .signing(body: ["_csrftoken": secret["csrftoken"],
                                     "_uid": secret.identifier,
                                     "_uuid": secret.client.device.identifier.uuidString])
                     .publish(with: session)

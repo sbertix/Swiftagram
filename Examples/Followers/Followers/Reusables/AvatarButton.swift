@@ -3,7 +3,6 @@
 //  Followers
 //
 //  Created by Stefano Bertagno on 08/02/21.
-//  Copyright © 2021 Stefano Bertagno. All rights reserved.
 //
 
 import SwiftUI
@@ -11,9 +10,9 @@ import SwiftUI
 import Swiftagram
 
 /// A `struct` defining an image of a user.
-struct AvatarImage: View {
+internal struct AvatarImage: View {
     /// The pixel length.
-    @Environment(\.pixelLength) var pixelLength
+    @Environment(\.pixelLength) var pixelLength: CGFloat
 
     /// The actual user.
     let user: User?
@@ -34,9 +33,9 @@ struct AvatarImage: View {
 }
 
 /// A `struct` defining a button with the logged in user image.
-struct AvatarButton: View {
+internal struct AvatarButton: View {
     /// The pixel length.
-    @Environment(\.pixelLength) var pixelLength
+    @Environment(\.pixelLength) var pixelLength: CGFloat
 
     /// The actual user.
     let user: User?

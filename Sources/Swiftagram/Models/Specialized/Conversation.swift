@@ -41,10 +41,7 @@ public struct Conversation: Wrapped {
 
 public extension Conversation {
     /// A `struct` representing a `Conversation` single response.
-    struct Unit: Specialized, Paginatable {
-        /// The associated offset.
-        public typealias Offset = String?
-
+    struct Unit: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -62,10 +59,7 @@ public extension Conversation {
     }
 
     /// A `struct` representing a `Conversation` collection.
-    struct Collection: Specialized, Paginatable {
-        /// The associated offset.
-        public typealias Offset = String?
-
+    struct Collection: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

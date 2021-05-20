@@ -9,24 +9,24 @@ import Foundation
 
 /// A module-like `enum` defining all possible `Endpoint`s.
 public enum Endpoint {
-    /// A module-like `enum` to hide away endpoint wrappers definitions.
-    public enum Group { }
-
     /// An `Endpoint` allowing for a paginated request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Paginated<Response,
+    public typealias Paginated < Response,
                                Offset,
-                               Failure: Error> = LockSessionPagerProvider<Secret,
+                               Failure: Error> = LockSessionPagerProvider < Secret,
                                                                           Offset,
                                                                           AnyPublisher<Response, Failure>>
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Single<Response,
-                            Failure: Error> = LockSessionProvider<Secret,
+    public typealias Single < Response,
+                            Failure: Error> = LockSessionProvider < Secret,
                                                                   AnyPublisher<Response, Failure>>
+
+    /// A module-like `enum` to hide away endpoint wrappers definitions.
+    public enum Group { }
 }
 
 public extension Request {

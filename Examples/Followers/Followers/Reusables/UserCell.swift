@@ -3,7 +3,6 @@
 //  Followers
 //
 //  Created by Stefano Bertagno on 10/03/2020.
-//  Copyright © 2020 Stefano Bertagno. All rights reserved.
 //
 
 import SwiftUI
@@ -11,7 +10,7 @@ import SwiftUI
 import Swiftagram
 
 /// A `struct` defining a `FollowersView` row.
-struct UserCell: View {
+internal struct UserCell: View {
     /// A valid `User`.
     let user: User
 

@@ -12,7 +12,8 @@ import XCTest
 
 @testable import Swiftagram
 
-final class ModelTests: XCTestCase {
+// swiftlint:disable type_body_length
+internal final class ModelTests: XCTestCase {
     // MARK: Testers
     /// Assess equality.
     /// 
@@ -22,11 +23,11 @@ final class ModelTests: XCTestCase {
     ///     - mapper: An association between the original dictionary `key` and the `Reflected` `properties`'. Defaults to empty.
     ///     - forcingWrapper: Whether you should bypass mapping or not. Defaults to `false`.
     ///     - wrapper: A custom fallback implementation for non 1-to-1 `mapper` keys, starting from the unmapped key.
-    func performTest<T: Reflected>(on dictionary: [String: Wrapper],
-                                   to type: T.Type,
-                                   mapper: [String: String] = [:],
-                                   forcingWrapper: Bool = false,
-                                   wrapper: (T, String) -> Wrapper = { _, _ in .empty }) {
+    private func performTest<T: Reflected>(on dictionary: [String: Wrapper],
+                                           to type: T.Type,
+                                           mapper: [String: String] = [:],
+                                           forcingWrapper: Bool = false,
+                                           wrapper: (T, String) -> Wrapper = { _, _ in .empty }) {
         let response = T(wrapper: dictionary.wrapped)
         let name = String(describing: type)
         dictionary.forEach { key, value in
@@ -102,17 +103,20 @@ final class ModelTests: XCTestCase {
                                              "city": "City",
                                              "externalIdSource": "id",
                                              "externalId": 123]
-        performTest(on: dictionary,
-                    to: Location.self,
-                    wrapper: {
-                        switch $1 {
-                        case "lat": return ($0.coordinates?.latitude).flatMap(Double.init).wrapped
-                        case "lng": return ($0.coordinates?.longitude).flatMap(Double.init).wrapped
-                        case "externalIdSource": return ($0.identifier?.keys.first).wrapped
-                        case "externalId": return ($0.identifier?.values.first).wrapped
-                        default: return .empty
-                        }
-                    })
+        performTest(on: dictionary, to: Location.self) {
+            switch $1 {
+            case "lat":
+                return ($0.coordinates?.latitude).flatMap(Double.init).wrapped
+            case "lng":
+                return ($0.coordinates?.longitude).flatMap(Double.init).wrapped
+            case "externalIdSource":
+                return ($0.identifier?.keys.first).wrapped
+            case "externalId":
+                return ($0.identifier?.values.first).wrapped
+            default:
+                return .empty
+            }
+        }
         performTest(on: ["location": dictionary.wrapped], to: Location.Unit.self)
         performTest(on: ["venues": [dictionary.wrapped].wrapped], to: Location.Collection.self)
     }
@@ -135,16 +139,18 @@ final class ModelTests: XCTestCase {
                     mapper: ["id": "identifier",
                              "pk": "primaryKey",
                              "commentCount": "comments",
-                             "likeCount": "likes"],
-                    wrapper: {
-                        switch $1 {
-                        case "originalWidth": return Double($0.size?.width ?? 0).wrapped
-                        case "originalHeight": return Double($0.size?.height ?? 0).wrapped
-                        default: return .empty
-                        }
-                    })
+                             "likeCount": "likes"]) {
+            switch $1 {
+            case "originalWidth":
+                return Double($0.size?.width ?? 0).wrapped
+            case "originalHeight":
+                return Double($0.size?.height ?? 0).wrapped
+            default:
+                return .empty
+            }
+        }
         performTest(on: ["media": dictionary.wrapped], to: Media.Unit.self)
-        //performTest(on: ["media": [dictionary.wrapped].wrapped], to: Media.Collection.self)
+        // performTest(on: ["media": [dictionary.wrapped].wrapped], to: Media.Collection.self)
     }
 
     /// Test `SavedCollection`.
@@ -167,8 +173,9 @@ final class ModelTests: XCTestCase {
     func testStatus() {
         performTest(on: ["status": "ok"],
                     to: Status.self,
-                    forcingWrapper: true,
-                    wrapper: { status, _ in status.error == nil ? "ok".wrapped : .empty })
+                    forcingWrapper: true) { status, _ in
+            status.error == nil ? "ok".wrapped : .empty
+        }
     }
 
     /// Test `Tag`.
@@ -199,34 +206,37 @@ final class ModelTests: XCTestCase {
                              "lastActivityAt": "updatedAt",
                              "muted": "hasMutedMessages",
                              "vcMuted": "hasMutedVideocalls",
-                             "items": "messages"],
-                    wrapper: {
-                        switch $1 {
-                        case "lastSeenAt": return ($0.openedAt?.mapValues { $0.timeIntervalSince1970 }).wrapped
-                        default: return .empty
-                        }
-                    })
+                             "items": "messages"]) {
+            switch $1 {
+            case "lastSeenAt":
+                return ($0.openedAt?.mapValues { $0.timeIntervalSince1970 }).wrapped
+            default:
+                return .empty
+            }
+        }
         performTest(on: ["thread": dictionary.wrapped], to: Conversation.Unit.self)
         performTest(on: ["inbox": ["threads": [dictionary.wrapped].wrapped]],
-                    to: Conversation.Collection.self,
-                    wrapper: { response, _ in ["threads": (response.conversations?.map { $0.wrapper() }).wrapped] })
+                    to: Conversation.Collection.self) { response, _ in
+            ["threads": (response.conversations?.map { $0.wrapper() }).wrapped]
+        }
     }
 
     /// Test `Recipient`.
     func testThreadRecipient() {
         let dictionary: [String: Wrapper] = ["rankedRecipients": [["user": ["pk": 123]],
                                                                   ["thread": ["threadId": "123"]]]]
-        performTest(on: dictionary,
-                    to: Recipient.Collection.self,
-                    wrapper: { response, _ in
-                        (response.recipients?.map { recipient -> [String: Wrapper] in
-                            switch recipient {
-                            case .user(let user): return ["user": user.wrapper()]
-                            case .thread(let conversation): return ["thread": conversation.wrapper()]
-                            default: return ["error": .empty]
-                            }
-                        }).wrapped
-                    })
+        performTest(on: dictionary, to: Recipient.Collection.self) { response, _ in
+            (response.recipients?.map { recipient -> [String: Wrapper] in
+                switch recipient {
+                case .user(let user):
+                    return ["user": user.wrapper()]
+                case .thread(let conversation):
+                    return ["thread": conversation.wrapper()]
+                default:
+                    return ["error": .empty]
+                }
+            }).wrapped
+        }
     }
 
     /// Test `TrayItem`.
@@ -288,22 +298,32 @@ final class ModelTests: XCTestCase {
                     to: User.self,
                     mapper: ["pk": "identifier",
                              "fullName": "name",
-                             "profilePicUrl": "thumbnail"],
-                    wrapper: {
+                             "profilePicUrl": "thumbnail"]) {
                         switch $1 {
-                        case "hdProfilePicUrlInfo": return ["url": $0.avatar.flatMap { $0.absoluteString }.wrapped]
-                        case "isPrivate": return ($0.access == .private).wrapped
-                        case "isVerified": return ($0.access == .verified).wrapped
-                        case "mediaCount": return ($0.counter?.posts).wrapped
-                        case "followerCount": return ($0.counter?.followers).wrapped
-                        case "followingCount": return ($0.counter?.following).wrapped
-                        case "usertagsCount": return ($0.counter?.tags).wrapped
-                        case "totalClipsCount": return ($0.counter?.clips).wrapped
-                        case "totalArEffects": return ($0.counter?.effects).wrapped
-                        case "totalIgtvVideos": return ($0.counter?.igtv).wrapped
-                        default: return .empty
+                        case "hdProfilePicUrlInfo":
+                            return ["url": $0.avatar.flatMap { $0.absoluteString }.wrapped]
+                        case "isPrivate":
+                            return ($0.access == .private).wrapped
+                        case "isVerified":
+                            return ($0.access == .verified).wrapped
+                        case "mediaCount":
+                            return ($0.counter?.posts).wrapped
+                        case "followerCount":
+                            return ($0.counter?.followers).wrapped
+                        case "followingCount":
+                            return ($0.counter?.following).wrapped
+                        case "usertagsCount":
+                            return ($0.counter?.tags).wrapped
+                        case "totalClipsCount":
+                            return ($0.counter?.clips).wrapped
+                        case "totalArEffects":
+                            return ($0.counter?.effects).wrapped
+                        case "totalIgtvVideos":
+                            return ($0.counter?.igtv).wrapped
+                        default:
+                            return .empty
                         }
-                    })
+        }
         performTest(on: ["user": dictionary.wrapped], to: User.Unit.self)
         performTest(on: ["users": [dictionary.wrapped]], to: User.Collection.self)
     }
@@ -314,9 +334,11 @@ final class ModelTests: XCTestCase {
                                              "position": [0, 0]]
         performTest(on: dictionary,
                     to: UserTag.self,
-                    mapper: ["userId": "identifier"],
-                    wrapper: { response, _ in [response.x.flatMap(Double.init), response.y.flatMap(Double.init)].wrapped })
+                    mapper: ["userId": "identifier"]) { response, _ in
+            [response.x.flatMap(Double.init), response.y.flatMap(Double.init)].wrapped
+        }
     }
 }
+// swiftlint:enable type_body_length
 
 #endif

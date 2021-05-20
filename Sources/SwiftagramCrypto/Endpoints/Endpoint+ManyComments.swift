@@ -20,7 +20,7 @@ public extension Endpoint.Group.Media.ManyComments {
                     .header(appending: secret.header)
                     .signing(body: [
                         "comment_ids_to_delete": self.identifiers.joined(separator: ","),
-                        "_csrftoken": secret["csrftoken"]!,
+                        "_csrftoken": secret["csrftoken"],
                         "_uid": secret.identifier,
                         "_uuid": secret.client.device.identifier.uuidString
                     ])

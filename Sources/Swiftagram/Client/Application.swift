@@ -26,7 +26,7 @@ public extension Client {
         ///     - code: A valid `String`. Defaults to _"185203708"_.
         /// - returns: A valid `Client`.
         public static func android(_ version: String = "160.1.0.31.120", code: String = "246979827") -> Application {
-            .init(version: version+" Android", code: code)
+            .init(version: version + " Android", code: code)
         }
 
         /// Create an iOS client.

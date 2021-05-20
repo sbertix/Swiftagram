@@ -31,7 +31,8 @@ public extension Endpoint.Group.Posts {
     func upload<U: Collection>(image: Agnostic.Image,
                                captioned caption: String?,
                                tagging users: U,
-                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error>
+    where U.Element == UserTag {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
         return upload(image: data, size: image.size, captioned: caption, tagging: users, at: location)
     }
@@ -49,6 +50,7 @@ public extension Endpoint.Group.Posts {
         upload(image: image, captioned: caption, tagging: [], at: location)
     }
 
+    // swiftlint:disable function_body_length
     /// Upload `image` to instagram.
     ///
     /// - parameters:
@@ -62,7 +64,8 @@ public extension Endpoint.Group.Posts {
                                         size: CGSize,
                                         captioned caption: String?,
                                         tagging users: U,
-                                        at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
+                                        at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error>
+    where U.Element == UserTag {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
                 let upload = Endpoint.uploader.upload(image: data)
@@ -84,14 +87,14 @@ public extension Endpoint.Group.Posts {
                                       "crop_zoom": 1.0],
                             "extra": ["source_width": size.width.wrapped,
                                       "source_height": size.height.wrapped],
-                            "_csrftoken": secret["csrftoken"]!.wrapped,
+                            "_csrftoken": secret["csrftoken"].wrapped,
                             "user_id": upload.identifier.wrapped,
                             "_uid": secret.identifier.wrapped,
                             "device_id": secret.client.device.instagramIdentifier.wrapped,
                             "_uuid": secret.client.device.identifier.uuidString.wrapped
                         ]
                         // Add user tags.
-                        let users = users.compactMap({ $0.wrapper().snakeCased().optional() })
+                        let users = users.compactMap { $0.wrapper().snakeCased().optional() }
                         if !users.isEmpty, let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
                             body["usertags"] = description.wrapped
                         }
@@ -103,11 +106,13 @@ public extension Endpoint.Group.Posts {
                                                 "address": location.address.wrapped,
                                                 "external_source": location.identifier.flatMap(\.keys.first).wrapped,
                                                 "external_id": location.identifier.flatMap(\.values.first).wrapped,
-                                                (location.identifier.flatMap(\.keys.first) ?? "")+"_id":
+                                                (location.identifier.flatMap(\.keys.first) ?? "") + "_id":
                                                     location.identifier.flatMap(\.values.first).wrapped]
                             body["geotag_enabled"] = 1
-                            body["media_latitude"] = (location.coordinates?.latitude).flatMap { String(Double($0)) }.wrapped
-                            body["media_longitude"] = (location.coordinates?.longitude).flatMap { String(Double($0)) }.wrapped
+                            body["media_latitude"] = (location.coordinates?.latitude)
+                                .flatMap { String(Double($0)) }.wrapped
+                            body["media_longitude"] = (location.coordinates?.longitude)
+                                .flatMap { String(Double($0)) }.wrapped
                             body["posting_latitude"] = body["media_latitude"]
                             body["posting_longitude"] = body["media_longitude"]
                             body["exif_latitude"] = "0.0"
@@ -129,6 +134,7 @@ public extension Endpoint.Group.Posts {
             .eraseToAnyPublisher()
         }
     }
+    // swiftlint:enable function_body_length
 
     /// Upload `image` to instagram.
     ///
@@ -141,7 +147,8 @@ public extension Endpoint.Group.Posts {
     func upload<U: Collection>(image data: Data,
                                captioned caption: String?,
                                tagging users: U,
-                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error>
+    where U.Element == UserTag {
         guard let image = Agnostic.Image(data: data) else { fatalError("Invalid `data`.") }
         return upload(image: image, captioned: caption, tagging: users, at: location)
     }
@@ -175,9 +182,15 @@ public extension Endpoint.Group.Posts {
                                preview image: Agnostic.Image,
                                captioned caption: String?,
                                tagging users: U,
-                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error>
+    where U.Element == UserTag {
         guard let data = image.jpegRepresentation() else { fatalError("Invalid `jpeg` representation.") }
-        return upload(video: url, preview: data, size: image.size, captioned: caption, tagging: users, at: location)
+        return upload(video: url,
+                      preview: data,
+                      size: image.size,
+                      captioned: caption,
+                      tagging: users,
+                      at: location)
     }
 
     /// Upload `video` to instagram.
@@ -196,6 +209,7 @@ public extension Endpoint.Group.Posts {
         upload(video: url, preview: image, captioned: caption, tagging: [], at: location)
     }
 
+    // swiftlint:disable function_body_length
     /// Upload `video` to instagram.
     ///
     /// - parameters:
@@ -212,7 +226,8 @@ public extension Endpoint.Group.Posts {
                                         size: CGSize,
                                         captioned caption: String?,
                                         tagging users: U,
-                                        at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
+                                        at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error>
+    where U.Element == UserTag {
         .init { secret, session in
             Deferred { () -> AnyPublisher<Media.Unit, Error> in
                 let upload = Endpoint.uploader.upload(video: url,
@@ -220,7 +235,8 @@ public extension Endpoint.Group.Posts {
                                                       previewSize: size,
                                                       sourceType: "4")
                 guard upload.duration < 60 else {
-                    return Fail(error: Endpoint.Group.Media.Error.videoTooLong(seconds: upload.duration)).eraseToAnyPublisher()
+                    return Fail(error: Endpoint.Group.Media.Error.videoTooLong(seconds: upload.duration))
+                        .eraseToAnyPublisher()
                 }
                 // Compose the future.
                 return upload.generator((secret, session))
@@ -238,7 +254,7 @@ public extension Endpoint.Group.Posts {
                             "width": upload.size.width.wrapped,
                             "height": upload.size.height.wrapped,
                             "clips": [["length": upload.duration.wrapped, "source_type": "4"]],
-                            "_csrftoken": secret["csrftoken"]!.wrapped,
+                            "_csrftoken": secret["csrftoken"].wrapped,
                             "user_id": upload.identifier.wrapped,
                             "_uid": secret.identifier.wrapped,
                             "device_id": secret.client.device.instagramIdentifier.wrapped,
@@ -248,7 +264,7 @@ public extension Endpoint.Group.Posts {
                             "audio_muted": false
                         ]
                         // Add user tags.
-                        let users = users.compactMap({ $0.wrapper().snakeCased().optional() })
+                        let users = users.compactMap { $0.wrapper().snakeCased().optional() }
                         if !users.isEmpty,
                            let description = try? ["in": users.wrapped].wrapped.jsonRepresentation() {
                             body["usertags"] = description.wrapped
@@ -256,17 +272,30 @@ public extension Endpoint.Group.Posts {
                         // Add location.
                         if let location = location {
                             body["location"] = ["name": location.name.wrapped,
-                                                "lat": (location.coordinates?.latitude).flatMap(Double.init).wrapped,
-                                                "lng": (location.coordinates?.longitude).flatMap(Double.init).wrapped,
+                                                "lat": (location.coordinates?.latitude)
+                                                    .flatMap(Double.init)
+                                                    .wrapped,
+                                                "lng": (location.coordinates?.longitude)
+                                                    .flatMap(Double.init)
+                                                    .wrapped,
                                                 "address": location.address.wrapped,
-                                                "external_source": location.identifier.flatMap(\.keys.first).wrapped,
-                                                "external_id": location.identifier.flatMap(\.values.first).wrapped,
-                                                (location.identifier.flatMap(\.keys.first) ?? "")+"_id": location.identifier
+                                                "external_source": location.identifier
+                                                    .flatMap(\.keys.first)
+                                                    .wrapped,
+                                                "external_id": location.identifier
+                                                    .flatMap(\.values.first)
+                                                    .wrapped,
+                                                (location.identifier
+                                                    .flatMap(\.keys.first) ?? "") + "_id": location.identifier
                                                     .flatMap(\.values.first)
                                                     .wrapped]
                             body["geotag_enabled"] = 1
-                            body["media_latitude"] = (location.coordinates?.latitude).flatMap { String(Double($0)) }.wrapped
-                            body["media_longitude"] = (location.coordinates?.longitude).flatMap { String(Double($0)) }.wrapped
+                            body["media_latitude"] = (location.coordinates?.latitude)
+                                .flatMap { String(Double($0)) }
+                                .wrapped
+                            body["media_longitude"] = (location.coordinates?.longitude)
+                                .flatMap { String(Double($0)) }
+                                .wrapped
                             body["posting_latitude"] = body["media_latitude"]
                             body["posting_longitude"] = body["media_longitude"]
                             body["exif_latitude"] = "0.0"
@@ -289,6 +318,7 @@ public extension Endpoint.Group.Posts {
             .eraseToAnyPublisher()
         }
     }
+    // swiftlint:enable function_body_length
 
     /// Upload `video` to instagram.
     ///
@@ -304,7 +334,8 @@ public extension Endpoint.Group.Posts {
                                preview data: Data,
                                captioned caption: String?,
                                tagging users: U,
-                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error> where U.Element == UserTag {
+                               at location: Location? = nil) -> Endpoint.Single<Media.Unit, Error>
+    where U.Element == UserTag {
         guard let image = Agnostic.Image(data: data) else {
             fatalError("Invalid `data`.")
         }
@@ -329,5 +360,4 @@ public extension Endpoint.Group.Posts {
 
     #endif
     #endif
-
 }

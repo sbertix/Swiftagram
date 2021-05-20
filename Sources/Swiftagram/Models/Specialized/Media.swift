@@ -105,10 +105,14 @@ public struct Media: Wrapped {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper {
             switch self {
-            case .picture(let picture): return picture.wrapper
-            case .video(let video): return video.wrapper
-            case .album(let content): return { content.map { $0.wrapper() }.wrapped }
-            case .error(let error): return { error }
+            case .picture(let picture):
+                return picture.wrapper
+            case .video(let video):
+                return video.wrapper
+            case .album(let content):
+                return { content.map { $0.wrapper() }.wrapped }
+            case .error(let error):
+                return { error }
             }
         }
 
@@ -117,10 +121,14 @@ public struct Media: Wrapped {
         public init(wrapper: @escaping () -> Wrapper) {
             let response = wrapper()
             switch response.mediaType.int() {
-            case 1: self = .picture(.init(wrapper: response))
-            case 2: self = .video(.init(wrapper: response))
-            case 8: self = .album(response.carouselMedia.array()?.map(Content.init) ?? [])
-            default: self = .error(response)
+            case 1:
+                self = .picture(.init(wrapper: response))
+            case 2:
+                self = .video(.init(wrapper: response))
+            case 8:
+                self = .album(response.carouselMedia.array()?.map(Content.init) ?? [])
+            default:
+                self = .error(response)
             }
         }
     }
@@ -196,10 +204,7 @@ public extension Media {
     }
 
     /// A `struct` representing a `Media` collection.
-    struct Collection: Specialized, Paginatable {
-        /// The associated offset type.
-        public typealias Offset = String?
-
+    struct Collection: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

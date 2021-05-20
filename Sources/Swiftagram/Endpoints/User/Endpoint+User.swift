@@ -157,7 +157,7 @@ public extension Endpoint.Group.User {
     }
 
     /// A list of posts uploaded by the user.
-    var posts: Endpoint.Paginated<Swiftagram.Media.Collection,
+    var posts: Endpoint.Paginated < Swiftagram.Media.Collection,
                                   String?,
                                   Error> {
         .init { secret, session, pages in
@@ -224,7 +224,7 @@ public extension Endpoint.Group.User {
     }
 
     /// A list of posts the user was tagged in.
-    var tags: Endpoint.Paginated<Swiftagram.Media.Collection,
+    var tags: Endpoint.Paginated < Swiftagram.Media.Collection,
                                  RankedOffset<String?, String?>,
                                  Error> {
         .init { secret, session, pages in
@@ -275,7 +275,8 @@ fileprivate extension Endpoint.Group.User {
     ///     - query: An optional `String`.
     /// - returns: A valid `Endpoint.Paginated`.
     func paginated(_ endpoint: String,
-                   matching query: String?) -> Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
+                   matching query: String?)
+    -> Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
         .init { secret, session, pages in
             // Persist the rank token.
             let rank = pages.rank ?? UUID().uuidString

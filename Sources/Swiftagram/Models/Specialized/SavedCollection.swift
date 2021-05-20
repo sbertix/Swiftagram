@@ -47,10 +47,7 @@ public struct SavedCollection: Wrapped {
 
 public extension SavedCollection {
     /// A `struct` defining a collection of `SavedCollection`.
-    struct Collection: Specialized, Paginatable {
-        /// The associated offset.
-        public typealias Offset = String?
-
+    struct Collection: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -65,10 +62,7 @@ public extension SavedCollection {
     }
 
     /// A `struct` defining a single `SavedCollection` response.
-    struct Unit: Specialized, Paginatable {
-        /// The associated offset.
-        public typealias Offset = String?
-
+    struct Unit: Specialized, StringPaginatable {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

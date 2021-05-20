@@ -12,7 +12,7 @@ import WebKit
 import Swiftagram
 
 /// A `class` defining a view controller capable of displaying the authentication web view.
-class LoginViewController: UIViewController {
+private class LoginViewController: UIViewController {
     /// The completion handler.
     var completion: ((Secret) -> Void)? {
         didSet {
@@ -34,7 +34,7 @@ class LoginViewController: UIViewController {
 }
 
 /// A `struct` defining a `View` used for logging in.
-struct LoginView: UIViewControllerRepresentable {
+internal struct LoginView: UIViewControllerRepresentable {
     /// A `Secret` binding.
     @Binding var secret: Secret?
 

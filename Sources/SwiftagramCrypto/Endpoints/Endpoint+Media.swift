@@ -35,7 +35,8 @@ public extension Endpoint.Group.Media {
     ///     - parentCommentIdentifier: An optional `String`. Defaults to `nil`.
     /// - returns: A valid `Endpoint.Single`.
     func comment(with text: String,
-                 under parentCommentIdentifier: String? = nil) -> Endpoint.Single<Swiftagram.Comment.Unit, Swift.Error> {
+                 under parentCommentIdentifier: String? = nil)
+    -> Endpoint.Single<Swiftagram.Comment.Unit, Swift.Error> {
         .init { secret, session in
             Deferred {
                 Request.media(self.identifier)
@@ -78,7 +79,7 @@ public extension Endpoint.Group.Media {
                         .signing(body: [
                             "igtv_feed_preview": false.wrapped,
                             "media_id": self.identifier.wrapped,
-                            "_csrftoken": secret["csrftoken"]!.wrapped,
+                            "_csrftoken": secret["csrftoken"].wrapped,
                             "_uid": secret.identifier.wrapped,
                             "_uuid": secret.client.device.identifier.uuidString.wrapped
                         ] as Wrapper)
@@ -136,7 +137,7 @@ extension Endpoint.Group.Media {
                     .path(appending: endpoint)
                     .path(appending: "/")
                     .header(appending: secret.header)
-                    .signing(body: ["_csrftoken": secret["csrftoken"]!,
+                    .signing(body: ["_csrftoken": secret["csrftoken"],
                                     "radio_type": "wifi-none",
                                     "_uid": secret.identifier,
                                     "device_id": secret.client.device.instagramIdentifier,

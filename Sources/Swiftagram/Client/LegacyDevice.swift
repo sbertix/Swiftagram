@@ -11,7 +11,7 @@ import Foundation
 ///
 /// This is kept in order to maintain backwards compatibility with `Secret`s.
 /// Please keep in mind support for this might be removed in the future.
-struct LegacyDevice: Codable {
+internal struct LegacyDevice: Codable {
     /// The brand.
     let brand: String
     /// The model.

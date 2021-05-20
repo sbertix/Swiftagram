@@ -49,7 +49,7 @@ public extension Endpoint.Group.ManyUsers {
                     .path(appending: "show_many/")
                     .header(appending: secret.header)
                     .body(["user_ids": self.identifiers.joined(separator: ","),
-                           "_csrftoken": secret["csrftoken"]!,
+                           "_csrftoken": secret["csrftoken"],
                            "_uuid": secret.client.device.identifier.uuidString])
                     .publish(with: session)
                     .map(\.data)

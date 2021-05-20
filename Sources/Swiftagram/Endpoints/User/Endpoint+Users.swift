@@ -20,7 +20,7 @@ public extension Endpoint {
     ///
     /// - parameter query: A `String` holding reference to a valid user query.
     /// - returns: A valid `Endpoint.Pagianted`.
-    static func users(matching query: String) -> Endpoint.Paginated<Swiftagram.User.Collection,
+    static func users(matching query: String) -> Endpoint.Paginated < Swiftagram.User.Collection,
                                                                     RankedOffset<String?, String?>,
                                                                     Error> {
         .init { secret, session, pages in

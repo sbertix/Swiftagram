@@ -16,7 +16,7 @@ import UIKit
 
 @testable import Swiftagram
 
-final class ClientTests: XCTestCase {
+internal final class ClientTests: XCTestCase {
     /// Test an Android device.
     func testAndroid() {
         let device = Client.samsungGalaxyS20

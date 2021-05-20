@@ -3,7 +3,6 @@
 //  Followers
 //
 //  Created by Stefano Bertagno on 10/03/2020.
-//  Copyright © 2020 Stefano Bertagno. All rights reserved.
 //
 
 import Combine
@@ -13,7 +12,7 @@ import SwiftUI
 import SwiftagramCrypto
 
 /// An `ObservableObject` dealing with requests.
-final class FollowersModel: ObservableObject {
+internal final class FollowersModel: ObservableObject {
     /// The logged in user.
     @Published private(set) var current: User?
     /// Initial followers for the logged in user.
@@ -24,11 +23,16 @@ final class FollowersModel: ObservableObject {
     /// The dispose bag.
     private var bin: Set<AnyCancellable> = []
 
+    /// Whether it's authenticated or not.
+    var shouldPresentLoginView: Binding<Bool> {
+        .init(get: { self.secret.value == nil }, set: { _ in })
+    }
+
     /// Init.
     init() {
         // Update current `User` every time secret is.
         // In a real app you would cache this.
-        secret.removeDuplicates(by: { $0?.identifier == $1?.identifier })
+        secret.removeDuplicates { $0?.identifier == $1?.identifier }
             .flatMap { secret -> AnyPublisher<User?, Never> in
                 guard let secret = secret else { return Just(nil).eraseToAnyPublisher() }
                 // Fetch the user.
@@ -45,7 +49,7 @@ final class FollowersModel: ObservableObject {
 
         // Update followers.
         // We only load the first 3 pages.
-        secret.removeDuplicates(by: { $0?.identifier == $1?.identifier })
+        secret.removeDuplicates { $0?.identifier == $1?.identifier }
             .flatMap { secret -> AnyPublisher<[User]?, Never> in
                 guard let secret = secret else { return Just(nil).eraseToAnyPublisher() }
                 // Fetch followers.
@@ -55,9 +59,9 @@ final class FollowersModel: ObservableObject {
                     .session(.instagram)
                     .pages(3)
                     .compactMap(\.users)
-                    //swiftlint:disable reduce_into
+                    // swiftlint:disable reduce_into
                     .reduce([], +)
-                    //swiftlint:enable reduce_into
+                    // swiftlint:enable reduce_into
                     .map(Optional.some)
                     .catch { _ in Just(nil) }
                     .eraseToAnyPublisher()
@@ -65,13 +69,6 @@ final class FollowersModel: ObservableObject {
             .receive(on: RunLoop.main)
             .assign(to: \.followers, on: self)
             .store(in: &bin)
-    }
-
-    // MARK: Authentication
-
-    /// Whether it's authenticated or not.
-    var shouldPresentLoginView: Binding<Bool> {
-        .init(get: { self.secret.value == nil }, set: { _ in })
     }
 
     /// Update the current `Secret`.

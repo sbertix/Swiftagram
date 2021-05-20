@@ -55,10 +55,10 @@ public extension Endpoint {
     static func media(at url: URL) throws -> Endpoint.Group.Media {
         // Prepare the `URL`.
         let components = url.pathComponents
-        guard let postIndex = components.firstIndex(of: "p"), postIndex < components.count-1 else {
+        guard let postIndex = components.firstIndex(of: "p"), postIndex < components.count - 1 else {
             throw Group.Media.Error.invalidURL(url)
         }
-        let shortcode = components[postIndex+1]
+        let shortcode = components[postIndex + 1]
         // Process the shortcode.
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
         let set = CharacterSet(charactersIn: alphabet)
@@ -67,7 +67,10 @@ public extension Endpoint {
         }
         // Prepare the identifier.
         var identifier: Int64 = 0
-        shortcode.forEach { identifier = identifier*64+Int64(alphabet.firstIndex(of: $0)!.utf16Offset(in: alphabet)) }
+        shortcode.forEach {
+            guard let value = alphabet.firstIndex(of: $0)?.utf16Offset(in: alphabet) else { return }
+            identifier = identifier * 64 + Int64(value)
+        }
         return .init(identifier: String(identifier))
     }
 
@@ -134,7 +137,7 @@ public extension Endpoint.Group.Media {
     }
 
     /// A list of comments for the current media.
-    var comments: Endpoint.Paginated<Swiftagram.Comment.Collection,
+    var comments: Endpoint.Paginated < Swiftagram.Comment.Collection,
                                      RankedOffset<String?, String?>,
                                      Swift.Error> {
         .init { secret, session, pages in
@@ -158,7 +161,7 @@ public extension Endpoint.Group.Media {
     }
 
     /// A list of likers for the current media.
-    var likers: Endpoint.Paginated<Swiftagram.User.Collection,
+    var likers: Endpoint.Paginated < Swiftagram.User.Collection,
                                    RankedOffset<String?, String?>,
                                    Swift.Error> {
         .init { secret, session, pages in
@@ -198,7 +201,7 @@ public extension Endpoint.Group.Media {
     }
 
     /// Fetch all viewers for the current story.
-    var viewers: Endpoint.Paginated<Swiftagram.User.Collection,
+    var viewers: Endpoint.Paginated < Swiftagram.User.Collection,
                                     RankedOffset<String?, String?>,
                                     Swift.Error> {
         .init { secret, session, pages in

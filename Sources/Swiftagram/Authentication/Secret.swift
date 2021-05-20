@@ -29,6 +29,17 @@ public struct Secret: Codable, Storable {
     /// - note: This information is extremely sensitive. Please handle it with care.
     let cookies: [CodableHTTPCookie]
 
+    /// All header fields.
+    ///
+    /// - note: This information is extremely sensitive. Please handle it with care.
+    public var header: [String: String] {
+        HTTPCookie.requestHeaderFields(with: cookies)
+            .merging(["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                      "X-IG-Android-ID": client.device.instagramIdentifier,
+                      "X-MID": cookies.first { $0.name == "mid" }?.value,
+                      "User-Agent": client.description].compactMapValues { $0 }) { _, rhs in rhs }
+    }
+
     // MARK: Lifecycle
 
     /// Init.
@@ -95,25 +106,17 @@ public struct Secret: Codable, Storable {
         try container.encode(cookies, forKey: .cookies)
     }
 
-    // MARK: Accessories
-
-    /// All header fields.
-    ///
-    /// - note: This information is extremely sensitive. Please handle it with care.
-    public var header: [String: String] {
-        HTTPCookie.requestHeaderFields(with: cookies)
-            .merging(["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
-                      "X-IG-Android-ID": client.device.instagramIdentifier,
-                      "X-MID": cookies.first(where: { $0.name == "mid"})?.value,
-                      "User-Agent": client.description].compactMapValues { $0 }) { _, rhs in rhs }
-    }
-
     /// Return a specific cookie value.
     ///
     /// - parameter key: A valid `HTTPCookie` `name`.
-    /// - returns: An optional `String`, representing the matching `HTTPCookie` `value`.
+    /// - returns: A valid `String`, representing the matching `HTTPCookie` `value`.
     /// - note: This information is extremely sensitive. Please handle it with care.
-    public subscript(_ key: String) -> String? { cookies.first(where: { $0.name == key })?.value }
+    public subscript(_ key: String) -> String {
+        guard let value = cookies.first(where: { $0.name == key })?.value else {
+            fatalError("`key` not found in `Secret` cookies.")
+        }
+        return value
+    }
 }
 
 fileprivate extension Secret {

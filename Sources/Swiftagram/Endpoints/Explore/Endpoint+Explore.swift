@@ -34,7 +34,10 @@ public extension Endpoint.Group.Explore {
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
-                    .iterateFirst(stoppingAt: $0) { $0.flatMap { $0.nextMaxId.string(converting: true) }.flatMap(Instruction.load) ?? .stop }
+                    .iterateFirst(stoppingAt: $0) {
+                        $0.flatMap { $0.nextMaxId.string(converting: true) }
+                            .flatMap(Instruction.load) ?? .stop
+                    }
             }
             .eraseToAnyPublisher()
         }
@@ -51,13 +54,16 @@ public extension Endpoint.Group.Explore {
                                        "omit_cover_media": "false",
                                        "use_sectional_payload": "true",
                                        "timezone_offset": "43200",
-                                       "session_id": secret["sessionid"]!,
+                                       "session_id": secret["sessionid"],
                                        "include_fixed_destinations": "false",
                                        "max_id": $0])
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
-                    .iterateFirst(stoppingAt: $0) { $0.flatMap { $0.nextMaxId.string(converting: true) }.flatMap(Instruction.load) ?? .stop }
+                    .iterateFirst(stoppingAt: $0) {
+                        $0.flatMap { $0.nextMaxId.string(converting: true) }
+                            .flatMap(Instruction.load) ?? .stop
+                    }
             }
             .eraseToAnyPublisher()
         }
