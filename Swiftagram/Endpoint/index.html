@@ -62,9 +62,9 @@
         <code>Paginated</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Paginated</span>&lt;<span class="variable">Response</span>,
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Paginated</span> &lt; <span class="variable">Response</span>,
                                <span class="variable">Offset</span>,
-                               <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionPagerProvider</span>&lt;<span class="type">Secret</span>,
+                               <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionPagerProvider</span> &lt; <span class="type">Secret</span>,
                                                                           <span class="type">Offset</span>,
                                                                           <span class="type">AnyPublisher</span>&lt;<span class="type">Response</span>, <span class="type">Failure</span>&gt;&gt;</code></pre>
 </div>
@@ -84,8 +84,8 @@
         <code>Single</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Single</span>&lt;<span class="variable">Response</span>,
-                            <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionProvider</span>&lt;<span class="type">Secret</span>,
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Single</span> &lt; <span class="variable">Response</span>,
+                            <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionProvider</span> &lt; <span class="type">Secret</span>,
                                                                   <span class="type">AnyPublisher</span>&lt;<span class="type">Response</span>, <span class="type">Failure</span>&gt;&gt;</code></pre>
 </div>
 <div class="summary" role="doc-abstract">
@@ -799,7 +799,7 @@
         <code>users(matching:​)</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>(<span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>,
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>(<span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Paginated</span> &lt; <span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>,
                                                                     <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;,
                                                                     <span class="type">Error</span>&gt; </code></pre>
 </div>
@@ -839,7 +839,7 @@
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-20T15:41:30+0000">May 20, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-05-20T19:25:18+0000">May 20, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
 </p>
     </footer>
 </body>
