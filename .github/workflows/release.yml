@@ -6,41 +6,6 @@ on:
       - main
 
 jobs:
-  # rebase `bugfixes` and `development` on merged PRs.
-  rebase:
-    name:                    Rebase
-    runs-on:                 ubuntu-latest
-
-    steps:
-      # checkout.
-      - name:                Checkout
-        id:                  checkout
-        uses:                actions/checkout@v2
-        with:
-          token:             ${{ secrets.GITHUB_TOKEN }}
-          ref:               main
-      # config author.
-      - name:                Config
-        id:                  config
-        run:                 |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions"
-          git fetch --all
-      # rebase `bugfixes`.
-      - name:                Rebase `bugfixes`
-        run:                 |
-          git checkout bugfixes
-          git rebase main
-          git push origin bugfixes --force-with-lease
-        continue-on-error:   true
-      # rebase `development`.
-      - name:                Rebase `development`
-        run:                 |
-          git checkout development
-          git rebase main
-          git push origin development --force-with-lease
-        continue-on-error:   true
-
   # release a new version.
   release:
     name:                    Release
