@@ -1,0 +1,89 @@
+name:                   pull_request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  # pull request-sepcific steps.
+  validate_commits:
+    name:               Conventional Commits
+    runs-on:            ubuntu-latest
+
+    steps:
+      - name:           Checkout
+        uses:           actions/checkout@v2
+      # validate commits.
+      - name:           Validate commits
+        uses:           KevinDeJong-TomTom/commisery-action@master
+        with:
+          token:        ${{ secrets.GITHUB_TOKEN }}
+          pull_request: ${{ github.event.number }}
+
+  # update the pull request message body.
+  update_body:
+    name:               Changelog
+    runs-on:            ubuntu-latest
+
+    steps:
+      - name:           Checkout
+        uses:           actions/checkout@v2
+        with:
+          fetch-depth:  0
+      # create the changelog.
+      - name:           Changelog
+        id:             changelog
+        uses:           metcalfc/changelog-generator@v1.0.0
+        with:
+          mytoken:      ${{ secrets.GITHUB_TOKEN }}
+          head-ref:     ${{ github.event.pull_request.head.sha }}
+          base-ref:     ${{ github.event.pull_request.base.sha }}
+      # update the pull request message body.
+      - name:           Update Pull Request Description
+        uses:           riskledger/update-pr-description@v2
+        with:
+          body:         ${{ steps.changelog.outputs.changelog || steps.changelog.outputs.result }}
+          token:        ${{ secrets.GITHUB_TOKEN }}
+
+  # lint code.
+  lint:
+    name:               Lint
+    runs-on:            ubuntu-latest
+
+    steps:
+      - name:           Checkout
+        uses:           actions/checkout@v2
+      # only lint on actual code changes.
+      - uses:           dorny/paths-filter@v2
+        id:             changes
+        with:
+          filters:      |
+            src:
+              - '**/*.swift'
+      - name:           Lint
+        if:             steps.changes.outputs.src == 'true'
+        uses:           norio-nomura/action-swiftlint@3.1.0
+        with:
+          args:         --strict
+
+  # build the library.
+  build:
+    name:               Build
+    needs:              lint
+    runs-on:            macos-latest
+
+    steps:
+      - name:           Checkout
+        uses:           actions/checkout@v2
+      # only build on actual code changes.
+      - uses:           dorny/paths-filter@v2
+        id:             changes
+        with:
+          filters:      |
+            src:
+              - '**/*.swift'
+      - name:           Build
+        if:             steps.changes.outputs.src == 'true'
+        run:            swift build

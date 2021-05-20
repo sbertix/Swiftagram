@@ -1,71 +1,145 @@
-name:                   checks
+name:                        release
 
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
-      - reopened
   push:
     branches:
       - main
 
 jobs:
-  # validate commits.
-  validate-commits:
-    name:               Conventional Commits
-    runs-on:            ubuntu-latest
-    if:                 ${{ github.event.number }}
-
-    steps:
-      - name:           Checkout
-        uses:           actions/checkout@v2
-      - name:           Commisery
-        uses:           KevinDeJong-TomTom/commisery-action@master
-        with:
-          token:        ${{ secrets.GITHUB_TOKEN }}
-          pull_request: ${{ github.event.number }}
-
   # lint code.
   lint:
-    name:               Lint
-    runs-on:            ubuntu-latest
+    name:                    Lint
+    runs-on:                 ubuntu-latest
 
     steps:
-      - name:           Checkout
-        uses:           actions/checkout@v2
-      - uses:           dorny/paths-filter@v2
-        id:             changes
+      - name:                Checkout
+        uses:                actions/checkout@v2
+      # only lint on actual code changes.
+      - uses:                dorny/paths-filter@v2
+        id:                  changes
         with:
-          base:         ${{ github.event.pull_request.base.sha || github.event.push.before }}
-          ref:          ${{ github.event.pull_request.head.sha || github.event.push.head }}
-          filters:      |
+          base:              ${{ github.event.push.before }}
+          filters:           |
             src:
               - '**/*.swift'
-      - name:           Lint
-        if:             steps.changes.outputs.src == 'true'
-        uses:           norio-nomura/action-swiftlint@3.1.0
+      - name:                Lint
+        if:                  steps.changes.outputs.src == 'true'
+        uses:                norio-nomura/action-swiftlint@3.1.0
         with:
-          args:         --strict
+          args:              --strict
 
   # build the library.
   build:
-    name:               Build
-    needs:              lint
-    runs-on:            macos-latest
+    name:                    Build
+    needs:                   lint
+    runs-on:                 macos-latest
 
     steps:
-      - name:           Checkout
-        uses:           actions/checkout@v2
-      - uses:           dorny/paths-filter@v2
-        id:             changes
+      - name:                Checkout
+        uses:                actions/checkout@v2
+      # only build on actual code changes.
+      - uses:                dorny/paths-filter@v2
+        id:                  changes
         with:
-          base:         ${{ github.event.pull_request.base.sha || github.event.push.before }}
-          ref:          ${{ github.event.pull_request.head.sha || github.event.push.head }}
-          filters:      |
+          base:              ${{ github.event.push.before }}
+          filters:           |
             src:
               - '**/*.swift'
-      - name:           Build
-        if:             steps.changes.outputs.src == 'true'
-        run:            swift build
+      - name:                Build
+        if:                  steps.changes.outputs.src == 'true'
+        run:                 swift build
+
+  # release a new version.
+  release:
+    name:                    Release
+    needs:                   build
+    runs-on:                 ubuntu-latest
+
+    steps:
+      # checkout `main`.
+      - name:                Checkout
+        id:                  checkout
+        uses:                actions/checkout@v2
+        with:
+          fetch-depth:       0
+          token:             ${{ secrets.GITHUB_TOKEN }}
+          ref:               main
+      # create the changelog.
+      - name:                Changelog
+        id:                  changelog
+        uses:                TriPSs/conventional-changelog-action@v3
+        with:
+          git-message:       "chore(release): relase \'v{version}\'"
+          git-user-name:     "github-actions"
+          git-user-email:    "41898282+github-actions[bot]@users.noreply.github.com"
+          github-token:      ${{ secrets.GITHUB_TOKEN }}
+          tag-prefix:        ''
+          output-file:       'false'
+          skip-commit:       'true'
+          skip-version-file: 'true'
+      # release the new version.
+      - name:                Release
+        id:                  release
+        uses:                actions/create-release@v1
+        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        env:
+          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name:          ${{ steps.changelog.outputs.tag }}
+          release_name:      v${{ steps.changelog.outputs.tag }}
+          body:              ${{ steps.changelog.outputs.clean_changelog }}
+      # notify on telegram.
+      - name:                Telegram
+        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        uses:                appleboy/telegram-action@master
+        with:
+          to:                ${{ secrets.TELEGRAM_TO }}
+          token:             ${{ secrets.TELEGRAM_TOKEN }}
+          format:            markdown
+          args:              |
+            A [new version](${{ steps.release.outputs.html_url }}) of **Swiftagram** was just released.
+            Please consider updating your code.
+        continue-on-error:   true
+
+  # create docs.
+  docs:
+    name:                    Docs
+    needs:                   release
+    runs-on:                 ubuntu-latest
+
+    steps:
+      # checkout the `main` branch.
+      - name:                Checkout
+        id:                  checkout
+        uses:                actions/checkout@v2
+        with:
+          token:             ${{ secrets.GITHUB_TOKEN }}
+          ref:               main
+      # create documentation for `Swiftagram`.
+      - name:                Docs (Swiftagram)
+        uses:                SwiftDocOrg/swift-doc@master
+        with:
+          base-url:          "https://sbertix.github.io/Swiftagram/Swiftagram/"
+          format:            "html"
+          inputs:            "Sources"
+          module-name:       Swiftagram
+          output:            docs/Swiftagram
+      # create documentation for `SwiftagramCrypto`.
+      - name:                Docs (SwiftagramCrypto)
+        uses:                SwiftDocOrg/swift-doc@master
+        with:
+          base-url:          "https://sbertix.github.io/Swiftagram/SwiftagramCrypto/"
+          format:            "html"
+          inputs:            "Sources"
+          module-name:       SwiftagramCrypto
+          output:            docs/SwiftagramCrypto
+      # update permissions.
+      - name:                Update Permissions
+        run:                 'sudo chown --recursive $USER docs'
+      # publish to GitHub pages.
+      - name:                Publish
+        uses:                JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN:      ${{ secrets.CHATOPS_PAT }}
+          BRANCH:            gh-pages
+          FOLDER:            docs
