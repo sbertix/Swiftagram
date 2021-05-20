@@ -26,7 +26,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.group.media.comment.like()">like()</a></li><li class="function"><a href="#endpoint.group.media.comment.unlike()">unlike()</a></li><li class="function"><a href="#endpoint.group.media.comment.delete()">delete()</a></li></ul></li></ol>
+            <ol><li><a href="#methods">Methods</a><ul><li class="function"><a href="#endpoint.group.media.comment.delete()">delete()</a></li><li class="function"><a href="#endpoint.group.media.comment.like()">like()</a></li><li class="function"><a href="#endpoint.group.media.comment.unlike()">unlike()</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -39,7 +39,22 @@
     <section id="methods">
         <h2>Methods</h2>
 
-        <div role="article" class="function" id="endpoint.group.media.comment.like()">
+        <div role="article" class="function" id="endpoint.group.media.comment.delete()">
+    <h3>
+        <code>delete()</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">delete</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Delete the current comment.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A valid <code>Endpoint.Single</code>.</p>
+
+</div>
+<div role="article" class="function" id="endpoint.group.media.comment.like()">
     <h3>
         <code>like()</code>
     </h3>
@@ -69,28 +84,13 @@
   <p>A valid <code>Endpoint.Single</code>.</p>
 
 </div>
-<div role="article" class="function" id="endpoint.group.media.comment.delete()">
-    <h3>
-        <code>delete()</code>
-    </h3>
-    <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">delete</span>() -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Status</span>, <span class="type">Error</span>&gt; </code></pre>
-</div>
-<div class="summary" role="doc-abstract">
-    <p>Delete the current comment.</p>
-
-</div>
-  <h4>Returns</h4>
-  <p>A valid <code>Endpoint.Single</code>.</p>
-
-</div>
     </section>
         </article>
     </main>
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-18T16:58:40+0000">May 18, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-05-20T15:24:27+0000">May 20, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
 </p>
     </footer>
 </body>
