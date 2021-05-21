@@ -66,6 +66,7 @@ jobs:
       - uses:           dorny/paths-filter@v2
         id:             changes
         with:
+          base:         ${{ github.event.pull_request_target.base.sha }}
           filters:      |
             src:
               - '**/*.swift'
@@ -92,6 +93,7 @@ jobs:
       - uses:           dorny/paths-filter@v2
         id:             changes
         with:
+          base:         ${{ github.event.pull_request_target.base.sha }}
           filters:      |
             src:
               - '**/*.swift'
