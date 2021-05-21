@@ -31,18 +31,19 @@ jobs:
       - name:           Checkout
         uses:           actions/checkout@v2
         with:
-          fetch-depth:  0
           token:        ${{ secrets.GITHUB_TOKEN }}
           repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
           ref:          ${{ github.event.pull_request_target.head.sha }}
       # create the changelog.
       - name:           Changelog
         id:             changelog
-        uses:           metcalfc/changelog-generator@v1.0.0
+        uses:           nblagoev/pull-release-notes-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          mytoken:      ${{ secrets.GITHUB_TOKEN }}
           head-ref:     ${{ github.event.pull_request_target.head.sha }}
           base-ref:     ${{ github.event.pull_request_target.base.sha }}
+          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
       # update the pull request message body.
       - name:           Update Pull Request Description
         uses:           riskledger/update-pr-description@v2
