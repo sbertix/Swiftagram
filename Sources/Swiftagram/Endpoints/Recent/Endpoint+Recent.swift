@@ -46,7 +46,7 @@ public extension Endpoint.Group.Recent {
             // Persist the rank token.
             let rank = pages.rank ?? UUID().uuidString
             // Prepare the actual pager.
-            return Pager(pages.count, offset: pages.offset.offset) {
+            return Pager(pages.count, offset: pages.offset.offset, delay: pages.delay) {
                 Request.feed
                     .path(appending: "timeline/")
                     .header(appending: secret.header)

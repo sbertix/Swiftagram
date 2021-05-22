@@ -245,9 +245,12 @@ Endpoint.user(secret.identifier)
     .posts
     .unlock(with: secret)
     .session(.instagram)
-    .pages(.max)    // Exhaust all with `.max`
-                    // or pass any `Int` to limit
-                    // pages.
+    .pages(.max, delay: 1)  // Exhaust all with `.max`
+                            // or pass any `Int` to limit
+                            // pages.
+                            // You can omit `delay`, in that
+                            // case pages will be fetched 
+                            // one immediately after the other.
     .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
     .store(in: &bin)
 ```
