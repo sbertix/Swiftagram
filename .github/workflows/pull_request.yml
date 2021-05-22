@@ -1,103 +1,103 @@
-name:                   pull_request
+name:                      pull_request
 
-on:                     pull_request_target
+on:                        pull_request_target
 
 jobs:
   # pull request-sepcific steps.
   validate_commits:
-    name:               Conventional Commits
-    runs-on:            ubuntu-latest
+    name:                  Conventional Commits
+    runs-on:               ubuntu-latest
 
     steps:
-      - name:           Checkout
-        uses:           actions/checkout@v2
+      - name:              Checkout
+        uses:              actions/checkout@v2
         with:
-          token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          token:           ${{ secrets.GITHUB_TOKEN }}
+          repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:             ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # validate commits.
-      - name:           Validate commits
-        uses:           KevinDeJong-TomTom/commisery-action@master
+      - name:              Validate commits
+        uses:              KevinDeJong-TomTom/commisery-action@master
         with:
-          token:        ${{ secrets.GITHUB_TOKEN }}
-          pull_request: ${{ github.event.number }}
+          token:           ${{ secrets.GITHUB_TOKEN }}
+          pull_request:    ${{ github.event.number }}
 
   # update the pull request message body.
   update_body:
-    name:               Changelog
-    runs-on:            ubuntu-latest
+    name:                  Changelog
+    runs-on:               ubuntu-latest
 
     steps:
-      - name:           Checkout
-        uses:           actions/checkout@v2
+      - name:              Checkout
+        uses:              actions/checkout@v2
         with:
-          token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          token:           ${{ secrets.GITHUB_TOKEN }}
+          repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:             ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # create the changelog.
-      - name:           Changelog
-        id:             changelog
-        uses:           nblagoev/pull-release-notes-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name:              Changelog
+        id:                changelog
+        uses:              metcalfc/changelog-generator@v1.0.0
         with:
-          head-ref:     ${{ github.event.pull_request_target.head.sha }}
-          base-ref:     ${{ github.event.pull_request_target.base.sha }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
+          mytoken:         ${{ secrets.GITHUB_TOKEN }}
+          head-ref:        ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
+          base-ref:        ${{ (github.event.pull_request_target || github.event.pull_request).base.sha }}
+          repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+        continue-on-error: true
       # update the pull request message body.
-      - name:           Update Pull Request Description
-        uses:           riskledger/update-pr-description@v2
+      - name:              Update Pull Request Description
+        uses:              riskledger/update-pr-description@v2
         with:
-          body:         ${{ steps.changelog.outputs.changelog || steps.changelog.outputs.result }}
-          token:        ${{ secrets.GITHUB_TOKEN }}
+          body:            ${{ steps.changelog.outputs.changelog || steps.changelog.outputs.result || 'An error occured. Please populate this yourself @${{ github.event.pull_request.sender.login }}' }}
+          token:           ${{ secrets.GITHUB_TOKEN }}
 
   # lint code.
   lint:
-    name:               Lint
-    runs-on:            ubuntu-latest
+    name:                  Lint
+    runs-on:               ubuntu-latest
 
     steps:
-      - name:           Checkout
-        uses:           actions/checkout@v2
+      - name:              Checkout
+        uses:              actions/checkout@v2
         with:
-          token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          token:           ${{ secrets.GITHUB_TOKEN }}
+          repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:             ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # only lint on actual code changes.
-      - uses:           dorny/paths-filter@v2
-        id:             changes
+      - uses:              dorny/paths-filter@v2
+        id:                changes
         with:
-          base:         ${{ github.event.pull_request_target.base.sha }}
-          filters:      |
+          base:            ${{ (github.event.pull_request_target || github.event.pull_request).base.sha }}
+          filters:         |
             src:
               - '**/*.swift'
-      - name:           Lint
-        if:             steps.changes.outputs.src == 'true'
-        uses:           norio-nomura/action-swiftlint@3.2.1
+      - name:              Lint
+        if:                steps.changes.outputs.src == 'true'
+        uses:              norio-nomura/action-swiftlint@3.2.1
         with:
-          args:         --strict
+          args:            --strict
 
   # build the library.
   build:
-    name:               Build
-    needs:              lint
-    runs-on:            macos-latest
+    name:                  Build
+    needs:                 lint
+    runs-on:               macos-latest
 
     steps:
-      - name:           Checkout
-        uses:           actions/checkout@v2
+      - name:              Checkout
+        uses:              actions/checkout@v2
         with:
-          token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          token:           ${{ secrets.GITHUB_TOKEN }}
+          repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:             ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # only build on actual code changes.
-      - uses:           dorny/paths-filter@v2
-        id:             changes
+      - uses:              dorny/paths-filter@v2
+        id:                changes
         with:
-          base:         ${{ github.event.pull_request_target.base.sha }}
-          filters:      |
+          base:            ${{ (github.event.pull_request_target || github.event.pull_request).base.sha }}
+          filters:         |
             src:
               - '**/*.swift'
-      - name:           Build
-        if:             steps.changes.outputs.src == 'true'
-        run:            swift build
+      - name:              Build
+        if:                steps.changes.outputs.src == 'true'
+        run:               swift build
