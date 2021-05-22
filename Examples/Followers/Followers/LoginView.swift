@@ -13,7 +13,7 @@ import Swiftagram
 import SwiftagramCrypto
 
 /// A `class` defining a view controller capable of displaying the authentication web view.
-private class LoginViewController: UIViewController {
+internal class LoginViewController: UIViewController {
     /// The completion handler.
     var completion: ((Secret) -> Void)? {
         didSet {
