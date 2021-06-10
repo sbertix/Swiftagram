@@ -9,21 +9,17 @@ import Foundation
 
 /// A module-like `enum` defining all possible `Endpoint`s.
 public enum Endpoint {
+    // swiftlint:disable line_length
     /// An `Endpoint` allowing for a paginated request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Paginated < Response,
-                               Offset,
-                               Failure: Error> = LockSessionPagerProvider < Secret,
-                                                                          Offset,
-                                                                          AnyPublisher<Response, Failure>>
+    public typealias Paginated<Response, Offset, Failure: Error> = LockSessionPagerProvider<Secret, Offset, AnyPublisher<Response, Failure>>
+    // swiftlint:enable line_length
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Single < Response,
-                            Failure: Error> = LockSessionProvider < Secret,
-                                                                  AnyPublisher<Response, Failure>>
+    public typealias Single<Response, Failure: Error> = LockSessionProvider<Secret, AnyPublisher<Response, Failure>>
 
     /// A module-like `enum` to hide away endpoint wrappers definitions.
     public enum Group { }
