@@ -174,7 +174,7 @@ Authenticator.keychain
 </p></details>
 
 ### Caching
-Caching of `Secret`s is provided through its conformacy to [**ComopsableStorage**](https://github.com/sbertix/ComposableRequest)'s `Storable` protocol.  
+Caching of `Secret`s is provided through its conformacy to [**ComposableStorage**](https://github.com/sbertix/ComposableRequest)'s `Storable` protocol.  
 
 The library comes with several concrete implementations of `Storage`.  
 - `TransientStorage` should be used when no caching is necessary, and it's what `Authenticator`s default to when no `Storage` is provided.  
