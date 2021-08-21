@@ -74,7 +74,8 @@ public extension SavedCollection {
 
         /// The offset.
         public var offset: String? {
-            self["saveMediaResponse"].nextMaxId.string(converting: true) ?? self["nexMaxId"].string(converting: true)
+            self["saveMediaResponse"].nextMaxId.string(converting: true) ?? self["nextMaxId"].string(converting: true) ??
+                self["maxId"].string(converting: true)
         }
 
         /// Init.
