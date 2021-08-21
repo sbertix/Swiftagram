@@ -31,7 +31,10 @@ public struct SavedCollection: Wrapped {
     /// The cover media items.
     ///
     /// - note: Only populated when fetching all collections.
-    public var cover: [Media]? { self["coverMediaList"].array()?.compactMap(Media.init) }
+    public var cover: [Media]? {
+        self["coverMediaList"].array()?.compactMap(Media.init) ??
+          self["coverMedia"].optional().flatMap{ [Media.init(wrapper: $0)] }
+    }
 
     /// Media in the response.
     ///
