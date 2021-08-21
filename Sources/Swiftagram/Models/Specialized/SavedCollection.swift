@@ -72,6 +72,16 @@ public extension SavedCollection {
         /// The collection.
         public var collection: SavedCollection? { self["saveMediaResponse"].optional().flatMap(SavedCollection.init) }
 
+        /// Media in the response.
+        ///
+        /// - note: Only populated when fetching posts and igtvs.
+        public var items: [Media]? {
+            self["items"].array()?.compactMap {
+                $0.media.optional().flatMap(Media.init) ??
+                  $0.optional().flatMap(Media.init)
+            }
+        }
+
         /// The offset.
         public var offset: String? {
             self["saveMediaResponse"].nextMaxId.string(converting: true) ?? self["nextMaxId"].string(converting: true) ??
