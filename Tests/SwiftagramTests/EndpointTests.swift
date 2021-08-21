@@ -526,6 +526,24 @@ internal final class EndpointTests: XCTestCase {
     }
     // swiftlint:enable function_body_length
 }
+
+private extension Media.Content {
+  func images() -> [Media.Version]? {
+    var images: [Media.Version]? {
+      switch self {
+      case .picture(let pic):
+        return pic.images
+      case .video(let vid):
+        return vid.images
+      case .album(let album):
+        return album.first?.images()
+      default:
+        return Optional.none
+      }
+    }
+    return images
+  }
+}
 // swiftlint:enable file_length
 // swiftlint:enable type_body_length
 
