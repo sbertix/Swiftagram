@@ -39,8 +39,8 @@ public struct SavedCollection: Wrapped {
     /// Media in the response.
     ///
     /// - note: Only populated when fetching a single collection.
-    public var items: [Media]? { self["items"].array()?.compactMap(Media.init) }
-
+     public var items: [Media]? { self["items"].array()?.compactMap { $0.media.optional().flatMap(Media.init) } }
+    
     /// Init.
     /// - parameter wrapper: A valid `Wrapper`.
     public init(wrapper: @escaping () -> Wrapper) {
