@@ -116,6 +116,7 @@ internal final class EndpointTests: XCTestCase {
     private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
                                                         _ identifier: String,
                                                         pages: Int = 1,
+                                                        offset: P = .init(offset: .composableNone, rank: .composableNone),
                                                         logging level: Logger = .default,
                                                         line: Int = #line) -> W?
     where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
@@ -128,7 +129,7 @@ internal final class EndpointTests: XCTestCase {
         let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
-            .pages(pages)
+            .pages(pages, offset: offset)
             .sink(
                 receiveCompletion: {
                     if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
@@ -150,6 +151,7 @@ internal final class EndpointTests: XCTestCase {
     private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
                                                         _ identifier: String,
                                                         pages: Int = 1,
+                                                        offset: P = .composableNone,
                                                         logging level: Logger = .default,
                                                         line: Int = #line) -> W?
     where P: ComposableOptionalType {
@@ -162,7 +164,7 @@ internal final class EndpointTests: XCTestCase {
         let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
-            .pages(pages)
+            .pages(pages, offset: offset)
             .sink(
                 receiveCompletion: {
                     if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
