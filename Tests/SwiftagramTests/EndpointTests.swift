@@ -378,6 +378,93 @@ internal final class EndpointTests: XCTestCase {
         performTest(on: Endpoint.posts
                         .saved,
                     "Endpoint.Saved.posts")
+        if let collections = performTest(on: Endpoint.saved
+                                            .collections,
+                                        "Endpoint.Saved.collections")?.collections {
+            XCTAssertEqual(collections.first?.identifier, "ALL_MEDIA_AUTO_COLLECTION")
+            let firstCoverURL = collections.first?.cover?.first?.content.images()?.first?.url
+            XCTAssertNotNil(firstCoverURL, "Couldn't find \"All Posts\" first cover")
+            
+            XCTAssertGreaterThan(collections.count, 1, "Test set requires a saved collection")
+            let userCollection = collections[2]
+            let userCoverURL = userCollection.cover?.first?.content.images()?.first?.url
+            XCTAssertNotNil(userCoverURL, "Couldn't find first user collection first cover")
+
+            var hugeCollectionExists = false
+            for collection in collections[1...] {
+                if let summary = performTest(on: Endpoint.saved.collection(collection.identifier),
+                                             "Endpoint.saved.collection"),
+                   let offset = summary.offset {
+                    
+                    guard let collection = summary.collection,
+                          let firstItemID = collection.items?.first?.identifier else { XCTFail("Incorrect collection decoding"); return }
+                    
+                    let userCoverURL = collection.items?.first?.content.images()?.first?.url
+                    XCTAssertNotNil(userCoverURL, "Couldn't find collection first cover")
+                        
+                    // test all/ with an offset
+                    if let summaryMore = performTest(on: Endpoint.saved.collection(collection.identifier),
+                                                   "Endpoint.saved.collection", offset: offset) {
+                        guard let npFirstItemID = summaryMore.collection?.items?.first?.identifier else {
+                        XCTFail("Incorrect Offset-Fetched Collection decoding"); return }
+                        
+                        let imageURL = summaryMore.collection?.items?.first?.content.images()?.first?.url
+                        XCTAssertNotNil(imageURL, "Couldn't find post first image")
+                        
+                        XCTAssertEqual(firstItemID, npFirstItemID, "Instagram API changed and now interprets max_id for all/")
+                    }
+
+                    // test posts/ with an offset
+                    if let morePosts = performTest(on: Endpoint.saved.collection(collection.identifier).posts,
+                                                   "Endpoint.saved.collection.posts", offset: offset) {
+                        guard let mpFirstItemID = morePosts.items?.first?.identifier else { XCTFail("Incorrect Offset-Fetched Post Collection decoding"); return }
+                        
+                        let imageURL = morePosts.items?.first?.content.images()?.first?.url
+                        XCTAssertNotNil(imageURL, "Couldn't find post first image")
+                        
+                        XCTAssertNotEqual(firstItemID, mpFirstItemID, "Failure to Offset-Fetch Post Collection")
+
+                        if let offset = morePosts.offset {
+                            hugeCollectionExists = true
+                            
+                            if let yetMorePosts = performTest(on: Endpoint.saved.collection(collection.identifier).posts,
+                                                              "Endpoint.saved.collection.posts", offset: offset) {
+                                guard let ympFirstItemID = yetMorePosts.items?.first?.identifier else { XCTFail("Incorrect Offset²-Fetched Post Collection decoding"); return }
+                                
+                                let imageURL = yetMorePosts.items?.first?.content.images()?.first?.url
+                                XCTAssertNotNil(imageURL, "Couldn't find post first image")
+                                
+                                XCTAssertNotEqual(firstItemID, ympFirstItemID, "Failure to Offset²-Fetch Post Collection")
+                                XCTAssertNotEqual(mpFirstItemID, ympFirstItemID, "Failure to Offset²-Fetch Post Collection")
+                            }
+                        }
+                    }
+                }
+                if hugeCollectionExists { break }
+            }
+            XCTAssertTrue(hugeCollectionExists, "Test set requires a collection with over 42 saved posts")
+            
+            var largeIGTVExists = false
+            for collection in collections[1...] {
+                if let igtvs = performTest(on: Endpoint.saved.collection(collection.identifier).igtv,
+                                             "Endpoint.saved.collection.igtv"),
+                   let offset = igtvs.offset {
+                    largeIGTVExists = true
+
+                    guard let firstItemID = igtvs.items?.first?.identifier else { XCTFail("Incorrect igtv decoding"); return }
+
+                    if let nextIgtvs = performTest(on: Endpoint.saved.collection(collection.identifier).igtv,
+                                                   "Endpoint.saved.collection.igtv", offset: offset) {
+                        guard let niFirstItemID = nextIgtvs.items?.first?.identifier else { XCTFail("Incorrect Offset-Fetched Post Collection decoding"); return }
+
+                        XCTAssertNotEqual(firstItemID, niFirstItemID, "Failure to Offset-Fetch igtv Collection")
+                    }
+                }
+                if largeIGTVExists { break }
+            }
+            XCTAssertTrue(largeIGTVExists, "Test set requires a collection with over 21 saved igtv")
+        }
+            
         if let collection = performTest(on: Endpoint.saved
                                             .collections,
                                         "Endpoint.Saved.collections")?.collections?.last {
