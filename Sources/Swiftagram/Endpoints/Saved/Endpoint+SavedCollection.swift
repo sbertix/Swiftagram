@@ -57,7 +57,7 @@ public extension Endpoint.Group.Saved.Collection {
 }
 
 public extension Endpoint.Group.Saved.Collection {
-    /// All posts inside the collection.
+    /// A summary of the collection.
     ///
     /// - note: Prefer `Endpoint.posts.saved.collection(_:)`.
     var summary: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
