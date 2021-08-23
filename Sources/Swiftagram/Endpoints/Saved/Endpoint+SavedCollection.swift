@@ -57,7 +57,7 @@ public extension Endpoint.Group.Saved.Collection {
 }
 
 public extension Endpoint.Group.Saved.Collection {
-    /// All posts inside the collection.
+    /// A summary of the collection.
     ///
     /// - note: Prefer `Endpoint.posts.saved.collection(_:)`.
     var summary: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
@@ -74,6 +74,60 @@ public extension Endpoint.Group.Saved.Collection {
                     .path(appending: "all/")
                     .query(appending: ["include_igtv_preview": "true",
                                        "show_igtv_first": "false",
+                                       "max_id": $0])
+                    .header(appending: secret.header)
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(SavedCollection.Unit.init)
+                    .iterateFirst(stoppingAt: $0)
+            }
+            .replaceFailingWithError()
+        }
+    }
+  
+    /// All posts inside the collection.
+    ///
+    var posts: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
+        .init { secret, session, pages in
+            // Only actual collection can be fetched.
+            // `ALL_MEDIA_AUTO_COLLECTION` is not supported.
+            guard self.identifier != "ALL_MEDIA_AUTO_COLLECTION" else {
+                return Fail(error: Error.unsupportedAllMediaAutoCollection).eraseToAnyPublisher()
+            }
+            return Pager(pages) {
+                Request.feed
+                    .collection
+                    .path(appending: self.identifier)
+                    .path(appending: "posts/")
+                    .query(appending: ["include_igtv_preview": "true",
+                                       "max_id": $0])
+                    .header(appending: secret.header)
+                    .publish(with: session)
+                    .map(\.data)
+                    .wrap()
+                    .map(SavedCollection.Unit.init)
+                    .iterateFirst(stoppingAt: $0)
+            }
+            .replaceFailingWithError()
+        }
+    }
+ 
+    /// All igtv inside the collection.
+    ///
+    var igtv: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
+        .init { secret, session, pages in
+            // Only actual collection can be fetched.
+            // `ALL_MEDIA_AUTO_COLLECTION` is not supported.
+            guard self.identifier != "ALL_MEDIA_AUTO_COLLECTION" else {
+                return Fail(error: Error.unsupportedAllMediaAutoCollection).eraseToAnyPublisher()
+            }
+            return Pager(pages) {
+                Request.feed
+                    .collection
+                    .path(appending: self.identifier)
+                    .path(appending: "igtv/")
+                    .query(appending: ["id": "collection_\(self.identifier)",
                                        "max_id": $0])
                     .header(appending: secret.header)
                     .publish(with: session)
