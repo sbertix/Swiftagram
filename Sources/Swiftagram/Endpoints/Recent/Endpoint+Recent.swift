@@ -20,6 +20,45 @@ public extension Endpoint {
 extension Request {
     /// The `feed` base request.
     static let feed = Request.version1.feed.appendingDefaultHeader()
+
+    /// The timeline request.
+    ///
+    /// - parameters:
+    ///     - secret: A valid `Secret`.
+    ///     - offset: An optional `String`.
+    ///     - rank: A valid `String`.
+    /// - returns: A valid `Request`.
+    static func timeline(_ secret: Secret, offset: String?, rank: String) -> Request {
+        Request.feed
+            .path(appending: "timeline/")
+            .header(appending: secret.header)
+            .header(appending: rank, forKey: "rank_token")
+            .header(appending: [
+                "X-Ads-Opt-Out": "0",
+                "X-Google-AD-ID": secret.client.device.adIdentifier.uuidString,
+                "X-DEVICE-ID": secret.client.device.identifier.uuidString,
+                "X-FB": "1"
+            ])
+            .body(["max_id": offset,
+                   "reason": offset == nil ? "cold_start_fetch" : "pagination",
+                   "is_pull_to_refresh": offset == nil ? "0" : nil,
+                   "is_prefetch": "0",
+                   "feed_view_info": "",
+                   "seen_posts": "",
+                   "phone_id": secret.client.device.phoneIdentifier.uuidString,
+                   "battery_level": "72",
+                   "timezone_offset": "43200",
+                   "_csrftoken": secret["csrftoken"],
+                   "client_session_id": secret["sessionid"],
+                   "device_id": secret.client.device.identifier.uuidString,
+                   "_uuid": secret.client.device.identifier.uuidString,
+                   "is_charging": "0",
+                   "is_async_ads_in_headload_enabled": "0",
+                   "rti_delivery_backend": "0",
+                   "is_async_ads_double_request": "0",
+                   "will_sound_on": "0",
+                   "is_async_ads_rti": "0"].compactMapValues { $0 })
+    }
 }
 
 public extension Endpoint.Group.Recent {
@@ -42,49 +81,21 @@ public extension Endpoint.Group.Recent {
 
     /// Recent posts for accounts followed by the logged in user.
     var posts: Endpoint.Paginated<Wrapper, RankedOffset<String?, String?>, Error> {
-        .init { secret, session, pages -> AnyPublisher<Wrapper, Error> in
+        .init { secret, session, pages in
             // Persist the rank token.
             let rank = pages.rank ?? UUID().uuidString
             // Prepare the actual pager.
-            return Pager(pages.count, offset: pages.offset.offset, delay: pages.delay) {
-                Request.feed
-                    .path(appending: "timeline/")
-                    .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
-                    .header(appending: [
-                        "X-Ads-Opt-Out": "0",
-                        "X-Google-AD-ID": secret.client.device.adIdentifier.uuidString,
-                        "X-DEVICE-ID": secret.client.device.identifier.uuidString,
-                        "X-FB": "1"
-                    ])
-                    .body(["max_id": $0,
-                           "reason": $0 == nil ? "cold_start_fetch" : "pagination",
-                           "is_pull_to_refresh": $0 == nil ? "0" : nil,
-                           "is_prefetch": "0",
-                           "feed_view_info": "",
-                           "seen_posts": "",
-                           "phone_id": secret.client.device.phoneIdentifier.uuidString,
-                           "battery_level": "72",
-                           "timezone_offset": "43200",
-                           "_csrftoken": secret["csrftoken"],
-                           "client_session_id": secret["sessionid"],
-                           "device_id": secret.client.device.identifier.uuidString,
-                           "_uuid": secret.client.device.identifier.uuidString,
-                           "is_charging": "0",
-                           "is_async_ads_in_headload_enabled": "0",
-                           "rti_delivery_backend": "0",
-                           "is_async_ads_double_request": "0",
-                           "will_sound_on": "0",
-                           "is_async_ads_rti": "0"].compactMapValues { $0 })
+            return Pager(pages) {
+                Request.timeline(secret, offset: $0, rank: rank)
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
-                    .iterateFirst(stoppingAt: $0) {
-                        switch $0?.nextMaxId.string(converting: true) {
+                    .iterateFirst(stoppingAt: $0) { output -> Instruction<String> in
+                        switch output?.nextMaxId.string(converting: true) {
                         case .none:
                             return .stop
                         case "feed_recs_head_load":
-                            return ($0?.feedItems
+                            return (output?.feedItems
                                         .array()?
                                         .last?
                                         .endOfFeedDemarcator
