@@ -2,7 +2,7 @@
 .swiftpm/
 .swiftpm/*
 *.xcodeproj
-!Followers.xcodeproj
+!/Examples/*/*.xcodeproj
 /.build
 /Packages
 Package.resolved

@@ -30,20 +30,48 @@ public extension Endpoint.Group.Saved {
         self.collection(collection.identifier)
     }
 
-    /// An endpoint listing all posts inside a collection.
+    /// A summary of the collection.
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Paginated`.
-    func collection(_ identifier: String) -> Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
+    func collection(_ identifier: String) -> Endpoint.Single<SavedCollection.Unit, Swift.Error> {
         collection(identifier).summary
     }
 
-    /// An endpoint listing all posts inside a collection.
+    /// A summary of the collection.
+    ///
+    /// - parameter identifier: A valid `String`.
+    /// - returns: A valid `Endpoint.Paginated`.
+    @available(*, deprecated, message: "paging summary is no longer supported (removing in 6.0)")
+    func collection(_ identifier: String) -> Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
+        .init { secret, session, _ in
+            collection(identifier)
+                .summary
+                .unlock(with: secret)
+                .session(session)
+        }
+    }
+
+    /// A summary of the collection.
     ///
     /// - parameter collection: A valid `SavedCollection`.
     /// - returns: A valid `Endpoint.Paginated`.
-    func collection(_ collection: SavedCollection) -> Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
+    func collection(_ collection: SavedCollection) -> Endpoint.Single<SavedCollection.Unit, Swift.Error> {
         self.collection(collection).summary
+    }
+
+    /// A summary of the collection.
+    ///
+    /// - parameter collection: A valid `SavedCollection`.
+    /// - returns: A valid `Endpoint.Paginated`.
+    @available(*, deprecated, message: "paging summary is no longer supported (removing in 6.0)")
+    func collection(_ collection: SavedCollection) -> Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
+        .init { secret, session, _ in
+            self.collection(collection)
+                .summary
+                .unlock(with: secret)
+                .session(session)
+        }
     }
 }
 
@@ -59,33 +87,29 @@ public extension Endpoint.Group.Saved.Collection {
 public extension Endpoint.Group.Saved.Collection {
     /// A summary of the collection.
     ///
-    /// - note: Prefer `Endpoint.posts.saved.collection(_:)`.
-    var summary: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
-        .init { secret, session, pages in
+    /// - note: Prefer `Endpoint.saved.collection(_:)`.
+    var summary: Endpoint.Single<SavedCollection.Unit, Swift.Error> {
+        .init { secret, session in
             // Only actual collection can be fetched.
             // `ALL_MEDIA_AUTO_COLLECTION` is not supported.
             guard self.identifier != "ALL_MEDIA_AUTO_COLLECTION" else {
                 return Fail(error: Error.unsupportedAllMediaAutoCollection).eraseToAnyPublisher()
             }
-            return Pager(pages) {
-                Request.feed
-                    .collection
-                    .path(appending: self.identifier)
-                    .path(appending: "all/")
-                    .query(appending: ["include_igtv_preview": "true",
-                                       "show_igtv_first": "false",
-                                       "max_id": $0])
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(SavedCollection.Unit.init)
-                    .iterateFirst(stoppingAt: $0)
-            }
-            .replaceFailingWithError()
+            return Request.feed
+                .collection
+                .path(appending: self.identifier)
+                .path(appending: "all/")
+                .query(appending: ["include_igtv_preview": "true",
+                                   "show_igtv_first": "false"])
+                .header(appending: secret.header)
+                .publish(with: session)
+                .map(\.data)
+                .wrap()
+                .map(SavedCollection.Unit.init)
+                .replaceFailingWithError()
         }
     }
-  
+
     /// All posts inside the collection.
     ///
     var posts: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
@@ -112,7 +136,7 @@ public extension Endpoint.Group.Saved.Collection {
             .replaceFailingWithError()
         }
     }
- 
+
     /// All igtv inside the collection.
     ///
     var igtv: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
