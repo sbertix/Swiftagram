@@ -14,7 +14,6 @@
             </strong>
             <span>Documentation</span>
         </a>
-        <sup>Beta</sup>
     </header>
 
     <!--
@@ -26,7 +25,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.group.saved.collection.summary">summary</a></li></ul></li></ol>
+            <ol><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#endpoint.group.saved.collection.summary">summary</a></li><li class="variable"><a href="#endpoint.group.saved.collection.posts">posts</a></li><li class="variable"><a href="#endpoint.group.saved.collection.igtv">igtv</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -41,20 +40,44 @@
 
         <div role="article" class="variable" id="endpoint.group.saved.collection.summary">
     <h3>
-        <code>summary</code>
+        <code><a href="#endpoint.group.saved.collection.summary">summary</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">summary</span>: <span class="type">Endpoint</span>.<span class="type">Paginated</span>&lt;<span class="type">SavedCollection</span>.<span class="type">Unit</span>, <span class="type">String</span>?, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">var</span> <span class="variable">summary</span>: <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<a href="https://sbertix.github.io/Swiftagram/Swiftagram/SavedCollection"><span class="type">SavedCollection</span></a>.<span class="type">Unit</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt;  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A summary of the collection.</p>
+
+</div>
+<div class="discussion">
+    <aside class="note" title="Note">
+    <p>Prefer <code>Endpoint.saved.collection(_:)</code>.</p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="endpoint.group.saved.collection.posts">
+    <h3>
+        <code><a href="#endpoint.group.saved.collection.posts">posts</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">var</span> <span class="variable">posts</span>: <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Paginated</span>&lt;<a href="https://sbertix.github.io/Swiftagram/Swiftagram/SavedCollection"><span class="type">SavedCollection</span></a>.<span class="type">Unit</span>, <span class="type">String</span>?, <span class="type">Swift</span>.<span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>All posts inside the collection.</p>
 
 </div>
-<div class="discussion">
-    <aside class="Note">
-    <p>Prefer <code>Endpoint.posts.saved.collection(_:)</code>.</p>
+</div>
+<div role="article" class="variable" id="endpoint.group.saved.collection.igtv">
+    <h3>
+        <code><a href="#endpoint.group.saved.collection.igtv">igtv</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">var</span> <span class="variable">igtv</span>: <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Paginated</span>&lt;<a href="https://sbertix.github.io/Swiftagram/Swiftagram/SavedCollection"><span class="type">SavedCollection</span></a>.<span class="type">Unit</span>, <span class="type">String</span>?, <span class="type">Swift</span>.<span class="type">Error</span>&gt;  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>All igtv inside the collection.</p>
 
-</aside>
 </div>
 </div>
     </section>
@@ -63,7 +86,7 @@
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-22T10:24:23+0000">May 22, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-08-23T12:52:24+0000">August 23, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-rc.1</span>.
 </p>
     </footer>
 </body>

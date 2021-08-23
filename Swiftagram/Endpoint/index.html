@@ -14,7 +14,6 @@
             </strong>
             <span>Documentation</span>
         </a>
-        <sup>Beta</sup>
     </header>
 
     <!--
@@ -38,7 +37,7 @@
 </h1>
 
 <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">enum</span> <span class="type">Endpoint</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">enum</span> <span class="type">Endpoint</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A module-like <code>enum</code> defining all possible <code>Endpoint</code>s.</p>
@@ -59,21 +58,17 @@
 
         <div role="article" class="typealias" id="endpoint.paginated">
     <h3>
-        <code>Paginated</code>
+        <code><a href="#endpoint.paginated">Paginated</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Paginated</span> &lt; <span class="variable">Response</span>,
-                               <span class="variable">Offset</span>,
-                               <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionPagerProvider</span> &lt; <span class="type">Secret</span>,
-                                                                          <span class="type">Offset</span>,
-                                                                          <span class="type">AnyPublisher</span>&lt;<span class="type">Response</span>, <span class="type">Failure</span>&gt;&gt;</code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Paginated</span>&lt;<span class="variable">Response</span>, <span class="variable">Offset</span>, <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionPagerProvider</span>&lt;<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Secret"><span class="type">Secret</span></a>, <span class="type">Offset</span>, <span class="type">AnyPublisher</span>&lt;<span class="type">Response</span>, <span class="type">Failure</span>&gt;&gt;</body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>An <code>Endpoint</code> allowing for a paginated request with a custom <code>Response</code> value.</p>
 
 </div>
 <div class="discussion">
-    <aside class="Note">
+    <aside class="note" title="Note">
     <p>Always reference this alias, to abstract away <code>ComposableRequest</code> implementation.</p>
 
 </aside>
@@ -81,19 +76,17 @@
 </div>
 <div role="article" class="typealias" id="endpoint.single">
     <h3>
-        <code>Single</code>
+        <code><a href="#endpoint.single">Single</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Single</span> &lt; <span class="variable">Response</span>,
-                            <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionProvider</span> &lt; <span class="type">Secret</span>,
-                                                                  <span class="type">AnyPublisher</span>&lt;<span class="type">Response</span>, <span class="type">Failure</span>&gt;&gt;</code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Single</span>&lt;<span class="variable">Response</span>, <span class="variable">Failure</span>: <span class="type">Error</span>&gt; = <span class="type">LockSessionProvider</span>&lt;<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Secret"><span class="type">Secret</span></a>, <span class="type">AnyPublisher</span>&lt;<span class="type">Response</span>, <span class="type">Failure</span>&gt;&gt;</body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>An <code>Endpoint</code> allowing for a single request with a custom <code>Response</code> value.</p>
 
 </div>
 <div class="discussion">
-    <aside class="Note">
+    <aside class="note" title="Note">
     <p>Always reference this alias, to abstract away <code>ComposableRequest</code> implementation.</p>
 
 </aside>
@@ -105,10 +98,10 @@
 
         <div role="article" class="variable" id="endpoint.archived">
     <h3>
-        <code>archived</code>
+        <code><a href="#endpoint.archived">archived</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">archived</span>: <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Archived</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">archived</span>: <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<span class="type">Archived</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for archive-related endpoints.</p>
@@ -117,10 +110,10 @@
 </div>
 <div role="article" class="variable" id="endpoint.direct">
     <h3>
-        <code>direct</code>
+        <code><a href="#endpoint.direct">direct</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">direct</span>: <span class="type">Group</span>.<span class="type">Direct</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">direct</span>: <span class="type">Group</span>.<span class="type">Direct</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for direct endpoints.</p>
@@ -129,10 +122,10 @@
 </div>
 <div role="article" class="variable" id="endpoint.explore">
     <h3>
-        <code>explore</code>
+        <code><a href="#endpoint.explore">explore</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">explore</span>: <span class="type">Group</span>.<span class="type">Explore</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">explore</span>: <span class="type">Group</span>.<span class="type">Explore</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for explore endpoints.</p>
@@ -141,10 +134,10 @@
 </div>
 <div role="article" class="variable" id="endpoint.posts">
     <h3>
-        <code>posts</code>
+        <code><a href="#endpoint.posts">posts</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">posts</span>: <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Posts</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">posts</span>: <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<span class="type">Posts</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for posts-specific endpoints.</p>
@@ -153,10 +146,10 @@
 </div>
 <div role="article" class="variable" id="endpoint.recent">
     <h3>
-        <code>recent</code>
+        <code><a href="#endpoint.recent">recent</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">recent</span>: <span class="type">Group</span>.<span class="type">Recent</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">recent</span>: <span class="type">Group</span>.<span class="type">Recent</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for timeline-specific endpoints.</p>
@@ -165,10 +158,10 @@
 </div>
 <div role="article" class="variable" id="endpoint.saved">
     <h3>
-        <code>saved</code>
+        <code><a href="#endpoint.saved">saved</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">saved</span>: <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Saved</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">saved</span>: <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<span class="type">Saved</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for saved-related endpoints.</p>
@@ -180,10 +173,10 @@
 </div>
 <div role="article" class="variable" id="endpoint.stories">
     <h3>
-        <code>stories</code>
+        <code><a href="#endpoint.stories">stories</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">stories</span>: <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Stories</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">stories</span>: <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<span class="type">Stories</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for stories-specific endpoints.</p>
@@ -192,10 +185,10 @@
 </div>
 <div role="article" class="variable" id="endpoint.users">
     <h3>
-        <code>users</code>
+        <code><a href="#endpoint.users">users</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">users</span>: <span class="type">Group</span>.<span class="type">Users</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">users</span>: <span class="type">Group</span>.<span class="type">Users</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for users endpoints.</p>
@@ -208,10 +201,10 @@
 
         <div role="article" class="function" id="endpoint.location(_:)">
     <h3>
-        <code>location(_:​)</code>
+        <code><a href="#endpoint.location(_:)">location(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">location</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Location</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">location</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Location"><span class="type">Location</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for location endpoints.</p>
@@ -242,10 +235,10 @@
 </div>
 <div role="article" class="function" id="endpoint.location(_:)">
     <h3>
-        <code>location(_:​)</code>
+        <code><a href="#endpoint.location(_:)">location(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">location</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Location</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">location</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Location"><span class="type">Location</span></a>.<span class="type">Unit</span>, <span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A summary for the location media.</p>
@@ -276,11 +269,11 @@
 </div>
 <div role="article" class="function" id="endpoint.locations(around:matching:)">
     <h3>
-        <code>locations(around:​matching:​)</code>
+        <code><a href="#endpoint.locations(around:matching:)">locations(around:​matching:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">locations</span>(<span class="variable">around</span> <span class="variable">coordinates</span>: <span class="type">Swiftagram</span>.<span class="type">Location</span>.<span class="type">Coordinates</span>,
-                          <span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>? = <span class="keyword">nil</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Location</span>.<span class="type">Collection</span>, <span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">locations</span>(<span class="variable">around</span> <span class="variable">coordinates</span>: <span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Location"><span class="type">Location</span></a>.<span class="type">Coordinates</span>,
+                          <span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>? = <span class="keyword">nil</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Location"><span class="type">Location</span></a>.<span class="type">Collection</span>, <span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A list of locations around the given coordiantes, matching an optional query.</p>
@@ -317,10 +310,10 @@
 </div>
 <div role="article" class="function" id="endpoint.media(_:)">
     <h3>
-        <code>media(_:​)</code>
+        <code><a href="#endpoint.media(_:)">media(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Media</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Media"><span class="type">Media</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for media endpoints.</p>
@@ -351,10 +344,10 @@
 </div>
 <div role="article" class="function" id="endpoint.media(_:)">
     <h3>
-        <code>media(_:​)</code>
+        <code><a href="#endpoint.media(_:)">media(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="keyword">_</span> <span class="variable">media</span>: <span class="type">Swiftagram</span>.<span class="type">Media</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Media</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="keyword">_</span> <span class="variable">media</span>: <span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Media"><span class="type">Media</span></a>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Media"><span class="type">Media</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for media endpoints.</p>
@@ -385,10 +378,10 @@
 </div>
 <div role="article" class="function" id="endpoint.media(_:)">
     <h3>
-        <code>media(_:​)</code>
+        <code><a href="#endpoint.media(_:)">media(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Media</span>.<span class="type">Unit</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Media"><span class="type">Media</span></a>.<span class="type">Unit</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A summary for the current media.</p>
@@ -419,10 +412,10 @@
 </div>
 <div role="article" class="function" id="endpoint.media(at:)">
     <h3>
-        <code>media(at:​)</code>
+        <code><a href="#endpoint.media(at:)">media(at:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="variable">at</span> <span class="variable">url</span>: <span class="type">URL</span>) <span class="keyword">throws</span> -&gt; <span class="type">Endpoint</span>.<span class="type">Group</span>.<span class="type">Media</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="variable">at</span> <span class="variable">url</span>: <span class="type">URL</span>) <span class="keyword">throws</span> -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Group</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Media"><span class="type">Media</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for media endpoints.</p>
@@ -456,10 +449,10 @@
 </div>
 <div role="article" class="function" id="endpoint.media(at:)">
     <h3>
-        <code>media(at:​)</code>
+        <code><a href="#endpoint.media(at:)">media(at:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="variable">at</span> <span class="variable">url</span>: <span class="type">URL</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Media</span>.<span class="type">Unit</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">media</span>(<span class="variable">at</span> <span class="variable">url</span>: <span class="type">URL</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Media"><span class="type">Media</span></a>.<span class="type">Unit</span>, <span class="type">Swift</span>.<span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A summary for the media at the given url.</p>
@@ -490,10 +483,10 @@
 </div>
 <div role="article" class="function" id="endpoint.stories(_:)">
     <h3>
-        <code>stories(_:​)</code>
+        <code><a href="#endpoint.stories(_:)">stories(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">stories</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">identifiers</span>: <span class="type">C</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">TrayItem</span>.<span class="type">Dictionary</span>, <span class="type">Error</span>&gt; <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">stories</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">identifiers</span>: <span class="type">C</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<a href="https://sbertix.github.io/Swiftagram/Swiftagram/TrayItem"><span class="type">TrayItem</span></a>.<span class="type">Dictionary</span>, <span class="type">Error</span>&gt; <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>An endpoint for loading specific endpoints.</p>
@@ -524,10 +517,10 @@
 </div>
 <div role="article" class="function" id="endpoint.tag(_:)">
     <h3>
-        <code>tag(_:​)</code>
+        <code><a href="#endpoint.tag(_:)">tag(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">tag</span>(<span class="keyword">_</span> <span class="variable">name</span>: <span class="type">String</span>) -&gt; <span class="type">Group</span>.<span class="type">Tag</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">tag</span>(<span class="keyword">_</span> <span class="variable">name</span>: <span class="type">String</span>) -&gt; <span class="type">Group</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Tag"><span class="type">Tag</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for tag-specific endpoints.</p>
@@ -558,10 +551,10 @@
 </div>
 <div role="article" class="function" id="endpoint.tag(_:)">
     <h3>
-        <code>tag(_:​)</code>
+        <code><a href="#endpoint.tag(_:)">tag(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">tag</span>(<span class="keyword">_</span> <span class="variable">name</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">Tag</span>, <span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">tag</span>(<span class="keyword">_</span> <span class="variable">name</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/Tag"><span class="type">Tag</span></a>, <span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A summary for the current tag.</p>
@@ -592,10 +585,10 @@
 </div>
 <div role="article" class="function" id="endpoint.users(_:)">
     <h3>
-        <code>users(_:​)</code>
+        <code><a href="#endpoint.users(_:)">users(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">identifiers</span>: <span class="type">C</span>) -&gt; <span class="type">Group</span>.<span class="type">ManyUsers</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">identifiers</span>: <span class="type">C</span>) -&gt; <span class="type">Group</span>.<span class="type">ManyUsers</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for users specific endpoints.</p>
@@ -626,10 +619,10 @@
 </div>
 <div role="article" class="function" id="endpoint.users(_:)">
     <h3>
-        <code>users(_:​)</code>
+        <code><a href="#endpoint.users(_:)">users(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">users</span>: <span class="type">C</span>) -&gt; <span class="type">Group</span>.<span class="type">ManyUsers</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">Swiftagram</span>.<span class="type">User</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">users</span>: <span class="type">C</span>) -&gt; <span class="type">Group</span>.<span class="type">ManyUsers</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/User"><span class="type">User</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for users specific endpoints.</p>
@@ -660,10 +653,10 @@
 </div>
 <div role="article" class="function" id="endpoint.user(_:)">
     <h3>
-        <code>user(_:​)</code>
+        <code><a href="#endpoint.user(_:)">user(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Group</span>.<span class="type">User</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Group</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/User"><span class="type">User</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for user endpoints.</p>
@@ -694,10 +687,10 @@
 </div>
 <div role="article" class="function" id="endpoint.user(_:)">
     <h3>
-        <code>user(_:​)</code>
+        <code><a href="#endpoint.user(_:)">user(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="keyword">_</span> <span class="variable">user</span>: <span class="type">Swiftagram</span>.<span class="type">User</span>) -&gt; <span class="type">Group</span>.<span class="type">User</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="keyword">_</span> <span class="variable">user</span>: <span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/User"><span class="type">User</span></a>) -&gt; <span class="type">Group</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/User"><span class="type">User</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A wrapper for user endpoints.</p>
@@ -728,10 +721,10 @@
 </div>
 <div role="article" class="function" id="endpoint.user(_:)">
     <h3>
-        <code>user(_:​)</code>
+        <code><a href="#endpoint.user(_:)">user(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="keyword">_</span> <span class="variable">identifier</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/User"><span class="type">User</span></a>.<span class="type">Unit</span>, <span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A summary for a given user.</p>
@@ -762,10 +755,10 @@
 </div>
 <div role="article" class="function" id="endpoint.user(matching:)">
     <h3>
-        <code>user(matching:​)</code>
+        <code><a href="#endpoint.user(matching:)">user(matching:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="variable">matching</span> <span class="variable">username</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Unit</span>, <span class="type">Error</span>&gt; </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">user</span>(<span class="variable">matching</span> <span class="variable">username</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Single</span>&lt;<span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/User"><span class="type">User</span></a>.<span class="type">Unit</span>, <span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A summary for a user which username exactly matches the one provided.</p>
@@ -796,12 +789,12 @@
 </div>
 <div role="article" class="function" id="endpoint.users(matching:)">
     <h3>
-        <code>users(matching:​)</code>
+        <code><a href="#endpoint.users(matching:)">users(matching:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>(<span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>) -&gt; <span class="type">Endpoint</span>.<span class="type">Paginated</span> &lt; <span class="type">Swiftagram</span>.<span class="type">User</span>.<span class="type">Collection</span>,
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">users</span>(<span class="variable">matching</span> <span class="variable">query</span>: <span class="type">String</span>) -&gt; <a href="https://sbertix.github.io/Swiftagram/Swiftagram/Endpoint"><span class="type">Endpoint</span></a>.<span class="type">Paginated</span> &lt; <span class="type">Swiftagram</span>.<a href="https://sbertix.github.io/Swiftagram/Swiftagram/User"><span class="type">User</span></a>.<span class="type">Collection</span>,
                                                                     <span class="type">RankedOffset</span>&lt;<span class="type">String</span>?, <span class="type">String</span>?&gt;,
-                                                                    <span class="type">Error</span>&gt; </code></pre>
+                                                                    <span class="type">Error</span>&gt;  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>All user matching <code>query</code>.</p>
@@ -839,7 +832,7 @@
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-22T10:24:22+0000">May 22, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-08-23T12:52:25+0000">August 23, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-rc.1</span>.
 </p>
     </footer>
 </body>

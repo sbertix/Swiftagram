@@ -14,7 +14,6 @@
             </strong>
             <span>Documentation</span>
         </a>
-        <sup>Beta</sup>
     </header>
 
     <!--
@@ -38,7 +37,7 @@
 </h1>
 
 <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">Authenticator</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A <code>struct</code> defining an instance capable of
@@ -69,10 +68,10 @@ starting the authentication flow for a given user.</p>
 
         <div role="article" class="initializer" id="authenticator.init(storage:)">
     <h3>
-        <code>init(storage:​)</code>
+        <code><a href="#authenticator.init(storage:)">init(storage:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>&lt;<span class="variable">S</span>: <span class="type">Storage</span>&gt;(<span class="variable">storage</span>: <span class="type">S</span>) <span class="keyword">where</span> <span class="type">S</span>.<span class="type">Item</span> == <span class="type">Secret</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">init</span>&lt;<span class="variable">S</span>: <span class="type">Storage</span>&gt;(<span class="variable">storage</span>: <span class="type">S</span>) <span class="keyword">where</span> <span class="type">S</span>.<span class="type">Item</span> == <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Secret"><span class="type">Secret</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Init.</p>
@@ -110,10 +109,10 @@ starting the authentication flow for a given user.</p>
 
         <div role="article" class="variable" id="authenticator.secrets">
     <h3>
-        <code>secrets</code>
+        <code><a href="#authenticator.secrets">secrets</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">secrets</span>: <span class="type">Keys</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">var</span> <span class="variable">secrets</span>: <span class="type">Keys</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Return a manager for all <code>Secret</code>s.</p>
@@ -122,10 +121,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="variable" id="authenticator.storage">
     <h3>
-        <code>storage</code>
+        <code><a href="#authenticator.storage">storage</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">storage</span>: <span class="type">AnyStorage</span>&lt;<span class="type">Secret</span>&gt;</code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">storage</span>: <span class="type">AnyStorage</span>&lt;<a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Secret"><span class="type">Secret</span></a>&gt;</body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>The underlying storage.</p>
@@ -134,10 +133,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="variable" id="authenticator.transient">
     <h3>
-        <code>transient</code>
+        <code><a href="#authenticator.transient">transient</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">transient</span>: <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">transient</span>: <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Authenticator"><span class="type">Authenticator</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>The default transient <code>Authenticator</code>.</p>
@@ -146,10 +145,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="variable" id="authenticator.userdefaults">
     <h3>
-        <code>user​Defaults</code>
+        <code><a href="#authenticator.userdefaults">user​Defaults</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">userDefaults</span>: <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">userDefaults</span>: <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Authenticator"><span class="type">Authenticator</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>The default user defaults-backed <code>Authenticator</code>.</p>
@@ -158,10 +157,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="variable" id="authenticator.keychain">
     <h3>
-        <code>keychain</code>
+        <code><a href="#authenticator.keychain">keychain</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">keychain</span>: <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">keychain</span>: <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Authenticator"><span class="type">Authenticator</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>The default keychain-backed <code>Authenticator</code>.</p>
@@ -174,10 +173,10 @@ starting the authentication flow for a given user.</p>
 
         <div role="article" class="function" id="authenticator.secret(_:)">
     <h3>
-        <code>secret(_:​)</code>
+        <code><a href="#authenticator.secret(_:)">secret(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secret</span>(<span class="keyword">_</span> <span class="variable">label</span>: <span class="type">String</span>) -&gt; <span class="type">Key</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">secret</span>(<span class="keyword">_</span> <span class="variable">label</span>: <span class="type">String</span>) -&gt; <span class="type">Key</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Return a specific <code>Secret</code> manager.</p>
@@ -208,10 +207,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="function" id="authenticator.secret(_:)">
     <h3>
-        <code>secret(_:​)</code>
+        <code><a href="#authenticator.secret(_:)">secret(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secret</span>(<span class="keyword">_</span> <span class="variable">secret</span>: <span class="type">Secret</span>) -&gt; <span class="type">Key</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">secret</span>(<span class="keyword">_</span> <span class="variable">secret</span>: <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Secret"><span class="type">Secret</span></a>) -&gt; <span class="type">Key</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Return a specific <code>Secret</code> manager.</p>
@@ -242,10 +241,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="function" id="authenticator.secrets(_:)">
     <h3>
-        <code>secrets(_:​)</code>
+        <code><a href="#authenticator.secrets(_:)">secrets(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secrets</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">labels</span>: <span class="type">C</span>) -&gt; <span class="type">Keys</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">secrets</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">labels</span>: <span class="type">C</span>) -&gt; <span class="type">Keys</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">String</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Return some specific <code>Secret</code>s manager.</p>
@@ -276,10 +275,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="function" id="authenticator.secrets(_:)">
     <h3>
-        <code>secrets(_:​)</code>
+        <code><a href="#authenticator.secrets(_:)">secrets(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">secrets</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">secrets</span>: <span class="type">C</span>) -&gt; <span class="type">Keys</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">Secret</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">secrets</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">secrets</span>: <span class="type">C</span>) -&gt; <span class="type">Keys</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Secret"><span class="type">Secret</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Return some specific <code>Secret</code>s manager.</p>
@@ -310,10 +309,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="function" id="authenticator.userdefaults(_:)">
     <h3>
-        <code>user​Defaults(_:​)</code>
+        <code><a href="#authenticator.userdefaults(_:)">user​Defaults(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">userDefaults</span>(<span class="keyword">_</span> <span class="variable">userDefaultsStorage</span>: <span class="type">UserDefaultsStorage</span>&lt;<span class="type">Secret</span>&gt;) -&gt; <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">userDefaults</span>(<span class="keyword">_</span> <span class="variable">userDefaultsStorage</span>: <span class="type">UserDefaultsStorage</span>&lt;<a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Secret"><span class="type">Secret</span></a>&gt;) -&gt; <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Authenticator"><span class="type">Authenticator</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A user defaults-backed <code>Authenticator</code> with a specific <code>Client</code>.</p>
@@ -344,10 +343,10 @@ starting the authentication flow for a given user.</p>
 </div>
 <div role="article" class="function" id="authenticator.visual(_:)">
     <h3>
-        <code>visual(_:​)</code>
+        <code><a href="#authenticator.visual(_:)">visual(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">visual</span>(<span class="keyword">_</span> <span class="variable">transformer</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">webView</span>: <span class="type">WKWebView</span>, <span class="keyword">_</span> <span class="variable">completion</span>: <span class="attribute">@</span><span class="attribute">escaping</span> () -&gt; <span class="type">Void</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">visual</span>(<span class="keyword">_</span> <span class="variable">transformer</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">webView</span>: <span class="type">WKWebView</span>, <span class="keyword">_</span> <span class="variable">completion</span>: <span class="attribute">@</span><span class="attribute">escaping</span> () -&gt; <span class="type">Void</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Authenticate using a <code>WKWebView</code>.
@@ -380,10 +379,10 @@ calling the completion handler.</p>
 </div>
 <div role="article" class="function" id="authenticator.visual(_:)">
     <h3>
-        <code>visual(_:​)</code>
+        <code><a href="#authenticator.visual(_:)">visual(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">visual</span>(<span class="keyword">_</span> <span class="variable">transformer</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">webView</span>: <span class="type">WKWebView</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">visual</span>(<span class="keyword">_</span> <span class="variable">transformer</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">webView</span>: <span class="type">WKWebView</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Authenticate using a <code>WKWebView</code>.
@@ -415,10 +414,10 @@ You're responsible for adding the web view to your view hierarchy.</p>
 </div>
 <div role="article" class="function" id="authenticator.visual(filling:)">
     <h3>
-        <code>visual(filling:​)</code>
+        <code><a href="#authenticator.visual(filling:)">visual(filling:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">visual</span>(<span class="variable">filling</span> <span class="variable">superview</span>: <span class="type">UIView</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">visual</span>(<span class="variable">filling</span> <span class="variable">superview</span>: <span class="type">UIView</span>) -&gt; <span class="type">Group</span>.<span class="type">Visual</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Authenticate using a <code>WKWebView</code>.
@@ -450,10 +449,10 @@ The web view will be added as a child of <code>superview</code>.</p>
 </div>
 <div role="article" class="function" id="authenticator.keychain(_:)">
     <h3>
-        <code>keychain(_:​)</code>
+        <code><a href="#authenticator.keychain(_:)">keychain(_:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">keychain</span>(<span class="keyword">_</span> <span class="variable">keychainStorage</span>: <span class="type">KeychainStorage</span>&lt;<span class="type">Secret</span>&gt;) -&gt; <span class="type">Authenticator</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">keychain</span>(<span class="keyword">_</span> <span class="variable">keychainStorage</span>: <span class="type">KeychainStorage</span>&lt;<a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Secret"><span class="type">Secret</span></a>&gt;) -&gt; <a href="https://sbertix.github.io/Swiftagram/SwiftagramCrypto/Authenticator"><span class="type">Authenticator</span></a>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>A keychain-backed <code>Authenticator</code>.</p>
@@ -484,10 +483,10 @@ The web view will be added as a child of <code>superview</code>.</p>
 </div>
 <div role="article" class="function" id="authenticator.basic(username:password:)">
     <h3>
-        <code>basic(username:​password:​)</code>
+        <code><a href="#authenticator.basic(username:password:)">basic(username:​password:​)</a></code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">func</span> <span class="function">basic</span>(<span class="variable">username</span>: <span class="type">String</span>, <span class="variable">password</span>: <span class="type">String</span>) -&gt; <span class="type">Group</span>.<span class="type">Basic</span> </code></pre>
+<pre class="highlight"><code><html><body><span class="keyword">func</span> <span class="function">basic</span>(<span class="variable">username</span>: <span class="type">String</span>, <span class="variable">password</span>: <span class="type">String</span>) -&gt; <span class="type">Group</span>.<span class="type">Basic</span>  </body></html></code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Authenticate using username and password.</p>
@@ -537,7 +536,7 @@ authenticator.</p>
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-22T10:24:25+0000">May 22, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-08-23T12:52:26+0000">August 23, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-rc.1</span>.
 </p>
     </footer>
 </body>
