@@ -29,7 +29,7 @@ public protocol Specialized: Wrapped {
 
 public extension Specialized {
     /// The response status.
-    @available(*, deprecated, message: "check for `error` instead")
+    @available(*, deprecated, message: "check for `error` instead (removing in 6.0)")
     var status: String! { self["status"].string() }
 
     /// An optional `SpecializedError` message returned by a response.

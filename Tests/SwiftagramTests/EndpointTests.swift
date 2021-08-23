@@ -30,6 +30,7 @@ private let delay: TimeInterval = 1
 private let timeout: TimeInterval = 30
 
 // swiftlint:disable file_length
+// swiftlint:disable function_body_length
 // swiftlint:disable type_body_length
 /// A `class` dealing with testing all available `Endpoint`s.
 internal final class EndpointTests: XCTestCase {
@@ -116,6 +117,8 @@ internal final class EndpointTests: XCTestCase {
     private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
                                                         _ identifier: String,
                                                         pages: Int = 1,
+                                                        offset: P = .init(offset: .composableNone,
+                                                                          rank: .composableNone),
                                                         logging level: Logger = .default,
                                                         line: Int = #line) -> W?
     where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
@@ -128,15 +131,19 @@ internal final class EndpointTests: XCTestCase {
         let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
-            .pages(pages)
+            .pages(pages, offset: offset)
             .sink(
                 receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
+                    if case .failure(let error) = $0 {
+                        XCTFail(error.localizedDescription + " \(identifier) #\(line)")
+                    }
                     completion.fulfill()
                 },
                 receiveValue: {
                     let wrapper = $0.wrapped
-                    XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
+                    XCTAssert(wrapper.status.string() == "ok"
+                                || wrapper.response.spam.bool() == true,
+                              "\(identifier) #\(line)")
                     reference.value = $0
                 }
             )
@@ -150,6 +157,7 @@ internal final class EndpointTests: XCTestCase {
     private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
                                                         _ identifier: String,
                                                         pages: Int = 1,
+                                                        offset: P = .composableNone,
                                                         logging level: Logger = .default,
                                                         line: Int = #line) -> W?
     where P: ComposableOptionalType {
@@ -162,15 +170,19 @@ internal final class EndpointTests: XCTestCase {
         let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
             .session(.instagram, logging: level)
-            .pages(pages)
+            .pages(pages, offset: offset)
             .sink(
                 receiveCompletion: {
-                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
+                    if case .failure(let error) = $0 {
+                        XCTFail(error.localizedDescription + " \(identifier) #\(line)")
+                    }
                     completion.fulfill()
                 },
                 receiveValue: {
                     let wrapper = $0.wrapped
-                    XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
+                    XCTAssert(wrapper.status.string() == "ok"
+                                || wrapper.response.spam.bool() == true,
+                              "\(identifier) #\(line)")
                     reference.value = $0
                 }
             )
@@ -191,7 +203,6 @@ internal final class EndpointTests: XCTestCase {
                     "Endpoint.Archived.stories")
     }
 
-    // swiftlint:disable function_body_length
     /// Test `Endpoint.direct`.
     func testEndpointDirect() {
         performTest(on: Endpoint.direct
@@ -253,7 +264,6 @@ internal final class EndpointTests: XCTestCase {
                         "Endpoint.direct.Conversation.deleteLinks")
         }
     }
-    // swiftlint:enable function_body_length
 
     /// Test `Endpoint.Explore`.
     func testEndpointExplore() {
@@ -371,14 +381,106 @@ internal final class EndpointTests: XCTestCase {
                     "Endpoint.Recent.stories")
     }
 
+    // swiftlint:disable cyclomatic_complexity
     /// Test `Endpoint.Saved`.
     func testEndpointSaved() {
         performTest(on: Endpoint.posts
                         .saved,
                     "Endpoint.Saved.posts")
-        if let collection = performTest(on: Endpoint.saved
+        if let collections = performTest(on: Endpoint.saved
                                             .collections,
-                                        "Endpoint.Saved.collections")?.collections?.last {
+                                         "Endpoint.Saved.collections")?.collections {
+            XCTAssertEqual(collections.first?.identifier, "ALL_MEDIA_AUTO_COLLECTION")
+            let firstCoverURL = collections.first?.cover?.first?.content.images()?.first?.url
+            XCTAssertNotNil(firstCoverURL, "Couldn't find \"All Posts\" first cover")
+
+            XCTAssertGreaterThan(collections.count, 1, "Test set requires a saved collection")
+            guard collections.count > 1 else { return }
+
+            let userCollection = collections[1]
+            let userCoverURL = userCollection.cover?.first?.content.images()?.first?.url
+            XCTAssertNotNil(userCoverURL, "Couldn't find first user collection first cover")
+
+            var hugeCollectionExists = false
+            for collection in collections[1...] {
+                if let summary = performTest(on: Endpoint.saved.collection(collection.identifier),
+                                             "Endpoint.saved.collection"),
+                   let offset = summary.offset {
+                    guard let collection = summary.collection,
+                          let firstItemID = collection.items?.first?.identifier else {
+                        XCTFail("Incorrect collection decoding")
+                        return
+                    }
+                    let userCoverURL = collection.items?.first?.content.images()?.first?.url
+                    XCTAssertNotNil(userCoverURL, "Couldn't find collection first cover")
+                    // Test posts/ with an offset
+                    if let morePosts = performTest(on: Endpoint.saved.collection(collection.identifier).posts,
+                                                   "Endpoint.saved.collection.posts",
+                                                   offset: offset) {
+                        guard let mpFirstItemID = morePosts.items?.first?.identifier else {
+                            XCTFail("Incorrect Offset-Fetched Post Collection decoding")
+                            return
+                        }
+                        let imageURL = morePosts.items?.first?.content.images()?.first?.url
+                        XCTAssertNotNil(imageURL, "Couldn't find post first image")
+                        XCTAssertNotEqual(firstItemID, mpFirstItemID, "Failure to Offset-Fetch Post Collection")
+                        if let offset = morePosts.offset {
+                            hugeCollectionExists = true
+                            if let yetMorePosts = performTest(on: Endpoint.saved
+                                                                .collection(collection.identifier)
+                                                                .posts,
+                                                              "Endpoint.saved.collection.posts",
+                                                              offset: offset) {
+                                guard let ympFirstItemID = yetMorePosts.items?.first?.identifier else {
+                                    XCTFail("Incorrect Offset²-Fetched Post Collection decoding")
+                                    return
+                                }
+                                let imageURL = yetMorePosts.items?.first?.content.images()?.first?.url
+                                XCTAssertNotNil(imageURL, "Couldn't find post first image")
+                                XCTAssertNotEqual(firstItemID,
+                                                  ympFirstItemID,
+                                                  "Failure to Offset²-Fetch Post Collection")
+                                XCTAssertNotEqual(mpFirstItemID,
+                                                  ympFirstItemID,
+                                                  "Failure to Offset²-Fetch Post Collection")
+                            }
+                        }
+                    }
+                }
+                if hugeCollectionExists { break }
+            }
+            XCTAssertTrue(hugeCollectionExists, "Test set requires a collection with over 42 saved posts")
+
+            var largeIGTVExists = false
+            for collection in collections[1...] {
+                if let igtvs = performTest(on: Endpoint.saved.collection(collection.identifier).igtv,
+                                           "Endpoint.saved.collection.igtv"),
+                   let offset = igtvs.offset {
+                    largeIGTVExists = true
+                    guard let firstItemID = igtvs.items?.first?.identifier else {
+                        XCTFail("Incorrect igtv decoding")
+                        return
+                    }
+                    if let nextIgtvs = performTest(on: Endpoint.saved.collection(collection.identifier).igtv,
+                                                   "Endpoint.saved.collection.igtv",
+                                                   offset: offset) {
+                        guard let niFirstItemID = nextIgtvs.items?.first?.identifier else {
+                            XCTFail("Incorrect Offset-Fetched Post Collection decoding")
+                            return
+                        }
+                        XCTAssertNotEqual(firstItemID,
+                                          niFirstItemID,
+                                          "Failure to Offset-Fetch igtv Collection")
+                    }
+                }
+                if largeIGTVExists { break }
+            }
+            XCTAssertTrue(largeIGTVExists, "Test set requires a collection with over 21 saved igtv")
+        }
+
+        if let collection = performTest(on: Endpoint.saved.collections, "Endpoint.Saved.collections")?
+            .collections?
+            .last {
             performTest(on: Endpoint.saved
                             .collection(collection),
                         "Endpoint.Saved.Collection.summary")
@@ -394,6 +496,7 @@ internal final class EndpointTests: XCTestCase {
             }
         }
     }
+    // swiftlint:enable cyclomatic_complexity
 
     /// Test `Endpoint.Media.Stories`.
     func testEndpointStories() {
@@ -525,6 +628,7 @@ internal final class EndpointTests: XCTestCase {
     // swiftlint:enable function_body_length
 }
 // swiftlint:enable file_length
+// swiftlint:enable function_body_length
 // swiftlint:enable type_body_length
 
 #endif

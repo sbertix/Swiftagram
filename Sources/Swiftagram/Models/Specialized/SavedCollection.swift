@@ -31,12 +31,17 @@ public struct SavedCollection: Wrapped {
     /// The cover media items.
     ///
     /// - note: Only populated when fetching all collections.
-    public var cover: [Media]? { self["coverMediaList"].array()?.compactMap(Media.init) }
+    public var cover: [Media]? {
+        self["coverMediaList"].array()?.compactMap(Media.init) ??
+          self["coverMedia"].optional().flatMap { [Media.init(wrapper: $0)] }
+    }
 
     /// Media in the response.
     ///
     /// - note: Only populated when fetching a single collection.
-    public var items: [Media]? { self["items"].array()?.compactMap(Media.init) }
+     public var items: [Media]? {
+        self["items"].array()?.compactMap { $0.media.optional().flatMap(Media.init) }
+     }
 
     /// Init.
     /// - parameter wrapper: A valid `Wrapper`.
@@ -52,7 +57,11 @@ public extension SavedCollection {
         public var wrapper: () -> Wrapper
 
         /// The collections.
-        public var collections: [SavedCollection]? { self["items"].array()?.compactMap(SavedCollection.init) }
+        public var collections: [SavedCollection]? {
+            self["items"]
+                .array()?
+                .compactMap(SavedCollection.init)
+        }
 
         /// Init.
         /// - parameter wrapper: A valid `Wrapper`.
@@ -67,11 +76,27 @@ public extension SavedCollection {
         public var wrapper: () -> Wrapper
 
         /// The collection.
-        public var collection: SavedCollection? { self["saveMediaResponse"].optional().flatMap(SavedCollection.init) }
+        public var collection: SavedCollection? {
+            self["saveMediaResponse"]
+                .optional()
+                .flatMap(SavedCollection.init)
+        }
+
+        /// Media in the response.
+        ///
+        /// - note: Only populated when fetching posts and igtvs.
+        public var items: [Media]? {
+            self["items"].array()?.compactMap {
+                $0.media.optional().flatMap(Media.init) ??
+                  $0.optional().flatMap(Media.init)
+            }
+        }
 
         /// The offset.
         public var offset: String? {
-            self["saveMediaResponse"].nextMaxId.string(converting: true) ?? self["nexMaxId"].string(converting: true)
+            self["saveMediaResponse"].nextMaxId.string(converting: true)
+                ?? self["nextMaxId"].string(converting: true)
+                ?? self["maxId"].string(converting: true)
         }
 
         /// Init.
