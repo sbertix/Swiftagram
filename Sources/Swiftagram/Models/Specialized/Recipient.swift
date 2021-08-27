@@ -45,7 +45,7 @@ public enum Recipient: Wrapped {
 
 public extension Recipient {
     /// A `struct` representing a `Recipient` collection.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

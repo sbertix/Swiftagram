@@ -5,8 +5,9 @@
 //  Created by Stefano Bertagno on 17/08/2020.
 //
 
-#if !os(watchOS) && canImport(XCTest)
+#if !os(watchOS) && canImport(XCTest) && canImport(Combine)
 
+import Combine
 import CoreGraphics
 import Foundation
 import XCTest
@@ -21,7 +22,7 @@ import AppKit
 @testable import Swiftagram
 @testable import SwiftagramCrypto
 
-import ComposableRequest
+import Requests
 import SwCrypt
 
 /// The default delay.
@@ -54,10 +55,10 @@ internal final class EndpointTests: XCTestCase {
 
     /// Perform a test on `Endpoint` returning a `Single` `Wrappable`.
     @discardableResult
-    private func performTest<W: Wrappable, E: Error>(on endpoint: Endpoint.Single<W, E>,
-                                                     _ identifier: String,
-                                                     logging level: Logger = .default,
-                                                     line: Int = #line) -> W? {
+    private func performTest<W: Wrappable>(on endpoint: Endpoint<URLSessionCombineRequester>.Single<W>,
+                                           _ identifier: String,
+                                           logging level: Logger = .default,
+                                           line: Int = #line) -> W? {
         // Make sure you're waiting a bit before performing the next test.
         let delayExpectation = XCTestExpectation(description: "delay")
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
@@ -66,7 +67,7 @@ internal final class EndpointTests: XCTestCase {
         let completion = XCTestExpectation()
         let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
-            .session(.instagram, logging: level)
+            .prepare(with: URLSessionCombineRequester(session: .shared))
             .sink(
                 receiveCompletion: {
                     if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
@@ -85,11 +86,11 @@ internal final class EndpointTests: XCTestCase {
 
     /// Perform a test on `Endpoint` returning an `Equatable`.
     @discardableResult
-    private func performTest<T: Equatable, E: Error>(on endpoint: AnyPublisher<T, E>,
-                                                     comparison: T,
-                                                     _ identifier: String,
-                                                     logging level: Logger = .default,
-                                                     line: Int = #line) -> T? {
+    private func performTest<T: Equatable>(on endpoint: Providers.Requester<URLSessionCombineRequester, URLSessionCombineRequester.Requested<T>>,
+                                           comparison: T,
+                                           _ identifier: String,
+                                           logging level: Logger = .default,
+                                           line: Int = #line) -> T? {
         // Make sure you're waiting a bit before performing the next test.
         let delayExpectation = XCTestExpectation(description: "delay")
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
@@ -97,53 +98,15 @@ internal final class EndpointTests: XCTestCase {
         // Perform the actual test.
         let completion = XCTestExpectation()
         let reference = Reference<T?>(nil)
-        endpoint.sink(
-            receiveCompletion: {
-                if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
-                completion.fulfill()
-            },
-            receiveValue: {
-                XCTAssert($0 == comparison, "\(identifier) #\(line)")
-                reference.value = $0
-            }
-        )
-        .store(in: &bin)
-        wait(for: [completion], timeout: timeout)
-        return reference.value
-    }
-
-    // Perform test on `Endpoint` returning a `Ranked`-`Paginated` `Wrappable`.
-    @discardableResult
-    private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
-                                                        _ identifier: String,
-                                                        pages: Int = 1,
-                                                        offset: P = .init(offset: .composableNone,
-                                                                          rank: .composableNone),
-                                                        logging level: Logger = .default,
-                                                        line: Int = #line) -> W?
-    where P: Ranked, P.Offset: ComposableOptionalType, P.Rank: ComposableOptionalType {
-        // Make sure you're waiting a bit before performing the next test.
-        let delayExpectation = XCTestExpectation(description: "delay")
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
-        wait(for: [delayExpectation], timeout: 10)
-        // Perform the actual test.
-        let completion = XCTestExpectation()
-        let reference = Reference<W?>(nil)
-        endpoint.unlock(with: secret)
-            .session(.instagram, logging: level)
-            .pages(pages, offset: offset)
+        endpoint
+            .prepare(with: URLSessionCombineRequester(session: .shared))
             .sink(
                 receiveCompletion: {
-                    if case .failure(let error) = $0 {
-                        XCTFail(error.localizedDescription + " \(identifier) #\(line)")
-                    }
+                    if case .failure(let error) = $0 { XCTFail(error.localizedDescription + " \(identifier) #\(line)") }
                     completion.fulfill()
                 },
                 receiveValue: {
-                    let wrapper = $0.wrapped
-                    XCTAssert(wrapper.status.string() == "ok"
-                                || wrapper.response.spam.bool() == true,
-                              "\(identifier) #\(line)")
+                    XCTAssert($0 == comparison, "\(identifier) #\(line)")
                     reference.value = $0
                 }
             )
@@ -152,15 +115,14 @@ internal final class EndpointTests: XCTestCase {
         return reference.value
     }
 
-    // Perform test on `Endpoint` returning a `Paginated` `Wrappable`.
+    // Perform test on `Endpoint` returning a `Ranked`-`Paginated` `Wrappable`.
     @discardableResult
-    private func performTest<W: Wrappable, P, E: Error>(on endpoint: Endpoint.Paginated<W, P, E>,
-                                                        _ identifier: String,
-                                                        pages: Int = 1,
-                                                        offset: P = .composableNone,
-                                                        logging level: Logger = .default,
-                                                        line: Int = #line) -> W?
-    where P: ComposableOptionalType {
+    private func performTest<W: Wrappable, P>(on endpoint: Endpoint<URLSessionCombineRequester>.Paginated<P?, W>,
+                                              _ identifier: String,
+                                              pages: Int = 1,
+                                              offset: P? = nil,
+                                              logging level: Logger = .default,
+                                              line: Int = #line) -> W? {
         // Make sure you're waiting a bit before performing the next test.
         let delayExpectation = XCTestExpectation(description: "delay")
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { delayExpectation.fulfill() }
@@ -169,8 +131,8 @@ internal final class EndpointTests: XCTestCase {
         let completion = XCTestExpectation()
         let reference = Reference<W?>(nil)
         endpoint.unlock(with: secret)
-            .session(.instagram, logging: level)
-            .pages(pages, offset: offset)
+            .offset(offset, pages: pages)
+            .prepare(with: URLSessionCombineRequester(session: .shared))
             .sink(
                 receiveCompletion: {
                     if case .failure(let error) = $0 {
@@ -292,15 +254,15 @@ internal final class EndpointTests: XCTestCase {
     }
 
     /// Test `Endpoint.Media`.
-    func testEndpointMedia() {
+    func testEndpointMedia() throws {
         performTest(on: Endpoint.media("2345240077849019656"),
                     "Endpoint.Media.summary")
         if let wrapper = performTest(on: Endpoint.media("2345240077849019656")
                                         .link,
                                      "Endpoint.Media.link"),
            let url = wrapper.url {
-            performTest(on: Endpoint.media(at: url),
-                        "Endpoint.Media.urlSummary")
+            try performTest(on: Endpoint.media(at: url).summary,
+                            "Endpoint.Media.urlSummary")
         }
         performTest(on: Endpoint.media("2345240077849019656")
                         .save(),

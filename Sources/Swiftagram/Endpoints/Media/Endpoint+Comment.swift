@@ -40,14 +40,14 @@ public extension Endpoint.Group.Media.Comment {
     /// Like the underlying comment.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func like() -> Endpoint.Single<Status, Error> {
+    func like() -> Endpoint.Single<Status> {
         Endpoint.Group.Media(identifier: self.identifier).edit("comment_like/")
     }
 
     /// Unlike the underlying comment.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func unlike() -> Endpoint.Single<Status, Error> {
+    func unlike() -> Endpoint.Single<Status> {
         Endpoint.Group.Media(identifier: self.identifier).edit("comment_unlike/")
     }
 }

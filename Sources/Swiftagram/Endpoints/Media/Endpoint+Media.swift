@@ -5,6 +5,7 @@
 //  Created by Stefano Bertagno on 27/03/21.
 //
 
+import Core
 import Foundation
 
 public extension Endpoint.Group {
@@ -43,7 +44,7 @@ public extension Endpoint {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    static func media(_ identifier: String) -> Endpoint.Single<Swiftagram.Media.Unit, Swift.Error> {
+    static func media(_ identifier: String) -> Endpoint.Single<Swiftagram.Media.Unit> {
         media(identifier).summary
     }
 
@@ -73,19 +74,6 @@ public extension Endpoint {
         }
         return .init(identifier: String(identifier))
     }
-
-    /// A summary for the media at the given url.
-    ///
-    /// - parameter url: A valid `URL`.
-    /// - returns: A valid `Endpoint.Single`.
-    static func media(at url: URL) -> Endpoint.Single<Swiftagram.Media.Unit, Swift.Error> {
-        .init { secret, session in
-            Just(url)
-                .tryMap(self.media)
-                .flatMap { $0.summary.unlock(with: secret).session(session) }
-                .eraseToAnyPublisher()
-        }
-    }
 }
 
 extension Request {
@@ -94,10 +82,10 @@ extension Request {
 
     /// A specific media request.
     ///
-    /// - parameter media: A valid `Endpoint.Media`.
+    /// - parameter media: A valid `Endpoint.Media` identifier.
     /// - returns: A valid `Request`.
-    static func media(_ media: Endpoint.Group.Media) -> Request {
-        Request.media.path(appending: media.identifier)
+    static func media(_ media: String) -> Request {
+        Request.media.path(appending: media)
     }
 }
 
@@ -121,120 +109,95 @@ public extension Endpoint.Group.Media {
     /// A summary for the current media.
     ///
     /// - note: Prefer `Endpoint.media(_:)` instead.
-    var summary: Endpoint.Single<Swiftagram.Media.Unit, Swift.Error> {
-        .init { secret, session in
-            Deferred {
-                Request.media(self)
-                    .info
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Media.Unit.init)
-            }
-            .replaceFailingWithError()
+    var summary: Endpoint.Single<Swiftagram.Media.Unit> {
+        .init { secret, requester in
+            Request.media(self.identifier)
+                .info
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.Media.Unit.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of comments for the current media.
-    var comments: Endpoint.Paginated < Swiftagram.Comment.Collection,
-                                     RankedOffset<String?, String?>,
-                                     Swift.Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
-            // Prepare the actual pager.
-            return Pager(pages) {
-                Request.media(self)
+    var comments: Endpoint.Paginated<String?, Swiftagram.Comment.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
+                Request.media(self.identifier)
                     .comments
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Comment.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// A list of likers for the current media.
-    var likers: Endpoint.Paginated < Swiftagram.User.Collection,
-                                   RankedOffset<String?, String?>,
-                                   Swift.Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
-            // Prepare the actual pager.
-            return Pager(pages) {
-                Request.media(self)
+    var likers: Endpoint.Paginated<String?, Swiftagram.User.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
+                Request.media(self.identifier)
                     .likers
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.User.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// Fetch the permalink for the current media.
-    var link: Endpoint.Single<Swiftagram.Media.Link, Swift.Error> {
-        .init { secret, session in
-            Deferred {
-                Request.media(self)
-                    .permalink
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Media.Link.init)
-            }
-            .replaceFailingWithError()
+    var link: Endpoint.Single<Swiftagram.Media.Link> {
+        .init { secret, requester in
+            Request.media(self.identifier)
+                .permalink
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.Media.Link.init)
+                .requested(by: requester)
         }
     }
 
     /// Fetch all viewers for the current story.
-    var viewers: Endpoint.Paginated < Swiftagram.User.Collection,
-                                    RankedOffset<String?, String?>,
-                                    Swift.Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
-            // Prepare the actual pager.
-            return Pager(pages) {
-                Request.media(self)
+    var viewers: Endpoint.Paginated<String?, Swiftagram.User.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
+                Request.media(self.identifier)
                     .path(appending: "list_reel_media_viewer")
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.User.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// Save the current media.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func save() -> Endpoint.Single<Status, Swift.Error> {
+    func save() -> Endpoint.Single<Status> {
         edit("save/")
     }
 
     /// Unsave the current media.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func unsave() -> Endpoint.Single<Status, Swift.Error> {
+    func unsave() -> Endpoint.Single<Status> {
         edit("unsave/")
     }
 }
@@ -244,19 +207,17 @@ extension Endpoint.Group.Media {
     ///
     /// - parameter endpoint: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    func edit(_ endpoint: String) -> Endpoint.Single<Status, Swift.Error> {
-        .init { secret, session in
-            Deferred {
-                Request.media(self)
-                    .path(appending: endpoint)
-                    .method(.post)
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Status.init)
-            }
-            .replaceFailingWithError()
+    func edit(_ endpoint: String) -> Endpoint.Single<Status> {
+        .init { secret, requester in
+            Request.media(self.identifier)
+                .path(appending: endpoint)
+                .method(.post)
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Status.init)
+                .requested(by: requester)
         }
     }
 }

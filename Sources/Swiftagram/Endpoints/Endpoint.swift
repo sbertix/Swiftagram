@@ -6,20 +6,24 @@
 //
 
 import Foundation
+import Requests
 
 /// A module-like `enum` defining all possible `Endpoint`s.
-public enum Endpoint {
-    // swiftlint:disable line_length
+public enum Endpoint<R: Requests.Requester> {
     /// An `Endpoint` allowing for a paginated request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Paginated<Response, Offset, Failure: Error> = LockSessionPagerProvider<Secret, Offset, AnyPublisher<Response, Failure>>
-    // swiftlint:enable line_length
+    public typealias Paginated<P, O> = Providers.LockPageRequester<Secret, P, R, R.Requested<O>>
+
+    /// An `enpdpoint` allow for a paginated specific request with a custom `Response` value.
+    ///
+    /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
+    public typealias Offseted<P: PagerInput, O> = Providers.LockOffsetRequester<Secret, P, R, R.Requested<O>>
 
     /// An `Endpoint` allowing for a single request with a custom `Response` value.
     ///
     /// - note: Always reference this alias, to abstract away `ComposableRequest` implementation.
-    public typealias Single<Response, Failure: Error> = LockSessionProvider<Secret, AnyPublisher<Response, Failure>>
+    public typealias Single<O> = Providers.LockRequester<Secret, R, R.Requested<O>>
 
     /// A module-like `enum` to hide away endpoint wrappers definitions.
     public enum Group { }

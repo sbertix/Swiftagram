@@ -39,9 +39,12 @@ public extension Endpoint.Group.Direct.Conversation {
 extension Swiftagram.Request {
     /// A specific message base request.
     ///
-    /// - parameter message: A valid `Message`.
-    static func directMessage(_ message: Endpoint.Group.Direct.Conversation.Message) -> Request {
-        Swiftagram.Request.directThread(message.conversation).items.path(appending: message.identifier)
+    /// - parameters:
+    ///     - message: A valid `Message` identifier.
+    ///     - conversation: A valid `Conversation` identifier.
+    static func directMessage(_ message: String,
+                              in conversation: String) -> Request {
+        Swiftagram.Request.directThread(conversation).items.path(appending: message)
     }
 }
 
@@ -49,44 +52,40 @@ public extension Endpoint.Group.Direct.Conversation.Message {
     /// Delete the current message.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func delete() -> Endpoint.Single<Status, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.directMessage(self)
-                    .path(appending: "delete/")
-                    .header(appending: secret.header)
-                    .body(appending: ["_csrftoken": secret["csrftoken"],
-                                      "_uuid": secret.client.device.identifier.uuidString])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Status.init)
-            }
-            .replaceFailingWithError()
+    func delete() -> Endpoint.Single<Status> {
+        .init { secret, requester in
+            Request.directMessage(self.identifier, in: self.conversation.identifier)
+                .path(appending: "delete/")
+                .header(appending: secret.header)
+                .body(appending: ["_csrftoken": secret["csrftoken"],
+                                  "_uuid": secret.client.device.identifier.uuidString])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Status.init)
+                .requested(by: requester)
         }
     }
 
     /// Mark the current message as watched.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func open() -> Endpoint.Single<Status, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.directMessage(self)
-                    .path(appending: "seen/")
-                    .header(appending: secret.header)
-                    .body(appending: ["_csrftoken": secret["csrftoken"],
-                                      "_uuid": secret.client.device.identifier.uuidString,
-                                      "use_unified_inbox": "true",
-                                      "action": "mark_seen",
-                                      "thread_id": self.conversation.identifier,
-                                      "item_id": self.identifier])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Status.init)
-            }
-            .replaceFailingWithError()
+    func open() -> Endpoint.Single<Status> {
+        .init { secret, requester in
+            Request.directMessage(self.identifier, in: self.conversation.identifier)
+                .path(appending: "seen/")
+                .header(appending: secret.header)
+                .body(appending: ["_csrftoken": secret["csrftoken"],
+                                  "_uuid": secret.client.device.identifier.uuidString,
+                                  "use_unified_inbox": "true",
+                                  "action": "mark_seen",
+                                  "thread_id": self.conversation.identifier,
+                                  "item_id": self.identifier])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Status.init)
+                .requested(by: requester)
         }
     }
 }

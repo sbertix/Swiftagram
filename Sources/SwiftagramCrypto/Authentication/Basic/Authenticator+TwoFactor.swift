@@ -7,7 +7,7 @@
 
 import Foundation
 
-import ComposableStorage
+import Storages
 
 public extension Authenticator.Group.Basic {
     /// A `struct` defining an instance capable of
@@ -49,48 +49,50 @@ public extension Authenticator.Group.Basic {
         ///     - cookies: An array of `HTTPCookie`s.
         ///     - client: A valid `Client`.
         /// - returns: Some `Publisher`.
-        public func authenticate() -> AnyPublisher<Secret, Swift.Error> {
-            Request.version1
-                .accounts
-                .path(appending: "two_factor_login/")
-                .appendingDefaultHeader()
-                .header(appending: HTTPCookie.requestHeaderFields(with: [crossSiteRequestForgery]))
-                .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
-                                    "X-IG-Android-ID": client.device.instagramIdentifier,
-                                    "User-Agent": client.description,
-                                    "X-Csrf-Token": crossSiteRequestForgery.value])
-                .signing(body: [
-                    "username": username,
-                    "verification_code": code,
-                    "_csrftoken": crossSiteRequestForgery.value,
-                    "two_factor_identifier": identifier,
-                    "trust_this_device": "1",
-                    "guid": client.device.identifier.uuidString,
-                    "device_id": client.device.instagramIdentifier,
-                    "verification_method": "1"
-                ])
-                .publish(session: .ephemeral)
-                .tryMap { result throws -> Secret in
-                    let value = try Wrapper.decode(result.data)
-                    guard value.isEmpty, let response = result.response as? HTTPURLResponse else {
-                        throw Authenticator.Error.invalidResponse(result.response)
-                    }
-                    // Prepare the actual `Secret`.
-                    if let error = value.errorType.string() {
-                        throw Authenticator.Error.generic(error)
-                    } else if value.loggedInUser.pk.int() != nil,
-                              let url = URL(string: "https://instagram.com"),
-                              let header = response.allHeaderFields as? [String: String] {
-                        let cookies = HTTPCookie.cookies(withResponseHeaderFields: header, for: url)
-                        guard let secret = Secret(cookies: cookies, client: self.client) else {
+        public func authenticate() -> Providers.Requester<Requester, Requester.Requested<Secret>> {
+            .init { requester in
+                Request.version1
+                    .accounts
+                    .path(appending: "two_factor_login/")
+                    .appendingDefaultHeader()
+                    .header(appending: HTTPCookie.requestHeaderFields(with: [crossSiteRequestForgery]))
+                    .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                        "X-IG-Android-ID": client.device.instagramIdentifier,
+                                        "User-Agent": client.description,
+                                        "X-Csrf-Token": crossSiteRequestForgery.value])
+                    .signing(body: [
+                        "username": username,
+                        "verification_code": code,
+                        "_csrftoken": crossSiteRequestForgery.value,
+                        "two_factor_identifier": identifier,
+                        "trust_this_device": "1",
+                        "guid": client.device.identifier.uuidString,
+                        "device_id": client.device.instagramIdentifier,
+                        "verification_method": "1"
+                    ])
+                    .prepare(with: requester)
+                    .tryMap { result throws -> Secret in
+                        let value = try Wrapper.decode(result.data)
+                        guard value.isEmpty, let response = result.response as? HTTPURLResponse else {
                             throw Authenticator.Error.invalidResponse(result.response)
                         }
-                        return try AnyStorage.store(secret, in: self.storage)
-                    } else {
-                        throw Authenticator.Error.invalidResponse(result.response)
+                        // Prepare the actual `Secret`.
+                        if let error = value.errorType.string() {
+                            throw Authenticator.Error.generic(error)
+                        } else if value.loggedInUser.pk.int() != nil,
+                                  let url = URL(string: "https://instagram.com"),
+                                  let header = response.allHeaderFields as? [String: String] {
+                            let cookies = HTTPCookie.cookies(withResponseHeaderFields: header, for: url)
+                            guard let secret = Secret(cookies: cookies, client: self.client) else {
+                                throw Authenticator.Error.invalidResponse(result.response)
+                            }
+                            return try AnyStorage.store(secret, in: self.storage)
+                        } else {
+                            throw Authenticator.Error.invalidResponse(result.response)
+                        }
                     }
-                }
-                .eraseToAnyPublisher()
+                    .requested(by: requester)
+            }
         }
     }
 }
@@ -100,7 +102,7 @@ public extension Authenticator.Error.TwoFactor {
     ///
     /// - parameter code: A valid `String`.
     /// - returns: A valid `Authenticator.Group.Basic.TwoFactor`.
-    func code(_ code: String) -> Authenticator.Group.Basic.TwoFactor {
+    func code<R: Requester>(_ code: String) -> Authenticator.Group.Basic<R>.TwoFactor {
         .init(twoFactor: self, code: code)
     }
 }

@@ -14,58 +14,44 @@ public extension Endpoint.Group {
 
 public extension Endpoint {
     /// A wrapper for archive-related endpoints.
-    static let archived: Endpoint.Group.Archived = .init()
+    static var archived: Endpoint.Group.Archived { .init() }
 }
 
 public extension Endpoint.Group.Archived {
     /// All archived posts.
-    var posts: Endpoint.Paginated < Swiftagram.Media.Collection,
-                                     RankedOffset<String?, String?>,
-                                     Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
-            // Prepare the actual pager.
-            return Pager(pages) {
+    var posts: Endpoint.Paginated<String?, Swiftagram.Media.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.feed
                     .path(appending: "only_me_feed/")
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Media.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// All archived stories.
-    var stories: Endpoint.Paginated < TrayItem.Collection,
-                                     RankedOffset<String?, String?>,
-                                     Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
-            // Prepare the actual pager.
-            return Pager(pages) {
+    var stories: Endpoint.Paginated<String?, TrayItem.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.version1
                     .archive
                     .reel
                     .day_shells
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(TrayItem.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }

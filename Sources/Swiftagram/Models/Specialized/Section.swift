@@ -33,7 +33,7 @@ public struct Section: Wrapped {
 
 public extension Section {
     /// A `struct` defining a valid posts offset.
-    struct Offset: Equatable {
+    struct Page: Hashable {
         /// Current max identifier.
         public let identifier: String
         /// Current page.
@@ -58,7 +58,7 @@ public extension Section {
     }
 
     /// A `struct` defining a collection of `Section`s.
-    struct Collection: Specialized, Paginatable {
+    struct Collection: Specialized, PaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -68,15 +68,15 @@ public extension Section {
         }
 
         /// The offset.
-        public var offset: Section.Offset? {
+        public var offset: Pages<Page?>.Instruction {
             guard self["moreAvailable"].bool() ?? false,
                   let identifier = self["nextMaxId"].string(converting: true) else {
-                return nil
+              return .stop
             }
             // Parse all data.
             let page = self["nextPage"].int()
             let mediaIdentifiers = self["nextMediaIds"].array()?.compactMap { $0.string(converting: true) } ?? []
-            return .init(identifier: identifier, page: page, mediaIdentifiers: mediaIdentifiers)
+            return .offset(.init(identifier: identifier, page: page, mediaIdentifiers: mediaIdentifiers))
         }
 
         /// Init.
@@ -89,5 +89,5 @@ public extension Section {
 
 public extension Section.Collection {
     /// The associated offset.
-    typealias Offset = Section.Offset?
+    typealias Offset = Section.Page?
 }

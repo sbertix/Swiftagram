@@ -5,8 +5,9 @@
 //  Created by Stefano Bertagno on 17/08/2020.
 //
 
-#if !os(watchOS) && canImport(XCTest)
+#if !os(watchOS) && canImport(XCTest) && canImport(Combine)
 
+import Combine
 import Foundation
 import XCTest
 
@@ -18,6 +19,7 @@ import WebKit
 @testable import Swiftagram
 @testable import SwiftagramCrypto
 
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 internal final class AuthenticatorTests: XCTestCase {
     /// The dispose bag.
     private var bin: Set<AnyCancellable> = []
@@ -45,7 +47,7 @@ internal final class AuthenticatorTests: XCTestCase {
             .basic(username: "swiftagram.tests",
                    password: password.trimmingCharacters(in: .whitespacesAndNewlines))
             .authenticate()
-            .ignoreOutput()
+            .prepare(with: URLSessionCombineRequester(session: .ephemeral))
             .sink(
                 receiveCompletion: {
                     switch $0 {
@@ -73,22 +75,21 @@ internal final class AuthenticatorTests: XCTestCase {
     ///
     /// This is not an actual test, as we can't test interface-based implementations with SPM.
     func testWebViewAuthenticator() {
-        if #available(macOS 10.13, iOS 11, *) {
-            let expectation = XCTestExpectation()
-            let view = UIView()
-            Authenticator.userDefaults
-                .visual(filling: view)
-                .authenticate()
-                .map { _ in () }
-                .catch { _ in Just(()) }
-                .sink { XCTFail("This should never be called.") }
-                .store(in: &bin)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
-                self.bin.removeAll()
-                expectation.fulfill()
-            }
-            wait(for: [expectation], timeout: 10)
+        let expectation = XCTestExpectation()
+        let view = UIView()
+        Authenticator.userDefaults
+            .visual(filling: view)
+            .authenticate()
+            .prepare(with: URLSessionCombineRequester(session: .ephemeral))
+            .map { _ in () }
+            .catch { _ in Just(()) }
+            .sink { XCTFail("This should never be called.") }
+            .store(in: &bin)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            self.bin.removeAll()
+            expectation.fulfill()
         }
+        wait(for: [expectation], timeout: 10)
     }
 
     #endif

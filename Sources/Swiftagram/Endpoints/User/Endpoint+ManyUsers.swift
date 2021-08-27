@@ -42,40 +42,36 @@ public extension Endpoint {
 
 public extension Endpoint.Group.ManyUsers {
     /// List all friendship statuses between the list of users and the logged in one.
-    var friendships: Endpoint.Single<Swiftagram.Friendship.Dictionary, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.friendships
-                    .path(appending: "show_many/")
-                    .header(appending: secret.header)
-                    .body(["user_ids": self.identifiers.joined(separator: ","),
-                           "_csrftoken": secret["csrftoken"],
-                           "_uuid": secret.client.device.identifier.uuidString])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Friendship.Dictionary.init)
-            }
-            .replaceFailingWithError()
+    var friendships: Endpoint.Single<Swiftagram.Friendship.Dictionary> {
+        .init { secret, requester in
+            Request.friendships
+                .path(appending: "show_many/")
+                .header(appending: secret.header)
+                .body(["user_ids": self.identifiers.joined(separator: ","),
+                       "_csrftoken": secret["csrftoken"],
+                       "_uuid": secret.client.device.identifier.uuidString])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.Friendship.Dictionary.init)
+                .requested(by: requester)
         }
     }
 
     /// List all recent stories by the list of users.
-    var stories: Endpoint.Single<TrayItem.Dictionary, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.version1
-                    .feed
-                    .path(appending: "reels_media/")
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .body(["user_ids": "[\(self.identifiers.joined(separator: ","))]"])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(TrayItem.Dictionary.init)
-            }
-            .replaceFailingWithError()
+    var stories: Endpoint.Single<TrayItem.Dictionary> {
+        .init { secret, requester in
+            Request.version1
+                .feed
+                .path(appending: "reels_media/")
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .body(["user_ids": "[\(self.identifiers.joined(separator: ","))]"])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(TrayItem.Dictionary.init)
+                .requested(by: requester)
         }
     }
 }

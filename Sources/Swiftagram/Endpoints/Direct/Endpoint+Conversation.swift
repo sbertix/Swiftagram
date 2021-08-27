@@ -33,7 +33,7 @@ public extension Endpoint.Group.Direct {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    func conversation(_ identifier: String) -> Endpoint.Single<Swiftagram.Conversation.Unit, Error> {
+    func conversation(_ identifier: String) -> Endpoint.Single<Swiftagram.Conversation.Unit> {
         conversation(identifier).summary
     }
 }
@@ -41,9 +41,9 @@ public extension Endpoint.Group.Direct {
 extension Swiftagram.Request {
     /// A specific thread bease request.
     ///
-    /// - parameter conversation: A valid `Conversation`.
-    static func directThread(_ conversation: Endpoint.Group.Direct.Conversation) -> Request {
-        Request.directThreads.path(appending: conversation.identifier)
+    /// - parameter conversation: A valid `Conversation` identifier.
+    static func directThread(_ conversation: String) -> Request {
+        Request.directThreads.path(appending: conversation)
     }
 }
 
@@ -51,27 +51,26 @@ public extension Endpoint.Group.Direct.Conversation {
     /// A summary for the current conversation.
     ///
     /// - note: Use `Endpoint.Direct.conversation(_:)` instead.
-    internal var summary: Endpoint.Single<Conversation.Unit, Error> {
-        .init { secret, session in self.messages.unlock(with: secret).session(session).pages(1) }
+    internal var summary: Endpoint.Single<Conversation.Unit> {
+        .init { secret, requester in self.messages.unlock(with: secret).prepare(with: requester) }
     }
 
     /// Paginate all messages in the conversation.
-    var messages: Endpoint.Paginated<Conversation.Unit, String?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
-                Swiftagram.Request.directThread(self)
+    var messages: Endpoint.Paginated<String?, Conversation.Unit> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
+                Swiftagram.Request.directThread(self.identifier)
                     .header(appending: secret.header)
                     .query(appending: ["visual_message_return_type": "unseen",
                                        "direction": $0.flatMap { _ in "older" },
                                        "cursor": $0,
                                        "limit": "20"])
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Conversation.Unit.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
@@ -79,7 +78,7 @@ public extension Endpoint.Group.Direct.Conversation {
     ///
     /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func delete() -> Endpoint.Single<Status, Error> {
+    func delete() -> Endpoint.Single<Status> {
         edit("hide/", body: ["use_unified_inbox": "true"])
     }
 
@@ -87,7 +86,7 @@ public extension Endpoint.Group.Direct.Conversation {
     ///
     /// - parameter userIdentifiers: A collection of `String`s.
     /// - returns: A valid `Endpoint.Single`.
-    func invite<C: Collection>(_ userIdentifiers: C) -> Endpoint.Single<Status, Error> where C.Element == String {
+    func invite<C: Collection>(_ userIdentifiers: C) -> Endpoint.Single<Status> where C.Element == String {
         edit("add_user/", body: ["user_ids": "[" + userIdentifiers.joined(separator: ",") + "]"])
     }
 
@@ -95,7 +94,7 @@ public extension Endpoint.Group.Direct.Conversation {
     ///
     /// - parameter userIdentifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    func invite(_ userIdentifier: String) -> Endpoint.Single<Status, Error> {
+    func invite(_ userIdentifier: String) -> Endpoint.Single<Status> {
         invite([userIdentifier])
     }
 
@@ -103,14 +102,14 @@ public extension Endpoint.Group.Direct.Conversation {
     ///
     /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func leave() -> Endpoint.Single<Status, Error> {
+    func leave() -> Endpoint.Single<Status> {
         edit("leave/")
     }
 
     /// Mute the current conversation.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func mute() -> Endpoint.Single<Status, Error> {
+    func mute() -> Endpoint.Single<Status> {
         edit("mute/")
     }
 
@@ -118,43 +117,39 @@ public extension Endpoint.Group.Direct.Conversation {
     ///
     /// - parameter text: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    func send(_ text: String) -> Endpoint.Single<Wrapper, Error> {
-        .init { secret, session in
-            do {
-                // Prepare the body.
-                var method = "text"
-                var body: [String: String] = ["thread_ids": "[" + self.identifier + "]"]
-                // Prepare the detector.
-                let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-                let matches = detector.matches(in: text,
-                                               options: [],
-                                               range: .init(location: 0, length: text.utf16.count))
-                    .compactMap { Range($0.range, in: text).flatMap { "\"" + text[$0] + "\"" } }
-                if !matches.isEmpty {
-                    method = "link"
-                    body["link_text"] = text
-                    body["link_urls"] = "[" + matches.joined(separator: ",") + "]"
-                } else {
-                    body["text"] = text
-                }
-                // Prepare the request.
-                return Swiftagram.Request.directThreads
-                    .broadcast.path(appending: method)
-                    .path(appending: "/")
-                    .header(appending: secret.header)
-                    .body(appending: body)
-                    .body(appending: ["_csrftoken": secret["csrftoken"],
-                                      "_uuid": secret.client.device.identifier.uuidString,
-                                      "device_id": secret.client.device.instagramIdentifier,
-                                      "client_context": UUID().uuidString,
-                                      "action": "send_item"])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .eraseToAnyPublisher()
-            } catch {
-                return Deferred { Fail(error: error) }.eraseToAnyPublisher()
+    func send(_ text: String) -> Endpoint.Single<Wrapper> {
+        .init { secret, requester in
+            // Prepare the body.
+            var method = "text"
+            var body: [String: String] = ["thread_ids": "[" + self.identifier + "]"]
+            // Prepare the detector.
+            let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+            let matches = detector?.matches(in: text,
+                                            options: [],
+                                            range: .init(location: 0, length: text.utf16.count))
+                .compactMap { Range($0.range, in: text).flatMap { "\"" + text[$0] + "\"" } } ?? []
+            if !matches.isEmpty {
+                method = "link"
+                body["link_text"] = text
+                body["link_urls"] = "[" + matches.joined(separator: ",") + "]"
+            } else {
+                body["text"] = text
             }
+            // Prepare the request.
+            return Swiftagram.Request.directThreads
+                .broadcast.path(appending: method)
+                .path(appending: "/")
+                .header(appending: secret.header)
+                .body(appending: body)
+                .body(appending: ["_csrftoken": secret["csrftoken"],
+                                  "_uuid": secret.client.device.identifier.uuidString,
+                                  "device_id": secret.client.device.instagramIdentifier,
+                                  "client_context": UUID().uuidString,
+                                  "action": "send_item"])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .requested(by: requester)
         }
     }
 
@@ -162,14 +157,14 @@ public extension Endpoint.Group.Direct.Conversation {
     ///
     /// - parameter title: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    func title(_ title: String) -> Endpoint.Single<Status, Error> {
+    func title(_ title: String) -> Endpoint.Single<Status> {
         edit("update_title/", body: ["title": title])
     }
 
     /// Unmute the current conversation.
     ///
     /// - returns: A valid `Endpoint.Single`.
-    func unmute() -> Endpoint.Single<Status, Error> {
+    func unmute() -> Endpoint.Single<Status> {
         edit("unmute/")
     }
 }
@@ -181,21 +176,19 @@ extension Endpoint.Group.Direct.Conversation {
     ///     - endpoint: A valid `String`.
     ///     - body: A valid dictionary of `String`s.
     /// - returns: A valid `Endpoint.Single`.
-    func edit(_ endpoint: String, body: [String: String] = [:]) -> Endpoint.Single<Status, Error> {
-        .init { secret, session in
-            Deferred {
-                Swiftagram.Request.directThread(self)
-                    .path(appending: endpoint)
-                    .header(appending: secret.header)
-                    .body(appending: ["_csrftoken": secret["csrftoken"],
-                                      "_uuid": secret.client.device.identifier.uuidString])
-                    .body(appending: body)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Status.init)
-            }
-            .replaceFailingWithError()
+    func edit(_ endpoint: String, body: [String: String] = [:]) -> Endpoint.Single<Status> {
+        .init { secret, requester in
+            Swiftagram.Request.directThread(self.identifier)
+                .path(appending: endpoint)
+                .header(appending: secret.header)
+                .body(appending: ["_csrftoken": secret["csrftoken"],
+                                  "_uuid": secret.client.device.identifier.uuidString])
+                .body(appending: body)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Status.init)
+                .requested(by: requester)
         }
     }
 }

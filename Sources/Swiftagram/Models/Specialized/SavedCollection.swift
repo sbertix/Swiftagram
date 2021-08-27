@@ -52,7 +52,7 @@ public struct SavedCollection: Wrapped {
 
 public extension SavedCollection {
     /// A `struct` defining a collection of `SavedCollection`.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -71,7 +71,7 @@ public extension SavedCollection {
     }
 
     /// A `struct` defining a single `SavedCollection` response.
-    struct Unit: Specialized, StringPaginatable {
+    struct Unit: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

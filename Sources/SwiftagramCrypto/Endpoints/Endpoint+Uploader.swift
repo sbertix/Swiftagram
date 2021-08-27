@@ -13,6 +13,7 @@ import AVFoundation
 
 #if canImport(CoreGraphics)
 import CoreGraphics
+import Requests
 #endif
 
 extension Endpoint.Group {
@@ -22,7 +23,7 @@ extension Endpoint.Group {
 
 extension Endpoint {
     /// A wrapper for uploader code.
-    static let uploader: Group.Uploader = .init()
+    static var uploader: Group.Uploader { .init() }
 }
 
 extension Endpoint.Group.Uploader {
@@ -71,11 +72,11 @@ extension Endpoint.Group.Uploader {
                 .header(appending: input.secret.header)
                 .header(appending: input.secret.identifier, forKey: "IG-U-DS-User-ID")
                 .body(data)
-                .publish(with: input.session)
+                .prepare(with: input.requester)
                 .map(\.data)
-                .wrap()
+                .decode()
                 .map(Media.Unit.init)
-                .eraseToAnyPublisher()
+                .requested(by: input.requester)
         }
     }
 
@@ -141,19 +142,20 @@ extension Endpoint.Group.Uploader {
                 .header(appending: header)
                 .header(appending: input.secret.header)
                 .header(appending: input.secret.identifier, forKey: "IG-U-DS-User-ID")
-                .publish(with: input.session)
+                .prepare(with: input.requester)
                 .map(\.data)
-                .wrap()
-                .flatMap { output -> AnyPublisher<Wrapper, Error> in
+                .decode()
+                .switch { output -> R.Requested<Wrapper> in
                     // Actually upload the video.
                     guard let offset = output.offset.int() else {
-                        return Fail(error: Endpoint.Group.Media.Error.artifact(output)).eraseToAnyPublisher()
+                        return R.Once(error: Endpoint.Group.Media.Error.artifact(output), with: input.requester)
+                            .requested(by: input.requester)
                     }
                     // Fetch the video and then upload it.
                     return Request(url)
-                        .publish(with: input.session)
+                        .prepare(with: input.requester)
                         .map(\.data)
-                        .flatMap {
+                        .switch {
                             Request.api
                                 .path(appending: "rupload_igvideo")
                                 .path(appending: name)
@@ -166,28 +168,32 @@ extension Endpoint.Group.Uploader {
                                                     "X-Entity-Length": String($0.count),
                                                     "Content-Length": String($0.count)])
                                 .body($0)
-                                .publish(with: input.session)
+                                .prepare(with: input.requester)
                                 .map(\.data)
-                                .wrap()
+                                .decode()
                         }
-                        .eraseToAnyPublisher()
+                        .requested(by: input.requester)
                 }
                 .map(Media.Unit.init)
-                .flatMap { output -> AnyPublisher<Media.Unit, Error> in
+                .switch { output -> R.Requested<Media.Unit> in
                     // Upload the preview.
                     guard output.error == nil else {
-                        return Fail(error: Endpoint.Group.Media.Error.artifact(output.wrapper())).eraseToAnyPublisher()
+                        return R.Once(error: Endpoint.Group.Media.Error.artifact(output.wrapper()),
+                                      with: input.requester)
+                            .requested(by: input.requester)
                     }
                     return self.upload(image: preview,
                                        identifier: identifier,
                                        waterfallIdentifier: waterfallIdentifier)
                         .generator(input)
-                        .eraseToAnyPublisher()
+                        .requested(by: input.requester)
                 }
-                .flatMap { output -> AnyPublisher<Media.Unit, Error> in
+                .switch { output -> R.Requested<Media.Unit> in
                     // Finish uploading process.
                     guard output.error == nil else {
-                        return Fail(error: Endpoint.Group.Media.Error.artifact(output.wrapper())).eraseToAnyPublisher()
+                        return R.Once(error: Endpoint.Group.Media.Error.artifact(output.wrapper()),
+                                      with: input.requester)
+                            .requested(by: input.requester)
                     }
                     let retryContext = #"{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}"#
                     return Request.media
@@ -207,13 +213,13 @@ extension Endpoint.Group.Uploader {
                                         "length": Int(duration).wrapped,
                                         "poster_frame_index": 0,
                                         "audio_muted": false].wrapped)
-                        .publish(with: input.session)
+                        .prepare(with: input.requester)
                         .map(\.data)
-                        .wrap()
+                        .decode()
                         .map(Media.Unit.init)
-                        .eraseToAnyPublisher()
+                        .requested(by: input.requester)
                 }
-                .eraseToAnyPublisher()
+                .requested(by: input.requester)
         }
     }
     // swiftlint:enable function_body_length
@@ -228,7 +234,7 @@ extension Endpoint.Group.Uploader {
 
 extension Endpoint.Group.Uploader.Upload {
     /// An alias for the generator input type.
-    typealias Input = (secret: Secret, session: SessionProviderInput)
+    typealias Input = (secret: Secret, requester: R)
 
     /// A `struct` defining an image response.
     struct Image {
@@ -239,7 +245,7 @@ extension Endpoint.Group.Uploader.Upload {
         /// The creation date.
         let date: Date
         /// A generator.
-        let generator: (Input) -> AnyPublisher<Media.Unit, Error>
+        let generator: (Input) -> R.Requested<Media.Unit>
     }
 
     /// A `struct` defining a video response.
@@ -255,6 +261,6 @@ extension Endpoint.Group.Uploader.Upload {
         /// The duration.
         let duration: TimeInterval
         /// A generator.
-        let generator: (Input) -> AnyPublisher<Media.Unit, Error>
+        let generator: (Input) -> R.Requested<Media.Unit>
     }
 }

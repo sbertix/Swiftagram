@@ -29,52 +29,52 @@ public extension Endpoint.Group.Location {
 
 public extension Endpoint.Group.Location.Posts {
     /// A list of recent posts.
-    var recent: Endpoint.Paginated<Section.Collection, Section.Offset?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
-                Request.location(self.location)
+    var recent: Endpoint.Paginated<Section.Page?, Section.Collection> {
+        .init { secret, pages, requester -> R.Requested<Section.Collection> in
+            Receivables.Pager(pages) { page -> R.Requested<Section.Collection> in
+                Request.location(self.location.identifier)
                     .sections
                     .path(appending: "/")
                     .header(appending: secret.header)
-                    .body(appending: ["max_id": $0?.identifier,
+                    .body(appending: ["max_id": page?.identifier,
                                       "tab": "recent",
-                                      "page": ($0?.page).flatMap { $0 <= 0 ? nil : "\($0)" },
-                                      "next_media_ids": "[\($0?.mediaIdentifiers.joined(separator: ",") ?? "")]",
+                                      "page": (page?.page).flatMap { $0 <= 0 ? nil : "\($0)" },
+                                      "next_media_ids": "[\(page?.mediaIdentifiers.joined(separator: ",") ?? "")]",
                                       "_csrftoken": secret["csrftoken"],
                                       "_uuid": secret.client.device.identifier.uuidString,
                                       "session_id": secret["sessionid"]].compactMapValues { $0 })
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Section.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
+                    .requested(by: requester)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// A list of highest ranking posts.
-    var top: Endpoint.Paginated<Section.Collection, Section.Offset?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
-                Request.location(self.location)
+    var top: Endpoint.Paginated<Section.Page?, Section.Collection> {
+        .init { secret, pages, requester -> R.Requested<Section.Collection> in
+            Receivables.Pager(pages) { page -> R.Requested<Section.Collection> in
+                Request.location(self.location.identifier)
                     .sections
                     .path(appending: "/")
                     .header(appending: secret.header)
-                    .body(appending: ["max_id": $0?.identifier,
+                    .body(appending: ["max_id": page?.identifier,
                                       "tab": "ranked",
-                                      "page": ($0?.page).flatMap { $0 <= 0 ? nil : "\($0)" },
-                                      "next_media_ids": "[\($0?.mediaIdentifiers.joined(separator: ",") ?? "")]",
+                                      "page": (page?.page).flatMap { $0 <= 0 ? nil : "\($0)" },
+                                      "next_media_ids": "[\(page?.mediaIdentifiers.joined(separator: ",") ?? "")]",
                                       "_csrftoken": secret["csrftoken"],
                                       "_uuid": secret.client.device.identifier.uuidString,
                                       "session_id": secret["sessionid"]].compactMapValues { $0 })
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Section.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
+                    .requested(by: requester)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }

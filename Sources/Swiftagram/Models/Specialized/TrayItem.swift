@@ -103,7 +103,7 @@ public extension TrayItem {
     }
 
     /// A `struct` representing a `TrayItem` collection.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

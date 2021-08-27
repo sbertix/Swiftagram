@@ -41,7 +41,7 @@ public struct Conversation: Wrapped {
 
 public extension Conversation {
     /// A `struct` representing a `Conversation` single response.
-    struct Unit: Specialized, StringPaginatable {
+    struct Unit: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 
@@ -59,7 +59,7 @@ public extension Conversation {
     }
 
     /// A `struct` representing a `Conversation` collection.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

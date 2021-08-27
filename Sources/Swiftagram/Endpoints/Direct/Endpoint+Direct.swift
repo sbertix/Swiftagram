@@ -14,7 +14,7 @@ public extension Endpoint.Group {
 
 public extension Endpoint {
     /// A wrapper for direct endpoints.
-    static let direct: Group.Direct = .init()
+    static var direct: Group.Direct { .init() }
 }
 
 extension Request {
@@ -26,32 +26,30 @@ extension Request {
 
 public extension Endpoint.Group.Direct {
     /// Get the user presence.
-    var activity: Endpoint.Single<Wrapper, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.direct
-                    .path(appending: "get_presence/")
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-            }
-            .eraseToAnyPublisher()
+    var activity: Endpoint.Single<Wrapper> {
+        .init { secret, requester in
+            Request.direct
+                .path(appending: "get_presence/")
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .requested(by: requester)
         }
     }
 
     /// Paginate all approved conversations in your inbox.
-    var conversations: Endpoint.Paginated<Swiftagram.Conversation.Collection, String?, Error> {
+    var conversations: Endpoint.Paginated<String?, Swiftagram.Conversation.Collection> {
         inbox(isPending: false)
     }
 
     /// Fetch all suggested recipients.
-    var recipients: Endpoint.Single<Recipient.Collection, Error> {
+    var recipients: Endpoint.Single<Recipient.Collection> {
         recipients(matching: nil)
     }
 
     /// Paginate the pending requests inbox.
-    var requests: Endpoint.Paginated<Swiftagram.Conversation.Collection, String?, Error> {
+    var requests: Endpoint.Paginated<String?, Swiftagram.Conversation.Collection> {
         inbox(isPending: true)
     }
 
@@ -59,7 +57,7 @@ public extension Endpoint.Group.Direct {
     ///
     /// - parameter query: A valid `String`.
     /// - returns: An `Endpoint.Single`.
-    func recipients(matching query: String) -> Endpoint.Single<Recipient.Collection, Error> {
+    func recipients(matching query: String) -> Endpoint.Single<Recipient.Collection> {
         recipients(matching: .some(query))
     }
 }
@@ -69,9 +67,9 @@ fileprivate extension Endpoint.Group.Direct {
     ///
     /// - parameter isPending: A valid `Bool`.
     /// - returns: An `Endpoint.Paginated`.
-    func inbox(isPending: Bool) -> Endpoint.Paginated<Swiftagram.Conversation.Collection, String?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
+    func inbox(isPending: Bool) -> Endpoint.Paginated<String?, Swiftagram.Conversation.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.direct
                     .path(appending: isPending ? "pending_inbox" : "inbox")
                     .header(appending: secret.header)
@@ -81,13 +79,12 @@ fileprivate extension Endpoint.Group.Direct {
                                        "thread_message_limit": "10",
                                        "persistent_badging": "true",
                                        "limit": "20"])
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Conversation.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
@@ -95,21 +92,19 @@ fileprivate extension Endpoint.Group.Direct {
     ///
     /// - parameter query: An optional `String`. 
     /// - returns: An `Endpoint.Single`.
-    func recipients(matching query: String?) -> Endpoint.Single<Recipient.Collection, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.direct
-                    .path(appending: "ranked_recipients/")
-                    .header(appending: secret.header)
-                    .header(appending: ["mode": "raven",
-                                        "query": query,
-                                        "show_threads": "true"])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Recipient.Collection.init)
-            }
-            .replaceFailingWithError()
+    func recipients(matching query: String?) -> Endpoint.Single<Recipient.Collection> {
+        .init { secret, requester in
+            Request.direct
+                .path(appending: "ranked_recipients/")
+                .header(appending: secret.header)
+                .header(appending: ["mode": "raven",
+                                    "query": query,
+                                    "show_threads": "true"])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Recipient.Collection.init)
+                .requested(by: requester)
         }
     }
 }

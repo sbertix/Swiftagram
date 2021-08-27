@@ -7,14 +7,14 @@
 
 import Foundation
 
-import ComposableStorageCrypto
+import EncryptedStorages
 
 /// A `typealias` for `ComposableStorageCrypto.KeychainStorage`.
 ///
 /// - note:
 ///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
 ///     to stick with future versions of **Swift**.
-public typealias KeychainStorage = ComposableStorageCrypto.KeychainStorage
+public typealias KeychainStorage = EncryptedStorages.KeychainStorage
 
 public extension Authenticator {
     /// The default keychain-backed `Authenticator`.

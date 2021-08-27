@@ -80,7 +80,7 @@ public extension Location {
     }
 
     /// A `struct` representing a `Location` collection.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

@@ -135,7 +135,7 @@ public extension User {
     }
 
     /// A `struct` representing a `User` collection.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

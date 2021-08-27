@@ -14,7 +14,7 @@ public extension Endpoint.Group {
 
 public extension Endpoint {
     /// A wrapper for timeline-specific endpoints.
-    static let recent: Group.Recent = .init()
+    static var recent: Group.Recent { .init() }
 }
 
 extension Request {
@@ -63,55 +63,56 @@ extension Request {
 
 public extension Endpoint.Group.Recent {
     /// Recent activity related to the logged in account (e.g. followers/following, likes, etc).
-    var activity: Endpoint.Single<Wrapper, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.version1
-                    .news
-                    .inbox
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-            }
-            .eraseToAnyPublisher()
+    var activity: Endpoint.Single<Wrapper> {
+        .init { secret, requester in
+            Request.version1
+                .news
+                .inbox
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .requested(by: requester)
         }
     }
 
     /// Recent posts for accounts followed by the logged in user.
-    var posts: Endpoint.Paginated<Wrapper, RankedOffset<String?, String?>, Error> {
-        .init { secret, session, pages in
+    var posts: Endpoint.Paginated<String?, Wrapper> {
+        .init { secret, pages, requester in
             // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
+            let rank = UUID().uuidString
             // Prepare the actual pager.
-            return Pager(pages) {
-                Request.timeline(secret, offset: $0, rank: rank)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .iterateFirst(stoppingAt: $0) { output -> Instruction<String> in
-                        switch output?.nextMaxId.string(converting: true) {
-                        case .none:
-                            return .stop
-                        case "feed_recs_head_load":
-                            return (output?.feedItems
-                                        .array()?
-                                        .last?
-                                        .endOfFeedDemarcator
-                                        .groupSet
-                                        .groups
-                                        .array()?
-                                        .first(where: { $0.id.string(converting: true) == "past_posts" })?
-                                        .nextMaxId
-                                        .string())
-                                .flatMap(Instruction.load) ?? .stop
-                        case let cursor?:
-                            return .load(cursor)
-                        }
-                    }
-            }
-            .eraseToAnyPublisher()
+            return Receivables.Pager(pages,
+                                     generator: {
+                                        Request.timeline(secret, offset: $0, rank: rank)
+                                            .prepare(with: requester)
+                                            .map(\.data)
+                                            .decode()
+                                     },
+                                     nextOffset: { output in
+                                        switch output.nextMaxId.string(converting: true) {
+                                        case .none:
+                                            return .stop
+                                        case "feed_recs_head_load":
+                                            return (output.feedItems
+                                                        .array()?
+                                                        .last?
+                                                        .endOfFeedDemarcator
+                                                        .groupSet
+                                                        .groups
+                                                        .array()?
+                                                        .first(where: {
+                                                                $0.id.string(converting: true) == "past_posts"
+                                                        })?
+                                                        .nextMaxId
+                                                        .string())
+                                                .flatMap(Pages.Instruction.offset) ?? .stop
+                                        case let cursor?:
+                                            return .offset(cursor)
+                                        }
+                                     })
+                .requested(by: requester)
         }
     }
 
@@ -122,18 +123,16 @@ public extension Endpoint.Group.Recent {
     ///     Please rely on `Endpoint.User(_:).stories` or
     ///     `Endpoint.stories(_:)`, when dealing with more
     ///     than one user at the time, to return the actual content.
-    var stories: Endpoint.Single<TrayItem.Collection, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.feed
-                    .reels_tray
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(TrayItem.Collection.init)
-            }
-            .replaceFailingWithError()
+    var stories: Endpoint.Single<TrayItem.Collection> {
+        .init { secret, requester in
+            Request.feed
+                .reels_tray
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(TrayItem.Collection.init)
+                .requested(by: requester)
         }
     }
 }

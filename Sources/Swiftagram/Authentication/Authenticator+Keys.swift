@@ -7,7 +7,7 @@
 
 import Foundation
 
-import ComposableStorage
+import Storages
 
 public extension Authenticator {
     /// A `class` defining an instance used for `Secret`s management.

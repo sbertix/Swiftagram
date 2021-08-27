@@ -204,7 +204,7 @@ public extension Media {
     }
 
     /// A `struct` representing a `Media` collection.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Response`.
         public var wrapper: () -> Wrapper
 

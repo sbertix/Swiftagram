@@ -34,44 +34,16 @@ public extension Endpoint.Group.Saved {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Paginated`.
-    func collection(_ identifier: String) -> Endpoint.Single<SavedCollection.Unit, Swift.Error> {
+    func collection(_ identifier: String) -> Endpoint.Single<SavedCollection.Unit> {
         collection(identifier).summary
     }
 
     /// A summary of the collection.
     ///
-    /// - parameter identifier: A valid `String`.
-    /// - returns: A valid `Endpoint.Paginated`.
-    @available(*, deprecated, message: "paging summary is no longer supported (removing in 6.0)")
-    func collection(_ identifier: String) -> Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
-        .init { secret, session, _ in
-            collection(identifier)
-                .summary
-                .unlock(with: secret)
-                .session(session)
-        }
-    }
-
-    /// A summary of the collection.
-    ///
     /// - parameter collection: A valid `SavedCollection`.
     /// - returns: A valid `Endpoint.Paginated`.
-    func collection(_ collection: SavedCollection) -> Endpoint.Single<SavedCollection.Unit, Swift.Error> {
+    func collection(_ collection: SavedCollection) -> Endpoint.Single<SavedCollection.Unit> {
         self.collection(collection).summary
-    }
-
-    /// A summary of the collection.
-    ///
-    /// - parameter collection: A valid `SavedCollection`.
-    /// - returns: A valid `Endpoint.Paginated`.
-    @available(*, deprecated, message: "paging summary is no longer supported (removing in 6.0)")
-    func collection(_ collection: SavedCollection) -> Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
-        .init { secret, session, _ in
-            self.collection(collection)
-                .summary
-                .unlock(with: secret)
-                .session(session)
-        }
     }
 }
 
@@ -88,12 +60,13 @@ public extension Endpoint.Group.Saved.Collection {
     /// A summary of the collection.
     ///
     /// - note: Prefer `Endpoint.saved.collection(_:)`.
-    var summary: Endpoint.Single<SavedCollection.Unit, Swift.Error> {
-        .init { secret, session in
+    var summary: Endpoint.Single<SavedCollection.Unit> {
+        return .init { secret, requester in
             // Only actual collection can be fetched.
             // `ALL_MEDIA_AUTO_COLLECTION` is not supported.
             guard self.identifier != "ALL_MEDIA_AUTO_COLLECTION" else {
-                return Fail(error: Error.unsupportedAllMediaAutoCollection).eraseToAnyPublisher()
+                return R.Once<SavedCollection.Unit>(error: Error.unsupportedAllMediaAutoCollection, with: requester)
+                    .requested(by: requester)
             }
             return Request.feed
                 .collection
@@ -102,24 +75,25 @@ public extension Endpoint.Group.Saved.Collection {
                 .query(appending: ["include_igtv_preview": "true",
                                    "show_igtv_first": "false"])
                 .header(appending: secret.header)
-                .publish(with: session)
+                .prepare(with: requester)
                 .map(\.data)
-                .wrap()
+                .decode()
                 .map(SavedCollection.Unit.init)
-                .replaceFailingWithError()
+                .requested(by: requester)
         }
     }
 
     /// All posts inside the collection.
     ///
-    var posts: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
-        .init { secret, session, pages in
+    var posts: Endpoint.Paginated<String?, SavedCollection.Unit> {
+        return .init { secret, pages, requester in
             // Only actual collection can be fetched.
             // `ALL_MEDIA_AUTO_COLLECTION` is not supported.
             guard self.identifier != "ALL_MEDIA_AUTO_COLLECTION" else {
-                return Fail(error: Error.unsupportedAllMediaAutoCollection).eraseToAnyPublisher()
+                return R.Once<SavedCollection.Unit>(error: Error.unsupportedAllMediaAutoCollection, with: requester)
+                    .requested(by: requester)
             }
-            return Pager(pages) {
+            return Receivables.Pager(pages) {
                 Request.feed
                     .collection
                     .path(appending: self.identifier)
@@ -127,26 +101,26 @@ public extension Endpoint.Group.Saved.Collection {
                     .query(appending: ["include_igtv_preview": "true",
                                        "max_id": $0])
                     .header(appending: secret.header)
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(SavedCollection.Unit.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// All igtv inside the collection.
     ///
-    var igtv: Endpoint.Paginated<SavedCollection.Unit, String?, Swift.Error> {
-        .init { secret, session, pages in
+    var igtv: Endpoint.Paginated<String?, SavedCollection.Unit> {
+        return .init { secret, pages, requester in
             // Only actual collection can be fetched.
             // `ALL_MEDIA_AUTO_COLLECTION` is not supported.
             guard self.identifier != "ALL_MEDIA_AUTO_COLLECTION" else {
-                return Fail(error: Error.unsupportedAllMediaAutoCollection).eraseToAnyPublisher()
+                return R.Once<SavedCollection.Unit>(error: Error.unsupportedAllMediaAutoCollection, with: requester)
+                    .requested(by: requester)
             }
-            return Pager(pages) {
+            return Receivables.Pager(pages) {
                 Request.feed
                     .collection
                     .path(appending: self.identifier)
@@ -154,13 +128,12 @@ public extension Endpoint.Group.Saved.Collection {
                     .query(appending: ["id": "collection_\(self.identifier)",
                                        "max_id": $0])
                     .header(appending: secret.header)
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(SavedCollection.Unit.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }

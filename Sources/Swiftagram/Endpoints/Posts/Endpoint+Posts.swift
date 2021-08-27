@@ -14,50 +14,41 @@ public extension Endpoint.Group {
 
 public extension Endpoint {
     /// A wrapper for posts-specific endpoints.
-    static let posts: Endpoint.Group.Posts = .init()
+    static var posts: Endpoint.Group.Posts { .init() }
 }
 
 public extension Endpoint.Group.Posts {
     /// A list of archived posts.
-    var archived: Endpoint.Paginated < Swiftagram.Media.Collection,
-                                     RankedOffset<String?, String?>,
-                                     Error> {
+    var archived: Endpoint.Paginated <String?, Swiftagram.Media.Collection> {
         Endpoint.archived.posts
     }
 
     /// The logged in user's timeline.
-    var recent: Endpoint.Paginated<Wrapper, RankedOffset<String?, String?>, Error> {
+    var recent: Endpoint.Paginated<String?, Wrapper> {
         Endpoint.recent.posts
     }
 
     /// A list of all saved posts.
     ///
     /// - note: Use `Endpoint.saved` accessories to deal with specific collections.
-    var saved: Endpoint.Paginated<Swiftagram.Media.Collection, String?, Error> {
+    var saved: Endpoint.Paginated<String?, Swiftagram.Media.Collection> {
         Endpoint.saved.posts
     }
 
     /// A list of posts liked by the logged in user.
-    var liked: Endpoint.Paginated < Swiftagram.Media.Collection,
-                                  RankedOffset<String?, String?>,
-                                  Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
-            // Prepare the actual pager.
-            return Pager(pages) {
+    var liked: Endpoint.Paginated<String?, Swiftagram.Media.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.feed
                     .liked
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Media.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }

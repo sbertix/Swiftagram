@@ -7,14 +7,14 @@
 
 import Foundation
 
-import ComposableStorage
+import Storages
 
 /// A `typealias` for `ComposableStorage.UserDefaultsStorage`.
 ///
 /// - note:
 ///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
 ///     to stick with future versions of **Swift**.
-public typealias UserDefaultsStorage = ComposableStorage.UserDefaultsStorage
+public typealias UserDefaultsStorage = Storages.UserDefaultsStorage
 
 /// A `struct` defining an instance capable of
 /// starting the authentication flow for a given user.

@@ -43,7 +43,7 @@ public extension Endpoint {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    static func user(_ identifier: String) -> Endpoint.Single<Swiftagram.User.Unit, Error> {
+    static func user(_ identifier: String) -> Endpoint.Single<Swiftagram.User.Unit> {
         user(identifier).summary
     }
 
@@ -51,19 +51,17 @@ public extension Endpoint {
     ///
     /// - parameter username: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    static func user(matching username: String) -> Endpoint.Single<Swiftagram.User.Unit, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.users
-                    .path(appending: username)
-                    .path(appending: "usernameinfo/")
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.User.Unit.init)
-            }
-            .eraseToAnyPublisher()
+    static func user(matching username: String) -> Endpoint.Single<Swiftagram.User.Unit> {
+        .init { secret, requester in
+            Request.users
+                .path(appending: username)
+                .path(appending: "usernameinfo/")
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.User.Unit.init)
+                .requested(by: requester)
         }
     }
 }
@@ -77,18 +75,18 @@ extension Request {
 
     /// A specic friendship based request.
     ///
-    /// - parameter user: A valid `User`.
+    /// - parameter user: A valid `User` identifier.
     /// - returns: A valid `Request`.
-    static func friendship(_ user: Endpoint.Group.User) -> Request {
-        friendships.path(appending: user.identifier)
+    static func friendship(_ user: String) -> Request {
+        friendships.path(appending: user)
     }
 
     /// A specific user based request.
     ///
-    /// - parameter user: A valid `User`.
+    /// - parameter user: A valid `User` identifier.
     /// - returns: A valid `Request`.
-    static func user(_ user: Endpoint.Group.User) -> Request {
-        users.path(appending: user.identifier)
+    static func user(_ user: String) -> Request {
+        users.path(appending: user)
     }
 }
 
@@ -96,72 +94,64 @@ public extension Endpoint.Group.User {
     /// A summary for the current user.
     ///
     /// - note: Prefer `Endpoint.user(_:)` instead.
-    var summary: Endpoint.Single<Swiftagram.User.Unit, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.user(self)
-                    .info
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.User.Unit.init)
-            }
-            .replaceFailingWithError()
+    var summary: Endpoint.Single<Swiftagram.User.Unit> {
+        .init { secret, requester in
+            Request.user(self.identifier)
+                .info
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.User.Unit.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of profiles following the user.
-    var followers: Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
+    var followers: Endpoint.Paginated<String?, Swiftagram.User.Collection> {
         paginated("followers", matching: nil)
     }
 
     /// A list of profiles followed by the user.
-    var following: Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
+    var following: Endpoint.Paginated<String?, Swiftagram.User.Collection> {
         paginated("following", matching: nil)
     }
 
     /// The current friendship status between the given user and the logged in one.
-    var friendship: Endpoint.Single<Swiftagram.Friendship, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.friendships
-                    .show
-                    .path(appending: self.identifier)
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Friendship.init)
-            }
-            .eraseToAnyPublisher()
+    var friendship: Endpoint.Single<Swiftagram.Friendship> {
+        .init { secret, requester in
+            Request.friendships
+                .show
+                .path(appending: self.identifier)
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.Friendship.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of highlights uploaded by the user.
-    var higlights: Endpoint.Single<TrayItem.Collection, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.version1.highlights
-                    .path(appending: self.identifier)
-                    .highlights_tray
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(TrayItem.Collection.init)
-            }
-            .replaceFailingWithError()
+    var higlights: Endpoint.Single<TrayItem.Collection> {
+        .init { secret, requester in
+            Request.version1.highlights
+                .path(appending: self.identifier)
+                .highlights_tray
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(TrayItem.Collection.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of posts uploaded by the user.
-    var posts: Endpoint.Paginated < Swiftagram.Media.Collection,
-                                  String?,
-                                  Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
+    var posts: Endpoint.Paginated<String?, Swiftagram.Media.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.version1.feed
                     .user
                     .path(appending: self.identifier)
@@ -169,69 +159,62 @@ public extension Endpoint.Group.User {
                     .query(appending: ["exclude_comment": "false",
                                        "only_fetch_first_carousel_media": "false"])
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Media.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// A list of similar/suggested users.
-    var similar: Endpoint.Single<Swiftagram.User.Collection, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.discover
-                    .chaining
-                    .query(appending: self.identifier, forKey: "target_id")
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.User.Collection.init)
-            }
-            .replaceFailingWithError()
+    var similar: Endpoint.Single<Swiftagram.User.Collection> {
+        .init { secret, requester in
+            Request.discover
+                .chaining
+                .query(appending: self.identifier, forKey: "target_id")
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.User.Collection.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of all recent stories by the user.
-    var stories: Endpoint.Single<TrayItem.Unit, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.version1
-                    .feed
-                    .user
-                    .path(appending: self.identifier)
-                    .story
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .query(appending: [
-                        "supported_capabilities_new": try? SupportedCapabilities
-                            .default
-                            .map { ["name": $0.key, "value": $0.value] }
-                            .wrapped
-                            .jsonRepresentation()
-                    ])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(TrayItem.Unit.init)
-            }
-            .replaceFailingWithError()
+    var stories: Endpoint.Single<TrayItem.Unit> {
+        .init { secret, requester in
+            Request.version1
+                .feed
+                .user
+                .path(appending: self.identifier)
+                .story
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .query(appending: [
+                    "supported_capabilities_new": try? SupportedCapabilities
+                        .default
+                        .map { ["name": $0.key, "value": $0.value] }
+                        .wrapped
+                        .jsonRepresentation()
+                ])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(TrayItem.Unit.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of posts the user was tagged in.
-    var tags: Endpoint.Paginated < Swiftagram.Media.Collection,
-                                 RankedOffset<String?, String?>,
-                                 Error> {
-        .init { secret, session, pages in
+    var tags: Endpoint.Paginated <String?, Swiftagram.Media.Collection> {
+        .init { secret, pages, requester in
             // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
+            let rank = UUID().uuidString
             // Prepare the actual pager.
-            return Pager(pages) {
+            return Receivables.Pager(pages) {
                 Request.version1
                     .usertags
                     .path(appending: self.identifier)
@@ -240,13 +223,12 @@ public extension Endpoint.Group.User {
                     .header(appending: secret.header)
                     .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Media.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
@@ -254,7 +236,7 @@ public extension Endpoint.Group.User {
     ///
     /// - parameter query: A valid `String`.
     /// - returns: A valid `Endpoint.Paginated`.
-    func followers(matching query: String) -> Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
+    func followers(matching query: String) -> Endpoint.Paginated<String?, Swiftagram.User.Collection> {
         paginated("followers", matching: query)
     }
 
@@ -262,7 +244,7 @@ public extension Endpoint.Group.User {
     ///
     /// - parameter query: A valid `String`.
     /// - returns: A valid `Endpoint.Paginated`.
-    func following(matching query: String) -> Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
+    func following(matching query: String) -> Endpoint.Paginated<String?, Swiftagram.User.Collection> {
         paginated("following", matching: query)
     }
 }
@@ -274,26 +256,19 @@ fileprivate extension Endpoint.Group.User {
     ///     - endpoint: A valid `String`.
     ///     - query: An optional `String`.
     /// - returns: A valid `Endpoint.Paginated`.
-    func paginated(_ endpoint: String,
-                   matching query: String?)
-    -> Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
-        .init { secret, session, pages in
-            // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
-            // Prepare the actual pager.
-            return Pager(pages) {
-                Request.friendship(self)
+    func paginated(_ endpoint: String, matching query: String?) -> Endpoint.Paginated<String?, Swiftagram.User.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
+                Request.friendship(self.identifier)
                     .path(appending: endpoint)
                     .header(appending: secret.header)
-                    .header(appending: rank, forKey: "rank_token")
                     .query(appending: ["q": query, "max_id": $0])
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.User.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }

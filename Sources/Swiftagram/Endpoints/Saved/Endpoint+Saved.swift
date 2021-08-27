@@ -16,16 +16,16 @@ public extension Endpoint {
     /// A wrapper for saved-related endpoints.
     ///
     /// - returns: A valid `Endpoint.Group.Saved`.
-    static let saved: Endpoint.Group.Saved = .init()
+    static var saved: Endpoint.Group.Saved { .init() }
 }
 
 public extension Endpoint.Group.Saved {
     /// List all saved posts reguardless of their collection.
     ///
     /// - returns: A valid `Endpoint.Paginated`.
-    var posts: Endpoint.Paginated<Swiftagram.Media.Collection, String?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
+    var posts: Endpoint.Paginated<String?, Swiftagram.Media.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.feed
                     .saved
                     .appendingDefaultHeader()
@@ -33,21 +33,20 @@ public extension Endpoint.Group.Saved {
                     .query(appending: ["include_igtv_preview": "true",
                                        "show_igtv_first": "false",
                                        "max_id": $0])
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.Media.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 
     /// List all collections.
     ///
     /// - returns: A valid `Endpoint.Paginated`.
-    var collections: Endpoint.Paginated<SavedCollection.Collection, String?, Error> {
-        .init { secret, session, pages in
+    var collections: Endpoint.Paginated<String?, SavedCollection.Collection> {
+        .init { secret, pages, requester in
             let types = ["ALL_MEDIA_AUTO_COLLECTION",
                          "PRODUCT_AUTO_COLLECTION",
                          "MEDIA",
@@ -56,20 +55,19 @@ public extension Endpoint.Group.Saved {
                 .map { #""\#($0)""# }
                 .joined(separator: ",")
             // Return the actual publisher.
-            return Pager(pages) {
+            return Receivables.Pager(pages) {
                 Request.version1
                     .collections
                     .list
                     .query(appending: ["max_id": $0, "collection_types": "[\(types)]"])
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(SavedCollection.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }

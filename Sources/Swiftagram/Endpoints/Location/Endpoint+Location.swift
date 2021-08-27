@@ -35,7 +35,7 @@ public extension Endpoint {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    static func location(_ identifier: String) -> Endpoint.Single<Swiftagram.Location.Unit, Error> {
+    static func location(_ identifier: String) -> Endpoint.Single<Swiftagram.Location.Unit> {
         location(identifier).summary
     }
 
@@ -46,29 +46,27 @@ public extension Endpoint {
     ///     - query: An optional `String`. Defaults to `nil`.
     /// - returns: A valid `Endpoint.Single`.
     static func locations(around coordinates: Swiftagram.Location.Coordinates,
-                          matching query: String? = nil) -> Endpoint.Single<Swiftagram.Location.Collection, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.version1
-                    .appendingDefaultHeader()
-                    .path(appending: "location_search/")
-                    .header(appending: secret.header)
-                    .query(appending: [
-                        "rank_token": "",
-                        "latitude": "\(coordinates.latitude)",
-                        "longitude": "\(coordinates.longitude)",
-                        "timestamp": query == nil ? "\(Int(Date().timeIntervalSince1970 * 1_000))" : nil,
-                        "search_query": query,
-                        "_csrftoken": secret["csrftoken"],
-                        "_uid": secret.identifier,
-                        "_uuid": secret.client.device.identifier.uuidString
-                    ])
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Location.Collection.init)
-            }
-            .eraseToAnyPublisher()
+                          matching query: String? = nil) -> Endpoint.Single<Swiftagram.Location.Collection> {
+        .init { secret, requester in
+            Request.version1
+                .appendingDefaultHeader()
+                .path(appending: "location_search/")
+                .header(appending: secret.header)
+                .query(appending: [
+                    "rank_token": "",
+                    "latitude": "\(coordinates.latitude)",
+                    "longitude": "\(coordinates.longitude)",
+                    "timestamp": query == nil ? "\(Int(Date().timeIntervalSince1970 * 1_000))" : nil,
+                    "search_query": query,
+                    "_csrftoken": secret["csrftoken"],
+                    "_uid": secret.identifier,
+                    "_uuid": secret.client.device.identifier.uuidString
+                ])
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.Location.Collection.init)
+                .requested(by: requester)
         }
     }
 }
@@ -79,10 +77,10 @@ extension Request {
 
     /// A location related request.
     ///
-    /// - parameter location: A valid `Endpoint.Location`.
+    /// - parameter location: A valid `Endpoint.Location` identifier.
     /// - returns: A valid `Request`.
-    static func location(_ location: Endpoint.Group.Location) -> Request {
-        locations.path(appending: location.identifier)
+    static func location(_ location: String) -> Request {
+        locations.path(appending: location)
     }
 }
 
@@ -90,36 +88,32 @@ public extension Endpoint.Group.Location {
     /// A summary for the current location.
     ///
     /// - note: Prefer `Endpoint.location(_:)` instead.
-    var summary: Endpoint.Single<Swiftagram.Location.Unit, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.location(self)
-                    .path(appending: "info/")
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Location.Unit.init)
-            }
-            .replaceFailingWithError()
+    var summary: Endpoint.Single<Swiftagram.Location.Unit> {
+        .init { secret, requester in
+            Request.location(self.identifier)
+                .path(appending: "info/")
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.Location.Unit.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of some recent stories at the current location.
-    var stories: Endpoint.Single<TrayItem.Unit, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.location(self)
-                    .path(appending: "story/")
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(TrayItem.Unit.init)
-            }
-            .replaceFailingWithError()
+    var stories: Endpoint.Single<TrayItem.Unit> {
+        .init { secret, requester in
+            Request.location(self.identifier)
+                .path(appending: "story/")
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(TrayItem.Unit.init)
+                .requested(by: requester)
         }
     }
 }

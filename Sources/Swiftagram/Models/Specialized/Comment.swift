@@ -33,7 +33,7 @@ public struct Comment: Wrapped {
 
 public extension Comment {
     /// A `struct` representing a `Comment` collection.
-    struct Collection: Specialized, StringPaginatable {
+    struct Collection: Specialized, MaxIdPaginatableModel {
         /// The underlying `Wrapper`.
         public var wrapper: () -> Wrapper
 

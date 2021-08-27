@@ -32,7 +32,7 @@ public extension Endpoint.Group.Direct.Conversation.Request {
     ///
     /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func approve() -> Endpoint.Single<Status, Error> {
+    func approve() -> Endpoint.Single<Status> {
         conversation.edit("approve/")
     }
 
@@ -40,7 +40,7 @@ public extension Endpoint.Group.Direct.Conversation.Request {
     ///
     /// - returns: A valid `Endpoint.Single`.
     /// - warning: This is not tested in `SwiftagramTests`, so it might not work in the future. Open an `issue` if that happens.
-    func decline() -> Endpoint.Single<Status, Error> {
+    func decline() -> Endpoint.Single<Status> {
         conversation.edit("reject/")
     }
 }

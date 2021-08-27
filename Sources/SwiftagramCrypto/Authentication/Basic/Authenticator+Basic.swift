@@ -7,14 +7,14 @@
 
 import Foundation
 
-import ComposableStorage
+import Storages
 import SwCrypt
 
 public extension Authenticator.Group {
     /// A `struct` defining an authentication relying
     /// on username and password and supporting
     /// two factor authentication.
-    struct Basic: CustomClientAuthentication {
+    struct Basic<Requester: Requests.Requester>: CustomClientAuthentication {
         /// The underlying authenticator.
         public let authenticator: Authenticator
         /// The username.
@@ -41,58 +41,67 @@ public extension Authenticator.Group {
         ///
         /// - parameter client: A valid `Client`.
         /// - returns: A valid `Publisher`.
-        public func authenticate(in client: Client) -> AnyPublisher<Secret, Swift.Error> {
+        public func authenticate(in client: Client) -> Providers.Requester<Requester, Requester.Requested<Secret>> {
             // Fetch unauthenticated header fields.
-            Self.unauthenticatedHeader(for: client)
-                .flatMap { cookies -> AnyPublisher<Secret, Swift.Error> in
-                    // Make sure the CSRF token is set.
-                    guard cookies.contains(where: { $0.name == "csrftoken" }) else {
-                        return Fail(error: Authenticator.Error.invalidCookies(cookies)).eraseToAnyPublisher()
-                    }
-                    // Encrypt password.
-                    return Self.encrypt(password: self.password,
-                                        with: cookies,
-                                        for: client)
-                        .flatMap { Self.authenticate(username: self.username,
-                                                     encryptedPassword: $0,
-                                                     with: cookies,
-                                                     for: client,
-                                                     storedIn: self.authenticator.storage)
+            .init { requester in
+                Self.unauthenticatedHeader(for: client)
+                    .prepare(with: requester)
+                    .switch { cookies -> Requester.Requested<Secret> in
+                        // Make sure the CSRF token is set.
+                        guard cookies.contains(where: { $0.name == "csrftoken" }) else {
+                            return Requester.Once(error: Authenticator.Error.invalidCookies(cookies), with: requester)
+                                .requested(by: requester)
                         }
-                        .eraseToAnyPublisher()
-                }
-                .eraseToAnyPublisher()
+                        // Encrypt password.
+                        return Self.encrypt(password: self.password,
+                                            with: cookies,
+                                            for: client)
+                            .prepare(with: requester)
+                            .switch {
+                                Self.authenticate(username: self.username,
+                                                  encryptedPassword: $0,
+                                                  with: cookies,
+                                                  for: client,
+                                                  storedIn: self.authenticator.storage)
+                                    .prepare(with: requester)
+                            }
+                            .requested(by: requester)
+                    }
+                    .requested(by: requester)
+            }
         }
 
         /// Fetch unauthenticated header fields.
         ///
         /// - parameter client: A valid `Client`.
         /// - returns: Some `Publisher`.
-        private static func unauthenticatedHeader(for client: Client) -> AnyPublisher<[HTTPCookie], Swift.Error> {
-            Request.version1
-                .accounts
-                .read_msisdn_header
-                .path(appending: "/")
-                .appendingDefaultHeader()
-                .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
-                                    "X-IG-Android-ID": client.device.instagramIdentifier,
-                                    "User-Agent": client.description,
-                                    "X-DEVICE-ID": client.device.identifier.uuidString])
-                .signing(body: ["mobile_subno_usage": "default",
-                                "device_id": client.device.identifier.uuidString])
-                .publish(session: .ephemeral)
-                .tryMap { result -> [String: String] in
-                    guard let headers = (result.response as? HTTPURLResponse)?
-                            .allHeaderFields as? [String: String] else {
-                        throw Authenticator.Error.invalidResponse(result.response)
+        private static func unauthenticatedHeader(for client: Client) -> Providers.Requester<Requester, Requester.Requested<[HTTPCookie]>> {
+            .init { requester in
+                Request.version1
+                    .accounts
+                    .read_msisdn_header
+                    .path(appending: "/")
+                    .appendingDefaultHeader()
+                    .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                        "X-IG-Android-ID": client.device.instagramIdentifier,
+                                        "User-Agent": client.description,
+                                        "X-DEVICE-ID": client.device.identifier.uuidString])
+                    .signing(body: ["mobile_subno_usage": "default",
+                                    "device_id": client.device.identifier.uuidString])
+                    .prepare(with: requester)
+                    .tryMap { result -> [String: String] in
+                        guard let headers = (result.response as? HTTPURLResponse)?
+                                .allHeaderFields as? [String: String] else {
+                            throw Authenticator.Error.invalidResponse(result.response)
+                        }
+                        return headers
                     }
-                    return headers
-                }
-                .tryMap {
-                    guard let url = URL(string: ".instagram.com") else { throw Authenticator.Error.invalidURL }
-                    return HTTPCookie.cookies(withResponseHeaderFields: $0, for: url)
-                }
-                .eraseToAnyPublisher()
+                    .tryMap {
+                        guard let url = URL(string: ".instagram.com") else { throw Authenticator.Error.invalidURL }
+                        return HTTPCookie.cookies(withResponseHeaderFields: $0, for: url)
+                    }
+                    .requested(by: requester)
+            }
         }
 
         // swiftlint:disable function_body_length
@@ -106,77 +115,79 @@ public extension Authenticator.Group {
         /// - returns: Some `Publisher`.
         private static func encrypt(password: String,
                                     with cookies: [HTTPCookie],
-                                    for client: Client) -> AnyPublisher<String, Swift.Error> {
-            Request.version1
-                .qe
-                .sync
-                .path(appending: "/")
-                .appendingDefaultHeader()
-                .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
-                                    "X-IG-Android-ID": client.device.instagramIdentifier,
-                                    "User-Agent": client.description,
-                                    "X-DEVICE-ID": client.device.identifier.uuidString])
-                .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
-                .signing(body: ["id": client.device.identifier.uuidString,
-                                "experiments": Constants.loginExperiments])
-                .publish(session: .ephemeral)
-                .tryMap { result -> [String: String] in
-                    guard let response = result.response as? HTTPURLResponse,
-                          let header = response.allHeaderFields as? [String: String],
-                          try Wrapper.decode(result.data).status.string() == "ok" else {
-                        throw Authenticator.Error.invalidResponse(result.response)
+                                    for client: Client) -> Providers.Requester<Requester, Requester.Requested<String>> {
+            .init { requester in
+                Request.version1
+                    .qe
+                    .sync
+                    .path(appending: "/")
+                    .appendingDefaultHeader()
+                    .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                        "X-IG-Android-ID": client.device.instagramIdentifier,
+                                        "User-Agent": client.description,
+                                        "X-DEVICE-ID": client.device.identifier.uuidString])
+                    .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
+                    .signing(body: ["id": client.device.identifier.uuidString,
+                                    "experiments": Constants.loginExperiments])
+                    .prepare(with: requester)
+                    .tryMap { result -> [String: String] in
+                        guard let response = result.response as? HTTPURLResponse,
+                              let header = response.allHeaderFields as? [String: String],
+                              try Wrapper.decode(result.data).status.string() == "ok" else {
+                            throw Authenticator.Error.invalidResponse(result.response)
+                        }
+                        return header
                     }
-                    return header
-                }
-                .tryMap { header -> String in
-                    // Make sure encryption is available.
-                    guard CC.RSA.available(), CC.GCM.available() else {
-                        throw SigningError.cryptographyUnavailable
+                    .tryMap { header -> String in
+                        // Make sure encryption is available.
+                        guard CC.RSA.available(), CC.GCM.available() else {
+                            throw SigningError.cryptographyUnavailable
+                        }
+                        // Read kyes.
+                        guard let passwordKeyId = header["ig-set-password-encryption-key-id"].flatMap(UInt8.init),
+                              let passwordPublicKey = header["ig-set-password-encryption-pub-key"]
+                                .flatMap({ Data(base64Encoded: $0) })
+                                .flatMap({ String(data: $0, encoding: .utf8) }),
+                              let passwordData = password.data(using: .utf8) else {
+                            throw SigningError.invalidRepresentation
+                        }
+                        // Encrypt password.
+                        let randomKey = Data((0..<32).map { _ in UInt8.random(in: 0...255) })
+                        let iv = Data((0..<12).map { _ in UInt8.random(in: 0...255) })
+                        let time = "\(Int(Date().timeIntervalSince1970))"
+                        guard let timeData = time.data(using: .utf8) else {
+                            throw SigningError.invalidRepresentation
+                        }
+                        // AES-GCM-256.
+                        let (aesEncrypted, authenticationTag) = try CC.GCM.crypt(.encrypt,
+                                                                                 algorithm: .aes,
+                                                                                 data: passwordData,
+                                                                                 key: randomKey,
+                                                                                 iv: iv,
+                                                                                 aData: timeData,
+                                                                                 tagLength: 16)
+                        // RSA.
+                        let publicKey = try SwKeyConvert.PublicKey.pemToPKCS1DER(passwordPublicKey)
+                        let rsaEncrypted = try CC.RSA.encrypt(randomKey,
+                                                              derKey: publicKey,
+                                                              tag: .init(),
+                                                              padding: .pkcs1,
+                                                              digest: .none)
+                        var rsaEncryptedLELength = UInt16(littleEndian: UInt16(rsaEncrypted.count))
+                        let rsaEncryptedLength = Data(bytes: &rsaEncryptedLELength, count: MemoryLayout<UInt16>.size)
+                        // Compute `enc_password`.
+                        var data = Data()
+                        data.append(1)
+                        data.append(passwordKeyId)
+                        data.append(iv)
+                        data.append(rsaEncryptedLength)
+                        data.append(rsaEncrypted)
+                        data.append(authenticationTag)
+                        data.append(aesEncrypted)
+                        return "#PWD_INSTAGRAM:4:\(time):\(data.base64EncodedString())"
                     }
-                    // Read kyes.
-                    guard let passwordKeyId = header["ig-set-password-encryption-key-id"].flatMap(UInt8.init),
-                          let passwordPublicKey = header["ig-set-password-encryption-pub-key"]
-                            .flatMap({ Data(base64Encoded: $0) })
-                            .flatMap({ String(data: $0, encoding: .utf8) }),
-                          let passwordData = password.data(using: .utf8) else {
-                        throw SigningError.invalidRepresentation
-                    }
-                    // Encrypt password.
-                    let randomKey = Data((0..<32).map { _ in UInt8.random(in: 0...255) })
-                    let iv = Data((0..<12).map { _ in UInt8.random(in: 0...255) })
-                    let time = "\(Int(Date().timeIntervalSince1970))"
-                    guard let timeData = time.data(using: .utf8) else {
-                        throw SigningError.invalidRepresentation
-                    }
-                    // AES-GCM-256.
-                    let (aesEncrypted, authenticationTag) = try CC.GCM.crypt(.encrypt,
-                                                                             algorithm: .aes,
-                                                                             data: passwordData,
-                                                                             key: randomKey,
-                                                                             iv: iv,
-                                                                             aData: timeData,
-                                                                             tagLength: 16)
-                    // RSA.
-                    let publicKey = try SwKeyConvert.PublicKey.pemToPKCS1DER(passwordPublicKey)
-                    let rsaEncrypted = try CC.RSA.encrypt(randomKey,
-                                                          derKey: publicKey,
-                                                          tag: .init(),
-                                                          padding: .pkcs1,
-                                                          digest: .none)
-                    var rsaEncryptedLELength = UInt16(littleEndian: UInt16(rsaEncrypted.count))
-                    let rsaEncryptedLength = Data(bytes: &rsaEncryptedLELength, count: MemoryLayout<UInt16>.size)
-                    // Compute `enc_password`.
-                    var data = Data()
-                    data.append(1)
-                    data.append(passwordKeyId)
-                    data.append(iv)
-                    data.append(rsaEncryptedLength)
-                    data.append(rsaEncrypted)
-                    data.append(authenticationTag)
-                    data.append(aesEncrypted)
-                    return "#PWD_INSTAGRAM:4:\(time):\(data.base64EncodedString())"
-                }
-                .eraseToAnyPublisher()
+                    .requested(by: requester)
+            }
         }
         // swiftlint:enable function_body_length
 
@@ -194,8 +205,8 @@ public extension Authenticator.Group {
                                                      encryptedPassword: String,
                                                      with cookies: [HTTPCookie],
                                                      for client: Client,
-                                                     storedIn storage: S) -> AnyPublisher<Secret, Swift.Error>
-        where S.Item == Secret {
+                                                     storedIn storage: S)
+        -> Providers.Requester<Requester, Requester.Requested<Secret>> where S.Item == Secret {
             // Check for cross site request forgery token.
             guard let crossSiteRequestForgery = cookies.first(where: { $0.name == "csrftoken" }),
                   let jazoest = client.device
@@ -203,67 +214,72 @@ public extension Authenticator.Group {
                     .uuidString
                     .data(using: .ascii)?
                     .reduce(into: 0, { $0 += Int($1) }) else {
-                return Fail(error: Authenticator.Error.invalidCookies(cookies)).eraseToAnyPublisher()
+                return .init {
+                    Requester.Once(error: Authenticator.Error.invalidCookies(cookies), with: $0)
+                        .requested(by: $0)
+                }
             }
             // Obtain authenticated cookies.
-            return Request.version1
-                .accounts
-                .login
-                .path(appending: "/")
-                .appendingDefaultHeader()
-                .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
-                                    "X-IG-Android-ID": client.device.instagramIdentifier,
-                                    "User-Agent": client.description,
-                                    "X-Csrf-Token": crossSiteRequestForgery.value])
-                .signing(body: [
-                    "username": username,
-                    "enc_password": encryptedPassword,
-                    "guid": client.device.identifier.uuidString,
-                    "phone_id": client.device.phoneIdentifier.uuidString,
-                    "device_id": client.device.instagramIdentifier,
-                    "adid": "",
-                    "google_tokens": "[]",
-                    "country_codes": #"[{"country_code":"1","source": "default"}]"#,
-                    "login_attempt_count": "0",
-                    "jazoest": "2\(jazoest)"
-                ])
-                .publish(session: .ephemeral)
-                .tryMap { result throws -> Secret in
-                    let value = try Wrapper.decode(result.data)
-                    // Make sure the response is correct.
-                    guard !value.isEmpty, let response = result.response as? HTTPURLResponse else {
-                        throw Authenticator.Error.invalidResponse(result.response)
-                    }
-                    // Deal with two factor authentication.
-                    if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string(converting: true) {
-                        throw Authenticator.Error.twoFactorChallenge(
-                            .init(storage: storage,
-                                  client: client,
-                                  identifier: twoFactorIdentifier,
-                                  username: username,
-                                  crossSiteRequestForgery: crossSiteRequestForgery)
-                        )
-                    } else if let error = value.errorType.string() {
-                        switch error {
-                        case "bad_password":
-                            throw Authenticator.Error.invalidPassword
-                        case "invalid_user":
-                            throw Authenticator.Error.invalidUsername
-                        default:
-                            throw Authenticator.Error.generic(error)
+            return .init { requester in
+                Request.version1
+                    .accounts
+                    .login
+                    .path(appending: "/")
+                    .appendingDefaultHeader()
+                    .header(appending: ["X-IG-Device-ID": client.device.identifier.uuidString.lowercased(),
+                                        "X-IG-Android-ID": client.device.instagramIdentifier,
+                                        "User-Agent": client.description,
+                                        "X-Csrf-Token": crossSiteRequestForgery.value])
+                    .signing(body: [
+                        "username": username,
+                        "enc_password": encryptedPassword,
+                        "guid": client.device.identifier.uuidString,
+                        "phone_id": client.device.phoneIdentifier.uuidString,
+                        "device_id": client.device.instagramIdentifier,
+                        "adid": "",
+                        "google_tokens": "[]",
+                        "country_codes": #"[{"country_code":"1","source": "default"}]"#,
+                        "login_attempt_count": "0",
+                        "jazoest": "2\(jazoest)"
+                    ])
+                    .prepare(with: requester)
+                    .tryMap { result throws -> Secret in
+                        let value = try Wrapper.decode(result.data)
+                        // Make sure the response is correct.
+                        guard !value.isEmpty, let response = result.response as? HTTPURLResponse else {
+                            throw Authenticator.Error.invalidResponse(result.response)
                         }
-                    } else if value.loggedInUser.pk.int() != nil, let url = URL(string: "https://instagram.com") {
-                        let headers = (response.allHeaderFields as? [String: String]) ?? [:]
-                        let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: url)
-                        guard let secret = Secret(cookies: cookies, client: client) else {
-                            throw Authenticator.Error.invalidCookies(cookies)
+                        // Deal with two factor authentication.
+                        if let twoFactorIdentifier = value.twoFactorInfo.twoFactorIdentifier.string(converting: true) {
+                            throw Authenticator.Error.twoFactorChallenge(
+                                .init(storage: storage,
+                                      client: client,
+                                      identifier: twoFactorIdentifier,
+                                      username: username,
+                                      crossSiteRequestForgery: crossSiteRequestForgery)
+                            )
+                        } else if let error = value.errorType.string() {
+                            switch error {
+                            case "bad_password":
+                                throw Authenticator.Error.invalidPassword
+                            case "invalid_user":
+                                throw Authenticator.Error.invalidUsername
+                            default:
+                                throw Authenticator.Error.generic(error)
+                            }
+                        } else if value.loggedInUser.pk.int() != nil, let url = URL(string: "https://instagram.com") {
+                            let headers = (response.allHeaderFields as? [String: String]) ?? [:]
+                            let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: url)
+                            guard let secret = Secret(cookies: cookies, client: client) else {
+                                throw Authenticator.Error.invalidCookies(cookies)
+                            }
+                            return try S.store(secret, in: storage)
+                        } else {
+                            throw Authenticator.Error.invalidResponse(response)
                         }
-                        return try S.store(secret, in: storage)
-                    } else {
-                        throw Authenticator.Error.invalidResponse(response)
                     }
-                }
-                .eraseToAnyPublisher()
+                    .requested(by: requester)
+            }
         }
         // swiftlint:enable function_body_length
     }
@@ -280,7 +296,7 @@ public extension Authenticator {
     ///     - username: A valid `String`.
     ///     - password: A valid `String`.
     /// - returns: A valid `Group.Basic`.
-    func basic(username: String, password: String) -> Group.Basic {
+    func basic<R: Requester>(username: String, password: String) -> Group.Basic<R> {
         .init(authenticator: self, username: username, password: password)
     }
 }

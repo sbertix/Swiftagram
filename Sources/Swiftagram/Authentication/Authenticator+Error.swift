@@ -7,7 +7,7 @@
 
 import Foundation
 
-import ComposableStorage
+import Storages
 
 public extension Authenticator {
     /// An `enum` listing some authentication-specific errors.

@@ -14,7 +14,7 @@ public extension Endpoint.Group {
 
 public extension Endpoint {
     /// A wrapper for explore endpoints.
-    static let explore: Group.Explore = .init()
+    static var explore: Group.Explore { .init() }
 }
 
 extension Request {
@@ -24,29 +24,25 @@ extension Request {
 
 public extension Endpoint.Group.Explore {
     /// A list of posts in the explore page.
-    var posts: Endpoint.Paginated<Wrapper, String?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
+    var posts: Endpoint.Paginated<String?, Wrapper> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.discover
                     .explore
                     .header(appending: secret.header)
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
-                    .iterateFirst(stoppingAt: $0) {
-                        $0.flatMap { $0.nextMaxId.string(converting: true) }
-                            .flatMap(Instruction.load) ?? .stop
-                    }
+                    .decode()
             }
-            .eraseToAnyPublisher()
+            .requested(by: requester)
         }
     }
 
     /// A list of topics in the explore page.
-    var topics: Endpoint.Paginated<Wrapper, String?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
+    var topics: Endpoint.Paginated<String?, Wrapper> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.discover
                     .topical_explore
                     .header(appending: secret.header)
@@ -57,15 +53,11 @@ public extension Endpoint.Group.Explore {
                                        "session_id": secret["sessionid"],
                                        "include_fixed_destinations": "false",
                                        "max_id": $0])
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
-                    .iterateFirst(stoppingAt: $0) {
-                        $0.flatMap { $0.nextMaxId.string(converting: true) }
-                            .flatMap(Instruction.load) ?? .stop
-                    }
+                    .decode()
             }
-            .eraseToAnyPublisher()
+            .requested(by: requester)
         }
     }
 }

@@ -14,67 +14,61 @@ public extension Endpoint.Group {
 
 public extension Endpoint {
     /// A wrapper for users endpoints.
-    static let users: Group.Users = .init()
+    static var users: Group.Users { .init() }
 
     /// All user matching `query`.
     ///
     /// - parameter query: A `String` holding reference to a valid user query.
     /// - returns: A valid `Endpoint.Pagianted`.
-    static func users(matching query: String) -> Endpoint.Paginated < Swiftagram.User.Collection,
-                                                                    RankedOffset<String?, String?>,
-                                                                    Error> {
-        .init { secret, session, pages in
+    static func users(matching query: String) -> Endpoint.Paginated<String?, Swiftagram.User.Collection> {
+        .init { secret, pages, requester in
             // Persist the rank token.
-            let rank = pages.rank ?? UUID().uuidString
+            let rank = UUID().uuidString
             // Prepare the actual pager.
-            return Pager(pages) {
+            return Receivables.Pager(pages) {
                 Request.users
                     .search
                     .header(appending: secret.header)
                     .header(appending: rank, forKey: "rank_token")
                     .query(appending: ["q": query, "max_id": $0])
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.User.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }
 
 public extension Endpoint.Group.Users {
     /// A list of all profiles blocked by the logged in user.
-    var blocked: Endpoint.Single<Wrapper, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.users
-                    .blocked_list
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-            }
-            .eraseToAnyPublisher()
+    var blocked: Endpoint.Single<Wrapper> {
+        .init { secret, requester in
+            Request.users
+                .blocked_list
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .requested(by: requester)
         }
     }
 
     /// A list of users who requested to follow you.
-    var requests: Endpoint.Paginated<Swiftagram.User.Collection, String?, Error> {
-        .init { secret, session, pages in
-            Pager(pages) {
+    var requests: Endpoint.Paginated<String?, Swiftagram.User.Collection> {
+        .init { secret, pages, requester in
+            Receivables.Pager(pages) {
                 Request.friendships
                     .pending
                     .header(appending: secret.header)
                     .query(appending: $0, forKey: "max_id")
-                    .publish(with: session)
+                    .prepare(with: requester)
                     .map(\.data)
-                    .wrap()
+                    .decode()
                     .map(Swiftagram.User.Collection.init)
-                    .iterateFirst(stoppingAt: $0)
             }
-            .replaceFailingWithError()
+            .requested(by: requester)
         }
     }
 }

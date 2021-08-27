@@ -14,7 +14,7 @@ import WebKit
 ///
 /// - note: This should **only** be used for Instagram authentication.
 @available(iOS 11, macOS 10.13, macCatalyst 13, *)
-internal final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
+internal final class AuthenticatorWebView<Requester: Requests.Requester>: WKWebView, WKNavigationDelegate {
     /// The underlying client.
     private let client: Client
     /// Whether it's still authenticating or not.
@@ -34,11 +34,8 @@ internal final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
     }
     /// A semaphore used for processing data safely.
     private let semaphore: DispatchSemaphore = .init(value: 1)
-    /// The actual authenticator subject.
-    private let subject: CurrentValueSubject<Secret?, Swift.Error> = .init(nil)
-
-    /// The authenticator publisher.
-    lazy var secret: AnyPublisher<Secret, Swift.Error> = { subject.compactMap { $0 }.eraseToAnyPublisher() }()
+    /// The completion handler.
+    var completion: ((Result<Secret, Error>) -> Void)?
 
     /// Init.
     ///
@@ -107,13 +104,12 @@ internal final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
                     let cookies = $0.filter { $0.domain.contains(".instagram.com") }
                     switch Secret(cookies: cookies, client: self.client) {
                     case let secret?:
-                        self.subject.send(secret)
-                        self.subject.send(completion: .finished)
+                        self.completion?(.success(secret))
                         self.isAuthenticating = false
                     default:
                         // Only notify an error if we're on the home page.
                         guard webView.url?.absoluteString == "https://www.instagram.com/" else { break }
-                        self.subject.send(completion: .failure(Authenticator.Error.invalidCookies(cookies)))
+                        self.completion?(.failure(Authenticator.Error.invalidCookies(cookies)))
                         self.isAuthenticating = false
                     }
                     self.semaphore.signal()

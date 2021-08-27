@@ -35,7 +35,7 @@ public extension Endpoint {
     ///
     /// - parameter name: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    static func tag(_ name: String) -> Endpoint.Single<Swiftagram.Tag, Error> {
+    static func tag(_ name: String) -> Endpoint.Single<Swiftagram.Tag> {
         tag(name).summary
     }
 }
@@ -43,12 +43,12 @@ public extension Endpoint {
 extension Request {
     /// A tag-related request.
     ///
-    /// - parameter tag: A valid `Tag`.
+    /// - parameter tag: A valid `Tag` name.
     /// - returns: A valid `Request`.
-    static func tag(_ tag: Endpoint.Group.Tag) -> Request {
+    static func tag(_ tag: String) -> Request {
         Request.version1
             .tags
-            .path(appending: tag.name)
+            .path(appending: tag)
             .appendingDefaultHeader()
     }
 }
@@ -57,36 +57,32 @@ public extension Endpoint.Group.Tag {
     /// A summary for the current tag.
     ///
     /// - note: Prefer `Endpoint.tag(_:)` instead.
-    var summary: Endpoint.Single<Swiftagram.Tag, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.tag(self)
-                    .path(appending: "info/")
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(Swiftagram.Tag.init)
-            }
-            .replaceFailingWithError()
+    var summary: Endpoint.Single<Swiftagram.Tag> {
+        .init { secret, requester in
+            Request.tag(self.name)
+                .path(appending: "info/")
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(Swiftagram.Tag.init)
+                .requested(by: requester)
         }
     }
 
     /// A list of some recent stories for the current tag.
-    var stories: Endpoint.Single<TrayItem.Unit, Error> {
-        .init { secret, session in
-            Deferred {
-                Request.tag(self)
-                    .path(appending: "story/")
-                    .appendingDefaultHeader()
-                    .header(appending: secret.header)
-                    .publish(with: session)
-                    .map(\.data)
-                    .wrap()
-                    .map(TrayItem.Unit.init)
-            }
-            .replaceFailingWithError()
+    var stories: Endpoint.Single<TrayItem.Unit> {
+        .init { secret, requester in
+            Request.tag(self.name)
+                .path(appending: "story/")
+                .appendingDefaultHeader()
+                .header(appending: secret.header)
+                .prepare(with: requester)
+                .map(\.data)
+                .decode()
+                .map(TrayItem.Unit.init)
+                .requested(by: requester)
         }
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-import ComposableStorage
+import Storages
 
 /// A `struct` defining the logged in user authentication parameters.
 ///
