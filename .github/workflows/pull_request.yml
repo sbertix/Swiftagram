@@ -37,7 +37,7 @@ jobs:
       # create the changelog.
       - name:              Changelog
         id:                changelog
-        uses:              metcalfc/changelog-generator@v1.0.0
+        uses:              metcalfc/changelog-generator@v2.0.0
         with:
           mytoken:         ${{ secrets.GITHUB_TOKEN }}
           head-ref:        ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
