@@ -69,6 +69,7 @@ public extension Endpoint.Group.Recent {
                 Request.version1
                     .news
                     .inbox
+                    .path(appending: "/")
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
                     .publish(with: session)
@@ -127,6 +128,7 @@ public extension Endpoint.Group.Recent {
             Deferred {
                 Request.feed
                     .reels_tray
+                    .path(appending: "/")
                     .header(appending: secret.header)
                     .publish(with: session)
                     .map(\.data)

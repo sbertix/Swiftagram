@@ -147,6 +147,7 @@ public extension Endpoint.Group.Media {
             return Pager(pages) {
                 Request.media(self)
                     .comments
+                    .path(appending: "/")
                     .header(appending: secret.header)
                     .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
@@ -171,6 +172,7 @@ public extension Endpoint.Group.Media {
             return Pager(pages) {
                 Request.media(self)
                     .likers
+                    .path(appending: "/")
                     .header(appending: secret.header)
                     .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")

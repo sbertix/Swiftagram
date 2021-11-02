@@ -101,6 +101,7 @@ public extension Endpoint.Group.User {
             Deferred {
                 Request.user(self)
                     .info
+                    .path(appending: "/")
                     .header(appending: secret.header)
                     .publish(with: session)
                     .map(\.data)
@@ -113,12 +114,12 @@ public extension Endpoint.Group.User {
 
     /// A list of profiles following the user.
     var followers: Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
-        paginated("followers", matching: nil)
+        paginated("followers/", matching: nil)
     }
 
     /// A list of profiles followed by the user.
     var following: Endpoint.Paginated<Swiftagram.User.Collection, RankedOffset<String?, String?>, Error> {
-        paginated("following", matching: nil)
+        paginated("following/", matching: nil)
     }
 
     /// The current friendship status between the given user and the logged in one.
@@ -165,6 +166,7 @@ public extension Endpoint.Group.User {
                 Request.version1.feed
                     .user
                     .path(appending: self.identifier)
+                    .path(appending: "/")
                     .header(appending: secret.header)
                     .query(appending: ["exclude_comment": "false",
                                        "only_fetch_first_carousel_media": "false"])
@@ -205,6 +207,7 @@ public extension Endpoint.Group.User {
                     .user
                     .path(appending: self.identifier)
                     .story
+                    .path(appending: "/")
                     .appendingDefaultHeader()
                     .header(appending: secret.header)
                     .query(appending: [

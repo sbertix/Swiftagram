@@ -48,6 +48,7 @@ public extension Endpoint.Group.Posts {
             return Pager(pages) {
                 Request.feed
                     .liked
+                    .path(appending: "/")
                     .header(appending: secret.header)
                     .header(appending: rank, forKey: "rank_token")
                     .query(appending: $0, forKey: "max_id")
