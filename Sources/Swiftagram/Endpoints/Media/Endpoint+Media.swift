@@ -43,7 +43,7 @@ public extension Endpoint {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    static func media(_ identifier: String) -> Endpoint.Single<Swiftagram.Media.Unit, Swift.Error> {
+    static func media(_ identifier: String) -> Endpoint.Single<Swiftagram.Media.Collection, Swift.Error> {
         media(identifier).summary
     }
 
@@ -78,7 +78,7 @@ public extension Endpoint {
     ///
     /// - parameter url: A valid `URL`.
     /// - returns: A valid `Endpoint.Single`.
-    static func media(at url: URL) -> Endpoint.Single<Swiftagram.Media.Unit, Swift.Error> {
+    static func media(at url: URL) -> Endpoint.Single<Swiftagram.Media.Collection, Swift.Error> {
         .init { secret, session in
             Just(url)
                 .tryMap(self.media)
@@ -121,7 +121,7 @@ public extension Endpoint.Group.Media {
     /// A summary for the current media.
     ///
     /// - note: Prefer `Endpoint.media(_:)` instead.
-    var summary: Endpoint.Single<Swiftagram.Media.Unit, Swift.Error> {
+    var summary: Endpoint.Single<Swiftagram.Media.Collection, Swift.Error> {
         .init { secret, session in
             Deferred {
                 Request.media(self)
@@ -130,7 +130,7 @@ public extension Endpoint.Group.Media {
                     .publish(with: session)
                     .map(\.data)
                     .wrap()
-                    .map(Swiftagram.Media.Unit.init)
+                    .map(Swiftagram.Media.Collection.init)
             }
             .replaceFailingWithError()
         }
