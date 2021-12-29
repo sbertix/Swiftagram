@@ -72,7 +72,7 @@ public extension Authenticator.Group.Basic {
                 .publish(session: .ephemeral)
                 .tryMap { result throws -> Secret in
                     let value = try Wrapper.decode(result.data)
-                    guard value.isEmpty, let response = result.response as? HTTPURLResponse else {
+                    guard !value.isEmpty, let response = result.response as? HTTPURLResponse else {
                         throw Authenticator.Error.invalidResponse(result.response)
                     }
                     // Prepare the actual `Secret`.
