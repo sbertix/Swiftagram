@@ -627,8 +627,5 @@ internal final class EndpointTests: XCTestCase {
     }
     // swiftlint:enable function_body_length
 }
-// swiftlint:enable file_length
-// swiftlint:enable function_body_length
-// swiftlint:enable type_body_length
 
 #endif
