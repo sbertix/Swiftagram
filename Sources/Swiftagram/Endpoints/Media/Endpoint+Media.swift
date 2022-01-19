@@ -126,6 +126,7 @@ public extension Endpoint.Group.Media {
             Deferred {
                 Request.media(self)
                     .info
+                    .path(appending: "/")
                     .header(appending: secret.header)
                     .publish(with: session)
                     .map(\.data)
