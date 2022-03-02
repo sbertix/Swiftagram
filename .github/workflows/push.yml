@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name:                Checkout
-        uses:                actions/checkout@v2
+        uses:                actions/checkout@v3
       # only lint on actual code changes.
       - uses:                dorny/paths-filter@v2
         id:                  changes
@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name:                Checkout
-        uses:                actions/checkout@v2
+        uses:                actions/checkout@v3
       # only build on actual code changes.
       - uses:                dorny/paths-filter@v2
         id:                  changes
@@ -59,7 +59,7 @@ jobs:
       # checkout `main`.
       - name:                Checkout
         id:                  checkout
-        uses:                actions/checkout@v2
+        uses:                actions/checkout@v3
         with:
           fetch-depth:       0
           token:             ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
       # checkout the `main` branch.
       - name:                Checkout
         id:                  checkout
-        uses:                actions/checkout@v2
+        uses:                actions/checkout@v3
         with:
           token:             ${{ secrets.GITHUB_TOKEN }}
           ref:               main
