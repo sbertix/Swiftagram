@@ -5,6 +5,7 @@
 //  Created by Stefano Bertagno on 07/02/21.
 //
 
+import Combine
 import SwiftUI
 import UIKit
 import WebKit
@@ -22,6 +23,7 @@ internal class LoginViewController: UIViewController {
                 Authenticator.transient
                     .visual(filling: self.view)
                     .authenticate()
+                    .prepare(with: .combine(session: .ephemeral))
                     .sink(receiveCompletion: { _ in self.dismiss(animated: true, completion: nil) },
                           receiveValue: completion)
                     .store(in: &self.bin)

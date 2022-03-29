@@ -128,7 +128,7 @@ Below you can find a list of `4.2.*` `Endpoint`s with related `5.0.0` ones.
 | 4.2.* | 5.0.0 |
 |---|---|
 | `users(like:)` | `Endpoint.user(_:).similar` |
-| `explore(startingAt:)` | `Endpoint.explore.posts` |
+| `explore(startingAt:)` | **no longer available** |
 | `topics(startingAt:)` | `Endpoint.explore.topics` |
 
 #### `Endpoint.Friendship`
@@ -188,7 +188,7 @@ Below you can find a list of `4.2.*` `Endpoint`s with related `5.0.0` ones.
 | `comment(_:on:replyingTo:)` | `Endpoint.media(_:).comment(with:under:)` |
 | `delete(comments:on:)` | `Endpoint.media(_:).comments(_:).delete()`<br />`Endpoint.media(_:).comment(_:).delete()` |
 | `upload(image:captioned:tagging:at:)` | `Endpoint.posts.upload(image:captioned:tagging:at:)` |
-| `upload(video:preview:captioned:tagging:at:)` | `Endpoint.posts.upload(video:preview:captioned:tagging:at:)` |
+| `upload(video:preview:captioned:tagging:at:)` | **no longer available** |
 
 #### `Endpoint.Media.Stories`
 
@@ -201,7 +201,7 @@ Below you can find a list of `4.2.*` `Endpoint`s with related `5.0.0` ones.
 | `owned(by:)` | `Endpoint.user(_:).stories` |
 | `owned(by:)` | `Endpoint.stories(_:)`<br />`Endpoint.users(_:).stories` |
 | `upload(image:stickers:isCloseFriendsOnly:)` | `Endpoint.stories.upload(image:stickers:isCloseFriendsOnly:)` |
-| `upload(video:preview:stickers:isCloseFriendsOnly:)` | `Endpoint.stories.upload(video:preview:stickers:isCloseFriendsOnly:)` |
+| `upload(video:preview:stickers:isCloseFriendsOnly:)` | **no longer available** |
 
 #### `Endpoint.News`
 

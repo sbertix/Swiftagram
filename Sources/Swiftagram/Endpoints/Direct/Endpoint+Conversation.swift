@@ -82,22 +82,6 @@ public extension Endpoint.Group.Direct.Conversation {
         edit("hide/", body: ["use_unified_inbox": "true"])
     }
 
-    /// Invite users based on their identifier.
-    ///
-    /// - parameter userIdentifiers: A collection of `String`s.
-    /// - returns: A valid `Endpoint.Single`.
-    func invite<C: Collection>(_ userIdentifiers: C) -> Endpoint.Single<Status> where C.Element == String {
-        edit("add_user/", body: ["user_ids": "[" + userIdentifiers.joined(separator: ",") + "]"])
-    }
-
-    /// Invite a user based on their identifier.
-    ///
-    /// - parameter userIdentifier: A valid `String`.
-    /// - returns: A valid `Endpoint.Single`.
-    func invite(_ userIdentifier: String) -> Endpoint.Single<Status> {
-        invite([userIdentifier])
-    }
-
     /// Leave the current conversation.
     ///
     /// - returns: A valid `Endpoint.Single`.

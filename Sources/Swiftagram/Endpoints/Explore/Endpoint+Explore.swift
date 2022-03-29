@@ -23,22 +23,6 @@ extension Request {
 }
 
 public extension Endpoint.Group.Explore {
-    /// A list of posts in the explore page.
-    var posts: Endpoint.Paginated<String?, Wrapper> {
-        .init { secret, pages, requester in
-            Receivables.Pager(pages) {
-                Request.discover
-                    .explore
-                    .header(appending: secret.header)
-                    .query(appending: $0, forKey: "max_id")
-                    .prepare(with: requester)
-                    .map(\.data)
-                    .decode()
-            }
-            .requested(by: requester)
-        }
-    }
-
     /// A list of topics in the explore page.
     var topics: Endpoint.Paginated<String?, Wrapper> {
         .init { secret, pages, requester in

@@ -34,6 +34,7 @@ private let timeout: TimeInterval = 30
 // swiftlint:disable function_body_length
 // swiftlint:disable type_body_length
 /// A `class` dealing with testing all available `Endpoint`s.
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 internal final class EndpointTests: XCTestCase {
     /// The underlying dispose bag.
     private var bin: Set<AnyCancellable> = []
@@ -75,7 +76,10 @@ internal final class EndpointTests: XCTestCase {
                 },
                 receiveValue: {
                     let wrapper = $0.wrapped
-                    XCTAssert(wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true, "\(identifier) #\(line)")
+                    XCTAssert(
+                        wrapper.status.string() == "ok" || wrapper.response.spam.bool() == true,
+                        "\((try? wrapper.jsonRepresentation()) ?? "") \(identifier) #\(line)"
+                    )
                     reference.value = $0
                 }
             )
@@ -199,10 +203,6 @@ internal final class EndpointTests: XCTestCase {
                     "Endpoint.direct.Conversation.Message.open")
         performTest(on: Endpoint.direct
                         .conversation("340282366841710300949128131067346707174")
-                        .invite("208803632"),
-                    "Endpoint.direct.Conversation.invite")
-        performTest(on: Endpoint.direct
-                        .conversation("340282366841710300949128131067346707174")
                         .title("Tests"),
                     "Endpoint.direct.Conversation.title")
         if let identifier = performTest(on: Endpoint.direct
@@ -229,9 +229,6 @@ internal final class EndpointTests: XCTestCase {
 
     /// Test `Endpoint.Explore`.
     func testEndpointExplore() {
-        performTest(on: Endpoint.explore
-                        .posts,
-                    "Endpoint.Explore.posts")
         performTest(on: Endpoint.explore
                         .topics,
                     "Endpoint.Explore.topics")
@@ -319,16 +316,6 @@ internal final class EndpointTests: XCTestCase {
                                      "Endpoint.Posts.uploadImage"),
            let identifier = wrapper.media?.identifier {
             performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Posts.deleteImage")
-        }
-        if let image = Agnostic.Color.blue.image(size: .init(width: 640, height: 360)),
-           let url = URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/landscape.mp4"),
-           let wrapper = performTest(on: Endpoint.posts.upload(video: url,
-                                                               preview: image,
-                                                               captioned: nil,
-                                                               tagging: []),
-                                     "Endpoint.Posts.uploadVideo"),
-           let identifier = wrapper.media?.identifier {
-            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Posts.deleteVideo")
         }
     }
 
@@ -485,12 +472,6 @@ internal final class EndpointTests: XCTestCase {
            let identifier = wrapper.media?.identifier {
             performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteImage")
         }
-        //        if let wrapper = performTest(on: Endpoint.stories.upload(video: URL(string: "https://raw.githubusercontent.com/sbertix/Swiftagram/main/Resources/portrait.mp4")!,
-        //                                                                 stickers: [.mention("208803632")]),
-        //                                     "Endpoint.Media.Stories.uploadVideo"),
-        //           let identifier = wrapper.media?.identifier {
-        //            performTest(on: Endpoint.media(identifier).delete(), "Endpoint.Stories.deleteVideo")
-        //        }
     }
 
     /// Test tag endpoints.
