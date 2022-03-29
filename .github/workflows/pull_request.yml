@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name:              Checkout
-        uses:              actions/checkout@v2
+        uses:              actions/checkout@v3
         with:
           token:           ${{ secrets.GITHUB_TOKEN }}
           repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name:              Checkout
-        uses:              actions/checkout@v2
+        uses:              actions/checkout@v3
         with:
           token:           ${{ secrets.GITHUB_TOKEN }}
           repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
@@ -37,7 +37,7 @@ jobs:
       # create the changelog.
       - name:              Changelog
         id:                changelog
-        uses:              metcalfc/changelog-generator@v1.0.0
+        uses:              metcalfc/changelog-generator@v3.0.0
         with:
           mytoken:         ${{ secrets.GITHUB_TOKEN }}
           head-ref:        ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name:              Checkout
-        uses:              actions/checkout@v2
+        uses:              actions/checkout@v3
         with:
           token:           ${{ secrets.GITHUB_TOKEN }}
           repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
@@ -85,7 +85,7 @@ jobs:
 
     steps:
       - name:              Checkout
-        uses:              actions/checkout@v2
+        uses:              actions/checkout@v3
         with:
           token:           ${{ secrets.GITHUB_TOKEN }}
           repository:      ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}

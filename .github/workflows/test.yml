@@ -13,7 +13,7 @@ jobs:
     steps:
     # checkout the current PR of `ComposableRequest`.
     - name:            Checkout
-      uses:            actions/checkout@v2
+      uses:            actions/checkout@v3
       with:
           token:       ${{ secrets.GITHUB_TOKEN }}
           repository:  ${{ github.event.client_payload.pull_request.head.repo.full_name }}
