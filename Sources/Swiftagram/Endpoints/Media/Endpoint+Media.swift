@@ -44,7 +44,7 @@ public extension Endpoint {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    static func media(_ identifier: String) -> Endpoint.Single<Swiftagram.Media.Unit> {
+    static func media(_ identifier: String) -> Endpoint.Single<Swiftagram.Media.Collection> {
         media(identifier).summary
     }
 }
@@ -82,7 +82,7 @@ public extension Endpoint.Group.Media {
     /// A summary for the current media.
     ///
     /// - note: Prefer `Endpoint.media(_:)` instead.
-    var summary: Endpoint.Single<Swiftagram.Media.Unit> {
+    var summary: Endpoint.Single<Swiftagram.Media.Collection> {
         .init { secret, requester in
             Request.media(self.identifier)
                 .info
@@ -90,7 +90,7 @@ public extension Endpoint.Group.Media {
                 .prepare(with: requester)
                 .map(\.data)
                 .decode()
-                .map(Swiftagram.Media.Unit.init)
+                .map(Swiftagram.Media.Collection.init)
                 .requested(by: requester)
         }
     }
