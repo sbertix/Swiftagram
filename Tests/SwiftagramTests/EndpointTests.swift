@@ -254,13 +254,8 @@ internal final class EndpointTests: XCTestCase {
     func testEndpointMedia() throws {
         performTest(on: Endpoint.media("2345240077849019656"),
                     "Endpoint.Media.summary")
-        if let wrapper = performTest(on: Endpoint.media("2345240077849019656")
-                                        .link,
-                                     "Endpoint.Media.link"),
-           let url = wrapper.url {
-            try performTest(on: Endpoint.media(at: url).summary,
-                            "Endpoint.Media.urlSummary")
-        }
+        performTest(on: Endpoint.media("2345240077849019656").link,
+                    "Endpoint.Media.link")
         performTest(on: Endpoint.media("2345240077849019656")
                         .save(),
                     "Endpoint.Media.save")
