@@ -31,8 +31,8 @@ private let delay: TimeInterval = 1
 private let timeout: TimeInterval = 30
 
 // swiftlint:disable file_length
-// swiftlint:disable function_body_length
 // swiftlint:disable type_body_length
+// swiftlint:disable function_body_length
 /// A `class` dealing with testing all available `Endpoint`s.
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 internal final class EndpointTests: XCTestCase {
@@ -565,8 +565,8 @@ internal final class EndpointTests: XCTestCase {
     }
     // swiftlint:enable function_body_length
 }
-// swiftlint:enable file_length
-// swiftlint:enable function_body_length
-// swiftlint:enable type_body_length
 
 #endif
+// swiftlint:enable function_body_length
+// swiftlint:enable type_body_length
+// swiftlint:enable file_length
