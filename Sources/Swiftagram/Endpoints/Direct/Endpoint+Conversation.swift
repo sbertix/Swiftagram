@@ -33,8 +33,8 @@ public extension Endpoint.Group.Direct {
     ///
     /// - parameter identifier: A valid `String`.
     /// - returns: A valid `Endpoint.Single`.
-    func conversation(_ identifier: String) -> Endpoint.Single<Swiftagram.Conversation.Unit> {
-        conversation(identifier).summary
+    func conversation(_ identifier: String) -> Endpoint.Single<AnyDecodable> {
+        conversation(identifier).summary // Swiftagram.Conversation.Unit
     }
 }
 
@@ -52,7 +52,9 @@ public extension Endpoint.Group.Direct.Conversation {
     ///
     /// - note: Use `Endpoint.Direct.conversation(_:)` instead.
     internal var summary: Endpoint.Single<Conversation.Unit> {
-        .init { secret, requester in self.messages.unlock(with: secret).prepare(with: requester) }
+        .init { secret in
+            
+        }
     }
 
     /// Paginate all messages in the conversation.

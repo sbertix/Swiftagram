@@ -1,20 +1,20 @@
+////
+////  Status.swift
+////  Swiftagram
+////
+////  Created by Stefano Bertagno on 31/07/20.
+////
 //
-//  Status.swift
-//  Swiftagram
+//import Foundation
 //
-//  Created by Stefano Bertagno on 31/07/20.
+///// A `struct` representing a `Status`.
+//public struct Status: Specialized {
+//    /// The underlying `Response`.
+//    public var wrapper: () -> Wrapper
 //
-
-import Foundation
-
-/// A `struct` representing a `Status`.
-public struct Status: Specialized {
-    /// The underlying `Response`.
-    public var wrapper: () -> Wrapper
-
-    /// Init.
-    /// - parameter wrapper: A valid `Wrapper`.
-    public init(wrapper: @escaping () -> Wrapper) {
-        self.wrapper = wrapper
-    }
-}
+//    /// Init.
+//    /// - parameter wrapper: A valid `Wrapper`.
+//    public init(wrapper: @escaping () -> Wrapper) {
+//        self.wrapper = wrapper
+//    }
+//}

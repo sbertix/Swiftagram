@@ -16,8 +16,7 @@ import Storages
 
 public extension Authenticator.Group {
     /// A `struct` defining an authenticator relying on `WKWebView`s to log in.
-    @available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *)
-    struct Visual<Requester: Requests.Requester>: CustomClientAuthentication {
+    struct Visual: CustomClientAuthentication {
         /// The underlying authenticator.
         public let authenticator: Authenticator
         /// The web view transformer.
@@ -38,40 +37,42 @@ public extension Authenticator.Group {
         /// Authenticate the given user.
         ///
         /// - parameter client: A valid `Client`.
-        /// - returns: A valid `Publisher`.
-        public func authenticate(in client: Client) -> Providers.Requester<Requester, Requester.Requested<Secret>> {
-            .init { requester in
-                Receivables.Future<Requester, Void>(with: requester) { resolve in
-                    // Delete all instagram records.
-                    let store = WKWebsiteDataStore.default()
+        /// - returns: Some `SingleEndpoint`.
+        public func authenticate(in client: Client) -> AnySingleEndpoint<Secret> {
+            Static {
+                // Delete all instagram records.
+                let store = WKWebsiteDataStore.default()
+                await withUnsafeContinuation { continuation in
                     store.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) {
                         let records = $0.filter { $0.displayName.contains("instagram") }
                         store.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) {
-                            resolve(.success(()))
+                            continuation.resume()
                         }
                     }
                 }
-                .switch { _ in
-                    Receivables.Future<Requester, AuthenticatorWebView<Requester>>(with: requester) { resolve in
-                        // Prepare the actual web view.
-                        let webView = AuthenticatorWebView<Requester>(client: client)
-                        self.transformer(webView) {
-                            guard let url = URL(string: "https://www.instagram.com/accounts/login/") else {
-                                return resolve(.failure(Authenticator.Error.invalidURL))
-                            }
-                            webView.load(.init(url: url))
-                            resolve(.success(webView))
+            }.switch {
+                // Prepare the actual web view.
+                let webView: AuthenticatorWebView = .init(client: client)
+                try await withCheckedThrowingContinuation { continuation in
+                    transformer(webView) {
+                        guard let url = URL(string: "https://www.instagram.com/accounts/login/") else {
+                            return continuation.resume(with: .failure(Authentication.Error.invalidURL))
                         }
+                        webView.load(.init(url: url))
+                        continuation.resume(with: .success(webView))
                     }
                 }
-                .switch { webView in
-                    Receivables.Future<Requester, Secret>(with: requester) {
-                        webView.completion = $0
+            }.switch { webView in
+                // Add the actual completion handler.
+                try await withCheckedThrowingContinuation { continuation in
+                    webView.completion = {
+                        // Store inside the selected storage.
+                        AnyStorage<Secret>.store($0, in: authenticator.storage)
+                        // Return.
+                        continuation.resume(with: $0)
                     }
                 }
-                .tryMap { try AnyStorage<Secret>.store($0, in: self.authenticator.storage) }
-                .requested(by: requester)
-            }
+            }.eraseToAnySingleEndpoint()
         }
     }
 }
@@ -83,7 +84,7 @@ public extension Authenticator {
     ///
     /// - parameter transformer: A valid web view transformer.
     /// - returns: A valid `Group.Visual`.
-    func visual<R: Requester>(_ transformer: @escaping (_ webView: WKWebView, _ completion: @escaping () -> Void) -> Void) -> Group.Visual<R> {
+    func visual(_ transformer: @escaping (_ webView: WKWebView, _ completion: @escaping () -> Void) -> Void) -> Group.Visual {
         .init(authenticator: self, transformer: transformer)
     }
 
@@ -92,7 +93,7 @@ public extension Authenticator {
     ///
     /// - parameter transformer: A valid web view transformer.
     /// - returns: A valid `Group.Visual`.
-    func visual<R: Requester>(_ transformer: @escaping (_ webView: WKWebView) -> Void) -> Group.Visual<R> {
+    func visual(_ transformer: @escaping (_ webView: WKWebView) -> Void) -> Group.Visual {
         visual { transformer($0); $1() }
     }
 
@@ -101,7 +102,7 @@ public extension Authenticator {
     ///
     /// - parameter superview: A valid `UIView`.
     /// - returns: A valid `Group.Visual`.
-    func visual<R: Requester>(filling superview: UIView) -> Group.Visual<R> {
+    func visual(filling superview: UIView) -> Group.Visual {
         visual {
             $0.translatesAutoresizingMaskIntoConstraints = false
             $0.frame = superview.bounds

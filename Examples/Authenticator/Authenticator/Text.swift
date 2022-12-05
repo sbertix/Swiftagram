@@ -24,6 +24,6 @@ extension Text {
         guard let first = texts.first else {
             fatalError("`texts` should not be empty")
         }
-        return texts.dropFirst().reduce(first) { $0+$1 }
+        return texts.dropFirst().reduce(first) { $0 + $1 }
     }
 }

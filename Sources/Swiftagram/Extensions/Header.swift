@@ -7,13 +7,10 @@
 
 import Foundation
 
-public extension Header {
-    /// Append default headers.
-    ///
-    /// - returns: `self` with updated header fields.
-    /// - note: Starting from `4.2.0`, `Client` related info is no longer added through this method.
-    func appendingDefaultHeader() -> Self {
-        header(appending: [
+public extension Headers {
+    /// Compose default headers.
+    init() {
+        self.init([
             "X-Ads-Opt-Out": "0",
             "X-CM-Bandwidth-KBPS": "-1.000",
             "X-CM-Latency": "-1.000",

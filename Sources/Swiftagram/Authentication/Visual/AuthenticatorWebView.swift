@@ -13,8 +13,7 @@ import WebKit
 /// A `class` holding reference to a specialized `WKWebView`.
 ///
 /// - note: This should **only** be used for Instagram authentication.
-@available(iOS 11, macOS 10.13, macCatalyst 13, *)
-internal final class AuthenticatorWebView<Requester: Requests.Requester>: WKWebView, WKNavigationDelegate {
+internal final class AuthenticatorWebView: WKWebView, WKNavigationDelegate {
     /// The underlying client.
     private let client: Client
     /// Whether it's still authenticating or not.

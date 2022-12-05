@@ -12,26 +12,23 @@ public protocol CustomClientAuthentication: Authentication {
     /// Authenticate the given user.
     ///
     /// - parameter client: A valid `Client`.
-    /// - returns: A valid `Publisher`.
-    func authenticate(in client: Client) -> Providers.Requester<Requester, Requester.Requested<Secret>>
+    /// - returns: Some `SingleEndpoint`.
+    func authenticate(in client: Client) -> AnySingleEndpoint<Secret>
 }
 
 /// A `protocol` defining a generic authentication process.
 public protocol Authentication {
-    /// The associated type.
-    associatedtype Requester: Requests.Requester
-
     /// Authenticate the given user.
     ///
-    /// - returns: A valid `Publisher`.
-    func authenticate() -> Providers.Requester<Requester, Requester.Requested<Secret>>
+    /// - returns: Some `SingleEndpoint.`
+    func authenticate() -> AnySingleEndpoint<Secret>
 }
 
 public extension CustomClientAuthentication {
     /// Authenticate the given user, with `Client.default`.
     ///
-    /// - returns: A valid `Publisher`.
-    func authenticate() -> Providers.Requester<Requester, Requester.Requested<Secret>> {
+    /// - returns: Some `SingleEndpoint`.
+    func authenticate() -> AnySingleEndpoint<Secret> {
         authenticate(in: .default)
     }
 }

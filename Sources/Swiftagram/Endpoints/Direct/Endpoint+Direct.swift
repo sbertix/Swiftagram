@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Requests
+
 public extension Endpoint.Group {
     /// A `class` defining `direct_v2` endpoints.
     final class Direct { }
@@ -26,7 +28,7 @@ extension Request {
 
 public extension Endpoint.Group.Direct {
     /// Get the user presence.
-    var activity: Endpoint.Single<Wrapper> {
+    var activity: Endpoint.Single<AnyDecodable> {
         .init { secret, requester in
             Request.direct
                 .path(appending: "get_presence/")

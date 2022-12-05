@@ -4,7 +4,6 @@ included:
     - Tests
 
 opt_in_rules:
-    - anyobject_protocol
     - array_init
     - attributes
     - class_delegate_protocol
@@ -45,7 +44,6 @@ opt_in_rules:
     - missing_docs
     - modifier_order
     - multiline_arguments
-    - multiline_function_chains
     - multiline_parameters
     - number_separator
     - operator_usage_whitespace
@@ -99,3 +97,6 @@ line_length:
     ignores_function_declarations: true
     ignores_interpolated_strings: true
     ignores_urls: true
+
+multiline_arguments:
+    only_enforce_after_first_closure_on_first_line: true
